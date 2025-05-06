@@ -128,12 +128,23 @@ export function ProductListItem({
       
       <div className="p-3 flex-1">
         <div className="flex justify-between">
-          <h3 className="font-medium text-sm">{product.name}</h3>
-          <div className="text-right">
-            <CurrencyDisplay
-              amount={product.price}
-              fromCurrency={selectedCountry.currency}
-            />
+          <div className="flex flex-col">
+            <h3 className="font-medium text-sm">{product.name}</h3>
+            {product.nameJapanese && (
+              <p className="text-xs text-gray-500 mt-0.5">{product.nameJapanese}</p>
+            )}
+          </div>
+          <div className="text-right bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
+            <div className="flex flex-col">
+              <CurrencyDisplay
+                amount={product.price}
+                fromCurrency={selectedCountry.currency}
+                className="text-right"
+              />
+              <div className="text-[10px] text-green-600 flex items-center justify-end mt-0.5">
+                <span className="bg-green-50 rounded px-1 py-0.5">실시간 환율</span>
+              </div>
+            </div>
           </div>
         </div>
         
