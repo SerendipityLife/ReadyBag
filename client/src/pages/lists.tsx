@@ -17,6 +17,9 @@ export function Lists() {
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    onSuccess: (data) => {
+      console.log("Fetched userProducts:", data);
+    }
   });
   
   // TypeScript 타입 정의
