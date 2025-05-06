@@ -308,8 +308,8 @@ export function Lists() {
   
   return (
     <div className="w-full max-w-3xl mx-auto pb-20">
-      {/* 상단 고정 영역 - 환율 정보와 탭 영역을 하나의 스티키 헤더로 */}
-      <div className="sticky top-0 z-50 bg-gray-50 pt-2 pb-2 border-b border-gray-100 shadow-sm">
+      {/* 메인 헤더 아래 위치하도록 top 값 조정 (헤더 높이 + 여백) */}
+      <div className="sticky top-[60px] md:top-[68px] z-40 bg-gray-50 pt-2 pb-2 border-b border-gray-100 shadow-sm">
         {/* 환율 정보 표시 */}
         {exchangeRate && (
           <div className="bg-white rounded-lg p-2 mb-2 flex items-center justify-between text-xs text-gray-600 shadow-sm">
