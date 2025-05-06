@@ -38,6 +38,10 @@ export function ProductCardStack() {
   
   // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
+    // First, log the categories we're filtering for
+    console.log("Selected Categories:", selectedCategories);
+    console.log("isAllCategoriesSelected:", isAllCategoriesSelected);
+    
     return allProducts
       .filter(product => !categorizedProductIds.includes(product.id))
       .filter(product => {
@@ -46,7 +50,15 @@ export function ProductCardStack() {
           return true;
         }
         // Otherwise, show only products in selected categories
-        return product.category && selectedCategories.includes(product.category);
+        const isInSelectedCategory = product.category && selectedCategories.includes(product.category);
+        
+        // For debugging
+        if (product.id === 79) {
+          console.log("Product 79 category:", product.category);
+          console.log("Is in selected category:", isInSelectedCategory);
+        }
+        
+        return isInSelectedCategory;
       });
   }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
     
