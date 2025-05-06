@@ -14,10 +14,17 @@ import ResetPassword from "@/pages/reset-password";
 function Router() {
   return (
     <Switch>
-      <ProtectedRoute path="/" component={Home} />
+      {/* 메인 홈 페이지는 비회원도 접근 가능 */}
+      <ProtectedRoute path="/" component={Home} requireAuth={false} />
+      
+      {/* 인증 관련 페이지 */}
       <Route path="/auth" component={AuthPage} />
       <Route path="/reset-password" component={ResetPassword} />
+      
+      {/* 공유 페이지는 누구나 접근 가능 */}
       <Route path="/shared/:shareId" component={SharedList} />
+      
+      {/* 기본 404 페이지 */}
       <Route component={NotFound} />
     </Switch>
   );

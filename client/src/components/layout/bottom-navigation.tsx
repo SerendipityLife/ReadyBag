@@ -11,10 +11,28 @@ export function BottomNavigation() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   
-  // 관심 상품 개수를 조회하는 쿼리
+  // 비회원일 경우 로컬스토리지에서 상품을 가져옴
+  const getLocalUserProducts = () => {
+    try {
+      const localData = localStorage.getItem(`userProducts_${selectedCountry?.id}`);
+      if (localData) {
+        return JSON.parse(localData);
+      }
+    } catch (error) {
+      console.error("로컬 저장소 읽기 오류:", error);
+    }
+    return [];
+  };
+  
+  // 로그인한 경우: API 호출로 사용자 상품 목록 가져오기
   const { data: userProducts = [], refetch } = useQuery<any[]>({
     queryKey: ['/api/user-products', selectedCountry?.id, user?.id],
     queryFn: async () => {
+      // 비회원일 경우 로컬 저장소에서 가져옴
+      if (!user) {
+        return getLocalUserProducts();
+      }
+      
       // countryId가 있을 때만 API 요청을 보냄
       if (!selectedCountry?.id) return [];
       
@@ -24,18 +42,32 @@ export function BottomNavigation() {
       console.log("[BottomNavigation] User products data:", data);
       return data;
     },
-    enabled: !!user && !!selectedCountry?.id, // 로그인된 사용자와 국가 ID가 있을 때만 조회
-    refetchInterval: 2000, // 2초마다 자동으로 업데이트
+    enabled: !!selectedCountry?.id, // 국가 ID가 있을 때 조회 (비회원도 로컬스토리지 사용)
+    refetchInterval: user ? 2000 : false, // 로그인한 경우에만 2초마다 자동으로 업데이트
     refetchOnWindowFocus: true, // 윈도우 포커스 시 업데이트
     staleTime: 1000 // 1초 후 데이터가 stale 상태가 됨
   });
   
+  // 로컬 스토리지 변경 감지 (비회원용)
+  useEffect(() => {
+    if (!user) {
+      const handleStorageChange = () => {
+        refetch();
+      };
+      
+      window.addEventListener('storage', handleStorageChange);
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, [user, refetch]);
+  
   // 구독 대신 특정 쿼리키 변경 감지 - 무한 루프 방지
   useEffect(() => {
-    if (user && selectedCountry?.id) {
+    if (selectedCountry?.id) {
       refetch();
     }
-  }, [user, selectedCountry?.id, refetch]);
+  }, [selectedCountry?.id, refetch]);
   
   // "관심" 상태의 상품만 필터링하여 개수 세기
   const interestedCount = userProducts?.filter(

@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
 import { CurrencyInfoPanel } from "@/components/ui/currency-display";
 import { useAppContext } from "@/contexts/AppContext";
+import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
 import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
 import type { Product, UserProduct } from "@shared/schema";
@@ -16,6 +17,7 @@ export function ProductCardStack() {
     isAllCategoriesSelected,
     setCurrentProductIndex 
   } = useAppContext();
+  const { user } = useAuth();
   
   // 상태들 선언
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);

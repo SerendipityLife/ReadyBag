@@ -39,7 +39,15 @@ export function Header() {
   };
   
   const handleShareClick = () => {
-    generateShareUrl();
+    // 로그인한 경우에만 공유 가능
+    if (user) {
+      generateShareUrl();
+    } else {
+      // 비회원인 경우 로그인 안내
+      if (window.confirm('회원가입 후 목록을 저장하고 공유할 수 있습니다. 로그인 페이지로 이동하시겠습니까?')) {
+        navigate('/auth');
+      }
+    }
   };
 
   const handleLoginClick = () => {
