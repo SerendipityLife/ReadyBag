@@ -68,12 +68,14 @@ export function ProductCardStack() {
   });
   
   // Initialize visible products when products are loaded or category changes
+  // useEffect with proper dependencies to prevent infinite updates
+  const hasProducts = filteredProducts.length > 0;
   useEffect(() => {
-    if (filteredProducts.length > 0) {
+    if (hasProducts) {
       setVisibleProducts(filteredProducts.slice(0, 3));
       setCurrentProductIndex(0); // Reset position counter when category changes
     }
-  }, [filteredProducts, setCurrentProductIndex]);
+  }, [hasProducts, filteredProducts]);
   
   // 처리 중인 productId를 추적하기 위한 상태
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
