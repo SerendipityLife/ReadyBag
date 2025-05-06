@@ -19,6 +19,12 @@ export function ProductCardStack() {
   
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   
+  // Reset visible products when categories change
+  useEffect(() => {
+    // Clear current visible products to force refresh
+    setVisibleProducts([]);
+  }, [selectedCategories, isAllCategoriesSelected]);
+  
   // Fetch products for the selected country
   const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
