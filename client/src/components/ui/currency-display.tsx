@@ -34,6 +34,21 @@ export function CurrencyDisplay({
     return `${Math.round(value).toLocaleString()}원`;
   };
 
+  // Format the last updated time as a relative string
+  const formatRelativeTime = () => {
+    if (!lastUpdated) return null;
+    
+    const minutesAgo = Math.floor((new Date().getTime() - new Date(lastUpdated).getTime()) / (60 * 1000));
+    
+    if (minutesAgo < 1) return "방금 전";
+    if (minutesAgo < 60) return `${minutesAgo}분 전`;
+    
+    const hoursAgo = Math.floor(minutesAgo / 60);
+    if (hoursAgo < 24) return `${hoursAgo}시간 전`;
+    
+    return format(new Date(lastUpdated), "MM.dd HH:mm");
+  };
+
   // Show loading state if exchange rate is not available
   if (exchangeRate === null) {
     return (
@@ -50,6 +65,7 @@ export function CurrencyDisplay({
   
   // 환율 새로고침 상태 표시
   const isFresh = minutesAgo !== null && minutesAgo < 30;
+  const relativeTime = formatRelativeTime();
 
   return (
     <div className={`text-neutral ${className}`}>
@@ -59,12 +75,19 @@ export function CurrencyDisplay({
         </div>
       )}
       {showConverted && convertedAmount !== null && (
-        <div className="flex items-center">
-          <span className="font-accent font-semibold text-primary">
-            {formatCurrency(convertedAmount, "KRW")}
-          </span>
-          {isFresh && (
-            <span className="ml-1 text-xs bg-green-50 text-green-700 px-1 rounded">LIVE</span>
+        <div className="flex flex-col">
+          <div className="flex items-center">
+            <span className="font-accent font-semibold text-primary">
+              {formatCurrency(convertedAmount, "KRW")}
+            </span>
+            {isFresh && (
+              <span className="ml-1 text-xs bg-green-50 text-green-700 px-1 rounded">LIVE</span>
+            )}
+          </div>
+          {relativeTime && (
+            <div className="text-[10px] text-gray-500">
+              ({relativeTime} 환율기준)
+            </div>
           )}
         </div>
       )}
@@ -93,11 +116,19 @@ export function CurrencyInfoPanel() {
   // 업데이트 시간 표시 텍스트
   const updatedText = minutesAgo !== null
     ? minutesAgo < 1 
-      ? "방금 업데이트" 
+      ? "방금 업데이트됨" 
       : minutesAgo < 60 
-        ? `${minutesAgo}분 전 업데이트` 
+        ? `${minutesAgo}분 전 업데이트됨` 
         : lastUpdated ? format(new Date(lastUpdated), "yyyy.MM.dd HH:mm") : ""
     : "";
+  
+  // 정확한 날짜 및 시간 표시
+  const formattedDateTime = lastUpdated 
+    ? format(new Date(lastUpdated), "yyyy.MM.dd HH:mm:ss") 
+    : "";
+  
+  // 환율 API 소스
+  const exchangeApiSource = "open.er-api.com";
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-col">
@@ -112,11 +143,19 @@ export function CurrencyInfoPanel() {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-neutral">{updatedText}</div>
+          <div className="flex flex-col">
+            <div className="text-xs font-medium text-neutral">{updatedText}</div>
+            <div className="text-[10px] text-gray-500">{formattedDateTime}</div>
+          </div>
         </div>
       </div>
-      <div className="text-xs text-gray-500 mt-2">
-        *실시간 환율 정보는 30분마다 업데이트되며, 쇼핑 가격 계산에 자동 반영됩니다.
+      <div className="flex justify-between items-center mt-2 text-xs">
+        <div className="text-gray-500">
+          *실시간 환율 정보는 30분마다 업데이트되며, 쇼핑 가격 계산에 자동 반영됩니다.
+        </div>
+        <div className="text-gray-400 text-[10px]">
+          출처: {exchangeApiSource}
+        </div>
       </div>
     </div>
   );
