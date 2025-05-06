@@ -18,33 +18,40 @@ interface ProductListItemProps {
 
 export function ProductListItem(props: ProductListItemProps) {
   const { product, userProduct, readOnly = false, onSuccessfulAction } = props;
+  const queryClient = useQueryClient();
+  const { selectedCountry, exchangeRate } = useAppContext();
+  const { user } = useAuth();
+  const isNonMember = !user;
+  
   const [price, setPrice] = useState(0);
   const [convertedPrice, setConvertedPrice] = useState(0);
-
-  // product가 undefined인 경우 에러 처리
-  if (!product) {
+  
+  // product가 undefined인 경우 에러 UI를 표시하기 위한 상태
+  const [hasProductError, setHasProductError] = useState(false);
+  
+  // 상품 유효성 검사
+  useEffect(() => {
+    if (!product) {
+      setHasProductError(true);
+    } else {
+      setHasProductError(false);
+      // 가격 계산
+      const roundedPrice = Math.round(product.price);
+      const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
+      
+      setPrice(roundedPrice);
+      setConvertedPrice(calculatedPrice);
+    }
+  }, [product, exchangeRate]);
+  
+  // 상품 에러일 경우 에러 UI 표시
+  if (hasProductError) {
     return (
       <div className="bg-white rounded-lg shadow-sm overflow-hidden p-4 flex justify-center items-center">
         <p className="text-gray-500 text-sm">상품 정보를 불러오는 중 오류가 발생했습니다</p>
       </div>
     );
   }
-  
-  const queryClient = useQueryClient();
-  const { selectedCountry, exchangeRate } = useAppContext();
-
-  // 비회원인지 여부 확인
-  const { user } = useAuth();
-  const isNonMember = !user;
-  
-  // useEffect를 사용하여 가격 계산
-  useEffect(() => {
-    const roundedPrice = Math.round(product.price);
-    const convertedPrice = Math.round(product.price * (exchangeRate || 9.57));
-    
-    setPrice(roundedPrice);
-    setConvertedPrice(convertedPrice);
-  }, [product.price, exchangeRate]);
 
   // Update user product status mutation
   const updateStatus = useMutation({
