@@ -97,9 +97,12 @@ export function ProductCardStack() {
   // 로컬 스토리지 변경 감지 (비회원용)
   useEffect(() => {
     if (!user) {
-      const handleStorageChange = () => {
-        console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨");
-        // 로컬 스토리지 변경 시 다음 작업 수행:
+      const handleStorageChange = (event: Event) => {
+        console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨", event.type);
+        
+        // auth 페이지에서 전체 삭제 확인 (데이터 초기화 케이스)
+        const isFullReset = event.type === 'localStorageChange' && 
+                           !localStorage.getItem(`userProducts_${selectedCountry.id}`);
         
         // 1. 사용자 상품 쿼리 무효화
         queryClient.invalidateQueries({ 
@@ -115,12 +118,24 @@ export function ProductCardStack() {
         setVisibleProducts([]);
         setCurrentProductIndex(0);
         
-        // 4. originalTotalProducts 재설정 (auth 페이지 방문 후 돌아왔을 때 필요)
-        // 지연 설정으로 쿼리 무효화 이후에 실행되도록 함
-        setTimeout(() => {
-          // 총 상품 수를 다시 계산하는 대신 전체 상품 수로 설정
-          setOriginalTotalProducts(allProducts.length);
-        }, 100);
+        // 4. 기존 필터링된 상품 목록 강제 리셋 (auth 페이지 방문 후 완전히 새로 보이도록)
+        if (isFullReset) {
+          // 지연 설정으로 쿼리 무효화 이후에 실행되도록 함
+          setTimeout(() => {
+            // 상품 목록의 완전한 리셋을 위해 전체 컴포넌트 리렌더링 강제
+            setOriginalTotalProducts(allProducts.length);
+            
+            // categorizedProductIds 배열을 강제로 비우기
+            setLocalCategorizedIds([]);
+            
+            console.log("[ProductCardStack] 로컬 스토리지 초기화 감지 - 카드 스택 완전 리셋");
+            
+            // 다시 현재 화면 업데이트를 위해 쿼리 재시도
+            queryClient.refetchQueries({ 
+              queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+            });
+          }, 100);
+        }
       };
       
       // 일반 storage 이벤트 (다른 탭에서 변경 시)
@@ -136,10 +151,17 @@ export function ProductCardStack() {
     }
   }, [user, queryClient, selectedCountry?.id, setCurrentProductIndex, allProducts.length]);
   
+  // categorizedProductIds 컴포넌트 상태
+  const [localCategorizedIds, setLocalCategorizedIds] = useState<number[]>([]);
+  
   // Get already categorized product IDs
   const categorizedProductIds = useMemo(() => {
+    // 로컬에서 강제로 설정한 값이 있으면 그것을 우선 사용
+    if (localCategorizedIds.length > 0) {
+      return localCategorizedIds;
+    }
     return userProducts.map(up => up.productId);
-  }, [userProducts]);
+  }, [userProducts, localCategorizedIds]);
   
   // Calculate total number of products in the selected category
   const totalCategoryCount = useMemo(() => {
