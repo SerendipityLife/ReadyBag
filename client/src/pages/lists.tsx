@@ -239,7 +239,7 @@ export function Lists() {
                     )}
                     {status !== ProductStatus.MAYBE && (
                       <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.MAYBE)}>
-                        <Triangle className="h-4 w-4 mr-2 text-orange-500" />
+                        <Triangle className="h-4 w-4 mr-2 text-gray-600" />
                         고민중
                       </DropdownMenuItem>
                     )}
@@ -319,19 +319,19 @@ export function Lists() {
             value={ProductStatus.INTERESTED}
             className="flex items-center justify-center"
           >
-            관심 {getCountBadge(interestedProducts.length)}
+            <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
           </TabsTrigger>
           <TabsTrigger
             value={ProductStatus.MAYBE}
             className="flex items-center justify-center"
           >
-            고민중 {getCountBadge(maybeProducts.length)}
+            <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
           </TabsTrigger>
           <TabsTrigger
             value={ProductStatus.NOT_INTERESTED}
             className="flex items-center justify-center"
           >
-            관심없음 {getCountBadge(notInterestedProducts.length)}
+            <span className="text-gray-700">관심없음</span> {getCountBadge(notInterestedProducts.length)}
           </TabsTrigger>
         </TabsList>
         

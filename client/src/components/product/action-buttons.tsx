@@ -28,12 +28,12 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             id="maybeBtn"
             variant="outline"
             size="icon"
-            className="w-14 h-14 rounded-full border-2 border-orange-500 text-orange-500 shadow-md hover:bg-orange-50 mb-1"
+            className="w-16 h-16 rounded-full border-2 border-gray-600 text-gray-600 shadow-md hover:bg-gray-50 mb-1"
             onClick={() => onActionClick(SwipeDirection.UP)}
           >
-            <Triangle className="w-5 h-5 fill-orange-500" />
+            <Triangle className="w-6 h-6 fill-gray-600" />
           </Button>
-          <span className="text-xs font-medium text-orange-500">고민중</span>
+          <span className="text-xs font-medium text-gray-600">고민중</span>
         </div>
         
         <div className="flex flex-col items-center">
