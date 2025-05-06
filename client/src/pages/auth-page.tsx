@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { LoginUserInput, RegisterUserInput } from "@shared/schema";
@@ -39,6 +39,27 @@ export default function AuthPage() {
   const [, navigate] = useLocation();
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+
+  // 페이지 진입 시 로컬 스토리지 초기화 (비회원 데이터 리셋)
+  useEffect(() => {
+    if (!user) {
+      // 사용자가 로그인하지 않은 경우에만 로컬 스토리지 초기화
+      try {
+        // "userProducts_" 로 시작하는 모든 키 찾기
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith('userProducts_')) {
+            localStorage.removeItem(key);
+            console.log(`인증 페이지 방문 - 로컬 스토리지 항목 자동 삭제: ${key}`);
+          }
+        });
+        
+        // 로컬 스토리지 변경 이벤트 트리거
+        window.dispatchEvent(new Event('localStorageChange'));
+      } catch (error) {
+        console.error("로컬 스토리지 초기화 오류:", error);
+      }
+    }
+  }, [user]); // user 의존성 추가 - 로그인 상태가 변경될 때만 실행
   
   // 로그인 폼
   const loginForm = useForm<LoginUserInput>({
