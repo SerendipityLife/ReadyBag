@@ -169,14 +169,35 @@ export default function AuthPage() {
                 </form>
               </Form>
               
-              <div className="mt-4 text-center">
-                <Button 
-                  variant="link" 
-                  onClick={() => setActiveTab("register")}
-                  className="text-sm text-gray-500 hover:text-primary"
-                >
-                  계정이 없으신가요? 회원가입하기
-                </Button>
+              <div className="mt-6 text-center space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-4 text-xs text-muted-foreground">
+                      또는
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => navigate("/")}
+                    className="w-full py-6 font-medium shadow-sm border border-gray-200"
+                  >
+                    비회원으로 시작하기
+                  </Button>
+                </div>
+                <div>
+                  <Button 
+                    variant="link" 
+                    onClick={() => setActiveTab("register")}
+                    className="text-sm text-gray-500 hover:text-primary"
+                  >
+                    계정이 없으신가요? 회원가입하기
+                  </Button>
+                </div>
               </div>
             </TabsContent>
 
@@ -286,14 +307,35 @@ export default function AuthPage() {
                 </form>
               </Form>
               
-              <div className="mt-4 text-center">
-                <Button 
-                  variant="link" 
-                  onClick={() => setActiveTab("login")}
-                  className="text-sm text-gray-500 hover:text-primary"
-                >
-                  이미 계정이 있으신가요? 로그인하기
-                </Button>
+              <div className="mt-6 text-center space-y-4">
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-gray-200" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-4 text-xs text-muted-foreground">
+                      또는
+                    </span>
+                  </div>
+                </div>
+                <div>
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => navigate("/")}
+                    className="w-full py-6 font-medium shadow-sm border border-gray-200"
+                  >
+                    비회원으로 시작하기
+                  </Button>
+                </div>
+                <div>
+                  <Button 
+                    variant="link" 
+                    onClick={() => setActiveTab("login")}
+                    className="text-sm text-gray-500 hover:text-primary"
+                  >
+                    이미 계정이 있으신가요? 로그인하기
+                  </Button>
+                </div>
               </div>
             </TabsContent>
           </Tabs>
