@@ -14,7 +14,7 @@ export function Lists() {
   
   // Fetch user products
   const { data: userProducts = [], isLoading } = useQuery({
-    queryKey: [API_ROUTES.USER_PRODUCTS, selectedCountry.id],
+    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
   });
   
   // Filter products by status

@@ -41,7 +41,9 @@ export function ProductCardStack() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [API_ROUTES.USER_PRODUCTS] });
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
     }
   });
   
