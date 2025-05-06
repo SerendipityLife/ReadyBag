@@ -137,11 +137,11 @@ export function ProductCard({
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      <Card className="h-full overflow-hidden">
+      <Card className="h-full overflow-hidden max-h-[650px]">
         <img
           src={product.imageUrl}
           alt={product.name}
-          className="w-full h-60 object-cover"
+          className="w-full h-52 object-cover"
         />
         
         <div className="p-5">
@@ -179,7 +179,7 @@ export function ProductCard({
           </div>
           
           <div className="mt-3 border-t border-gray-100 pt-3">
-            <p className="text-neutral text-sm line-clamp-4">{product.description}</p>
+            <p className="text-neutral text-sm line-clamp-5">{product.description}</p>
           </div>
           
           <div className="mt-4 text-xs text-neutral flex items-center">
