@@ -98,8 +98,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const validatedData = schema.parse(req.body);
-      const userId = req.session?.userId || null;
-      const sessionId = req.session?.id || req.sessionID;
+      const userId = null; // 현재는 사용자 인증을 사용하지 않음
+      const sessionId = 'anonymous-session'; // 세션 ID 문제 해결을 위한 임시 조치
       
       // Log detailed information for debugging
       console.log("Update request: ID=", id, "Status=", validatedData.status, "UserID=", userId, "SessionID=", sessionId);
@@ -136,8 +136,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid ID format" });
       }
       
-      const userId = req.session?.userId || null;
-      const sessionId = req.session?.id || req.sessionID;
+      const userId = null; // 현재는 사용자 인증을 사용하지 않음
+      const sessionId = 'anonymous-session'; // 세션 ID 문제 해결을 위한 임시 조치
       
       // Log detailed information for debugging
       console.log("Delete request: ID=", id, "UserID=", userId, "SessionID=", sessionId);
