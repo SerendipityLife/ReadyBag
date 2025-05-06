@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductListItem } from "@/components/product/product-list-item";
 import { useAppContext } from "@/contexts/AppContext";
@@ -26,35 +26,66 @@ export function Lists() {
   const [selectAll, setSelectAll] = useState(false);
   
   // 비회원 사용자의 로컬 스토리지 데이터 가져오기
-  const getLocalUserProducts = () => {
+  const getLocalUserProducts = async () => {
     try {
       if (!selectedCountry?.id) return [];
       
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
       
-      if (storedData) {
-        const localData = JSON.parse(storedData);
-        // API에서 실제 상품 데이터 가져오기
-        return Promise.all(
-          localData.map(async (item: any) => {
-            try {
-              const response = await fetch(`${API_ROUTES.PRODUCTS}/${item.productId}`);
-              if (!response.ok) return null;
-              const productData = await response.json();
-              
-              return {
-                ...item,
-                product: productData
-              };
-            } catch (error) {
-              console.error("상품 정보 가져오기 오류:", error);
+      if (!storedData) return [];
+        
+      // 로컬 스토리지 데이터 파싱 
+      const localData = JSON.parse(storedData);
+      console.log("로컬 스토리지에서 로드된 상품 데이터:", localData);
+      
+      if (!Array.isArray(localData) || localData.length === 0) return [];
+      
+      // allProducts가 있으면 먼저 사용 (API 호출 최소화)
+      if (allProducts && allProducts.length > 0) {
+        return localData.map((item: any) => {
+          const productData = allProducts.find(p => p.id === item.productId);
+          if (!productData) {
+            console.log(`상품을 찾을 수 없음: ${item.productId}`);
+            return null;
+          }
+          return {
+            ...item,
+            product: productData
+          };
+        }).filter(Boolean);
+      }
+      
+      // API에서 실제 상품 데이터 가져오기 (allProducts가 없을 경우)
+      const results = await Promise.all(
+        localData.map(async (item: any) => {
+          if (!item.productId) {
+            console.log("잘못된 항목:", item);
+            return null;
+          }
+          
+          try {
+            const response = await fetch(`${API_ROUTES.PRODUCTS}/${item.productId}`);
+            if (!response.ok) {
+              console.error(`상품 ${item.productId} 가져오기 실패:`, response.status);
               return null;
             }
-          })
-        ).then(results => results.filter(Boolean));
-      }
-      return [];
+            const productData = await response.json();
+            
+            return {
+              ...item,
+              product: productData
+            };
+          } catch (error) {
+            console.error(`상품 ${item.productId} 정보 가져오기 오류:`, error);
+            return null;
+          }
+        })
+      );
+      
+      const filteredResults = results.filter(Boolean);
+      console.log("최종 로드된 제품 수:", filteredResults.length);
+      return filteredResults;
     } catch (error) {
       console.error("로컬 스토리지 읽기 오류:", error);
       return [];
@@ -66,6 +97,37 @@ export function Lists() {
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
+  
+  // 상품 데이터가 변경되면 로컬 스토리지 데이터 검증
+  useEffect(() => {
+    if (!user && allProducts && allProducts.length > 0 && selectedCountry?.id) {
+      try {
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey);
+        
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          
+          if (Array.isArray(parsedData) && parsedData.length > 0) {
+            console.log(`로컬 스토리지에서 ${parsedData.length}개 항목 검증 중`);
+            
+            // 유효한 productId만 남기기
+            const validProductIds = allProducts.map((p: any) => p.id);
+            const validItems = parsedData.filter((item: any) => 
+              item.productId && validProductIds.includes(item.productId)
+            );
+            
+            if (validItems.length !== parsedData.length) {
+              console.log(`유효하지 않은 항목 ${parsedData.length - validItems.length}개 제거됨`);
+              localStorage.setItem(storageKey, JSON.stringify(validItems));
+            }
+          }
+        }
+      } catch (error) {
+        console.error("로컬 스토리지 데이터 검증 오류:", error);
+      }
+    }
+  }, [user, allProducts, selectedCountry?.id]);
   
   // Fetch user products
   const { data: userProducts = [], isLoading, refetch } = useQuery<

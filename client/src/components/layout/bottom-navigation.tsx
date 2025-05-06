@@ -14,9 +14,28 @@ export function BottomNavigation() {
   // 비회원일 경우 로컬스토리지에서 상품을 가져옴
   const getLocalUserProducts = () => {
     try {
-      const localData = localStorage.getItem(`userProducts_${selectedCountry?.id}`);
+      if (!selectedCountry?.id) return [];
+      
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      const localData = localStorage.getItem(storageKey);
+      
       if (localData) {
-        return JSON.parse(localData);
+        try {
+          const parsedData = JSON.parse(localData);
+          
+          // 배열인지 확인하고 반환
+          if (Array.isArray(parsedData)) {
+            return parsedData;
+          } else {
+            console.error("로컬 스토리지 데이터가 배열이 아님:", parsedData);
+            return [];
+          }
+        } catch (parseError) {
+          console.error("로컬 스토리지 데이터 파싱 오류:", parseError);
+          // 잘못된 데이터인 경우 정리
+          localStorage.removeItem(storageKey);
+          return [];
+        }
       }
     } catch (error) {
       console.error("로컬 저장소 읽기 오류:", error);
@@ -52,12 +71,19 @@ export function BottomNavigation() {
   useEffect(() => {
     if (!user) {
       const handleStorageChange = () => {
+        console.log("[BottomNavigation] 로컬 스토리지 변경 감지됨");
         refetch();
       };
       
+      // 일반 storage 이벤트 (다른 탭에서 변경 시)
       window.addEventListener('storage', handleStorageChange);
+      
+      // 커스텀 이벤트 (같은 탭 내에서 변경 시)
+      window.addEventListener('localStorageChange', handleStorageChange);
+      
       return () => {
         window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageChange', handleStorageChange);
       };
     }
   }, [user, refetch]);
