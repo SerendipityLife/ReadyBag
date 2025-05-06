@@ -40,25 +40,29 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   
-  // 로그인 폼
-  const loginForm = useForm<LoginUserInput>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  // 회원가입 폼
-  const registerForm = useForm<RegisterUserInput>({
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      confirmPassword: "",
-      nickname: "",
-    },
-  });
+  // 로컬 스토리지 초기화 함수 - 비회원 데이터 정리
+  const clearLocalStorage = () => {
+    try {
+      // "userProducts_" 로 시작하는 모든 키 찾기
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('userProducts_')) {
+          localStorage.removeItem(key);
+          console.log(`로컬 스토리지 항목 삭제: ${key}`);
+        }
+      });
+      
+      // 로컬 스토리지 변경 이벤트 트리거
+      window.dispatchEvent(new Event('localStorageChange'));
+    } catch (error) {
+      console.error("로컬 스토리지 초기화 오류:", error);
+    }
+  };
+  
+  // 비회원으로 시작하기 처리
+  const handleStartAsGuest = () => {
+    clearLocalStorage();
+    navigate("/");
+  };
   
   // 이미 로그인한 사용자는 홈으로 리디렉션
   // 모든 훅이 선언된 후에 실행
@@ -183,7 +187,7 @@ export default function AuthPage() {
                 <div>
                   <Button 
                     variant="secondary" 
-                    onClick={() => navigate("/")}
+                    onClick={handleStartAsGuest}
                     className="w-full py-6 font-medium shadow-sm border border-gray-200"
                   >
                     비회원으로 시작하기
@@ -321,7 +325,7 @@ export default function AuthPage() {
                 <div>
                   <Button 
                     variant="secondary" 
-                    onClick={() => navigate("/")}
+                    onClick={handleStartAsGuest}
                     className="w-full py-6 font-medium shadow-sm border border-gray-200"
                   >
                     비회원으로 시작하기
