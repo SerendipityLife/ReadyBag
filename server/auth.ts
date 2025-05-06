@@ -8,7 +8,7 @@ import connectPgSimple from "connect-pg-simple";
 import { pool } from "../db";
 import { db } from "../db";
 import { users, loginUserSchema, registerUserSchema, resetPasswordRequestSchema, resetPasswordSchema } from "@shared/schema";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq, and, isNull, gt, or } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
 // Express User interface 확장
@@ -99,9 +99,12 @@ export function setupAuth(app: Express) {
             },
             async (email, password, done) => {
                 try {
-                    // 사용자 조회
+                    // 사용자 조회 - 이메일 또는 username으로 조회
                     const user = await db.query.users.findFirst({
-                        where: eq(users.email, email),
+                        where: or(
+                            eq(users.email, email),
+                            eq(users.username, email)
+                        ),
                     });
                     
                     if (!user) {
@@ -176,6 +179,7 @@ export function setupAuth(app: Express) {
             // 사용자 생성
             const [newUser] = await db.insert(users)
                 .values({
+                    username: validatedData.email, // username 컬럼에도 이메일 저장
                     email: validatedData.email,
                     password: hashedPassword,
                     nickname: validatedData.nickname || null,
