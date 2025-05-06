@@ -2,15 +2,17 @@ import { useAppContext } from "@/contexts/AppContext";
 import { View, ProductStatus } from "@/lib/constants";
 import { Search, List, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import { useEffect } from "react";
 
 export function BottomNavigation() {
   const { currentView, setCurrentView, selectedCountry } = useAppContext();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   
   // 관심 상품 개수를 조회하는 쿼리
-  const { data: userProducts = [] } = useQuery<any[]>({
+  const { data: userProducts = [], refetch } = useQuery<any[]>({
     queryKey: ['/api/user-products', selectedCountry?.id, user?.id],
     queryFn: async () => {
       // countryId가 있을 때만 API 요청을 보냄
@@ -19,15 +21,35 @@ export function BottomNavigation() {
       const response = await fetch(`/api/user-products?countryId=${selectedCountry.id}`);
       if (!response.ok) return [];
       const data = await response.json();
+      console.log("[BottomNavigation] User products data:", data);
       return data;
     },
-    enabled: !!user && !!selectedCountry?.id // 로그인된 사용자와 국가 ID가 있을 때만 조회
+    enabled: !!user && !!selectedCountry?.id, // 로그인된 사용자와 국가 ID가 있을 때만 조회
+    refetchInterval: 2000, // 2초마다 자동으로 업데이트
+    refetchOnWindowFocus: true, // 윈도우 포커스 시 업데이트
+    staleTime: 1000 // 1초 후 데이터가 stale 상태가 됨
   });
+  
+  // 구독 설정: 상품 변경 시 자동 리페치
+  useEffect(() => {
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      // 사용자 제품이나 상품 상태 변경 시 리페치
+      if (user && selectedCountry?.id) {
+        refetch();
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  }, [queryClient, refetch, user, selectedCountry?.id]);
   
   // "관심" 상태의 상품만 필터링하여 개수 세기
   const interestedCount = userProducts?.filter(
     (product: any) => product.status === ProductStatus.INTERESTED
   )?.length || 0;
+  
+  console.log("[BottomNavigation] Interested count:", interestedCount);
   
   const navItems = [
     {

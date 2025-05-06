@@ -45,13 +45,32 @@ export function Lists() {
       return results;
     },
     onSuccess: () => {
-      // 삭제 후 쿼리 무효화 및 체크박스 초기화
+      console.log("일괄 삭제 성공, 쿼리 무효화 중...");
+      
+      // 특정 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+      
+      // 상품 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
+      
+      // 모든 사용자 상품 관련 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: [API_ROUTES.USER_PRODUCTS]
+      });
+      
+      // 패턴 기반 쿼리 무효화
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = Array.isArray(query.queryKey) ? query.queryKey[0] : query.queryKey;
+          return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
+        }
+      });
+      
+      // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
     }
@@ -69,10 +88,27 @@ export function Lists() {
       return results;
     },
     onSuccess: () => {
-      // 상태 변경 후 쿼리 무효화 및 체크박스 초기화
+      console.log("일괄 상태 변경 성공, 쿼리 무효화 중...");
+      
+      // 특정 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+      
+      // 모든 사용자 상품 관련 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: [API_ROUTES.USER_PRODUCTS]
+      });
+      
+      // 패턴 기반 쿼리 무효화
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = Array.isArray(query.queryKey) ? query.queryKey[0] : query.queryKey;
+          return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
+        }
+      });
+      
+      // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
     }

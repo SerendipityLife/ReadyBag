@@ -98,8 +98,25 @@ export function ProductCardStack() {
       return response.json();
     },
     onSuccess: () => {
+      // 여러 쿼리를 동시에 무효화
+      console.log("상품 상태 업데이트 성공, 쿼리 무효화 중...");
+      
+      // 일반 문자열 형식 쿼리키 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.USER_PRODUCTS] 
+      });
+      
+      // countryId가 포함된 상세 쿼리키 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      
+      // 모든 경로 관련 쿼리 무효화
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const queryKey = Array.isArray(query.queryKey) ? query.queryKey[0] : query.queryKey;
+          return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
+        }
       });
     }
   });
