@@ -5,7 +5,8 @@ import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle } from "lucide-react";
+import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -19,6 +20,7 @@ import type { UserProduct } from "@shared/schema";
 export function Lists() {
   const queryClient = useQueryClient();
   const { selectedCountry, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
@@ -410,13 +412,29 @@ export function Lists() {
             
             {interestedProducts.length > 0 && (
               <div className="mt-6 text-center">
-                <Button
-                  onClick={handleShare}
-                  className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
-                >
-                  <Share2 className="mr-2 h-4 w-4" />
-                  관심 목록 공유하기
-                </Button>
+                {user ? (
+                  <Button
+                    onClick={handleShare}
+                    className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
+                  >
+                    <Share2 className="mr-2 h-4 w-4" />
+                    관심 목록 공유하기
+                  </Button>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <Button
+                      onClick={() => window.location.href = "/auth"}
+                      className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      회원가입하여 목록 유지 및 공유하기
+                    </Button>
+                    <p className="text-xs text-muted-foreground mt-2 p-2 bg-yellow-50 rounded-md border border-yellow-200 max-w-md">
+                      <AlertTriangle className="inline-block mr-1 h-3 w-3 text-yellow-500" />
+                      비회원은 페이지 이탈 시 저장된 상품이 모두 사라집니다.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </TabsContent>
