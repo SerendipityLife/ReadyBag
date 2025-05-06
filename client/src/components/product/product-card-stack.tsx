@@ -4,10 +4,9 @@ import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
 import { CurrencyInfoPanel } from "@/components/ui/currency-display";
 import { useAppContext } from "@/contexts/AppContext";
-import { Progress } from "@/components/ui/progress";
 import { apiRequest } from "@/lib/queryClient";
 import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
-import type { Product } from "@shared/schema";
+import type { Product, UserProduct } from "@shared/schema";
 
 export function ProductCardStack() {
   const queryClient = useQueryClient();
@@ -20,15 +19,26 @@ export function ProductCardStack() {
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   
   // Fetch products for the selected country
-  const { data: allProducts = [], isLoading } = useQuery<Product[]>({
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
   
-  // Filter products by selected category
-  const products = selectedCategory === "ALL" 
-    ? allProducts 
-    : allProducts.filter(product => product.category === selectedCategory);
+  // Fetch user products to filter out already categorized ones
+  const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
+    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    enabled: !!selectedCountry && !!selectedCountry.id,
+  });
+  
+  // Get already categorized product IDs
+  const categorizedProductIds = userProducts.map(up => up.productId);
+  
+  // Filter products by selected category AND exclude already categorized products
+  const products = allProducts
+    .filter(product => !categorizedProductIds.includes(product.id))
+    .filter(product => selectedCategory === "ALL" || product.category === selectedCategory);
+    
+  const isLoading = productsLoading || userProductsLoading;
   
   // Update user product status mutation
   const updateProductStatus = useMutation({

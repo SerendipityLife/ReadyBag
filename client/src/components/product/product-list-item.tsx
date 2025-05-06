@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { RefreshCw, Instagram } from "lucide-react";
+import { RefreshCw, Instagram, Trash2, Heart, Triangle, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
@@ -28,18 +29,35 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [API_ROUTES.USER_PRODUCTS] });
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+    }
+  });
+  
+  // Delete user product mutation
+  const deleteUserProduct = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest(
+        "DELETE",
+        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
+      );
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      // This is important to make the product reappear in the exploring section
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+      });
     }
   });
 
-  // Opens classification modal to change status
-  const handleChangeClassification = () => {
-    // In a real implementation, this would open a modal with options
-    // Here we'll just cycle between statuses as a simple demonstration
-    const statuses = [ProductStatus.INTERESTED, ProductStatus.NOT_INTERESTED, ProductStatus.MAYBE];
-    const currentIndex = statuses.indexOf(userProduct.status as ProductStatus);
-    const nextIndex = (currentIndex + 1) % statuses.length;
-    updateStatus.mutate(statuses[nextIndex]);
+  // Change product status directly
+  const changeStatus = (newStatus: ProductStatus) => {
+    updateStatus.mutate(newStatus);
   };
 
   // Opens Instagram in a new tab with the hashtag search
@@ -70,16 +88,51 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
         </div>
         
         {!readOnly && (
-          <div className="mt-2 flex space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
-              onClick={handleChangeClassification}
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              분류변경
-            </Button>
+          <div className="mt-2 flex flex-wrap space-x-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
+                >
+                  <RefreshCw className="h-3 w-3 mr-1" />
+                  분류변경
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0 w-40" align="start">
+                <div className="flex flex-col gap-1 p-1">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={`justify-start text-xs ${userProduct.status === ProductStatus.INTERESTED ? 'bg-red-50 text-red-500' : ''}`}
+                    onClick={() => changeStatus(ProductStatus.INTERESTED)}
+                  >
+                    <Heart className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.INTERESTED ? 'fill-red-500 text-red-500' : ''}`} />
+                    관심 상품
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={`justify-start text-xs ${userProduct.status === ProductStatus.MAYBE ? 'bg-orange-50 text-orange-500' : ''}`}
+                    onClick={() => changeStatus(ProductStatus.MAYBE)}
+                  >
+                    <Triangle className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.MAYBE ? 'fill-orange-500 text-orange-500' : ''}`} />
+                    나중에
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={`justify-start text-xs ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'bg-neutral-50 text-neutral-500' : ''}`}
+                    onClick={() => changeStatus(ProductStatus.NOT_INTERESTED)}
+                  >
+                    <X className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'text-neutral-500' : ''}`} />
+                    관심없음
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            
             <Button
               variant="outline"
               size="sm"
@@ -89,6 +142,16 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
             >
               <Instagram className="h-3 w-3 mr-1" />
               인스타
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white mt-2 md:mt-0"
+              onClick={() => deleteUserProduct.mutate()}
+            >
+              <Trash2 className="h-3 w-3 mr-1" />
+              삭제
             </Button>
           </div>
         )}
