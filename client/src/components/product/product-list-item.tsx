@@ -21,30 +21,55 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
   // Update user product status mutation
   const updateStatus = useMutation({
     mutationFn: async (newStatus: ProductStatus) => {
-      const response = await apiRequest(
-        "PATCH",
-        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
-        { status: newStatus }
-      );
-      return response.json();
+      console.log("Updating status for ID:", userProduct.id, "to:", newStatus);
+      try {
+        const response = await apiRequest(
+          "PATCH",
+          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
+          { status: newStatus }
+        );
+        if (!response.ok) {
+          console.error("Status update failed:", await response.json());
+          throw new Error("Status update operation failed");
+        }
+        return response.json();
+      } catch (error) {
+        console.error("Error updating status:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log("Status update successful, invalidating queries");
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+    },
+    onError: (error) => {
+      console.error("Status update mutation error:", error);
     }
   });
   
   // Delete user product mutation
   const deleteUserProduct = useMutation({
     mutationFn: async () => {
-      const response = await apiRequest(
-        "DELETE",
-        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
-      );
-      return response.json();
+      console.log("Deleting user product with ID:", userProduct.id);
+      try {
+        const response = await apiRequest(
+          "DELETE",
+          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
+        );
+        if (!response.ok) {
+          console.error("Delete failed:", await response.json());
+          throw new Error("Delete operation failed");
+        }
+        return response.json();
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
+      console.log("Delete successful, invalidating queries");
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
@@ -52,6 +77,9 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
+    },
+    onError: (error) => {
+      console.error("Delete mutation error:", error);
     }
   });
 
