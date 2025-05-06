@@ -60,27 +60,10 @@ export default function AuthPage() {
     },
   });
   
-  // 로컬 스토리지 초기화 함수 - 비회원 데이터 정리
-  const clearLocalStorage = () => {
-    try {
-      // "userProducts_" 로 시작하는 모든 키 찾기
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('userProducts_')) {
-          localStorage.removeItem(key);
-          console.log(`로컬 스토리지 항목 삭제: ${key}`);
-        }
-      });
-      
-      // 로컬 스토리지 변경 이벤트 트리거
-      window.dispatchEvent(new Event('localStorageChange'));
-    } catch (error) {
-      console.error("로컬 스토리지 초기화 오류:", error);
-    }
-  };
-  
   // 비회원으로 시작하기 처리
   const handleStartAsGuest = () => {
-    clearLocalStorage();
+    // 로컬 스토리지 데이터 유지 (로그인 시도 후 비회원으로 전환 시 기존 데이터 보존)
+    console.log("비회원 모드로 전환합니다. 기존 데이터는 유지됩니다.");
     navigate("/");
   };
   
