@@ -99,10 +99,28 @@ export function ProductCardStack() {
     if (!user) {
       const handleStorageChange = () => {
         console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨");
-        // 로컬 스토리지 변경 시 쿼리 무효화
+        // 로컬 스토리지 변경 시 다음 작업 수행:
+        
+        // 1. 사용자 상품 쿼리 무효화
         queryClient.invalidateQueries({ 
           queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
         });
+        
+        // 2. 상품 목록 쿼리 무효화 (삭제된 상품이 다시 보이도록)
+        queryClient.invalidateQueries({ 
+          queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+        });
+        
+        // 3. 상태 초기화 - visible 상품들과 현재 인덱스 초기화
+        setVisibleProducts([]);
+        setCurrentProductIndex(0);
+        
+        // 4. originalTotalProducts 재설정 (auth 페이지 방문 후 돌아왔을 때 필요)
+        // 지연 설정으로 쿼리 무효화 이후에 실행되도록 함
+        setTimeout(() => {
+          // 총 상품 수를 다시 계산하는 대신 전체 상품 수로 설정
+          setOriginalTotalProducts(allProducts.length);
+        }, 100);
       };
       
       // 일반 storage 이벤트 (다른 탭에서 변경 시)
@@ -116,12 +134,24 @@ export function ProductCardStack() {
         window.removeEventListener('localStorageChange', handleStorageChange);
       };
     }
-  }, [user, queryClient, selectedCountry?.id]);
+  }, [user, queryClient, selectedCountry?.id, setCurrentProductIndex, allProducts.length]);
   
   // Get already categorized product IDs
   const categorizedProductIds = useMemo(() => {
     return userProducts.map(up => up.productId);
   }, [userProducts]);
+  
+  // Calculate total number of products in the selected category
+  const totalCategoryCount = useMemo(() => {
+    if (isAllCategoriesSelected) {
+      return allProducts.filter(p => !categorizedProductIds.includes(p.id)).length;
+    } else {
+      return allProducts.filter(p => {
+        return !categorizedProductIds.includes(p.id) && 
+               selectedCategories.includes(p.category || "");
+      }).length;
+    }
+  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
   
   // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
@@ -150,24 +180,15 @@ export function ProductCardStack() {
     
     return filtered;
   }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
-  
-  // Calculate total number of products in the selected category
-  const totalCategoryCount = useMemo(() => {
-    if (isAllCategoriesSelected) {
-      return allProducts.filter(p => !categorizedProductIds.includes(p.id)).length;
-    } else {
-      return allProducts.filter(p => {
-        return !categorizedProductIds.includes(p.id) && 
-               selectedCategories.includes(p.category || "");
-      }).length;
-    }
-  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
 
-  // Reset visible products and update original total when categories change
+  // Reset visible products and update original total when categories change or userProducts change
   useEffect(() => {
     setVisibleProducts([]);
     setOriginalTotalProducts(totalCategoryCount);
-  }, [selectedCategories, isAllCategoriesSelected, totalCategoryCount]);
+    
+    // 상품 목록 초기화 후 첫 번째 상품부터 다시 보여주기
+    setCurrentProductIndex(0);
+  }, [selectedCategories, isAllCategoriesSelected, totalCategoryCount, userProducts, setCurrentProductIndex]);
   
   const isLoading = productsLoading || userProductsLoading;
   
@@ -205,9 +226,16 @@ export function ProductCardStack() {
     }
   });
   
-  // 필터링된 제품이 변경되었고, 가시적인 제품이 없을 때만 초기화
+  // 필터링된 제품 목록이 변경되었거나 가시적인 제품이 없을 때 초기화
   const visibleProductsToShow = useMemo(() => {
-    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
+    // 다음 조건 중 하나라도 해당되면 필터링된 상품 목록에서 새로 가져옴:
+    // 1. 가시적인 제품이 없을 때
+    // 2. 필터링된 상품 목록이 변경되었을 때 (새 상품 추가 또는 기존 상품이 제거된 경우)
+    // 3. 로컬 스토리지 초기화 후 (categorizedProductIds 변경)
+    if (filteredProducts.length > 0 && (
+      visibleProducts.length === 0 || 
+      filteredProducts.length !== originalTotalProducts
+    )) {
       // useEffect 대신 즉시 리턴하여 사용
       setTimeout(() => {
         setCurrentProductIndex(0);
@@ -215,7 +243,7 @@ export function ProductCardStack() {
       return filteredProducts.slice(0, 3);
     }
     return visibleProducts;
-  }, [filteredProducts, visibleProducts, setCurrentProductIndex]);
+  }, [filteredProducts, visibleProducts, originalTotalProducts, setCurrentProductIndex]);
   
   // visibleProductsToShow가 변경되고 visibleProducts와 다를 때만 업데이트
   useEffect(() => {
@@ -347,13 +375,29 @@ export function ProductCardStack() {
     handleSwipe(direction, topProductId);
   };
   
-  // Calculate position for progress indicator
-  const currentPosition = originalTotalProducts > 0 ? 
-    Math.max(1, originalTotalProducts - filteredProducts.length + 1) : 0;
+  // Calculate position for progress indicator (로컬 스토리지 초기화 후에도 정확한 값 표시)
+  const currentPosition = useMemo(() => {
+    // 필터링된 상품이 없거나 모든 상품이 초기화된 상태면 처음부터 시작
+    if (filteredProducts.length === allProducts.length && allProducts.length > 0) {
+      return 1; // 모든 제품이 다시 보이는 상태 (초기화 후)
+    }
+    
+    if (originalTotalProducts > 0) {
+      return Math.max(1, originalTotalProducts - filteredProducts.length + 1);
+    }
+    
+    return 0;
+  }, [filteredProducts.length, originalTotalProducts, allProducts.length]);
   
   // Calculate progress percentage
-  const progressPercentage = originalTotalProducts > 0 ? 
-    ((currentPosition - 1) / originalTotalProducts) * 100 : 0;
+  const progressPercentage = useMemo(() => {
+    if (originalTotalProducts === 0 && allProducts.length > 0) {
+      return 0; // 초기화 후에는 0%부터 다시 시작
+    }
+    
+    return originalTotalProducts > 0 ? 
+      ((currentPosition - 1) / originalTotalProducts) * 100 : 0;
+  }, [currentPosition, originalTotalProducts, allProducts.length]);
   
   if (isLoading) {
     return (
@@ -367,7 +411,12 @@ export function ProductCardStack() {
   
   if (filteredProducts.length === 0) {
     // 두 가지 경우를 구분: 전체 상품이 없는 경우 vs 모든 상품을 이미 분류한 경우
-    if (totalCategoryCount === 0 && categorizedProductIds.length === 0) {
+    const noProductsInCategory = allProducts.filter(p => {
+        return !categorizedProductIds.includes(p.id) && 
+              (isAllCategoriesSelected || selectedCategories.includes(p.category || ""));
+      }).length === 0;
+
+    if (noProductsInCategory && categorizedProductIds.length === 0) {
       // 이 카테고리에 상품이 없는 경우
       return (
         <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
