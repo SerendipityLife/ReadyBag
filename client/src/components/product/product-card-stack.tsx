@@ -17,13 +17,10 @@ export function ProductCardStack() {
     setCurrentProductIndex 
   } = useAppContext();
   
+  // 상태들 선언
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
-  
-  // Reset visible products when categories change
-  useEffect(() => {
-    // Clear current visible products to force refresh
-    setVisibleProducts([]);
-  }, [selectedCategories, isAllCategoriesSelected]);
+  const [originalTotalProducts, setOriginalTotalProducts] = useState(0);
+  const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
   
   // Fetch products for the selected country
   const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
@@ -44,11 +41,9 @@ export function ProductCardStack() {
   
   // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
-    // Log the categories we're filtering for
+    // 디버깅용 로그
     console.log("Selected Categories:", selectedCategories);
     console.log("isAllCategoriesSelected:", isAllCategoriesSelected);
-    
-    // Log the first few products and their categories for debugging
     console.log("Some products:", allProducts.slice(0, 3).map(p => ({id: p.id, name: p.name, category: p.category})));
     
     let filtered = allProducts
@@ -71,7 +66,25 @@ export function ProductCardStack() {
     
     return filtered;
   }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
-    
+  
+  // Calculate total number of products in the selected category
+  const totalCategoryCount = useMemo(() => {
+    if (isAllCategoriesSelected) {
+      return allProducts.filter(p => !categorizedProductIds.includes(p.id)).length;
+    } else {
+      return allProducts.filter(p => {
+        return !categorizedProductIds.includes(p.id) && 
+               selectedCategories.includes(p.category || "");
+      }).length;
+    }
+  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
+
+  // Reset visible products and update original total when categories change
+  useEffect(() => {
+    setVisibleProducts([]);
+    setOriginalTotalProducts(totalCategoryCount);
+  }, [selectedCategories, isAllCategoriesSelected, totalCategoryCount]);
+  
   const isLoading = productsLoading || userProductsLoading;
   
   // Update user product status mutation
@@ -101,7 +114,7 @@ export function ProductCardStack() {
       return filteredProducts.slice(0, 3);
     }
     return visibleProducts;
-  }, [filteredProducts, visibleProducts]);
+  }, [filteredProducts, visibleProducts, setCurrentProductIndex]);
   
   // visibleProductsToShow가 변경되고 visibleProducts와 다를 때만 업데이트
   useEffect(() => {
@@ -111,9 +124,6 @@ export function ProductCardStack() {
       setVisibleProducts(visibleProductsToShow);
     }
   }, [visibleProductsToShow, visibleProducts]);
-  
-  // 처리 중인 productId를 추적하기 위한 상태
-  const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
     
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
@@ -176,12 +186,13 @@ export function ProductCardStack() {
     handleSwipe(direction, topProductId);
   };
   
-  // Calculate progress
-  const totalProducts = filteredProducts.length;
-  const seenProducts = Math.min(filteredProducts.findIndex(p => 
-    p.id === (visibleProducts[0]?.id ?? -1)), totalProducts);
-  const currentPosition = seenProducts + 1;
-  const progressPercentage = totalProducts > 0 ? (seenProducts / totalProducts) * 100 : 0;
+  // Calculate position for progress indicator
+  const currentPosition = originalTotalProducts > 0 ? 
+    Math.max(1, originalTotalProducts - filteredProducts.length + 1) : 0;
+  
+  // Calculate progress percentage
+  const progressPercentage = originalTotalProducts > 0 ? 
+    ((currentPosition - 1) / originalTotalProducts) * 100 : 0;
   
   if (isLoading) {
     return (
@@ -194,13 +205,27 @@ export function ProductCardStack() {
   }
   
   if (filteredProducts.length === 0) {
-    return (
-      <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
-        <div className="text-center">
-          <p>선택한 국가에 등록된 상품이 없습니다.</p>
+    // 두 가지 경우를 구분: 전체 상품이 없는 경우 vs 모든 상품을 이미 분류한 경우
+    if (totalCategoryCount === 0 && categorizedProductIds.length === 0) {
+      // 이 카테고리에 상품이 없는 경우
+      return (
+        <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
+          <div className="text-center">
+            <p>선택한 카테고리에 등록된 상품이 없습니다.</p>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else {
+      // 더 이상 볼 상품이 없는 경우 (모두 분류됨)
+      return (
+        <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
+          <div className="text-center">
+            <p>모든 상품을 확인했습니다! 🎉</p>
+            <p className="mt-2 text-sm text-gray-500">관심 상품은 '내 목록'에서 확인할 수 있습니다.</p>
+          </div>
+        </div>
+      );
+    }
   }
   
   return (
@@ -228,7 +253,7 @@ export function ProductCardStack() {
         ></div>
       </div>
       <div className="text-xs text-neutral text-center mt-1">
-        {currentPosition}/{totalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
+        {currentPosition}/{originalTotalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
       </div>
     </div>
   );
