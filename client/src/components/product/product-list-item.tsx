@@ -10,7 +10,7 @@ import { useAuth } from "@/hooks/use-auth";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
-  product: Product;
+  product?: Product;
   userProduct: UserProduct;
   readOnly?: boolean;
   onSuccessfulAction?: () => void;
@@ -23,25 +23,36 @@ export function ProductListItem(props: ProductListItemProps) {
   const { user } = useAuth();
   const isNonMember = !user;
   
+  // 상태 초기화
   const [price, setPrice] = useState(0);
   const [convertedPrice, setConvertedPrice] = useState(0);
-  
-  // product가 undefined인 경우 에러 UI를 표시하기 위한 상태
   const [hasProductError, setHasProductError] = useState(false);
+  const [productImageUrl, setProductImageUrl] = useState("");
+  const [productName, setProductName] = useState("");
+  const [productNameJapanese, setProductNameJapanese] = useState<string | null>(null);
+  const [productLocation, setProductLocation] = useState<string | null>(null);
+  const [productHashtags, setProductHashtags] = useState<string[] | null>(null);
   
-  // 상품 유효성 검사
+  // 상품 데이터 유효성 검사 및 상태 설정
   useEffect(() => {
     if (!product) {
       setHasProductError(true);
-    } else {
-      setHasProductError(false);
-      // 가격 계산
-      const roundedPrice = Math.round(product.price);
-      const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
-      
-      setPrice(roundedPrice);
-      setConvertedPrice(calculatedPrice);
+      return;
     }
+    
+    setHasProductError(false);
+    setProductImageUrl(product.imageUrl || "");
+    setProductName(product.name || "");
+    setProductNameJapanese(product.nameJapanese || null);
+    setProductLocation(product.location || null);
+    setProductHashtags(product.hashtags || null);
+    
+    // 가격 계산
+    const roundedPrice = Math.round(product.price);
+    const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
+    
+    setPrice(roundedPrice);
+    setConvertedPrice(calculatedPrice);
   }, [product, exchangeRate]);
   
   // 상품 에러일 경우 에러 UI 표시
@@ -163,32 +174,32 @@ export function ProductListItem(props: ProductListItemProps) {
 
   // Opens Instagram in a new tab with the hashtag search
   const handleInstagramSearch = () => {
-    if (!product.hashtags || product.hashtags.length === 0) return;
+    if (!productHashtags || productHashtags.length === 0) return;
     
-    const hashtag = product.hashtags[0].replace("#", "");
+    const hashtag = productHashtags[0].replace("#", "");
     window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(hashtag)}`, "_blank");
   };
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row">
       <img
-        src={product.imageUrl}
-        alt={product.name}
+        src={productImageUrl}
+        alt={productName}
         className="w-full h-40 sm:w-28 sm:h-28 object-cover"
       />
       
       <div className="p-3 flex-1">
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <div className="flex flex-col mb-2 sm:mb-0">
-            <h3 className="font-medium text-sm">{product.name}</h3>
-            {product.nameJapanese && (
-              <p className="text-xs text-gray-500 mt-0.5">{product.nameJapanese}</p>
+            <h3 className="font-medium text-sm">{productName}</h3>
+            {productNameJapanese && (
+              <p className="text-xs text-gray-500 mt-0.5">{productNameJapanese}</p>
             )}
             
-            {product.location && (
+            {productLocation && (
               <div className="flex items-center mt-1 text-xs text-gray-500">
                 <span className="mr-1">📍</span>
-                <span>{product.location}</span>
+                <span>{productLocation}</span>
               </div>
             )}
           </div>
@@ -257,7 +268,7 @@ export function ProductListItem(props: ProductListItemProps) {
                 size="sm"
                 className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
                 onClick={handleInstagramSearch}
-                disabled={!product.hashtags || product.hashtags.length === 0}
+                disabled={!productHashtags || productHashtags.length === 0}
               >
                 <Instagram className="h-3 w-3 mr-1" />
                 인스타
