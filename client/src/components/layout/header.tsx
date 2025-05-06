@@ -25,44 +25,52 @@ export function Header() {
   
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          {(currentView === View.LISTS || isSharedList) && (
+      <div className="container mx-auto px-2 py-2 md:px-4 md:py-3 flex flex-col md:flex-row md:items-center justify-between">
+        {/* Top row: Logo and action buttons */}
+        <div className="flex items-center justify-between w-full md:w-auto">
+          <div className="flex items-center space-x-1 md:space-x-2">
+            {(currentView === View.LISTS || isSharedList) && (
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="md:hidden text-neutral hover:text-primary p-1"
+                onClick={handleBackClick}
+              >
+                <ArrowLeft size={18} />
+              </Button>
+            )}
+            <h1 className={`text-xl md:text-2xl font-heading font-bold text-primary ${(currentView === View.LISTS || isSharedList) ? "ml-0" : "ml-1"}`}>
+              <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
+            </h1>
+          </div>
+          
+          <div className="flex items-center space-x-2">
             <Button 
               variant="ghost" 
-              size="icon" 
-              className="md:hidden text-neutral hover:text-primary"
-              onClick={handleBackClick}
+              size="sm"
+              className="text-neutral hover:text-primary p-1"
+              onClick={handleShareClick}
             >
-              <ArrowLeft size={20} />
+              <Share2 size={18} />
             </Button>
-          )}
-          <h1 className="text-2xl font-heading font-bold text-primary">
-            <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
-          </h1>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-neutral hover:text-primary p-1"
+              // A placeholder for future user authentication
+              onClick={() => {}}
+            >
+              <UserCircle size={18} />
+            </Button>
+          </div>
         </div>
         
-        {!isSharedList && <CountrySelector />}
-        
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-neutral hover:text-primary"
-            onClick={handleShareClick}
-          >
-            <Share2 size={20} />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-neutral hover:text-primary"
-            // A placeholder for future user authentication
-            onClick={() => {}}
-          >
-            <UserCircle size={20} />
-          </Button>
-        </div>
+        {/* Bottom row: Country selector */}
+        {!isSharedList && (
+          <div className="mt-1 md:mt-0">
+            <CountrySelector />
+          </div>
+        )}
       </div>
     </header>
   );

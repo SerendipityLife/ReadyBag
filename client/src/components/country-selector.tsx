@@ -33,24 +33,24 @@ export function CountrySelector() {
   };
   
   return (
-    <div className="relative" ref={dropdownRef}>
+    <div className="relative w-full md:w-auto" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 py-2 px-3 rounded-full bg-white border border-gray-200 hover:border-primary transition-colors font-medium text-sm"
+        className="flex items-center justify-center space-x-2 py-1.5 px-3 w-full md:w-auto rounded-full bg-white border border-gray-200 hover:border-primary transition-colors font-medium text-sm"
       >
         <img
           src={selectedCountry.flagUrl}
           alt={`${selectedCountry.name} 국기`}
-          className="w-5 h-5 rounded-full object-cover"
+          className="w-4 h-4 md:w-5 md:h-5 rounded-full object-cover"
         />
-        <span>{selectedCountry.name}</span>
-        <ChevronDown className="w-4 h-4 text-neutral" />
+        <span className="text-sm">{selectedCountry.name}</span>
+        <ChevronDown className="w-3 h-3 md:w-4 md:h-4 text-neutral" />
       </button>
       
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
-          <div className="py-3 px-4">
-            <div className="flex items-center text-sm text-neutral">
+        <div className="absolute right-0 md:right-0 mt-1 w-full md:w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
+          <div className="py-2 px-3 md:py-3 md:px-4">
+            <div className="flex items-center justify-center md:justify-start text-sm text-neutral">
               <span className="text-xs italic">더 많은 국가가 제공 예정입니다</span>
             </div>
           </div>
