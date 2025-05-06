@@ -12,7 +12,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
 import type { UserProduct } from "@shared/schema";
@@ -308,78 +307,84 @@ export function Lists() {
   };
   
   return (
-    <div className="w-full max-w-3xl mx-auto">
-      {/* 환율 정보 표시 */}
-      {exchangeRate && (
-        <div className="bg-white rounded-lg p-2 mb-4 flex items-center justify-between text-xs text-gray-600 shadow-sm">
-          <div className="flex items-center">
-            <span className="font-medium">현재 환율:</span>
-            <span className="ml-1 font-semibold">
-              100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = {(exchangeRate * 100).toFixed(0)}원
-            </span>
-            <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
-          </div>
-          <div className="text-gray-500 text-[10px]">
-            {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
-              month: 'numeric',
-              day: 'numeric', 
-              hour: '2-digit',
-              minute: '2-digit'
-            })} 기준
-          </div>
-        </div>
-      )}
-      
-      <Tabs
-        defaultValue={ProductStatus.INTERESTED}
-        onValueChange={(value) => setActiveTab(value as ProductStatus)}
-        className="w-full"
-      >
-        <TabsList className="w-full grid grid-cols-3 mb-4">
-          <TabsTrigger
-            value={ProductStatus.INTERESTED}
-            className="flex items-center justify-center"
-          >
-            <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
-          </TabsTrigger>
-          <TabsTrigger
-            value={ProductStatus.MAYBE}
-            className="flex items-center justify-center"
-          >
-            <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
-          </TabsTrigger>
-          <TabsTrigger
-            value={ProductStatus.NOT_INTERESTED}
-            className="flex items-center justify-center"
-          >
-            <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
-          </TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value={ProductStatus.INTERESTED}>
-          {renderTabContent(interestedProducts, ProductStatus.INTERESTED)}
-          
-          {interestedProducts.length > 0 && (
-            <div className="mt-6 text-center">
-              <Button
-                onClick={handleShare}
-                className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
-              >
-                <Share2 className="mr-2 h-4 w-4" />
-                관심 목록 공유하기
-              </Button>
+    <div className="w-full max-w-3xl mx-auto pb-20">
+      {/* 상단 고정 영역 - 스티키 헤더 */}
+      <div className="sticky top-0 z-10 bg-gray-50 pt-2 pb-2">
+        {/* 환율 정보 표시 */}
+        {exchangeRate && (
+          <div className="bg-white rounded-lg p-2 mb-2 flex items-center justify-between text-xs text-gray-600 shadow-sm">
+            <div className="flex items-center">
+              <span className="font-medium">현재 환율:</span>
+              <span className="ml-1 font-semibold">
+                100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = {(exchangeRate * 100).toFixed(0)}원
+              </span>
+              <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
             </div>
-          )}
-        </TabsContent>
-        
-        <TabsContent value={ProductStatus.MAYBE}>
-          {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
-        </TabsContent>
-        
-        <TabsContent value={ProductStatus.NOT_INTERESTED}>
-          {renderTabContent(notInterestedProducts, ProductStatus.NOT_INTERESTED)}
-        </TabsContent>
-      </Tabs>
+            <div className="text-gray-500 text-[10px]">
+              {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
+                month: 'numeric',
+                day: 'numeric', 
+                hour: '2-digit',
+                minute: '2-digit'
+              })} 기준
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 탭 영역 */}
+      <div className="sticky top-14 z-10 bg-gray-50 pt-1 pb-2">
+        <Tabs
+          defaultValue={ProductStatus.INTERESTED}
+          onValueChange={(value) => setActiveTab(value as ProductStatus)}
+          className="w-full"
+        >
+          <TabsList className="w-full grid grid-cols-3 mb-2 bg-white rounded-lg shadow-sm">
+            <TabsTrigger
+              value={ProductStatus.INTERESTED}
+              className="flex items-center justify-center"
+            >
+              <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
+            </TabsTrigger>
+            <TabsTrigger
+              value={ProductStatus.MAYBE}
+              className="flex items-center justify-center"
+            >
+              <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
+            </TabsTrigger>
+            <TabsTrigger
+              value={ProductStatus.NOT_INTERESTED}
+              className="flex items-center justify-center"
+            >
+              <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value={ProductStatus.INTERESTED}>
+            {renderTabContent(interestedProducts, ProductStatus.INTERESTED)}
+            
+            {interestedProducts.length > 0 && (
+              <div className="mt-6 text-center">
+                <Button
+                  onClick={handleShare}
+                  className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  관심 목록 공유하기
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value={ProductStatus.MAYBE}>
+            {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
+          </TabsContent>
+          
+          <TabsContent value={ProductStatus.NOT_INTERESTED}>
+            {renderTabContent(notInterestedProducts, ProductStatus.NOT_INTERESTED)}
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
