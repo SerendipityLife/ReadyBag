@@ -27,7 +27,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const countryId = req.query.countryId as string;
       
       if (!countryId) {
-        return res.status(400).json({ message: "Country ID is required" });
+        // 기본값으로 일본 상품 반환
+        const defaultProducts = await storage.getProductsByCountry("japan");
+        return res.json(defaultProducts);
       }
       
       const products = await storage.getProductsByCountry(countryId);

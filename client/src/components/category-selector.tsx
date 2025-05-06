@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // 카테고리 타입 정의
 export type ProductCategory = {
@@ -69,28 +70,30 @@ export function CategorySelector() {
   }, [products, setSelectedCategory, selectedCategory]);
   
   // 카테고리 변경 핸들러
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
+  const handleCategoryChange = (categoryId: string) => {
+    setSelectedCategory(categoryId);
   };
   
   return (
-    <div className="flex items-center space-x-2 mb-4">
-      <div className="text-sm font-medium">카테고리:</div>
-      <Select
-        value={selectedCategory || "ALL"}
-        onValueChange={handleCategoryChange}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="카테고리 선택" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
+    <div className="mb-6">
+      <h3 className="font-medium mb-2">카테고리</h3>
+      <div className="grid grid-cols-2 gap-2">
+        {categories.map((category) => (
+          <div key={category.id} className="flex items-center space-x-2">
+            <Checkbox 
+              id={`category-${category.id}`} 
+              checked={selectedCategory === category.id}
+              onCheckedChange={() => handleCategoryChange(category.id)}
+            />
+            <Label 
+              htmlFor={`category-${category.id}`}
+              className="text-sm font-normal cursor-pointer"
+            >
               {category.name} ({category.count})
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+            </Label>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

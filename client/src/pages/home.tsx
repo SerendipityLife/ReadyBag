@@ -19,7 +19,7 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            <div className="w-full max-w-md mx-auto mb-4">
+            <div className="w-full max-w-md mx-auto mb-2 bg-gray-50 p-4 rounded-lg">
               <CategorySelector />
             </div>
             <ProductCardStack />

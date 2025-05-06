@@ -20,8 +20,9 @@ export function ProductCardStack() {
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   
   // Fetch products for the selected country
-  const { data: allProducts = [], isLoading } = useQuery({
+  const { data: allProducts = [], isLoading } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
+    enabled: !!selectedCountry && !!selectedCountry.id,
   });
   
   // Filter products by selected category
