@@ -38,8 +38,36 @@ export function ProductCardStack() {
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
       
-      if (storedData) {
-        return JSON.parse(storedData);
+      if (!storedData) return [];
+      
+      try {
+        const parsedData = JSON.parse(storedData);
+        
+        if (!Array.isArray(parsedData)) {
+          console.error("로컬 스토리지 데이터가 배열이 아님:", parsedData);
+          localStorage.removeItem(storageKey);
+          return [];
+        }
+        
+        // 유효한 productId를 가진 데이터만 필터링
+        const validData = parsedData.filter(item => 
+          item && typeof item === 'object' && Number.isInteger(item.productId)
+        );
+        
+        // 원본 데이터와 다르면 정리된 데이터 저장
+        if (validData.length !== parsedData.length) {
+          console.log(`유효하지 않은 ${parsedData.length - validData.length}개 항목 제거됨`);
+          localStorage.setItem(storageKey, JSON.stringify(validData));
+          
+          // 로컬 스토리지 변경 이벤트 트리거
+          window.dispatchEvent(new Event('localStorageChange'));
+        }
+        
+        return validData;
+      } catch (parseError) {
+        console.error("로컬 스토리지 데이터 파싱 오류:", parseError);
+        localStorage.removeItem(storageKey);
+        return [];
       }
     } catch (error) {
       console.error("로컬 스토리지 읽기 오류:", error);
@@ -70,15 +98,22 @@ export function ProductCardStack() {
   useEffect(() => {
     if (!user) {
       const handleStorageChange = () => {
+        console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨");
         // 로컬 스토리지 변경 시 쿼리 무효화
         queryClient.invalidateQueries({ 
           queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
         });
       };
       
+      // 일반 storage 이벤트 (다른 탭에서 변경 시)
       window.addEventListener('storage', handleStorageChange);
+      
+      // 커스텀 이벤트 (같은 탭 내에서 변경 시)
+      window.addEventListener('localStorageChange', handleStorageChange);
+      
       return () => {
         window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageChange', handleStorageChange);
       };
     }
   }, [user, queryClient, selectedCountry?.id]);
@@ -223,8 +258,8 @@ export function ProductCardStack() {
       // 로컬 스토리지에 저장
       localStorage.setItem(storageKey, JSON.stringify(localProducts));
       
-      // storage 이벤트 발생시키기 (다른 컴포넌트에 알림용)
-      window.dispatchEvent(new Event('storage'));
+      // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
+      window.dispatchEvent(new Event('localStorageChange'));
       
       // 쿼리 무효화하기
       queryClient.invalidateQueries({ 

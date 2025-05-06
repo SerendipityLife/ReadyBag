@@ -21,6 +21,7 @@ export function Lists() {
   const queryClient = useQueryClient();
   const { selectedCountry, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
   const { user } = useAuth();
+  const isNonMember = !user; // 비회원 여부 확인
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
@@ -154,13 +155,45 @@ export function Lists() {
   // 대량 삭제 mutation
   const batchDelete = useMutation({
     mutationFn: async (ids: number[]) => {
-      // 일괄 삭제를 위해 각 ID마다 개별 요청을 보냄
-      const deletePromises = ids.map(id => 
-        apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${id}`)
-      );
+      // 비회원인 경우 로컬 스토리지에서 삭제
+      if (isNonMember) {
+        try {
+          const storageKey = `userProducts_${selectedCountry.id}`;
+          const storedData = localStorage.getItem(storageKey);
+          
+          if (storedData) {
+            const products = JSON.parse(storedData);
+            const updatedProducts = products.filter((item: any) => !ids.includes(item.id));
+            
+            localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
+            console.log(`로컬 스토리지에서 ${ids.length}개 상품 삭제 완료`);
+            
+            // 로컬 스토리지 변경 이벤트 트리거
+            window.dispatchEvent(new Event('localStorageChange'));
+            
+            return { success: true, count: ids.length };
+          }
+          
+          throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
+        } catch (error) {
+          console.error("로컬 스토리지 삭제 오류:", error);
+          throw error;
+        }
+      }
       
-      const results = await Promise.all(deletePromises);
-      return results;
+      // 회원인 경우 API 호출
+      try {
+        // 일괄 삭제를 위해 각 ID마다 개별 요청을 보냄
+        const deletePromises = ids.map(id => 
+          apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${id}`)
+        );
+        
+        const results = await Promise.all(deletePromises);
+        return results;
+      } catch (error) {
+        console.error("일괄 삭제 API 오류:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       console.log("일괄 삭제 성공, 쿼리 무효화 중...");
@@ -197,13 +230,50 @@ export function Lists() {
   // 대량 상태 변경 mutation
   const batchChangeStatus = useMutation({
     mutationFn: async ({ ids, status }: { ids: number[], status: ProductStatus }) => {
-      // 각 ID마다 개별 요청을 보냄
-      const updatePromises = ids.map(id => 
-        apiRequest("PATCH", `${API_ROUTES.USER_PRODUCTS}/${id}`, { status })
-      );
-      
-      const results = await Promise.all(updatePromises);
-      return results;
+      // 비회원인 경우 로컬 스토리지에서 변경
+      if (isNonMember) {
+        try {
+          const storageKey = `userProducts_${selectedCountry.id}`;
+          const storedData = localStorage.getItem(storageKey);
+          
+          if (storedData) {
+            const products = JSON.parse(storedData);
+            const updatedProducts = products.map((item: any) => {
+              if (ids.includes(item.id)) {
+                return { ...item, status };
+              }
+              return item;
+            });
+            
+            localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
+            console.log(`로컬 스토리지에서 ${ids.length}개 상품 상태 변경 완료: ${status}`);
+            
+            // 로컬 스토리지 변경 이벤트 트리거
+            window.dispatchEvent(new Event('localStorageChange'));
+            
+            return { success: true, count: ids.length };
+          }
+          
+          throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
+        } catch (error) {
+          console.error("로컬 스토리지 상태 변경 오류:", error);
+          throw error;
+        }
+      }
+    
+      // 회원인 경우 API 호출
+      try {  
+        // 각 ID마다 개별 요청을 보냄
+        const updatePromises = ids.map(id => 
+          apiRequest("PATCH", `${API_ROUTES.USER_PRODUCTS}/${id}`, { status })
+        );
+        
+        const results = await Promise.all(updatePromises);
+        return results;
+      } catch (error) {
+        console.error("일괄 상태 변경 API 오류:", error);
+        throw error;
+      }
     },
     onSuccess: () => {
       console.log("일괄 상태 변경 성공, 쿼리 무효화 중...");
