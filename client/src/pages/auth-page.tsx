@@ -39,13 +39,7 @@ export default function AuthPage() {
   const [, navigate] = useLocation();
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
-
-  // 이미 로그인한 사용자는 홈으로 리디렉션
-  if (user) {
-    navigate("/");
-    return null;
-  }
-
+  
   // 로그인 폼
   const loginForm = useForm<LoginUserInput>({
     resolver: zodResolver(loginSchema),
@@ -65,6 +59,13 @@ export default function AuthPage() {
       nickname: "",
     },
   });
+  
+  // 이미 로그인한 사용자는 홈으로 리디렉션
+  // 모든 훅이 선언된 후에 실행
+  if (user) {
+    navigate("/");
+    return null;
+  }
 
   // 로그인 제출 처리
   const onLoginSubmit = (data: LoginUserInput) => {
