@@ -14,7 +14,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
         variant="outline"
         size="icon"
         className="w-16 h-16 rounded-full border-2 border-red-500 text-red-500 shadow-md hover:bg-red-50"
-        onClick={() => onActionClick(SwipeDirection.RIGHT)}
+        onClick={() => onActionClick(SwipeDirection.LEFT)}
       >
         <Heart className="w-6 h-6 fill-red-500" />
       </Button>
@@ -34,7 +34,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
         variant="outline"
         size="icon"
         className="w-16 h-16 rounded-full border-2 border-black text-black shadow-md hover:bg-gray-50"
-        onClick={() => onActionClick(SwipeDirection.LEFT)}
+        onClick={() => onActionClick(SwipeDirection.RIGHT)}
       >
         <X className="w-6 h-6 font-bold" strokeWidth={3} />
       </Button>
