@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { memo } from "react";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
@@ -16,7 +17,8 @@ interface ProductListItemProps {
   onSuccessfulAction?: () => void;
 }
 
-export function ProductListItem({ 
+// 실제 컴포넌트 구현
+function ProductListItemComponent({ 
   product, 
   userProduct, 
   readOnly = false,
@@ -295,3 +297,6 @@ export function ProductListItem({
     </div>
   );
 }
+
+// React.memo로 감싸서 불필요한 리렌더링 최적화
+export const ProductListItem = memo(ProductListItemComponent);
