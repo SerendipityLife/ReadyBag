@@ -108,6 +108,7 @@ export const sharedListsRelations = relations(sharedLists, ({ one }) => ({
 // Users table - expanded implementation for email-based authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
+  username: text("username").notNull(), // 기존 컬럼 유지
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
   nickname: text("nickname"),
