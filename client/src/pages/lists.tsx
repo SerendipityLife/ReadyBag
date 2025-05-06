@@ -182,15 +182,15 @@ export function Lists() {
       
       switch (status) {
         case ProductStatus.INTERESTED:
-          emptyMessage = "관심 있는 상품이 없습니다.";
+          emptyMessage = "관심 있는 상품들이 여기에 표시됩니다.";
           emptyIcon = <Heart className="w-16 h-16 mb-4 opacity-20" />;
           break;
         case ProductStatus.MAYBE:
-          emptyMessage = "나중에 다시 볼 상품들이 여기에 표시됩니다.";
+          emptyMessage = "고민중인 상품들이 여기에 표시됩니다.";
           emptyIcon = <Bookmark className="w-16 h-16 mb-4 opacity-20" />;
           break;
         case ProductStatus.NOT_INTERESTED:
-          emptyMessage = "관심 없는 상품들이 여기에 표시됩니다.";
+          emptyMessage = "관심없는 상품들이 여기에 표시됩니다.";
           emptyIcon = <X className="w-16 h-16 mb-4 opacity-20" />;
           break;
       }
