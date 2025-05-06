@@ -13,13 +13,30 @@ export function Lists() {
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
   
   // Fetch user products
-  const { data: userProducts = [], isLoading } = useQuery({
+  const { data: userProducts = [], isLoading } = useQuery<
+    Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
+  >({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
   });
   
+  // TypeScript 타입 정의
+  type ExtendedUserProduct = UserProduct & {
+    product: {
+      id: number;
+      name: string;
+      description: string;
+      price: number;
+      imageUrl: string;
+      category: string;
+      countryId: string;
+      hashtags?: string[];
+      location?: string;
+    }
+  };
+
   // Filter products by status
   const getProductsByStatus = (status: ProductStatus) => {
-    return userProducts.filter((up: UserProduct) => up.status === status);
+    return userProducts.filter((up) => up.status === status) as ExtendedUserProduct[];
   };
   
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
@@ -39,7 +56,7 @@ export function Lists() {
   };
   
   // Render content for a tab
-  const renderTabContent = (products: UserProduct[], status: ProductStatus) => {
+  const renderTabContent = (products: ExtendedUserProduct[], status: ProductStatus) => {
     if (isLoading) {
       return (
         <div className="p-8 text-center text-neutral">
@@ -77,7 +94,7 @@ export function Lists() {
     
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {products.map((userProduct: UserProduct) => (
+        {products.map((userProduct: ExtendedUserProduct) => (
           <ProductListItem
             key={userProduct.id}
             product={userProduct.product}
