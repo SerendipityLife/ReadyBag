@@ -23,6 +23,7 @@ export function ProductCardStack() {
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   const [originalTotalProducts, setOriginalTotalProducts] = useState(0);
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
+  const [forceReset, setForceReset] = useState(false);
   
   // Fetch products for the selected country
   const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
@@ -32,6 +33,9 @@ export function ProductCardStack() {
   
   // 로컬 스토리지에서 사용자 상품 데이터 가져오기
   const getLocalUserProducts = () => {
+    // 강제 리셋 모드면 빈 배열 반환
+    if (forceReset) return [];
+    
     try {
       if (!selectedCountry?.id) return [];
       
@@ -49,33 +53,19 @@ export function ProductCardStack() {
           return [];
         }
         
-        // 유효한 productId를 가진 데이터만 필터링
-        const validData = parsedData.filter(item => 
-          item && typeof item === 'object' && Number.isInteger(item.productId)
-        );
-        
-        // 원본 데이터와 다르면 정리된 데이터 저장
-        if (validData.length !== parsedData.length) {
-          console.log(`유효하지 않은 ${parsedData.length - validData.length}개 항목 제거됨`);
-          localStorage.setItem(storageKey, JSON.stringify(validData));
-          
-          // 로컬 스토리지 변경 이벤트 트리거
-          window.dispatchEvent(new Event('localStorageChange'));
-        }
-        
-        return validData;
-      } catch (parseError) {
-        console.error("로컬 스토리지 데이터 파싱 오류:", parseError);
+        return parsedData;
+      } catch (e) {
+        console.error("로컬 스토리지 데이터 파싱 오류:", e);
         localStorage.removeItem(storageKey);
         return [];
       }
     } catch (error) {
-      console.error("로컬 스토리지 읽기 오류:", error);
+      console.error("로컬 스토리지 접근 오류:", error);
+      return [];
     }
-    return [];
   };
   
-  // Fetch user products to filter out already categorized ones
+  // 로그인 상태에 따라 사용자 상품 데이터 가져오기
   const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
     queryFn: async () => {
@@ -104,37 +94,29 @@ export function ProductCardStack() {
         const isFullReset = event.type === 'localStorageChange' && 
                            !localStorage.getItem(`userProducts_${selectedCountry.id}`);
         
-        // 1. 사용자 상품 쿼리 무효화
-        queryClient.invalidateQueries({ 
-          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-        });
-        
-        // 2. 상품 목록 쿼리 무효화 (삭제된 상품이 다시 보이도록)
-        queryClient.invalidateQueries({ 
-          queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-        });
-        
-        // 3. 상태 초기화 - visible 상품들과 현재 인덱스 초기화
-        setVisibleProducts([]);
-        setCurrentProductIndex(0);
-        
-        // 4. 기존 필터링된 상품 목록 강제 리셋 (auth 페이지 방문 후 완전히 새로 보이도록)
         if (isFullReset) {
-          // 지연 설정으로 쿼리 무효화 이후에 실행되도록 함
-          setTimeout(() => {
-            // 상품 목록의 완전한 리셋을 위해 전체 컴포넌트 리렌더링 강제
-            setOriginalTotalProducts(allProducts.length);
-            
-            // categorizedProductIds 배열을 강제로 비우기
-            setLocalCategorizedIds([]);
-            
-            console.log("[ProductCardStack] 로컬 스토리지 초기화 감지 - 카드 스택 완전 리셋");
-            
-            // 다시 현재 화면 업데이트를 위해 쿼리 재시도
-            queryClient.refetchQueries({ 
-              queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-            });
-          }, 100);
+          console.log("[ProductCardStack] 전체 초기화 감지됨 - 강제 리셋 모드 활성화");
+          
+          // 강제 리셋 모드 활성화
+          setForceReset(true);
+          
+          // 모든 관련 상태 초기화
+          setVisibleProducts([]);
+          setCurrentProductIndex(0);
+          
+          // 데이터 리로드
+          queryClient.invalidateQueries({ 
+            queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+          });
+          
+          queryClient.invalidateQueries({ 
+            queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+          });
+        } else {
+          // 일반 변경일 경우 단순 쿼리 무효화
+          queryClient.invalidateQueries({ 
+            queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+          });
         }
       };
       
@@ -149,19 +131,13 @@ export function ProductCardStack() {
         window.removeEventListener('localStorageChange', handleStorageChange);
       };
     }
-  }, [user, queryClient, selectedCountry?.id, setCurrentProductIndex, allProducts.length]);
+  }, [user, queryClient, selectedCountry?.id, setCurrentProductIndex]);
   
-  // categorizedProductIds 컴포넌트 상태
-  const [localCategorizedIds, setLocalCategorizedIds] = useState<number[]>([]);
-  
-  // Get already categorized product IDs
+  // Get already categorized product IDs - 간단한 계산으로 변경
   const categorizedProductIds = useMemo(() => {
-    // 로컬에서 강제로 설정한 값이 있으면 그것을 우선 사용
-    if (localCategorizedIds.length > 0) {
-      return localCategorizedIds;
-    }
+    if (forceReset) return []; // 강제 리셋 모드면 빈 배열 반환
     return userProducts.map(up => up.productId);
-  }, [userProducts, localCategorizedIds]);
+  }, [userProducts, forceReset]);
   
   // Calculate total number of products in the selected category
   const totalCategoryCount = useMemo(() => {
@@ -181,10 +157,14 @@ export function ProductCardStack() {
     console.log("Selected Categories:", selectedCategories);
     console.log("isAllCategoriesSelected:", isAllCategoriesSelected);
     console.log("Some products:", allProducts.slice(0, 3).map(p => ({id: p.id, name: p.name, category: p.category})));
+    console.log("[BottomNavigation] Interested count:", userProducts.filter(p => p.status === "interested").length);
     
-    let filtered = allProducts
-      // First filter out already categorized products
-      .filter(product => !categorizedProductIds.includes(product.id));
+    let filtered = allProducts;
+    
+    // 강제 리셋 상태가 아닐 때만 이미 분류된 상품 필터링
+    if (!forceReset) {
+      filtered = filtered.filter(product => !categorizedProductIds.includes(product.id));
+    }
     
     // Then filter by selected categories if ALL is not selected
     if (!isAllCategoriesSelected) {
@@ -201,16 +181,21 @@ export function ProductCardStack() {
     }
     
     return filtered;
-  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
+  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected, forceReset, userProducts]);
 
-  // Reset visible products and update original total when categories change or userProducts change
+  // 필터링된 상품이 변경되면 visible 상품과 카운트 초기화
   useEffect(() => {
     setVisibleProducts([]);
     setOriginalTotalProducts(totalCategoryCount);
-    
-    // 상품 목록 초기화 후 첫 번째 상품부터 다시 보여주기
     setCurrentProductIndex(0);
-  }, [selectedCategories, isAllCategoriesSelected, totalCategoryCount, userProducts, setCurrentProductIndex]);
+    
+    // 필터링된 상품이 있으면 강제 리셋 모드 비활성화
+    if (filteredProducts.length > 0 && forceReset) {
+      setTimeout(() => {
+        setForceReset(false);
+      }, 100);
+    }
+  }, [filteredProducts, totalCategoryCount, setCurrentProductIndex, forceReset]);
   
   const isLoading = productsLoading || userProductsLoading;
   
@@ -237,35 +222,28 @@ export function ProductCardStack() {
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
-      
-      // 모든 경로 관련 쿼리 무효화
-      queryClient.invalidateQueries({
-        predicate: (query) => {
-          const queryKey = Array.isArray(query.queryKey) ? query.queryKey[0] : query.queryKey;
-          return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
-        }
-      });
     }
   });
   
   // 필터링된 제품 목록이 변경되었거나 가시적인 제품이 없을 때 초기화
   const visibleProductsToShow = useMemo(() => {
+    // 강제 리셋 상태면 무조건 필터링된 상품 표시
+    if (forceReset && filteredProducts.length > 0) {
+      return filteredProducts.slice(0, 3);
+    }
+    
     // 다음 조건 중 하나라도 해당되면 필터링된 상품 목록에서 새로 가져옴:
     // 1. 가시적인 제품이 없을 때
-    // 2. 필터링된 상품 목록이 변경되었을 때 (새 상품 추가 또는 기존 상품이 제거된 경우)
-    // 3. 로컬 스토리지 초기화 후 (categorizedProductIds 변경)
+    // 2. 필터링된 상품 목록이 변경되었을 때
     if (filteredProducts.length > 0 && (
       visibleProducts.length === 0 || 
       filteredProducts.length !== originalTotalProducts
     )) {
-      // useEffect 대신 즉시 리턴하여 사용
-      setTimeout(() => {
-        setCurrentProductIndex(0);
-      }, 0);
       return filteredProducts.slice(0, 3);
     }
+    
     return visibleProducts;
-  }, [filteredProducts, visibleProducts, originalTotalProducts, setCurrentProductIndex]);
+  }, [filteredProducts, visibleProducts, originalTotalProducts, forceReset]);
   
   // visibleProductsToShow가 변경되고 visibleProducts와 다를 때만 업데이트
   useEffect(() => {
@@ -397,8 +375,11 @@ export function ProductCardStack() {
     handleSwipe(direction, topProductId);
   };
   
-  // Calculate position for progress indicator (로컬 스토리지 초기화 후에도 정확한 값 표시)
+  // Calculate position for progress indicator
   const currentPosition = useMemo(() => {
+    // 강제 리셋 모드일 경우 처음부터 시작
+    if (forceReset) return 1;
+    
     // 필터링된 상품이 없거나 모든 상품이 초기화된 상태면 처음부터 시작
     if (filteredProducts.length === allProducts.length && allProducts.length > 0) {
       return 1; // 모든 제품이 다시 보이는 상태 (초기화 후)
@@ -409,17 +390,17 @@ export function ProductCardStack() {
     }
     
     return 0;
-  }, [filteredProducts.length, originalTotalProducts, allProducts.length]);
+  }, [filteredProducts.length, originalTotalProducts, allProducts.length, forceReset]);
   
   // Calculate progress percentage
   const progressPercentage = useMemo(() => {
-    if (originalTotalProducts === 0 && allProducts.length > 0) {
+    if (forceReset || (originalTotalProducts === 0 && allProducts.length > 0)) {
       return 0; // 초기화 후에는 0%부터 다시 시작
     }
     
     return originalTotalProducts > 0 ? 
       ((currentPosition - 1) / originalTotalProducts) * 100 : 0;
-  }, [currentPosition, originalTotalProducts, allProducts.length]);
+  }, [currentPosition, originalTotalProducts, allProducts.length, forceReset]);
   
   if (isLoading) {
     return (
@@ -469,24 +450,38 @@ export function ProductCardStack() {
           <ProductCard
             key={product.id}
             product={product}
-            isTopCard={index === 0}
-            position={index}
-            onSwipe={handleSwipe}
+            index={index}
+            total={visibleProducts.length}
+            onSwipe={(direction) => handleSwipe(direction, product.id)}
+            isProcessing={processingProductIds.has(product.id)}
           />
         ))}
+
+        {/* 진행상황 표시 */}
+        {filteredProducts.length > 0 && (
+          <div className="mt-4 flex flex-col items-center gap-1">
+            <div className="w-64 h-1 bg-gray-200 rounded-full">
+              <div 
+                className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+            <p className="text-xs text-gray-500">
+              {currentPosition} / {Math.max(originalTotalProducts, filteredProducts.length)}
+            </p>
+          </div>
+        )}
       </div>
       
       <ActionButtons onActionClick={handleActionClick} />
       
-      <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5">
-        <div 
-          className="bg-primary h-1.5 rounded-full" 
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
-      </div>
-      <div className="text-xs text-neutral text-center mt-1 mb-4">
-        {currentPosition}/{originalTotalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
-      </div>
+      {/* 비회원 사용자일 경우 안내 메시지 */}
+      {!user && (
+        <div className="w-full max-w-md mx-auto text-center mt-6 text-gray-500 text-sm">
+          <p>비회원으로 이용 중입니다. 목록이 브라우저에 임시 저장됩니다.</p>
+          <p>로그인 후 이용하시면 데이터가 안전하게 보관됩니다.</p>
+        </div>
+      )}
     </div>
   );
 }
