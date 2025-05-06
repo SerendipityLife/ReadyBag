@@ -40,6 +40,26 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
   
+  // 로그인 폼
+  const loginForm = useForm<LoginUserInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // 회원가입 폼
+  const registerForm = useForm<RegisterUserInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+      nickname: "",
+    },
+  });
+  
   // 로컬 스토리지 초기화 함수 - 비회원 데이터 정리
   const clearLocalStorage = () => {
     try {
