@@ -69,14 +69,26 @@ export function ProductCardStack() {
     }
   });
   
-  // Initialize visible products when data changes
-  // Using useMemo instead of useEffect to prevent infinite updates
-  useMemo(() => {
+  // 필터링된 제품이 변경되었고, 가시적인 제품이 없을 때만 초기화
+  const visibleProductsToShow = useMemo(() => {
     if (filteredProducts.length > 0 && visibleProducts.length === 0) {
-      setVisibleProducts(filteredProducts.slice(0, 3));
-      setCurrentProductIndex(0);
+      // useEffect 대신 즉시 리턴하여 사용
+      setTimeout(() => {
+        setCurrentProductIndex(0);
+      }, 0);
+      return filteredProducts.slice(0, 3);
     }
-  }, [filteredProducts, visibleProducts.length]);
+    return visibleProducts;
+  }, [filteredProducts, visibleProducts]);
+  
+  // visibleProductsToShow가 변경되고 visibleProducts와 다를 때만 업데이트
+  useEffect(() => {
+    if (visibleProductsToShow !== visibleProducts && 
+        (visibleProducts.length === 0 || 
+         JSON.stringify(visibleProductsToShow) !== JSON.stringify(visibleProducts))) {
+      setVisibleProducts(visibleProductsToShow);
+    }
+  }, [visibleProductsToShow, visibleProducts]);
   
   // 처리 중인 productId를 추적하기 위한 상태
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
