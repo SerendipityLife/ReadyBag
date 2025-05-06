@@ -114,6 +114,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to update user product" });
     }
   });
+  
+  // Delete user product
+  app.delete(`${apiPrefix}/user-products/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const userId = req.session?.userId || null;
+      const sessionId = req.session?.id || req.sessionID;
+      
+      const deletedUserProduct = await storage.deleteUserProduct(
+        id,
+        userId,
+        sessionId
+      );
+      
+      if (!deletedUserProduct) {
+        return res.status(404).json({ message: "User product not found" });
+      }
+      
+      return res.json(deletedUserProduct);
+    } catch (error) {
+      console.error("Error deleting user product:", error);
+      return res.status(500).json({ message: "Failed to delete user product" });
+    }
+  });
 
   // Create a shared list
   app.post(`${apiPrefix}/shared-list`, async (req, res) => {

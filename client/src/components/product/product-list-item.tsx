@@ -59,6 +59,14 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
   const changeStatus = (newStatus: ProductStatus) => {
     updateStatus.mutate(newStatus);
   };
+  
+  // Legacy function for backwards compatibility
+  const handleChangeClassification = () => {
+    const statuses = [ProductStatus.INTERESTED, ProductStatus.MAYBE, ProductStatus.NOT_INTERESTED];
+    const currentIndex = statuses.indexOf(userProduct.status as ProductStatus);
+    const nextIndex = (currentIndex + 1) % statuses.length;
+    updateStatus.mutate(statuses[nextIndex]);
+  };
 
   // Opens Instagram in a new tab with the hashtag search
   const handleInstagramSearch = () => {

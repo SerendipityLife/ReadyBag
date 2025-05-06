@@ -142,6 +142,35 @@ export const storage = {
     return updated;
   },
   
+  async deleteUserProduct(
+    id: number,
+    userId: string | null,
+    sessionId: string
+  ) {
+    // Verify ownership
+    const userProduct = await db.query.userProducts.findFirst({
+      where: and(
+        eq(userProducts.id, id),
+        or(
+          userId ? eq(userProducts.userId, userId) : undefined,
+          eq(userProducts.sessionId, sessionId)
+        )
+      ),
+    });
+    
+    if (!userProduct) {
+      return null;
+    }
+    
+    // Delete the user product
+    const [deleted] = await db
+      .delete(userProducts)
+      .where(eq(userProducts.id, id))
+      .returning();
+    
+    return deleted;
+  },
+  
   // Shared Lists
   async createSharedList(
     shareId: string,

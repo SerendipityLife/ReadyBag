@@ -63,7 +63,7 @@ export function ProductCardStack() {
       setVisibleProducts(products.slice(0, 3));
       setCurrentProductIndex(0); // Reset position counter when category changes
     }
-  }, [products, setCurrentProductIndex]);
+  }, [products, setCurrentProductIndex, selectedCategory]);
   
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
