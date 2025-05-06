@@ -6,13 +6,6 @@ export const COUNTRIES = [
     code: "JP",
     currency: "JPY",
     flagUrl: "https://images.unsplash.com/photo-1543922596-b3bbaba80649?auto=format&fit=crop&w=50&h=50&q=80"
-  },
-  {
-    id: "korea",
-    name: "한국",
-    code: "KR",
-    currency: "KRW",
-    flagUrl: "https://pixabay.com/get/g1dc6174a327c2927b80802296a20cafb06236f8da91f56a5d724515effb38b6a696427110af1c1dee706594e12decb2573f9d070ddf0c6e84a52e8dcf8d96bfc_1280.jpg"
   }
 ];
 
