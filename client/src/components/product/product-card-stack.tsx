@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
 import { CurrencyInfoPanel } from "@/components/ui/currency-display";
+import { StickyCurrencyInfo } from "@/components/ui/sticky-currency-info";
 import { useAppContext } from "@/contexts/AppContext";
 import { apiRequest } from "@/lib/queryClient";
 import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
@@ -229,10 +230,26 @@ export function ProductCardStack() {
   }
   
   return (
-    <div className="w-full max-w-md mx-auto px-3">
-      <CurrencyInfoPanel />
+    <div className="w-full max-w-md mx-auto px-3 pb-16">
+      {/* 고정된 환율 정보 */}
+      <StickyCurrencyInfo />
       
-      <div className="card-stack relative h-[540px] md:h-[580px] w-full mx-auto">
+      {/* 카테고리 선택 - 스티키 헤더로 추가 */}
+      <div className="sticky top-[4.5rem] z-10 bg-gray-50 pt-1 pb-2">
+        <div className="bg-white rounded-lg p-2 shadow-sm">
+          <div className="text-xs text-neutral text-center mb-1">
+            {currentPosition}/{originalTotalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-1">
+            <div 
+              className="bg-primary h-1.5 rounded-full" 
+              style={{ width: `${progressPercentage}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="card-stack relative h-[540px] md:h-[580px] w-full mx-auto mt-4">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -245,16 +262,6 @@ export function ProductCardStack() {
       </div>
       
       <ActionButtons onActionClick={handleActionClick} />
-      
-      <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5">
-        <div 
-          className="bg-primary h-1.5 rounded-full" 
-          style={{ width: `${progressPercentage}%` }}
-        ></div>
-      </div>
-      <div className="text-xs text-neutral text-center mt-1 mb-4">
-        {currentPosition}/{originalTotalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
-      </div>
     </div>
   );
 }
