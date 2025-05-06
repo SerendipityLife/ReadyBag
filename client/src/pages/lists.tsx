@@ -310,24 +310,14 @@ export function Lists() {
   return (
     <div className="w-full max-w-3xl mx-auto">
       {/* 환율 정보 표시 */}
-      {exchangeRate && lastUpdated && (
-        <div className="bg-white rounded-lg p-2 mb-4 flex items-center justify-between text-xs text-gray-600 shadow-sm">
+      {exchangeRate && (
+        <div className="bg-white rounded-lg p-2 mb-4 flex items-center text-xs text-gray-600 shadow-sm">
           <div className="flex items-center">
             <span className="font-medium">현재 환율:</span>
             <span className="ml-1 font-semibold">
               1{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = {exchangeRate.toFixed(2)}원
             </span>
-            <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">실시간</span>
-          </div>
-          <div className="text-gray-500 text-[10px]">
-            {new Date(lastUpdated).toLocaleString('ko-KR', {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric', 
-              hour: '2-digit',
-              minute: '2-digit',
-              hour12: true
-            })} 기준
+            <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
           </div>
         </div>
       )}

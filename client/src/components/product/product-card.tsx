@@ -180,15 +180,11 @@ export function ProductCard({
               </div>
             </div>
             
-            <div className="mt-2 pt-2 border-t border-gray-100 flex justify-end">
-              <div className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">
-                실시간 환율 반영
-              </div>
-            </div>
+
           </div>
           
-          <div className="mt-4 mb-2 border-t border-gray-100 pt-3">
-            <p className="text-neutral text-sm">{product.description}</p>
+          <div className="mt-3 border-t border-gray-100 pt-3">
+            <p className="text-neutral text-sm line-clamp-4">{product.description}</p>
           </div>
           
           <div className="mt-4 text-xs text-neutral flex items-center">

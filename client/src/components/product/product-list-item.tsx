@@ -144,9 +144,7 @@ export function ProductListItem({
                   한국: <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
                 </div>
               </div>
-              <div className="text-[10px] text-green-600 flex items-center justify-end mt-1">
-                <span className="bg-green-50 rounded-full px-2 py-0.5">실시간 환율 반영</span>
-              </div>
+
             </div>
           </div>
         </div>

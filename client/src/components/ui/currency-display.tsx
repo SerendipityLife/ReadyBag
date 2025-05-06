@@ -80,15 +80,7 @@ export function CurrencyDisplay({
             <span className="font-accent font-semibold text-primary">
               {formatCurrency(convertedAmount, "KRW")}
             </span>
-            {isFresh && (
-              <span className="ml-1 text-xs bg-green-50 text-green-700 px-1 rounded">LIVE</span>
-            )}
           </div>
-          {relativeTime && (
-            <div className="text-[10px] text-gray-500">
-              ({relativeTime} 환율기준)
-            </div>
-          )}
         </div>
       )}
     </div>
@@ -127,25 +119,13 @@ export function CurrencyInfoPanel() {
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center">
-            <span className="text-sm font-medium">실시간 환율</span>
+            <span className="text-sm font-medium">현재 환율</span>
             <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">LIVE</span>
           </div>
           <div className="font-semibold text-2xl mt-1">
             1엔 = <span className="text-red-500">{exchangeRate.toFixed(2)}원</span>
           </div>
         </div>
-        <div className="text-right text-xs text-gray-500">
-          {updatedText}
-          <div>
-            {lastUpdated && format(new Date(lastUpdated), "yyyy.MM.dd HH:mm:ss")}
-          </div>
-        </div>
-      </div>
-      
-      <div className="mt-2 text-xs bg-gray-50 p-2 rounded-md text-gray-500">
-        - 환율 정보는 30분마다 자동 업데이트됩니다
-        <br />
-        - 모든 상품 가격은 실시간 환율로 자동 계산됩니다
       </div>
     </div>
   );
