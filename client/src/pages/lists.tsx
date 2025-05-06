@@ -284,10 +284,10 @@ export function Lists() {
       <div>
         {renderActionButtons()}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4">
           {products.map((userProduct: ExtendedUserProduct) => (
             <div key={userProduct.id} className="flex items-start space-x-2">
-              <div className="pt-3">
+              <div className="pt-3 md:pt-8">
                 <Checkbox 
                   checked={!!selectedIds[userProduct.id]} 
                   onCheckedChange={(checked) => handleCheckboxChange(userProduct.id, !!checked)}

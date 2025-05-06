@@ -119,97 +119,104 @@ export function ProductListItem({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex">
+    <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row">
       <img
         src={product.imageUrl}
         alt={product.name}
-        className="w-24 h-24 object-cover"
+        className="w-full h-40 sm:w-28 sm:h-28 object-cover"
       />
       
       <div className="p-3 flex-1">
-        <div className="flex justify-between">
-          <div className="flex flex-col">
+        <div className="flex flex-col sm:flex-row sm:justify-between">
+          <div className="flex flex-col mb-2 sm:mb-0">
             <h3 className="font-medium text-sm">{product.name}</h3>
             {product.nameJapanese && (
               <p className="text-xs text-gray-500 mt-0.5">{product.nameJapanese}</p>
             )}
-          </div>
-          <div className="text-right bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
-            <div className="flex flex-col">
-              <div className="grid grid-cols-2 gap-1">
-                <div className="text-right text-xs text-gray-500">
-                  현지: <span className="font-medium">¥{Math.round(product.price).toLocaleString()}</span>
-                </div>
-                <div className="text-right text-xs text-gray-500">
-                  <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
-                </div>
+            
+            {product.location && (
+              <div className="flex items-center mt-1 text-xs text-gray-500">
+                <span className="mr-1">📍</span>
+                <span>{product.location}</span>
               </div>
-
+            )}
+          </div>
+          
+          <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
+            <div className="flex items-center justify-between sm:flex-col sm:items-end">
+              <div className="text-xs text-gray-500">
+                현지: <span className="font-medium">¥{Math.round(product.price).toLocaleString()}</span>
+              </div>
+              <div className="text-xs text-gray-500">
+                <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
+              </div>
             </div>
           </div>
         </div>
         
         {!readOnly && (
-          <div className="mt-2 flex flex-wrap space-x-2">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
-                >
-                  <RefreshCw className="h-3 w-3 mr-1" />
-                  분류변경
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="p-0 w-40" align="start">
-                <div className="flex flex-col gap-1 p-1">
-                  <Button 
-                    variant="ghost" 
+          <div className="mt-3 flex flex-wrap gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
                     size="sm"
-                    className={`justify-start text-xs ${userProduct.status === ProductStatus.INTERESTED ? 'bg-red-50 text-red-500' : ''}`}
-                    onClick={() => changeStatus(ProductStatus.INTERESTED)}
+                    className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
                   >
-                    <Heart className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.INTERESTED ? 'fill-red-500 text-red-500' : ''}`} />
-                    관심 상품
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    분류변경
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className={`justify-start text-xs ${userProduct.status === ProductStatus.MAYBE ? 'bg-orange-50 text-orange-500' : ''}`}
-                    onClick={() => changeStatus(ProductStatus.MAYBE)}
-                  >
-                    <Triangle className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.MAYBE ? 'fill-orange-500 text-orange-500' : ''}`} />
-                    나중에
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className={`justify-start text-xs ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'bg-neutral-50 text-neutral-500' : ''}`}
-                    onClick={() => changeStatus(ProductStatus.NOT_INTERESTED)}
-                  >
-                    <X className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'text-neutral-500' : ''}`} />
-                    관심없음
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 w-40" align="start">
+                  <div className="flex flex-col gap-1 p-1">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className={`justify-start text-xs ${userProduct.status === ProductStatus.INTERESTED ? 'bg-red-50 text-red-500' : ''}`}
+                      onClick={() => changeStatus(ProductStatus.INTERESTED)}
+                    >
+                      <Heart className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.INTERESTED ? 'fill-red-500 text-red-500' : ''}`} />
+                      관심 상품
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className={`justify-start text-xs ${userProduct.status === ProductStatus.MAYBE ? 'bg-orange-50 text-orange-500' : ''}`}
+                      onClick={() => changeStatus(ProductStatus.MAYBE)}
+                    >
+                      <Triangle className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.MAYBE ? 'fill-orange-500 text-orange-500' : ''}`} />
+                      나중에
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className={`justify-start text-xs ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'bg-neutral-50 text-neutral-500' : ''}`}
+                      onClick={() => changeStatus(ProductStatus.NOT_INTERESTED)}
+                    >
+                      <X className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'text-neutral-500' : ''}`} />
+                      관심없음
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
+              
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
+                onClick={handleInstagramSearch}
+                disabled={!product.hashtags || product.hashtags.length === 0}
+              >
+                <Instagram className="h-3 w-3 mr-1" />
+                인스타
+              </Button>
+            </div>
             
             <Button
               variant="outline"
               size="sm"
-              className="text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
-              onClick={handleInstagramSearch}
-              disabled={!product.hashtags || product.hashtags.length === 0}
-            >
-              <Instagram className="h-3 w-3 mr-1" />
-              인스타
-            </Button>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white mt-2 md:mt-0"
+              className="w-full sm:w-auto text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
               onClick={() => deleteUserProduct.mutate()}
             >
               <Trash2 className="h-3 w-3 mr-1" />
