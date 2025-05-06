@@ -8,8 +8,12 @@ type AppContextType = {
   setCurrentView: (view: View) => void;
   selectedCountry: Country;
   setSelectedCountry: (country: Country) => void;
-  selectedCategory: string;
-  setSelectedCategory: (category: string) => void;
+  selectedCategories: string[];
+  setSelectedCategories: (categories: string[]) => void;
+  addCategory: (category: string) => void;
+  removeCategory: (category: string) => void;
+  toggleCategory: (category: string) => void;
+  isAllCategoriesSelected: boolean;
   currentProductIndex: number;
   setCurrentProductIndex: (index: number) => void;
   isShareModalOpen: boolean;
@@ -30,12 +34,55 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // App state
   const [currentView, setCurrentView] = useState<View>(View.EXPLORE);
   const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
-  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(["ALL"]);
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  // Derived state
+  const isAllCategoriesSelected = selectedCategories.includes("ALL");
+
+  // Category management functions
+  const addCategory = (category: string) => {
+    if (category === "ALL") {
+      setSelectedCategories(["ALL"]);
+    } else {
+      setSelectedCategories(prev => {
+        const newCategories = prev.filter(c => c !== "ALL");
+        if (!newCategories.includes(category)) {
+          return [...newCategories, category];
+        }
+        return newCategories;
+      });
+    }
+  };
+
+  const removeCategory = (category: string) => {
+    if (category === "ALL") {
+      if (selectedCategories.length <= 1) {
+        return; // Don't remove the last category
+      }
+      setSelectedCategories(prev => prev.filter(c => c !== "ALL"));
+    } else {
+      setSelectedCategories(prev => {
+        const newCategories = prev.filter(c => c !== category);
+        if (newCategories.length === 0) {
+          return ["ALL"]; // If no categories are selected, select ALL
+        }
+        return newCategories;
+      });
+    }
+  };
+
+  const toggleCategory = (category: string) => {
+    if (selectedCategories.includes(category)) {
+      removeCategory(category);
+    } else {
+      addCategory(category);
+    }
+  };
 
   // Get exchange rate
   const { data: exchangeRateData } = useQuery({
@@ -81,8 +128,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentView,
     selectedCountry,
     setSelectedCountry,
-    selectedCategory,
-    setSelectedCategory,
+    selectedCategories,
+    setSelectedCategories,
+    addCategory,
+    removeCategory,
+    toggleCategory,
+    isAllCategoriesSelected,
     currentProductIndex,
     setCurrentProductIndex,
     isShareModalOpen,

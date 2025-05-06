@@ -14,7 +14,11 @@ export type ProductCategory = {
 };
 
 export function CategorySelector() {
-  const { selectedCountry, setSelectedCategory, selectedCategory } = useAppContext();
+  const { 
+    selectedCountry, 
+    selectedCategories, 
+    toggleCategory,
+  } = useAppContext();
   
   // 상품 데이터 가져오기
   const { data: products = [] } = useQuery<Product[]>({
@@ -61,17 +65,12 @@ export function CategorySelector() {
         allCategory,
         ...categoryList.sort((a, b) => a.name.localeCompare(b.name))
       ]);
-      
-      // 카테고리가 없거나 카테고리가 바뀌었을 때 기본값으로 '전체' 선택
-      if (!selectedCategory || !categoryList.some(c => c.id === selectedCategory)) {
-        setSelectedCategory("ALL");
-      }
     }
-  }, [products, setSelectedCategory, selectedCategory]);
+  }, [products]);
   
   // 카테고리 변경 핸들러
   const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategory(categoryId);
+    toggleCategory(categoryId);
   };
   
   return (
@@ -92,7 +91,7 @@ export function CategorySelector() {
           <div key={category.id} className="flex items-center space-x-2">
             <Checkbox 
               id={`category-${category.id}`} 
-              checked={selectedCategory === category.id}
+              checked={selectedCategories.includes(category.id)}
               onCheckedChange={() => handleCategoryChange(category.id)}
             />
             <Label 

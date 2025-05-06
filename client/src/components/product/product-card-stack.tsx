@@ -12,7 +12,8 @@ export function ProductCardStack() {
   const queryClient = useQueryClient();
   const { 
     selectedCountry, 
-    selectedCategory, 
+    selectedCategories,
+    isAllCategoriesSelected,
     setCurrentProductIndex 
   } = useAppContext();
   
@@ -33,12 +34,19 @@ export function ProductCardStack() {
   // Get already categorized product IDs
   const categorizedProductIds = userProducts.map(up => up.productId);
   
-  // Filter products by selected category AND exclude already categorized products
+  // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
     return allProducts
       .filter(product => !categorizedProductIds.includes(product.id))
-      .filter(product => selectedCategory === "ALL" || product.category === selectedCategory);
-  }, [allProducts, categorizedProductIds, selectedCategory]);
+      .filter(product => {
+        // Show all products if "ALL" is selected
+        if (isAllCategoriesSelected) {
+          return true;
+        }
+        // Otherwise, show only products in selected categories
+        return product.category && selectedCategories.includes(product.category);
+      });
+  }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
     
   const isLoading = productsLoading || userProductsLoading;
   
@@ -183,7 +191,7 @@ export function ProductCardStack() {
         ></div>
       </div>
       <div className="text-xs text-neutral text-center mt-1">
-        {currentPosition}/{totalProducts} • {selectedCategory === "ALL" ? "전체" : selectedCategory} 카테고리
+        {currentPosition}/{totalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
       </div>
     </div>
   );
