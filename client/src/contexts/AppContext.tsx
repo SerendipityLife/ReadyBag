@@ -8,6 +8,10 @@ type AppContextType = {
   setCurrentView: (view: View) => void;
   selectedCountry: Country;
   setSelectedCountry: (country: Country) => void;
+  selectedCategory: string;
+  setSelectedCategory: (category: string) => void;
+  currentProductIndex: number;
+  setCurrentProductIndex: (index: number) => void;
   isShareModalOpen: boolean;
   openShareModal: () => void;
   closeShareModal: () => void;
@@ -26,6 +30,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // App state
   const [currentView, setCurrentView] = useState<View>(View.EXPLORE);
   const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
+  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
@@ -75,6 +81,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentView,
     selectedCountry,
     setSelectedCountry,
+    selectedCategory,
+    setSelectedCategory,
+    currentProductIndex,
+    setCurrentProductIndex,
     isShareModalOpen,
     openShareModal,
     closeShareModal,

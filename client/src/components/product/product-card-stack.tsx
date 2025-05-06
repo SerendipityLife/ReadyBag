@@ -11,13 +11,23 @@ import type { Product } from "@shared/schema";
 
 export function ProductCardStack() {
   const queryClient = useQueryClient();
-  const { selectedCountry } = useAppContext();
+  const { 
+    selectedCountry, 
+    selectedCategory, 
+    setCurrentProductIndex 
+  } = useAppContext();
+  
   const [visibleProducts, setVisibleProducts] = useState<Product[]>([]);
   
   // Fetch products for the selected country
-  const { data: products = [], isLoading } = useQuery({
+  const { data: allProducts = [], isLoading } = useQuery({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
   });
+  
+  // Filter products by selected category
+  const products = selectedCategory === "ALL" 
+    ? allProducts 
+    : allProducts.filter(product => product.category === selectedCategory);
   
   // Update user product status mutation
   const updateProductStatus = useMutation({
@@ -34,12 +44,13 @@ export function ProductCardStack() {
     }
   });
   
-  // Initialize visible products when products are loaded
+  // Initialize visible products when products are loaded or category changes
   useEffect(() => {
     if (products.length > 0) {
       setVisibleProducts(products.slice(0, 3));
+      setCurrentProductIndex(0); // Reset position counter when category changes
     }
-  }, [products]);
+  }, [products, setCurrentProductIndex]);
   
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
@@ -50,7 +61,11 @@ export function ProductCardStack() {
     // Remove the swiped card and add the next one in queue
     setVisibleProducts(prev => {
       const remaining = prev.filter(p => p.id !== productId);
-      const nextIndex = products.findIndex(p => p.id === productId) + 3;
+      const currentIndex = products.findIndex(p => p.id === productId);
+      const nextIndex = currentIndex + 3;
+      
+      // Update the current product index
+      setCurrentProductIndex(currentIndex + 1);
       
       if (nextIndex < products.length) {
         return [...remaining, products[nextIndex]];
@@ -70,7 +85,9 @@ export function ProductCardStack() {
   
   // Calculate progress
   const totalProducts = products.length;
-  const seenProducts = totalProducts - visibleProducts.length;
+  const seenProducts = Math.min(products.findIndex(p => 
+    p.id === (visibleProducts[0]?.id ?? -1)), totalProducts);
+  const currentPosition = seenProducts + 1;
   const progressPercentage = totalProducts > 0 ? (seenProducts / totalProducts) * 100 : 0;
   
   if (isLoading) {
@@ -118,7 +135,7 @@ export function ProductCardStack() {
         ></div>
       </div>
       <div className="text-xs text-neutral text-center mt-1">
-        {totalProducts}개 제품 중 {seenProducts}개 확인
+        {currentPosition}/{totalProducts} • {selectedCategory === "ALL" ? "전체" : selectedCategory} 카테고리
       </div>
     </div>
   );
