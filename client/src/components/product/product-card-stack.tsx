@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
@@ -34,9 +34,11 @@ export function ProductCardStack() {
   const categorizedProductIds = userProducts.map(up => up.productId);
   
   // Filter products by selected category AND exclude already categorized products
-  const products = allProducts
-    .filter(product => !categorizedProductIds.includes(product.id))
-    .filter(product => selectedCategory === "ALL" || product.category === selectedCategory);
+  const filteredProducts = useMemo(() => {
+    return allProducts
+      .filter(product => !categorizedProductIds.includes(product.id))
+      .filter(product => selectedCategory === "ALL" || product.category === selectedCategory);
+  }, [allProducts, categorizedProductIds, selectedCategory]);
     
   const isLoading = productsLoading || userProductsLoading;
   
@@ -59,11 +61,11 @@ export function ProductCardStack() {
   
   // Initialize visible products when products are loaded or category changes
   useEffect(() => {
-    if (products.length > 0) {
-      setVisibleProducts(products.slice(0, 3));
+    if (filteredProducts.length > 0) {
+      setVisibleProducts(filteredProducts.slice(0, 3));
       setCurrentProductIndex(0); // Reset position counter when category changes
     }
-  }, [products, setCurrentProductIndex, selectedCategory]);
+  }, [filteredProducts, setCurrentProductIndex]);
   
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
@@ -74,14 +76,14 @@ export function ProductCardStack() {
     // Remove the swiped card and add the next one in queue
     setVisibleProducts(prev => {
       const remaining = prev.filter(p => p.id !== productId);
-      const currentIndex = products.findIndex(p => p.id === productId);
+      const currentIndex = filteredProducts.findIndex(p => p.id === productId);
       const nextIndex = currentIndex + 3;
       
       // Update the current product index
       setCurrentProductIndex(currentIndex + 1);
       
-      if (nextIndex < products.length) {
-        return [...remaining, products[nextIndex]];
+      if (nextIndex < filteredProducts.length) {
+        return [...remaining, filteredProducts[nextIndex]];
       }
       
       return remaining;
@@ -97,8 +99,8 @@ export function ProductCardStack() {
   };
   
   // Calculate progress
-  const totalProducts = products.length;
-  const seenProducts = Math.min(products.findIndex(p => 
+  const totalProducts = filteredProducts.length;
+  const seenProducts = Math.min(filteredProducts.findIndex(p => 
     p.id === (visibleProducts[0]?.id ?? -1)), totalProducts);
   const currentPosition = seenProducts + 1;
   const progressPercentage = totalProducts > 0 ? (seenProducts / totalProducts) * 100 : 0;
@@ -113,7 +115,7 @@ export function ProductCardStack() {
     );
   }
   
-  if (products.length === 0) {
+  if (filteredProducts.length === 0) {
     return (
       <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
         <div className="text-center">
