@@ -38,28 +38,32 @@ export function ProductCardStack() {
   
   // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
-    // First, log the categories we're filtering for
+    // Log the categories we're filtering for
     console.log("Selected Categories:", selectedCategories);
     console.log("isAllCategoriesSelected:", isAllCategoriesSelected);
     
-    return allProducts
-      .filter(product => !categorizedProductIds.includes(product.id))
-      .filter(product => {
-        // Show all products if "ALL" is selected
-        if (isAllCategoriesSelected) {
-          return true;
+    // Log the first few products and their categories for debugging
+    console.log("Some products:", allProducts.slice(0, 3).map(p => ({id: p.id, name: p.name, category: p.category})));
+    
+    let filtered = allProducts
+      // First filter out already categorized products
+      .filter(product => !categorizedProductIds.includes(product.id));
+    
+    // Then filter by selected categories if ALL is not selected
+    if (!isAllCategoriesSelected) {
+      filtered = filtered.filter(product => {
+        // Make sure the product has a category
+        if (!product.category) {
+          return false;
         }
-        // Otherwise, show only products in selected categories
-        const isInSelectedCategory = product.category && selectedCategories.includes(product.category);
         
-        // For debugging
-        if (product.id === 79) {
-          console.log("Product 79 category:", product.category);
-          console.log("Is in selected category:", isInSelectedCategory);
-        }
-        
+        // Check if this product's category is in the selected categories
+        const isInSelectedCategory = selectedCategories.includes(product.category);
         return isInSelectedCategory;
       });
+    }
+    
+    return filtered;
   }, [allProducts, categorizedProductIds, selectedCategories, isAllCategoriesSelected]);
     
   const isLoading = productsLoading || userProductsLoading;

@@ -77,11 +77,18 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const toggleCategory = (category: string) => {
+    console.log("In AppContext toggleCategory:", category);
     if (selectedCategories.includes(category)) {
+      console.log("Removing category:", category);
       removeCategory(category);
     } else {
+      console.log("Adding category:", category);
       addCategory(category);
     }
+    // Log after the state update was requested
+    setTimeout(() => {
+      console.log("selectedCategories after toggle request:", selectedCategories);
+    }, 0);
   };
 
   // Get exchange rate

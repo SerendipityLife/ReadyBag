@@ -70,6 +70,8 @@ export function CategorySelector() {
   
   // 카테고리 변경 핸들러
   const handleCategoryChange = (categoryId: string) => {
+    console.log("Toggling category:", categoryId);
+    console.log("Current selectedCategories before toggle:", selectedCategories);
     toggleCategory(categoryId);
   };
   
