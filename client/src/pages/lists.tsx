@@ -245,7 +245,7 @@ export function Lists() {
                     )}
                     {status !== ProductStatus.NOT_INTERESTED && (
                       <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.NOT_INTERESTED)}>
-                        <X className="h-4 w-4 mr-2" />
+                        <X className="h-4 w-4 mr-2 text-orange-500" />
                         관심없음
                       </DropdownMenuItem>
                     )}
@@ -331,7 +331,7 @@ export function Lists() {
             value={ProductStatus.NOT_INTERESTED}
             className="flex items-center justify-center"
           >
-            <span className="text-gray-700">관심없음</span> {getCountBadge(notInterestedProducts.length)}
+            <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
           </TabsTrigger>
         </TabsList>
         

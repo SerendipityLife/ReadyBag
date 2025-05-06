@@ -41,12 +41,12 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             id="dislikeBtn"
             variant="outline"
             size="icon"
-            className="w-16 h-16 rounded-full border-2 border-black text-black shadow-md hover:bg-gray-50 mb-1"
+            className="w-16 h-16 rounded-full border-2 border-orange-500 text-orange-500 shadow-md hover:bg-orange-50 mb-1"
             onClick={() => onActionClick(SwipeDirection.RIGHT)}
           >
             <X className="w-6 h-6 font-bold" strokeWidth={3} />
           </Button>
-          <span className="text-xs font-medium text-gray-700">관심없음</span>
+          <span className="text-xs font-medium text-orange-500">관심없음</span>
         </div>
       </div>
     </div>

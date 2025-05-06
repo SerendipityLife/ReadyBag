@@ -51,8 +51,8 @@ export enum ProductStatus {
 // Status Colors
 export const STATUS_COLORS = {
   [ProductStatus.INTERESTED]: "status-interested",
-  [ProductStatus.NOT_INTERESTED]: "status-notInterested",
-  [ProductStatus.MAYBE]: "status-maybe"
+  [ProductStatus.NOT_INTERESTED]: "status-orange", 
+  [ProductStatus.MAYBE]: "status-gray"
 };
 
 // Status Icons
