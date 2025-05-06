@@ -67,11 +67,44 @@ export function ProductCardStack() {
     }
   }, [filteredProducts, setCurrentProductIndex]);
   
+  // 처리 중인 productId를 추적하기 위한 상태
+  const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
+    
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
+    // 이미 처리 중인 제품인지 확인
+    if (processingProductIds.has(productId)) {
+      console.log("이미 처리 중인 제품입니다:", productId);
+      return;
+    }
+    
+    // 처리 중인 제품으로 표시
+    setProcessingProductIds(prev => {
+      const newSet = new Set(prev);
+      newSet.add(productId);
+      return newSet;
+    });
+    
     // Update the product status in the backend
     const status = SWIPE_TO_STATUS[direction];
-    updateProductStatus.mutate({ productId, status });
+    updateProductStatus.mutate({ productId, status }, {
+      onSuccess: () => {
+        // 성공 후 처리 중인 제품 목록에서 제거
+        setProcessingProductIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      },
+      onError: () => {
+        // 에러 발생 시에도 처리 중인 제품 목록에서 제거
+        setProcessingProductIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      }
+    });
     
     // Remove the swiped card and add the next one in queue
     setVisibleProducts(prev => {

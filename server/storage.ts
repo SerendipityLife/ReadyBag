@@ -1,5 +1,5 @@
 import { db } from "@db";
-import { eq, and, desc, asc, or, isNull } from "drizzle-orm";
+import { eq, and, desc, asc, or, isNull, inArray } from "drizzle-orm";
 import {
   countries,
   products,
@@ -75,31 +75,58 @@ export const storage = {
     userId: string | null,
     sessionId: string
   ) {
-    // Check if user product already exists
-    const existingUserProduct = await db.query.userProducts.findFirst({
+    console.log(`UserProduct 요청: productId=${productId}, status=${status}`);
+    
+    // 이 사용자/세션에 대해 해당 제품의 모든 레코드 찾기
+    const existingProducts = await db.query.userProducts.findMany({
       where: and(
         eq(userProducts.productId, productId),
         or(
           userId ? eq(userProducts.userId, userId) : undefined,
-          eq(userProducts.sessionId, sessionId)
+          sessionId ? eq(userProducts.sessionId, sessionId) : undefined
         )
       ),
+      orderBy: desc(userProducts.createdAt),
     });
     
-    if (existingUserProduct) {
-      // Update existing user product
+    console.log(`기존 제품 수: ${existingProducts.length}`);
+    
+    if (existingProducts.length > 0) {
+      // 가장 최근의 항목만 유지하고 나머지는 삭제
+      const latestProduct = existingProducts[0]; // 이미 createdAt 내림차순으로 정렬됨
+      
+      // 중복 항목이 있으면 삭제 (첫 번째 항목 제외)
+      if (existingProducts.length > 1) {
+        const idsToDelete = existingProducts
+          .slice(1)
+          .map(p => p.id);
+        
+        console.log(`중복 항목 삭제: ${idsToDelete.join(', ')}`);
+        
+        if (idsToDelete.length > 0) {
+          await db
+            .delete(userProducts)
+            .where(inArray(userProducts.id, idsToDelete));
+        }
+      }
+      
+      // 최신 항목 업데이트
+      console.log(`최신 제품 ID: ${latestProduct.id} 상태 업데이트: ${status}`);
+      
       const [updated] = await db
         .update(userProducts)
         .set({
           status,
           updatedAt: new Date(),
         })
-        .where(eq(userProducts.id, existingUserProduct.id))
+        .where(eq(userProducts.id, latestProduct.id))
         .returning();
       
       return updated;
     } else {
-      // Create new user product
+      // 새 사용자 제품 생성
+      console.log(`새 UserProduct 생성: productId=${productId}, status=${status}`);
+      
       const [newUserProduct] = await db
         .insert(userProducts)
         .values({
