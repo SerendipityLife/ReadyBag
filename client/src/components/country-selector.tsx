@@ -49,23 +49,8 @@ export function CountrySelector() {
       
       {isOpen && (
         <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 z-50">
-          <div className="py-1">
-            {countries.map((country) => (
-              <button
-                key={country.id}
-                className="flex items-center px-4 py-2 text-sm text-neutral-dark hover:bg-primary hover:text-white w-full text-left"
-                onClick={() => handleCountryClick(country)}
-              >
-                <img
-                  src={country.flagUrl}
-                  alt={`${country.name} 국기`}
-                  className="w-5 h-5 rounded-full object-cover mr-3"
-                />
-                <span>{country.name}</span>
-              </button>
-            ))}
-            
-            <div className="flex items-center px-4 py-2 text-sm text-neutral">
+          <div className="py-3 px-4">
+            <div className="flex items-center text-sm text-neutral">
               <span className="text-xs italic">더 많은 국가가 제공 예정입니다</span>
             </div>
           </div>
