@@ -30,19 +30,12 @@ export function BottomNavigation() {
     staleTime: 1000 // 1초 후 데이터가 stale 상태가 됨
   });
   
-  // 구독 설정: 상품 변경 시 자동 리페치
+  // 구독 대신 특정 쿼리키 변경 감지 - 무한 루프 방지
   useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
-      // 사용자 제품이나 상품 상태 변경 시 리페치
-      if (user && selectedCountry?.id) {
-        refetch();
-      }
-    });
-    
-    return () => {
-      unsubscribe();
-    };
-  }, [queryClient, refetch, user, selectedCountry?.id]);
+    if (user && selectedCountry?.id) {
+      refetch();
+    }
+  }, [user, selectedCountry?.id, refetch]);
   
   // "관심" 상태의 상품만 필터링하여 개수 세기
   const interestedCount = userProducts?.filter(
