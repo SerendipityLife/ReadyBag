@@ -1,15 +1,34 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAppContext } from "@/contexts/AppContext";
+import { useAuth } from "@/hooks/use-auth";
 import { CountrySelector } from "@/components/country-selector";
 import { View } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Share2, UserCircle } from "lucide-react";
+import { 
+  ArrowLeft, 
+  Share2, 
+  UserCircle, 
+  LogOut, 
+  LogIn,
+  ChevronDown,
+  User
+} from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Header() {
   const [location, navigate] = useLocation();
   const { currentView, setCurrentView, generateShareUrl } = useAppContext();
+  const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
+  const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   
   const handleBackClick = () => {
     if (isSharedList) {
@@ -21,6 +40,29 @@ export function Header() {
   
   const handleShareClick = () => {
     generateShareUrl();
+  };
+
+  const handleLoginClick = () => {
+    navigate("/auth");
+  };
+
+  const handleLogoutClick = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        navigate("/auth");
+      }
+    });
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user || !user.email) return "U";
+    
+    if (user.nickname) {
+      return user.nickname.charAt(0).toUpperCase();
+    }
+    
+    return user.email.charAt(0).toUpperCase();
   };
   
   return (
@@ -39,34 +81,76 @@ export function Header() {
                 <ArrowLeft size={18} />
               </Button>
             )}
-            <h1 className={`text-xl md:text-2xl font-heading font-bold text-primary ${(currentView === View.LISTS || isSharedList) ? "ml-0" : "ml-1"}`}>
+            <h1 
+              className={`text-xl md:text-2xl font-heading font-bold text-primary ${(currentView === View.LISTS || isSharedList) ? "ml-0" : "ml-1"} cursor-pointer`}
+              onClick={() => navigate("/")}
+            >
               <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
             </h1>
           </div>
           
           <div className="flex items-center space-x-2">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-neutral hover:text-primary p-1"
-              onClick={handleShareClick}
-            >
-              <Share2 size={18} />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-neutral hover:text-primary p-1"
-              // A placeholder for future user authentication
-              onClick={() => {}}
-            >
-              <UserCircle size={18} />
-            </Button>
+            {!isAuthPage && (
+              <>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-neutral hover:text-primary p-1"
+                  onClick={handleShareClick}
+                >
+                  <Share2 size={18} />
+                </Button>
+                
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="sm" className="p-1">
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="bg-primary/10 text-primary">
+                            {getUserInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <ChevronDown className="h-4 w-4 ml-1" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <div className="flex items-center justify-start p-2">
+                        <div className="flex flex-col space-y-1 leading-none">
+                          {user.nickname && (
+                            <p className="font-medium">{user.nickname}</p>
+                          )}
+                          <p className="text-sm text-gray-500 truncate">
+                            {user.email}
+                          </p>
+                        </div>
+                      </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        className="text-red-500 focus:text-red-500 cursor-pointer"
+                        onClick={handleLogoutClick}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>로그아웃</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className="text-neutral hover:text-primary p-1"
+                    onClick={handleLoginClick}
+                  >
+                    <LogIn size={18} />
+                  </Button>
+                )}
+              </>
+            )}
           </div>
         </div>
         
         {/* Bottom row: Country selector */}
-        {!isSharedList && (
+        {!isSharedList && !isAuthPage && (
           <div className="mt-1 md:mt-0">
             <CountrySelector />
           </div>

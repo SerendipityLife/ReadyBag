@@ -1,337 +1,361 @@
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Express } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import session from "express-session";
-import connectPgSimple from "connect-pg-simple";
-import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { createHash, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
-import { db } from "@db";
-import { users } from "@shared/schema";
-import { eq, and, or } from "drizzle-orm";
-import { 
-  registerUserSchema,
-  loginUserSchema,
-  resetPasswordRequestSchema,
-  resetPasswordSchema
-} from "@shared/schema";
-import { ZodError } from "zod";
+import connectPgSimple from "connect-pg-simple";
 import { pool } from "../db";
+import { db } from "../db";
+import { users, loginUserSchema, registerUserSchema, resetPasswordRequestSchema, resetPasswordSchema } from "@shared/schema";
+import { eq, and, isNull, gt } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
-// Declaring user type for Express session
+// Express User interface 확장
 declare global {
-  namespace Express {
-    interface User {
-      id: number;
-      email: string;
-      nickname: string | null;
+    namespace Express {
+        interface User {
+            id: number;
+            email: string;
+            nickname: string | null;
+        }
     }
-  }
 }
 
-const scryptAsync = promisify(scrypt);
-
-// Hash password using scrypt
+// 비밀번호 해싱 함수
 export async function hashPassword(password: string): Promise<string> {
-  const salt = randomBytes(16).toString("hex");
-  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
-  return `${buf.toString("hex")}.${salt}`;
+    const salt = randomBytes(16).toString("hex");
+    const hash = createHash("sha256");
+    hash.update(password + salt);
+    const hashedPassword = hash.digest("hex");
+    return `${hashedPassword}.${salt}`;
 }
 
-// Compare provided password with stored hashed password
+// 비밀번호 비교 함수
 export async function comparePasswords(supplied: string, stored: string): Promise<boolean> {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+    try {
+        const [hashed, salt] = stored.split(".");
+        const hash = createHash("sha256");
+        hash.update(supplied + salt);
+        const hashedBuffer = Buffer.from(hash.digest("hex"));
+        const storedBuffer = Buffer.from(hashed);
+        return hashedBuffer.toString() === storedBuffer.toString();
+    } catch (error) {
+        console.error("Error comparing passwords:", error);
+        return false;
+    }
 }
 
-// Set up authentication for the Express app
-export function setupAuth(app: Express) {
-  // Create PostgreSQL session store
-  const PostgresStore = connectPgSimple(session);
-  
-  // Set up session storage
-  const sessionOptions: session.SessionOptions = {
-    store: new PostgresStore({
-      pool,
-      tableName: "session", // Uses "session" table in your database
-      createTableIfMissing: true
-    }),
-    secret: process.env.SESSION_SECRET || "readybag_session_secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      httpOnly: true
-    }
-  };
-  
-  app.use(session(sessionOptions));
-  app.use(passport.initialize());
-  app.use(passport.session());
-  
-  // Configure passport local strategy (email/password)
-  passport.use(new LocalStrategy(
-    { usernameField: "email" }, // Use email instead of username
-    async (email, password, done) => {
-      try {
-        // Find user by email
-        const userResults = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
-        const user = userResults[0];
+// 이메일 전송 모의 함수 (실제 구현에서는 실제 이메일 서비스 사용)
+async function sendPasswordResetEmail(email: string, resetToken: string, resetLink: string) {
+    console.log(`
+        To: ${email}
+        Subject: ReadyBag 비밀번호 재설정
         
-        if (!user) {
-          return done(null, false, { message: "계정을 찾을 수 없습니다" });
-        }
+        아래 링크를 클릭하여 비밀번호를 재설정하세요:
+        ${resetLink}
         
-        // Check password
-        const isValidPassword = await comparePasswords(password, user.password);
-        if (!isValidPassword) {
-          return done(null, false, { message: "비밀번호가 일치하지 않습니다" });
-        }
-        
-        // Return user without password
-        return done(null, {
-          id: user.id,
-          email: user.email,
-          nickname: user.nickname
-        });
-      } catch (error) {
-        return done(error);
-      }
-    }
-  ));
-  
-  // Serialize user to session
-  passport.serializeUser((user, done) => {
-    done(null, user.id);
-  });
-  
-  // Deserialize user from session
-  passport.deserializeUser(async (id: number, done) => {
-    try {
-      const userResults = await db.select({
-        id: users.id,
-        email: users.email,
-        nickname: users.nickname
-      }).from(users).where(eq(users.id, id));
-      
-      const user = userResults[0];
-      
-      if (!user) {
-        return done(null, false);
-      }
-      
-      return done(null, user);
-    } catch (error) {
-      done(error);
-    }
-  });
-  
-  // Register route
-  app.post("/api/auth/register", async (req, res) => {
-    try {
-      // Validate input
-      const validatedData = registerUserSchema.parse(req.body);
-      
-      // Check if email already exists
-      const existingUser = await db.select().from(users).where(eq(users.email, validatedData.email.toLowerCase()));
-      
-      if (existingUser.length > 0) {
-        return res.status(400).json({ message: "이미 사용 중인 이메일입니다" });
-      }
-      
-      // Hash password
-      const hashedPassword = await hashPassword(validatedData.password);
-      
-      // Create user
-      const newUser = await db.insert(users).values({
-        email: validatedData.email.toLowerCase(),
-        password: hashedPassword,
-        nickname: validatedData.nickname || null
-      }).returning({
-        id: users.id,
-        email: users.email,
-        nickname: users.nickname
-      });
-      
-      // Log in the newly registered user
-      req.login(newUser[0], (err) => {
-        if (err) {
-          return res.status(500).json({ message: "로그인 중 오류가 발생했습니다" });
-        }
-        return res.status(201).json(newUser[0]);
-      });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ 
-          message: "입력 데이터가 유효하지 않습니다",
-          errors: error.errors
-        });
-      }
-      console.error("회원가입 오류:", error);
-      return res.status(500).json({ message: "회원가입 처리 중 오류가 발생했습니다" });
-    }
-  });
-  
-  // Login route
-  app.post("/api/auth/login", (req, res, next) => {
-    try {
-      // Validate input
-      loginUserSchema.parse(req.body);
-      
-      passport.authenticate("local", (err: Error, user: Express.User, info: { message: string }) => {
-        if (err) {
-          return res.status(500).json({ message: "로그인 처리 중 오류가 발생했습니다" });
-        }
-        
-        if (!user) {
-          return res.status(401).json({ message: info.message || "로그인 실패" });
-        }
-        
-        req.login(user, (loginErr) => {
-          if (loginErr) {
-            return res.status(500).json({ message: "로그인 처리 중 오류가 발생했습니다" });
-          }
-          return res.status(200).json(user);
-        });
-      })(req, res, next);
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ 
-          message: "입력 데이터가 유효하지 않습니다",
-          errors: error.errors
-        });
-      }
-      return res.status(500).json({ message: "로그인 처리 중 오류가 발생했습니다" });
-    }
-  });
-  
-  // Logout route
-  app.post("/api/auth/logout", (req, res) => {
-    req.logout((err) => {
-      if (err) {
-        return res.status(500).json({ message: "로그아웃 처리 중 오류가 발생했습니다" });
-      }
-      return res.status(200).json({ message: "로그아웃 되었습니다" });
-    });
-  });
-  
-  // Get current user
-  app.get("/api/auth/user", (req, res) => {
-    if (!req.isAuthenticated() || !req.user) {
-      return res.status(401).json({ message: "인증되지 않은 사용자입니다" });
-    }
+        이 링크는 1시간 동안 유효합니다.
+    `);
     
-    return res.status(200).json(req.user);
-  });
-  
-  // Password reset request
-  app.post("/api/auth/reset-password-request", async (req, res) => {
-    try {
-      const { email } = resetPasswordRequestSchema.parse(req.body);
-      
-      const userResults = await db.select().from(users).where(eq(users.email, email.toLowerCase()));
-      const user = userResults[0];
-      
-      if (!user) {
-        // For security reasons, don't reveal if the email exists
-        return res.status(200).json({ message: "비밀번호 재설정 링크가 이메일로 전송되었습니다." });
-      }
-      
-      // Generate random token
-      const resetToken = randomBytes(20).toString("hex");
-      const tokenExpiry = new Date();
-      tokenExpiry.setHours(tokenExpiry.getHours() + 1); // Token valid for 1 hour
-      
-      // Save token to user
-      await db.update(users)
-        .set({ 
-          resetToken, 
-          resetTokenExpiry: tokenExpiry 
-        })
-        .where(eq(users.id, user.id));
-      
-      // In a real implementation, send an email with the reset link
-      // For now, just return the token in the response (for testing)
-      const resetLink = `${req.protocol}://${req.get("host")}/reset-password?token=${resetToken}`;
-      
-      console.log("Password reset link:", resetLink);
-      
-      return res.status(200).json({ 
-        message: "비밀번호 재설정 링크가 이메일로 전송되었습니다.",
-        // In production, remove these fields
-        debug: {
-          token: resetToken,
-          resetLink
-        }
-      });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ 
-          message: "입력 데이터가 유효하지 않습니다",
-          errors: error.errors
-        });
-      }
-      console.error("비밀번호 재설정 요청 오류:", error);
-      return res.status(500).json({ message: "비밀번호 재설정 요청 처리 중 오류가 발생했습니다" });
-    }
-  });
-  
-  // Reset password with token
-  app.post("/api/auth/reset-password", async (req, res) => {
-    try {
-      const { token, password } = resetPasswordSchema.parse(req.body);
-      
-      // Find user with this token and check if the token is still valid
-      const now = new Date();
-      const userResults = await db.select().from(users).where(
-        and(
-          eq(users.resetToken, token),
-          or(
-            eq(users.resetTokenExpiry, null),
-            users.resetTokenExpiry > now
-          )
-        )
-      );
-      
-      const user = userResults[0];
-      
-      if (!user) {
-        return res.status(400).json({ message: "유효하지 않거나 만료된 토큰입니다" });
-      }
-      
-      // Hash new password
-      const hashedPassword = await hashPassword(password);
-      
-      // Update password and clear reset token
-      await db.update(users)
-        .set({
-          password: hashedPassword,
-          resetToken: null,
-          resetTokenExpiry: null
-        })
-        .where(eq(users.id, user.id));
-      
-      return res.status(200).json({ message: "비밀번호가 성공적으로 재설정되었습니다" });
-    } catch (error) {
-      if (error instanceof ZodError) {
-        return res.status(400).json({ 
-          message: "입력 데이터가 유효하지 않습니다",
-          errors: error.errors
-        });
-      }
-      console.error("비밀번호 재설정 오류:", error);
-      return res.status(500).json({ message: "비밀번호 재설정 처리 중 오류가 발생했습니다" });
-    }
-  });
+    // 실제 구현에서는 여기에 이메일 서비스를 사용하여 이메일 전송
+    return true;
+}
 
-  // Middleware to check if user is authenticated
-  app.use(["/api/user-products", "/api/user"], (req, res, next) => {
-    // Allow session-based anonymous access if not authenticated
-    if (!req.isAuthenticated() && !req.session.id) {
-      return res.status(401).json({ message: "인증되지 않은 사용자입니다" });
-    }
-    next();
-  });
+// 인증 설정 함수
+export function setupAuth(app: Express) {
+    // Session store 설정
+    const PgSessionStore = connectPgSimple(session);
+    
+    // 세션 설정
+    app.use(
+        session({
+            store: new PgSessionStore({
+                pool,
+                tableName: "session", // 세션 테이블 이름
+                createTableIfMissing: true, // 테이블이 없으면 생성
+            }),
+            secret: process.env.SESSION_SECRET || "readybag-session-secret",
+            resave: false,
+            saveUninitialized: false,
+            cookie: {
+                maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
+                secure: process.env.NODE_ENV === "production",
+                httpOnly: true,
+            },
+        })
+    );
+    
+    // Passport 초기화
+    app.use(passport.initialize());
+    app.use(passport.session());
+    
+    // LocalStrategy 설정
+    passport.use(
+        new LocalStrategy(
+            {
+                usernameField: "email",
+                passwordField: "password",
+            },
+            async (email, password, done) => {
+                try {
+                    // 사용자 조회
+                    const user = await db.query.users.findFirst({
+                        where: eq(users.email, email),
+                    });
+                    
+                    if (!user) {
+                        return done(null, false, { message: "이메일 또는 비밀번호가 일치하지 않습니다." });
+                    }
+                    
+                    // 비밀번호 확인
+                    const isPasswordValid = await comparePasswords(password, user.password);
+                    
+                    if (!isPasswordValid) {
+                        return done(null, false, { message: "이메일 또는 비밀번호가 일치하지 않습니다." });
+                    }
+                    
+                    // 인증 성공
+                    return done(null, {
+                        id: user.id,
+                        email: user.email,
+                        nickname: user.nickname,
+                    });
+                } catch (error) {
+                    return done(error);
+                }
+            }
+        )
+    );
+    
+    // 세션에 사용자 정보 저장
+    passport.serializeUser((user, done) => {
+        done(null, user.id);
+    });
+    
+    // 세션에서 사용자 정보 복원
+    passport.deserializeUser(async (id: number, done) => {
+        try {
+            const user = await db.query.users.findFirst({
+                where: eq(users.id, id),
+                columns: {
+                    id: true,
+                    email: true,
+                    nickname: true,
+                }
+            });
+            
+            if (!user) {
+                return done(null, false);
+            }
+            
+            return done(null, user);
+        } catch (error) {
+            return done(error);
+        }
+    });
+    
+    // 회원가입 엔드포인트
+    app.post("/api/auth/register", async (req, res) => {
+        try {
+            // 요청 데이터 검증
+            const validatedData = registerUserSchema.parse(req.body);
+            
+            // 이메일 중복 확인
+            const existingUser = await db.query.users.findFirst({
+                where: eq(users.email, validatedData.email),
+            });
+            
+            if (existingUser) {
+                return res.status(400).json({ message: "이미 사용 중인 이메일입니다." });
+            }
+            
+            // 비밀번호 해싱
+            const hashedPassword = await hashPassword(validatedData.password);
+            
+            // 사용자 생성
+            const [newUser] = await db.insert(users)
+                .values({
+                    email: validatedData.email,
+                    password: hashedPassword,
+                    nickname: validatedData.nickname || null,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                })
+                .returning({
+                    id: users.id,
+                    email: users.email,
+                    nickname: users.nickname,
+                });
+            
+            // 자동 로그인
+            req.login(newUser, (err) => {
+                if (err) {
+                    return res.status(500).json({ message: "로그인 처리 중 오류가 발생했습니다." });
+                }
+                
+                return res.status(201).json(newUser);
+            });
+        } catch (error: any) {
+            console.error("Registration error:", error);
+            
+            if (error.name === "ZodError") {
+                return res.status(400).json({ message: "입력 데이터가 올바르지 않습니다.", errors: error.errors });
+            }
+            
+            return res.status(500).json({ message: "회원가입 중 오류가 발생했습니다." });
+        }
+    });
+    
+    // 로그인 엔드포인트
+    app.post("/api/auth/login", (req, res, next) => {
+        try {
+            // 요청 데이터 검증
+            loginUserSchema.parse(req.body);
+            
+            passport.authenticate("local", (err: Error, user: Express.User, info: { message: string }) => {
+                if (err) {
+                    return next(err);
+                }
+                
+                if (!user) {
+                    return res.status(401).json({ message: info.message || "로그인에 실패했습니다." });
+                }
+                
+                req.login(user, (err) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    
+                    return res.json(user);
+                });
+            })(req, res, next);
+        } catch (error: any) {
+            console.error("Login error:", error);
+            
+            if (error.name === "ZodError") {
+                return res.status(400).json({ message: "입력 데이터가 올바르지 않습니다.", errors: error.errors });
+            }
+            
+            return res.status(500).json({ message: "로그인 중 오류가 발생했습니다." });
+        }
+    });
+    
+    // 로그아웃 엔드포인트
+    app.post("/api/auth/logout", (req, res) => {
+        req.logout((err) => {
+            if (err) {
+                return res.status(500).json({ message: "로그아웃 중 오류가 발생했습니다." });
+            }
+            
+            res.json({ message: "로그아웃 되었습니다." });
+        });
+    });
+    
+    // 현재 사용자 조회 엔드포인트
+    app.get("/api/auth/user", (req, res) => {
+        if (!req.isAuthenticated() || !req.user) {
+            return res.status(401).json({ message: "인증되지 않은 사용자입니다." });
+        }
+        
+        res.json(req.user);
+    });
+    
+    // 비밀번호 재설정 요청 엔드포인트
+    app.post("/api/auth/reset-password-request", async (req, res) => {
+        try {
+            // 요청 데이터 검증
+            const { email } = resetPasswordRequestSchema.parse(req.body);
+            
+            // 이메일로 사용자 조회
+            const user = await db.query.users.findFirst({
+                where: eq(users.email, email),
+            });
+            
+            // 사용자가 존재하지 않더라도 보안을 위해 성공 응답
+            if (!user) {
+                return res.json({ message: "비밀번호 재설정 링크가 이메일로 전송되었습니다." });
+            }
+            
+            // 토큰 생성
+            const resetToken = nanoid(32);
+            const now = new Date();
+            const expiry = new Date(now.getTime() + 60 * 60 * 1000); // 1시간 후 만료
+            
+            // 토큰 저장
+            await db.update(users)
+                .set({
+                    resetToken,
+                    resetTokenExpiry: expiry,
+                    updatedAt: now,
+                })
+                .where(eq(users.id, user.id));
+            
+            // 재설정 링크 생성
+            const resetLink = `${req.protocol}://${req.get("host")}/reset-password?token=${resetToken}`;
+            
+            // 이메일 전송
+            await sendPasswordResetEmail(email, resetToken, resetLink);
+            
+            res.json({ message: "비밀번호 재설정 링크가 이메일로 전송되었습니다." });
+        } catch (error: any) {
+            console.error("Reset password request error:", error);
+            
+            if (error.name === "ZodError") {
+                return res.status(400).json({ message: "입력 데이터가 올바르지 않습니다.", errors: error.errors });
+            }
+            
+            return res.status(500).json({ message: "비밀번호 재설정 요청 중 오류가 발생했습니다." });
+        }
+    });
+    
+    // 비밀번호 재설정 엔드포인트
+    app.post("/api/auth/reset-password", async (req, res) => {
+        try {
+            // 요청 데이터 검증
+            const { token, password } = resetPasswordSchema.parse(req.body);
+            
+            // 토큰으로 사용자 조회
+            const user = await db.query.users.findFirst({
+                where: and(
+                    eq(users.resetToken, token),
+                    isNull(users.resetToken, false),
+                    gt(users.resetTokenExpiry as any, new Date())
+                ),
+            });
+            
+            if (!user) {
+                return res.status(400).json({ message: "유효하지 않거나 만료된 토큰입니다." });
+            }
+            
+            // 비밀번호 해싱
+            const hashedPassword = await hashPassword(password);
+            
+            // 비밀번호 업데이트 및 토큰 초기화
+            await db.update(users)
+                .set({
+                    password: hashedPassword,
+                    resetToken: null,
+                    resetTokenExpiry: null,
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.id, user.id));
+            
+            res.json({ message: "비밀번호가 성공적으로 재설정되었습니다." });
+        } catch (error: any) {
+            console.error("Reset password error:", error);
+            
+            if (error.name === "ZodError") {
+                return res.status(400).json({ message: "입력 데이터가 올바르지 않습니다.", errors: error.errors });
+            }
+            
+            return res.status(500).json({ message: "비밀번호 재설정 중 오류가 발생했습니다." });
+        }
+    });
+    
+    // 사용자 경험을 개선하기 위한 에러 처리 미들웨어
+    app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+        console.error("Authentication error:", err);
+        res.status(500).json({ message: "인증 처리 중 오류가 발생했습니다." });
+    });
 }
