@@ -22,7 +22,7 @@ export function ProductListItem({
   onSuccessfulAction 
 }: ProductListItemProps) {
   const queryClient = useQueryClient();
-  const { selectedCountry } = useAppContext();
+  const { selectedCountry, exchangeRate } = useAppContext();
 
   // Update user product status mutation
   const updateStatus = useMutation({
@@ -136,13 +136,16 @@ export function ProductListItem({
           </div>
           <div className="text-right bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
             <div className="flex flex-col">
-              <CurrencyDisplay
-                amount={product.price}
-                fromCurrency={selectedCountry.currency}
-                className="text-right"
-              />
-              <div className="text-[10px] text-green-600 flex items-center justify-end mt-0.5">
-                <span className="bg-green-50 rounded px-1 py-0.5">실시간 환율</span>
+              <div className="grid grid-cols-2 gap-1">
+                <div className="text-right text-xs text-gray-500">
+                  현지: <span className="font-medium">¥{Math.round(product.price).toLocaleString()}</span>
+                </div>
+                <div className="text-right text-xs text-gray-500">
+                  한국: <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
+                </div>
+              </div>
+              <div className="text-[10px] text-green-600 flex items-center justify-end mt-1">
+                <span className="bg-green-50 rounded-full px-2 py-0.5">실시간 환율 반영</span>
               </div>
             </div>
           </div>

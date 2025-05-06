@@ -116,46 +116,36 @@ export function CurrencyInfoPanel() {
   // 업데이트 시간 표시 텍스트
   const updatedText = minutesAgo !== null
     ? minutesAgo < 1 
-      ? "방금 업데이트됨" 
+      ? "방금 전 업데이트됨" 
       : minutesAgo < 60 
         ? `${minutesAgo}분 전 업데이트됨` 
         : lastUpdated ? format(new Date(lastUpdated), "yyyy.MM.dd HH:mm") : ""
     : "";
   
-  // 정확한 날짜 및 시간 표시
-  const formattedDateTime = lastUpdated 
-    ? format(new Date(lastUpdated), "yyyy.MM.dd HH:mm:ss") 
-    : "";
-  
-  // 환율 API 소스
-  const exchangeApiSource = "open.er-api.com";
-  
   return (
-    <div className="bg-white rounded-lg shadow-sm p-3 mb-4 flex flex-col">
-      <div className="flex justify-between items-center">
-        <div className="text-sm">
+    <div className="bg-white rounded-lg shadow-sm p-3 mb-4">
+      <div className="flex items-center justify-between">
+        <div>
           <div className="flex items-center">
-            <span className="font-medium">실시간 환율</span>
+            <span className="text-sm font-medium">실시간 환율</span>
             <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">LIVE</span>
           </div>
-          <div className="font-accent font-semibold text-lg mt-1">
-            1{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = <span className="text-accent">{exchangeRate.toFixed(2)}원</span>
+          <div className="font-semibold text-2xl mt-1">
+            1엔 = <span className="text-red-500">{exchangeRate.toFixed(2)}원</span>
           </div>
         </div>
-        <div className="text-right">
-          <div className="flex flex-col">
-            <div className="text-xs font-medium text-neutral">{updatedText}</div>
-            <div className="text-[10px] text-gray-500">{formattedDateTime}</div>
+        <div className="text-right text-xs text-gray-500">
+          {updatedText}
+          <div>
+            {lastUpdated && format(new Date(lastUpdated), "yyyy.MM.dd HH:mm:ss")}
           </div>
         </div>
       </div>
-      <div className="flex justify-between items-center mt-2 text-xs">
-        <div className="text-gray-500">
-          *실시간 환율 정보는 30분마다 업데이트되며, 쇼핑 가격 계산에 자동 반영됩니다.
-        </div>
-        <div className="text-gray-400 text-[10px]">
-          출처: {exchangeApiSource}
-        </div>
+      
+      <div className="mt-2 text-xs bg-gray-50 p-2 rounded-md text-gray-500">
+        - 환율 정보는 30분마다 자동 업데이트됩니다
+        <br />
+        - 모든 상품 가격은 실시간 환율로 자동 계산됩니다
       </div>
     </div>
   );

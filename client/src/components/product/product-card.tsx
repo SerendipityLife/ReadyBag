@@ -154,36 +154,42 @@ export function ProductCard({
             )}
           </div>
           
-          <div className="mt-3 bg-gradient-to-r from-white to-gray-50 p-3 rounded-lg flex flex-col shadow-sm">
-            <div className="flex justify-between items-center">
-              <div className="text-sm font-medium text-gray-600 flex items-center">
-                <span>현지 가격</span>
-                <span className="inline-block w-2 h-2 rounded-full bg-gray-300 ml-1"></span>
+          <div className="mt-3 bg-gradient-to-r from-white to-gray-50 p-3 rounded-lg shadow-sm">
+            <div className="grid grid-cols-2 gap-x-4">
+              <div className="text-sm font-medium text-gray-600">
+                <div className="flex items-center mb-1">
+                  <span>현지 가격</span>
+                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300 ml-1"></span>
+                </div>
+                <div className="font-bold text-lg">
+                  ¥{Math.round(product.price).toLocaleString()}
+                </div>
               </div>
-              <div className="font-bold text-lg">
-                ¥{Math.round(product.price).toLocaleString()}
+              
+              <div className="text-sm font-medium text-gray-600">
+                <div className="flex items-center mb-1">
+                  <span>한국 가격</span>
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-400 ml-1"></span>
+                </div>
+                <CurrencyDisplay 
+                  amount={product.price} 
+                  fromCurrency={selectedCountry.currency}
+                  showBase={false}
+                  className="font-bold text-lg"
+                />
               </div>
             </div>
-            <div className="border-t border-gray-100 my-2"></div>
-            <div className="flex justify-between items-center">
-              <div className="text-sm font-medium text-gray-600 flex items-center">
-                <span>한국 가격</span>
-                <span className="inline-block w-2 h-2 rounded-full bg-green-400 ml-1"></span>
+            
+            <div className="mt-2 pt-2 border-t border-gray-100 flex justify-end">
+              <div className="text-xs bg-green-50 text-green-700 px-2 py-1 rounded-full">
+                실시간 환율 반영
               </div>
-              <CurrencyDisplay 
-                amount={product.price} 
-                fromCurrency={selectedCountry.currency}
-                showBase={false}
-                className="font-bold text-lg"
-              />
-            </div>
-            <div className="text-xs text-gray-400 text-right mt-1 flex items-center justify-end">
-              <span className="mr-1">환율</span>
-              <span className="bg-green-50 px-1 rounded text-green-700">실시간 반영</span>
             </div>
           </div>
           
-          <p className="mt-3 text-neutral text-sm">{product.description}</p>
+          <div className="mt-4 mb-2 border-t border-gray-100 pt-3">
+            <p className="text-neutral text-sm">{product.description}</p>
+          </div>
           
           <div className="mt-4 text-xs text-neutral flex items-center">
             <span className="mr-1">📍</span>
