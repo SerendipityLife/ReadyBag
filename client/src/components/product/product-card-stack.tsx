@@ -30,11 +30,58 @@ export function ProductCardStack() {
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
   
+  // 로컬 스토리지에서 사용자 상품 데이터 가져오기
+  const getLocalUserProducts = () => {
+    try {
+      if (!selectedCountry?.id) return [];
+      
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      const storedData = localStorage.getItem(storageKey);
+      
+      if (storedData) {
+        return JSON.parse(storedData);
+      }
+    } catch (error) {
+      console.error("로컬 스토리지 읽기 오류:", error);
+    }
+    return [];
+  };
+  
   // Fetch user products to filter out already categorized ones
   const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    queryFn: async () => {
+      // 비회원일 경우 로컬 스토리지에서 가져옴
+      if (!user) {
+        return getLocalUserProducts();
+      }
+      
+      // 로그인한 사용자는 API 호출
+      if (!selectedCountry?.id) return [];
+      
+      const response = await fetch(`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`);
+      if (!response.ok) return [];
+      return await response.json();
+    },
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
+  
+  // 로컬 스토리지 변경 감지 (비회원용)
+  useEffect(() => {
+    if (!user) {
+      const handleStorageChange = () => {
+        // 로컬 스토리지 변경 시 쿼리 무효화
+        queryClient.invalidateQueries({ 
+          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        });
+      };
+      
+      window.addEventListener('storage', handleStorageChange);
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+      };
+    }
+  }, [user, queryClient, selectedCountry?.id]);
   
   // Get already categorized product IDs
   const categorizedProductIds = useMemo(() => {
@@ -144,6 +191,53 @@ export function ProductCardStack() {
     }
   }, [visibleProductsToShow, visibleProducts]);
     
+  // 비회원일 경우 로컬 스토리지에 상품 상태 저장
+  const saveToLocalStorage = (productId: number, status: ProductStatus) => {
+    try {
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      let localProducts = [];
+      
+      // 기존 데이터 가져오기
+      const storedData = localStorage.getItem(storageKey);
+      if (storedData) {
+        localProducts = JSON.parse(storedData);
+      }
+      
+      // 기존 상품이 있는지 확인
+      const existingIndex = localProducts.findIndex((item: any) => item.productId === productId);
+      
+      if (existingIndex >= 0) {
+        // 이미 있는 상품이면 상태 업데이트
+        localProducts[existingIndex].status = status;
+      } else {
+        // 없는 상품이면 새로 추가
+        localProducts.push({
+          id: Date.now(), // 임시 id 생성
+          productId,
+          status,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+      }
+      
+      // 로컬 스토리지에 저장
+      localStorage.setItem(storageKey, JSON.stringify(localProducts));
+      
+      // storage 이벤트 발생시키기 (다른 컴포넌트에 알림용)
+      window.dispatchEvent(new Event('storage'));
+      
+      // 쿼리 무효화하기
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      
+      console.log("로컬 스토리지에 저장 완료:", status);
+      
+    } catch (error) {
+      console.error("로컬 스토리지 저장 오류:", error);
+    }
+  };
+
   // Handle swipe on cards
   const handleSwipe = (direction: SwipeDirection, productId: number) => {
     // 이미 처리 중인 제품인지 확인
@@ -159,26 +253,39 @@ export function ProductCardStack() {
       return newSet;
     });
     
-    // Update the product status in the backend
     const status = SWIPE_TO_STATUS[direction];
-    updateProductStatus.mutate({ productId, status }, {
-      onSuccess: () => {
-        // 성공 후 처리 중인 제품 목록에서 제거
-        setProcessingProductIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(productId);
-          return newSet;
-        });
-      },
-      onError: () => {
-        // 에러 발생 시에도 처리 중인 제품 목록에서 제거
-        setProcessingProductIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(productId);
-          return newSet;
-        });
-      }
-    });
+    
+    if (user) {
+      // 로그인한 사용자: API 호출로 상태 저장
+      updateProductStatus.mutate({ productId, status }, {
+        onSuccess: () => {
+          // 성공 후 처리 중인 제품 목록에서 제거
+          setProcessingProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(productId);
+            return newSet;
+          });
+        },
+        onError: () => {
+          // 에러 발생 시에도 처리 중인 제품 목록에서 제거
+          setProcessingProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(productId);
+            return newSet;
+          });
+        }
+      });
+    } else {
+      // 비회원: 로컬 스토리지에 저장
+      saveToLocalStorage(productId, status);
+      
+      // 처리 완료 후 처리 중인 제품 목록에서 제거
+      setProcessingProductIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
     
     // Remove the swiped card and add the next one in queue
     setVisibleProducts(prev => {
