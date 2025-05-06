@@ -26,44 +26,13 @@ export function ProductListItem(props: ProductListItemProps) {
   // 상태 초기화
   const [price, setPrice] = useState(0);
   const [convertedPrice, setConvertedPrice] = useState(0);
-  const [hasProductError, setHasProductError] = useState(false);
   const [productImageUrl, setProductImageUrl] = useState("");
   const [productName, setProductName] = useState("");
   const [productNameJapanese, setProductNameJapanese] = useState<string | null>(null);
   const [productLocation, setProductLocation] = useState<string | null>(null);
   const [productHashtags, setProductHashtags] = useState<string[] | null>(null);
+  const [hasProductError, setHasProductError] = useState(false);
   
-  // 상품 데이터 유효성 검사 및 상태 설정
-  useEffect(() => {
-    if (!product) {
-      setHasProductError(true);
-      return;
-    }
-    
-    setHasProductError(false);
-    setProductImageUrl(product.imageUrl || "");
-    setProductName(product.name || "");
-    setProductNameJapanese(product.nameJapanese || null);
-    setProductLocation(product.location || null);
-    setProductHashtags(product.hashtags || null);
-    
-    // 가격 계산
-    const roundedPrice = Math.round(product.price);
-    const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
-    
-    setPrice(roundedPrice);
-    setConvertedPrice(calculatedPrice);
-  }, [product, exchangeRate]);
-  
-  // 상품 에러일 경우 에러 UI 표시
-  if (hasProductError) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden p-4 flex justify-center items-center">
-        <p className="text-gray-500 text-sm">상품 정보를 불러오는 중 오류가 발생했습니다</p>
-      </div>
-    );
-  }
-
   // Update user product status mutation
   const updateStatus = useMutation({
     mutationFn: async (newStatus: ProductStatus) => {
@@ -167,6 +136,28 @@ export function ProductListItem(props: ProductListItemProps) {
     }
   });
 
+  // 상품 데이터 유효성 검사 및 상태 설정
+  useEffect(() => {
+    if (!product) {
+      setHasProductError(true);
+      return;
+    }
+    
+    setHasProductError(false);
+    setProductImageUrl(product.imageUrl || "");
+    setProductName(product.name || "");
+    setProductNameJapanese(product.nameJapanese || null);
+    setProductLocation(product.location || null);
+    setProductHashtags(product.hashtags || null);
+    
+    // 가격 계산
+    const roundedPrice = Math.round(product.price);
+    const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
+    
+    setPrice(roundedPrice);
+    setConvertedPrice(calculatedPrice);
+  }, [product, exchangeRate]);
+
   // Change product status directly
   const changeStatus = (newStatus: ProductStatus) => {
     updateStatus.mutate(newStatus);
@@ -179,6 +170,15 @@ export function ProductListItem(props: ProductListItemProps) {
     const hashtag = productHashtags[0].replace("#", "");
     window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(hashtag)}`, "_blank");
   };
+
+  // 상품 에러일 경우 에러 UI 표시
+  if (hasProductError) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden p-4 flex justify-center items-center">
+        <p className="text-gray-500 text-sm">상품 정보를 불러오는 중 오류가 발생했습니다</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row">

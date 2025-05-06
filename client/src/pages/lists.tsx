@@ -48,13 +48,26 @@ export function Lists() {
           const productData = allProducts.find(p => p.id === item.productId);
           if (!productData) {
             console.log(`상품을 찾을 수 없음: ${item.productId}`);
-            return null;
+            return {
+              ...item,
+              product: {
+                id: item.productId,
+                name: `상품 정보 없음 (ID: ${item.productId})`,
+                description: "",
+                price: 0,
+                imageUrl: "",
+                category: "",
+                countryId: selectedCountry.id,
+                hashtags: null,
+                location: null
+              }
+            };
           }
           return {
             ...item,
             product: productData
           };
-        }).filter(Boolean);
+        });
       }
       
       // API에서 실제 상품 데이터 가져오기 (allProducts가 없을 경우)
@@ -62,14 +75,40 @@ export function Lists() {
         localData.map(async (item: any) => {
           if (!item.productId) {
             console.log("잘못된 항목:", item);
-            return null;
+            return {
+              ...item,
+              product: {
+                id: 0,
+                name: "잘못된 상품 정보",
+                description: "",
+                price: 0,
+                imageUrl: "",
+                category: "",
+                countryId: selectedCountry.id,
+                hashtags: null,
+                location: null
+              }
+            };
           }
           
           try {
             const response = await fetch(`${API_ROUTES.PRODUCTS}/${item.productId}`);
             if (!response.ok) {
               console.error(`상품 ${item.productId} 가져오기 실패:`, response.status);
-              return null;
+              return {
+                ...item,
+                product: {
+                  id: item.productId,
+                  name: `상품 정보 없음 (ID: ${item.productId})`,
+                  description: "",
+                  price: 0,
+                  imageUrl: "",
+                  category: "",
+                  countryId: selectedCountry.id,
+                  hashtags: null,
+                  location: null
+                }
+              };
             }
             const productData = await response.json();
             
@@ -79,14 +118,26 @@ export function Lists() {
             };
           } catch (error) {
             console.error(`상품 ${item.productId} 정보 가져오기 오류:`, error);
-            return null;
+            return {
+              ...item,
+              product: {
+                id: item.productId,
+                name: `상품 정보 로드 오류 (ID: ${item.productId})`,
+                description: "",
+                price: 0,
+                imageUrl: "",
+                category: "",
+                countryId: selectedCountry.id,
+                hashtags: null,
+                location: null
+              }
+            };
           }
         })
       );
       
-      const filteredResults = results.filter(Boolean);
-      console.log("최종 로드된 제품 수:", filteredResults.length);
-      return filteredResults;
+      console.log("최종 로드된 제품 수:", results.length);
+      return results;
     } catch (error) {
       console.error("로컬 스토리지 읽기 오류:", error);
       return [];
