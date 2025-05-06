@@ -73,7 +73,7 @@ export function ProductCardStack() {
       setVisibleProducts(filteredProducts.slice(0, 3));
       setCurrentProductIndex(0); // Reset position counter when category changes
     }
-  }, [filteredProducts]);
+  }, [filteredProducts, setCurrentProductIndex]);
   
   // 처리 중인 productId를 추적하기 위한 상태
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
