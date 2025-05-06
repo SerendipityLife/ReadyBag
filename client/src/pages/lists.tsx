@@ -1,16 +1,28 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductListItem } from "@/components/product/product-list-item";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Share2, Bookmark, Heart, X } from "lucide-react";
+import { Share2, Bookmark, Heart, X, Trash2, RefreshCw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import { apiRequest } from "@/lib/queryClient";
 import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
+  const queryClient = useQueryClient();
   const { selectedCountry, generateShareUrl } = useAppContext();
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
+  const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
+  const [selectAll, setSelectAll] = useState(false);
   
   // Fetch user products
   const { data: userProducts = [], isLoading, refetch } = useQuery<
@@ -20,6 +32,51 @@ export function Lists() {
     staleTime: 0, // Always get fresh data
     refetchOnMount: true,
     refetchOnWindowFocus: true
+  });
+  
+  // 대량 삭제 mutation
+  const batchDelete = useMutation({
+    mutationFn: async (ids: number[]) => {
+      // 일괄 삭제를 위해 각 ID마다 개별 요청을 보냄
+      const deletePromises = ids.map(id => 
+        apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${id}`)
+      );
+      
+      const results = await Promise.all(deletePromises);
+      return results;
+    },
+    onSuccess: () => {
+      // 삭제 후 쿼리 무효화 및 체크박스 초기화
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+      });
+      setSelectedIds({});
+      setSelectAll(false);
+    }
+  });
+  
+  // 대량 상태 변경 mutation
+  const batchChangeStatus = useMutation({
+    mutationFn: async ({ ids, status }: { ids: number[], status: ProductStatus }) => {
+      // 각 ID마다 개별 요청을 보냄
+      const updatePromises = ids.map(id => 
+        apiRequest("PATCH", `${API_ROUTES.USER_PRODUCTS}/${id}`, { status })
+      );
+      
+      const results = await Promise.all(updatePromises);
+      return results;
+    },
+    onSuccess: () => {
+      // 상태 변경 후 쿼리 무효화 및 체크박스 초기화
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      setSelectedIds({});
+      setSelectAll(false);
+    }
   });
   
   // TypeScript 타입 정의
@@ -58,6 +115,57 @@ export function Lists() {
     generateShareUrl(activeTab);
   };
   
+  // 체크박스 변경 처리
+  const handleCheckboxChange = (id: number, checked: boolean) => {
+    setSelectedIds(prev => ({ ...prev, [id]: checked }));
+  };
+
+  // 전체 선택/해제 처리
+  const handleSelectAllChange = (checked: boolean) => {
+    setSelectAll(checked);
+    
+    if (checked) {
+      // 현재 활성 탭의 모든 제품 선택
+      const productsToSelect = activeTab === ProductStatus.INTERESTED ? interestedProducts :
+                               activeTab === ProductStatus.MAYBE ? maybeProducts :
+                               notInterestedProducts;
+      
+      const newSelectedIds: Record<number, boolean> = {};
+      productsToSelect.forEach(product => {
+        newSelectedIds[product.id] = true;
+      });
+      setSelectedIds(newSelectedIds);
+    } else {
+      // 모두 선택 해제
+      setSelectedIds({});
+    }
+  };
+
+  // 대량 삭제 처리
+  const handleBatchDelete = () => {
+    const ids = Object.entries(selectedIds)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => parseInt(id));
+    
+    if (ids.length > 0) {
+      batchDelete.mutate(ids);
+    }
+  };
+
+  // 대량 상태 변경 처리
+  const handleBatchChangeStatus = (newStatus: ProductStatus) => {
+    const ids = Object.entries(selectedIds)
+      .filter(([_, isSelected]) => isSelected)
+      .map(([id]) => parseInt(id));
+    
+    if (ids.length > 0) {
+      batchChangeStatus.mutate({ ids, status: newStatus });
+    }
+  };
+
+  // 현재 선택된 항목 수 계산
+  const selectedCount = Object.values(selectedIds).filter(Boolean).length;
+
   // Render content for a tab
   const renderTabContent = (products: ExtendedUserProduct[], status: ProductStatus) => {
     if (isLoading) {
@@ -95,16 +203,106 @@ export function Lists() {
       );
     }
     
+    // 선택 관련 버튼 렌더링
+    const renderActionButtons = () => {
+      if (products.length === 0) return null;
+      
+      return (
+        <div className="flex items-center justify-between mb-4 border-b pb-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="select-all" 
+              checked={selectAll}
+              onCheckedChange={handleSelectAllChange}
+            />
+            <label htmlFor="select-all" className="text-sm cursor-pointer select-none">
+              전체 선택 {selectedCount > 0 && `(${selectedCount}/${products.length})`}
+            </label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            {selectedCount > 0 && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="text-xs h-8">
+                      <RefreshCw className="h-3 w-3 mr-1" />
+                      분류변경
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-40">
+                    {status !== ProductStatus.INTERESTED && (
+                      <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.INTERESTED)}>
+                        <Heart className="h-4 w-4 mr-2 text-red-500" />
+                        관심 상품
+                      </DropdownMenuItem>
+                    )}
+                    {status !== ProductStatus.MAYBE && (
+                      <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.MAYBE)}>
+                        <Triangle className="h-4 w-4 mr-2 text-orange-500" />
+                        나중에
+                      </DropdownMenuItem>
+                    )}
+                    {status !== ProductStatus.NOT_INTERESTED && (
+                      <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.NOT_INTERESTED)}>
+                        <X className="h-4 w-4 mr-2" />
+                        관심없음
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="text-xs h-8 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
+                  onClick={handleBatchDelete}
+                >
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  선택 삭제
+                </Button>
+              </>
+            )}
+            
+            {products.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs h-8 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
+                onClick={() => batchDelete.mutate(products.map(p => p.id))}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                전체 삭제
+              </Button>
+            )}
+          </div>
+        </div>
+      );
+    };
+    
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {products.map((userProduct: ExtendedUserProduct) => (
-          <ProductListItem
-            key={userProduct.id}
-            product={userProduct.product}
-            userProduct={userProduct}
-            onSuccessfulAction={refetch}
-          />
-        ))}
+      <div>
+        {renderActionButtons()}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {products.map((userProduct: ExtendedUserProduct) => (
+            <div key={userProduct.id} className="flex items-start space-x-2">
+              <div className="pt-3">
+                <Checkbox 
+                  checked={!!selectedIds[userProduct.id]} 
+                  onCheckedChange={(checked) => handleCheckboxChange(userProduct.id, !!checked)}
+                />
+              </div>
+              <div className="flex-1">
+                <ProductListItem
+                  product={userProduct.product}
+                  userProduct={userProduct}
+                  onSuccessfulAction={refetch}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   };
