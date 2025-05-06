@@ -35,6 +35,12 @@ export const storage = {
   },
   
   // User Products
+  async getUserProductById(id: number) {
+    return await db.query.userProducts.findFirst({
+      where: eq(userProducts.id, id)
+    });
+  },
+  
   async getUserProducts(countryId: string, userId: string | null, sessionId: string | null) {
     // Get products from the specified country
     const countryProducts = await this.getProductsByCountry(countryId);

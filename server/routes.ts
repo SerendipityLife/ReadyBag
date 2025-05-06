@@ -89,6 +89,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch(`${apiPrefix}/user-products/:id`, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
       const schema = z.object({
         status: z.string(),
       });
@@ -96,6 +100,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = schema.parse(req.body);
       const userId = req.session?.userId || null;
       const sessionId = req.session?.id || req.sessionID;
+      
+      // Log detailed information for debugging
+      console.log("Update request: ID=", id, "Status=", validatedData.status, "UserID=", userId, "SessionID=", sessionId);
       
       const userProduct = await storage.updateUserProductStatus(
         id,
@@ -105,7 +112,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       if (!userProduct) {
-        return res.status(404).json({ message: "User product not found" });
+        // Check if user product exists at all
+        const checkUserProduct = await storage.getUserProductById(id);
+        if (!checkUserProduct) {
+          return res.status(404).json({ message: "User product not found" });
+        } else {
+          return res.status(403).json({ message: "User not authorized to update this product" });
+        }
       }
       
       return res.json(userProduct);

@@ -13,13 +13,13 @@ export function Lists() {
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
   
   // Fetch user products
-  const { data: userProducts = [], isLoading } = useQuery<
+  const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
-    onSuccess: (data) => {
-      console.log("Fetched userProducts:", data);
-    }
+    staleTime: 0, // Always get fresh data
+    refetchOnMount: true,
+    refetchOnWindowFocus: true
   });
   
   // TypeScript 타입 정의
@@ -102,6 +102,7 @@ export function Lists() {
             key={userProduct.id}
             product={userProduct.product}
             userProduct={userProduct}
+            onSuccessfulAction={refetch}
           />
         ))}
       </div>

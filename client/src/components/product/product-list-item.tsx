@@ -12,9 +12,15 @@ interface ProductListItemProps {
   product: Product;
   userProduct: UserProduct;
   readOnly?: boolean;
+  onSuccessfulAction?: () => void;
 }
 
-export function ProductListItem({ product, userProduct, readOnly = false }: ProductListItemProps) {
+export function ProductListItem({ 
+  product, 
+  userProduct, 
+  readOnly = false,
+  onSuccessfulAction 
+}: ProductListItemProps) {
   const queryClient = useQueryClient();
   const { selectedCountry } = useAppContext();
 
@@ -43,6 +49,10 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+      // Call callback if provided
+      if (onSuccessfulAction) {
+        onSuccessfulAction();
+      }
     },
     onError: (error) => {
       console.error("Status update mutation error:", error);
@@ -77,6 +87,10 @@ export function ProductListItem({ product, userProduct, readOnly = false }: Prod
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
+      // Call callback if provided
+      if (onSuccessfulAction) {
+        onSuccessfulAction();
+      }
     },
     onError: (error) => {
       console.error("Delete mutation error:", error);
