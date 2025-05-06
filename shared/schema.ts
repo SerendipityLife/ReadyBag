@@ -42,7 +42,7 @@ export type Product = typeof products.$inferSelect;
 // User Products table - to store user's interest in products
 export const userProducts = pgTable("user_products", {
   id: serial("id").primaryKey(),
-  userId: text("user_id"),  // Can be null for non-authenticated users
+  userId: integer("user_id").references(() => users.id),  // User ID for authenticated users
   productId: integer("product_id").references(() => products.id).notNull(),
   status: text("status").notNull(), // 'interested', 'notInterested', 'maybe'
   sessionId: text("session_id"), // For non-authenticated users
@@ -58,7 +58,7 @@ export type UserProduct = typeof userProducts.$inferSelect;
 export const sharedLists = pgTable("shared_lists", {
   id: serial("id").primaryKey(),
   shareId: text("share_id").unique().notNull(),
-  userId: text("user_id"),
+  userId: integer("user_id").references(() => users.id),
   sessionId: text("session_id"),
   countryId: text("country_id").references(() => countries.id).notNull(),
   status: text("status"), // Optional filter by status
@@ -105,17 +105,72 @@ export const sharedListsRelations = relations(sharedLists, ({ one }) => ({
   }),
 }));
 
-// Users table - basic implementation for future authentication
+// Users table - expanded implementation for email-based authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  nickname: text("nickname"),
+  resetToken: text("reset_token"),
+  resetTokenExpiry: timestamp("reset_token_expiry"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+// Relations between users and user products
+export const usersRelations = relations(users, ({ many }) => ({
+  userProducts: many(userProducts),
+  sharedLists: many(sharedLists),
+}));
+
+// Update userProductsRelations to include user relation
+export const userProductsRelationsWithUser = relations(userProducts, ({ one }) => ({
+  product: one(products, {
+    fields: [userProducts.productId],
+    references: [products.id],
+  }),
+  user: one(users, {
+    fields: [userProducts.userId],
+    references: [users.id],
+  }),
+}));
+
+// Define validation schema for user registration
+export const registerUserSchema = z.object({
+  email: z.string().email("유효한 이메일 주소를 입력해주세요"),
+  password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다"),
+  confirmPassword: z.string(),
+  nickname: z.string().optional(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "비밀번호가 일치하지 않습니다",
+  path: ["confirmPassword"]
 });
 
+// Define schema for login
+export const loginUserSchema = z.object({
+  email: z.string().email("유효한 이메일 주소를 입력해주세요"),
+  password: z.string().min(1, "비밀번호를 입력해주세요"),
+});
+
+// Define schema for password reset request
+export const resetPasswordRequestSchema = z.object({
+  email: z.string().email("유효한 이메일 주소를 입력해주세요")
+});
+
+// Define schema for password reset confirmation
+export const resetPasswordSchema = z.object({
+  token: z.string(),
+  password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다"),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "비밀번호가 일치하지 않습니다",
+  path: ["confirmPassword"]
+});
+
+export const insertUserSchema = createInsertSchema(users);
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+export type RegisterUserInput = z.infer<typeof registerUserSchema>;
+export type LoginUserInput = z.infer<typeof loginUserSchema>;
+export type ResetPasswordRequestInput = z.infer<typeof resetPasswordRequestSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

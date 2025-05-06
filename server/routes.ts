@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { nanoid } from "nanoid";
@@ -8,8 +8,18 @@ import { getInstagramHashtags } from "./services/instagram";
 import { db } from "../db";
 import { userProducts } from "../shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
+import { setupAuth } from "./auth";
+
+// Extend Express Request type to have session properties
+declare module 'express-session' {
+  interface SessionData {
+    id: string;
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication (Passport.js)
+  setupAuth(app);
   // API prefix
   const apiPrefix = "/api";
 
@@ -47,7 +57,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/user-products`, async (req, res) => {
     try {
       const countryId = req.query.countryId as string;
-      const userId = req.session?.userId || null;
+      const userId = req.user?.id ?? null;
       const sessionId = req.session?.id || null;
       
       if (!countryId) {
