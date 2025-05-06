@@ -38,7 +38,7 @@ export function Header() {
             </Button>
           )}
           <h1 className="text-2xl font-heading font-bold text-primary">
-            <span className="hidden md:inline">Ready</span>Bag
+            <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
           </h1>
         </div>
         

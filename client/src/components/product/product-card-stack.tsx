@@ -229,10 +229,10 @@ export function ProductCardStack() {
   }
   
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-md mx-auto px-3">
       <CurrencyInfoPanel />
       
-      <div className="card-stack relative h-[500px] w-full mx-auto">
+      <div className="card-stack relative h-[460px] md:h-[500px] w-full mx-auto">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -246,13 +246,13 @@ export function ProductCardStack() {
       
       <ActionButtons onActionClick={handleActionClick} />
       
-      <div className="mt-6 w-full bg-gray-200 rounded-full h-1.5">
+      <div className="mt-4 w-full bg-gray-200 rounded-full h-1.5">
         <div 
           className="bg-primary h-1.5 rounded-full" 
           style={{ width: `${progressPercentage}%` }}
         ></div>
       </div>
-      <div className="text-xs text-neutral text-center mt-1">
+      <div className="text-xs text-neutral text-center mt-1 mb-4">
         {currentPosition}/{originalTotalProducts} • {isAllCategoriesSelected ? "전체" : `${selectedCategories.length}개 카테고리 선택됨`}
       </div>
     </div>
