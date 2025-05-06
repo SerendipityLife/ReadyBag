@@ -71,16 +71,16 @@ export enum SwipeDirection {
 
 // Swipe to Status Mapping
 export const SWIPE_TO_STATUS = {
-  [SwipeDirection.RIGHT]: ProductStatus.INTERESTED,
-  [SwipeDirection.LEFT]: ProductStatus.NOT_INTERESTED,
-  [SwipeDirection.UP]: ProductStatus.MAYBE
+  [SwipeDirection.LEFT]: ProductStatus.INTERESTED,    // 왼쪽 스와이프: 관심 상품
+  [SwipeDirection.UP]: ProductStatus.MAYBE,           // 위로 스와이프: 나중에 
+  [SwipeDirection.RIGHT]: ProductStatus.NOT_INTERESTED // 오른쪽 스와이프: 관심 없음
 };
 
 // Status to Swipe Mapping
 export const STATUS_TO_SWIPE = {
-  [ProductStatus.INTERESTED]: SwipeDirection.RIGHT,
-  [ProductStatus.NOT_INTERESTED]: SwipeDirection.LEFT,
-  [ProductStatus.MAYBE]: SwipeDirection.UP
+  [ProductStatus.INTERESTED]: SwipeDirection.LEFT,    // 관심 상품: 왼쪽 스와이프
+  [ProductStatus.NOT_INTERESTED]: SwipeDirection.RIGHT, // 관심 없음: 오른쪽 스와이프
+  [ProductStatus.MAYBE]: SwipeDirection.UP            // 나중에: 위로 스와이프
 };
 
 // Views

@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useSpring, animated } from "@react-spring/web";
+import { useSpring, animated, to } from "@react-spring/web";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { useAppContext } from "@/contexts/AppContext";
 import { Card } from "@/components/ui/card";
@@ -22,15 +22,15 @@ export function ProductCard({
   const { selectedCountry } = useAppContext();
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
+  const [currentX, setCurrentX] = useState(0);
+  const [currentY, setCurrentY] = useState(0);
+  const [swiping, setSwiping] = useState(false);
   const isDragging = useRef(false);
   const swipeThreshold = 100; // Minimum distance to trigger swipe
   
   // Calculate styles based on position in the stack
   const styles = {
     zIndex: isTopCard ? 10 : 10 - position,
-    transform: isTopCard 
-      ? "translate(0, 0) rotate(0deg)" 
-      : `scale(${1 - position * 0.02}) translateY(${position * 2}px)`,
     opacity: isTopCard ? 1 : 1 - position * 0.2,
   };
   
@@ -50,17 +50,29 @@ export function ProductCard({
       setStartX(e.clientX);
       setStartY(e.clientY);
     }
+    setCurrentX(0);
+    setCurrentY(0);
     isDragging.current = true;
+    setSwiping(true);
   };
   
   const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging.current || !isTopCard) return;
     
-    const currentX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const currentY = "touches" in e ? e.touches[0].clientY : e.clientY;
+    let posX, posY;
+    if ("touches" in e) {
+      posX = e.touches[0].clientX;
+      posY = e.touches[0].clientY;
+    } else {
+      posX = e.clientX;
+      posY = e.clientY;
+    }
     
-    const deltaX = currentX - startX;
-    const deltaY = currentY - startY;
+    const deltaX = posX - startX;
+    const deltaY = posY - startY;
+    
+    setCurrentX(deltaX);
+    setCurrentY(deltaY);
     
     // Update the animation
     api.start({
@@ -78,29 +90,25 @@ export function ProductCard({
   const handleTouchEnd = () => {
     if (!isDragging.current || !isTopCard) return;
     isDragging.current = false;
+    setSwiping(false);
     
-    // Get current position
-    const currentValues = api.get();
-    const deltaX = currentValues.x;
-    const deltaY = currentValues.y;
-    
-    // Determine swipe direction
-    if (deltaX > swipeThreshold) {
-      // Swipe right (interested)
+    // Determine swipe direction based on stored state values
+    if (currentX > swipeThreshold) {
+      // 요청대로 바꿈: 오른쪽 스와이프 -> 관심 없음
       api.start({
         x: window.innerWidth + 200,
         rotate: 30,
         onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
       });
-    } else if (deltaX < -swipeThreshold) {
-      // Swipe left (not interested)
+    } else if (currentX < -swipeThreshold) {
+      // 요청대로 바꿈: 왼쪽 스와이프 -> 관심 상품
       api.start({
         x: -window.innerWidth - 200,
         rotate: -30,
         onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
       });
-    } else if (deltaY < -swipeThreshold) {
-      // Swipe up (maybe)
+    } else if (currentY < -swipeThreshold) {
+      // 위로 스와이프 -> 나중에 (변경 없음)
       api.start({
         y: -window.innerHeight - 200,
         onRest: () => onSwipe(SwipeDirection.UP, product.id),
