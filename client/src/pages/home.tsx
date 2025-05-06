@@ -19,11 +19,8 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            {/* 스티키 카테고리 선택기 */}
-            <div className="w-full max-w-md mx-auto sticky top-14 z-10 bg-gray-50 pt-2 pb-2">
-              <div className="bg-white p-4 rounded-lg shadow-sm">
-                <CategorySelector />
-              </div>
+            <div className="w-full max-w-md mx-auto mb-2 bg-gray-50 p-4 rounded-lg">
+              <CategorySelector />
             </div>
             <ProductCardStack />
           </div>

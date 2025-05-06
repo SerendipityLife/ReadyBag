@@ -76,7 +76,7 @@ export function CategorySelector() {
   };
   
   return (
-    <div>
+    <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
         <h3 className="font-medium">카테고리</h3>
         <div className="flex items-center space-x-2">
