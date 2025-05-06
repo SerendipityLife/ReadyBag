@@ -234,13 +234,13 @@ export function Lists() {
                     {status !== ProductStatus.INTERESTED && (
                       <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.INTERESTED)}>
                         <Heart className="h-4 w-4 mr-2 text-red-500" />
-                        관심 상품
+                        관심
                       </DropdownMenuItem>
                     )}
                     {status !== ProductStatus.MAYBE && (
                       <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.MAYBE)}>
                         <Triangle className="h-4 w-4 mr-2 text-orange-500" />
-                        나중에
+                        고민중
                       </DropdownMenuItem>
                     )}
                     {status !== ProductStatus.NOT_INTERESTED && (
@@ -319,13 +319,13 @@ export function Lists() {
             value={ProductStatus.INTERESTED}
             className="flex items-center justify-center"
           >
-            관심 상품 {getCountBadge(interestedProducts.length)}
+            관심 {getCountBadge(interestedProducts.length)}
           </TabsTrigger>
           <TabsTrigger
             value={ProductStatus.MAYBE}
             className="flex items-center justify-center"
           >
-            나중에 {getCountBadge(maybeProducts.length)}
+            고민중 {getCountBadge(maybeProducts.length)}
           </TabsTrigger>
           <TabsTrigger
             value={ProductStatus.NOT_INTERESTED}
@@ -345,7 +345,7 @@ export function Lists() {
                 className="bg-primary text-white py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
               >
                 <Share2 className="mr-2 h-4 w-4" />
-                관심 상품 목록 공유하기
+                관심 목록 공유하기
               </Button>
             </div>
           )}
