@@ -25,11 +25,65 @@ export function Lists() {
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
   
+  // 비회원 사용자의 로컬 스토리지 데이터 가져오기
+  const getLocalUserProducts = () => {
+    try {
+      if (!selectedCountry?.id) return [];
+      
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      const storedData = localStorage.getItem(storageKey);
+      
+      if (storedData) {
+        const localData = JSON.parse(storedData);
+        // API에서 실제 상품 데이터 가져오기
+        return Promise.all(
+          localData.map(async (item: any) => {
+            try {
+              const response = await fetch(`${API_ROUTES.PRODUCTS}/${item.productId}`);
+              if (!response.ok) return null;
+              const productData = await response.json();
+              
+              return {
+                ...item,
+                product: productData
+              };
+            } catch (error) {
+              console.error("상품 정보 가져오기 오류:", error);
+              return null;
+            }
+          })
+        ).then(results => results.filter(Boolean));
+      }
+      return [];
+    } catch (error) {
+      console.error("로컬 스토리지 읽기 오류:", error);
+      return [];
+    }
+  };
+  
+  // 상품 데이터 가져오기
+  const { data: allProducts = [] } = useQuery({
+    queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
+    enabled: !!selectedCountry && !!selectedCountry.id,
+  });
+  
   // Fetch user products
   const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    queryFn: async () => {
+      // 비회원일 경우 로컬 스토리지에서 가져옴
+      if (!user) {
+        const localProducts = await getLocalUserProducts();
+        return localProducts;
+      }
+      
+      // 로그인한 사용자는 API 호출
+      const response = await fetch(`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`);
+      if (!response.ok) return [];
+      return await response.json();
+    },
     staleTime: 0, // Always get fresh data
     refetchOnMount: true,
     refetchOnWindowFocus: true

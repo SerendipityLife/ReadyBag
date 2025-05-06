@@ -6,6 +6,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { RefreshCw, Instagram, Trash2, Heart, Triangle, X } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAuth } from "@/hooks/use-auth";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
@@ -21,13 +22,49 @@ export function ProductListItem({
   readOnly = false,
   onSuccessfulAction 
 }: ProductListItemProps) {
+  // product가 undefined인 경우 에러 처리
+  if (!product) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden p-4 flex justify-center items-center">
+        <p className="text-gray-500 text-sm">상품 정보를 불러오는 중 오류가 발생했습니다</p>
+      </div>
+    );
+  }
   const queryClient = useQueryClient();
   const { selectedCountry, exchangeRate } = useAppContext();
+
+  // 비회원인지 여부 확인
+  const { user } = useAuth();
+  const isNonMember = !user;
 
   // Update user product status mutation
   const updateStatus = useMutation({
     mutationFn: async (newStatus: ProductStatus) => {
       console.log("Updating status for ID:", userProduct.id, "to:", newStatus);
+      
+      // 비회원인 경우 로컬 스토리지에서 상태 업데이트
+      if (isNonMember) {
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey);
+        
+        if (storedData) {
+          const products = JSON.parse(storedData);
+          const updatedProducts = products.map((item: any) => {
+            if (item.id === userProduct.id) {
+              return { ...item, status: newStatus };
+            }
+            return item;
+          });
+          
+          localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
+          console.log("로컬 스토리지 상태 업데이트 완료:", newStatus);
+          return { status: newStatus, id: userProduct.id };
+        }
+        
+        throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
+      }
+      
+      // 회원인 경우 API 호출
       try {
         const response = await apiRequest(
           "PATCH",
@@ -46,9 +83,12 @@ export function ProductListItem({
     },
     onSuccess: () => {
       console.log("Status update successful, invalidating queries");
+      
+      // 공통: 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+      
       // Call callback if provided
       if (onSuccessfulAction) {
         onSuccessfulAction();
@@ -63,6 +103,29 @@ export function ProductListItem({
   const deleteUserProduct = useMutation({
     mutationFn: async () => {
       console.log("Deleting user product with ID:", userProduct.id);
+      
+      // 비회원인 경우 로컬 스토리지에서 삭제
+      if (isNonMember) {
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey);
+        
+        if (storedData) {
+          const products = JSON.parse(storedData);
+          const updatedProducts = products.filter((item: any) => item.id !== userProduct.id);
+          
+          localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
+          console.log("로컬 스토리지에서 상품 삭제 완료:", userProduct.id);
+          
+          // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
+          window.dispatchEvent(new Event('localStorageChange'));
+          
+          return { success: true };
+        }
+        
+        throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
+      }
+      
+      // 회원인 경우 API 호출
       try {
         const response = await apiRequest(
           "DELETE",
@@ -80,13 +143,17 @@ export function ProductListItem({
     },
     onSuccess: () => {
       console.log("Delete successful, invalidating queries");
+      
+      // 공통: 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
+      
       // This is important to make the product reappear in the exploring section
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
+      
       // Call callback if provided
       if (onSuccessfulAction) {
         onSuccessfulAction();
