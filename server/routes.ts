@@ -132,8 +132,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete(`${apiPrefix}/user-products/:id`, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid ID format" });
+      }
+      
       const userId = req.session?.userId || null;
       const sessionId = req.session?.id || req.sessionID;
+      
+      // Log detailed information for debugging
+      console.log("Delete request: ID=", id, "UserID=", userId, "SessionID=", sessionId);
+      
+      // First check if this user product exists
+      const existingProduct = await storage.getUserProductById(id);
+      if (!existingProduct) {
+        console.log("Product with ID", id, "does not exist");
+        return res.status(200).json({ message: "Product already deleted" });
+      }
       
       const deletedUserProduct = await storage.deleteUserProduct(
         id,
@@ -142,9 +156,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       );
       
       if (!deletedUserProduct) {
-        return res.status(404).json({ message: "User product not found" });
+        return res.status(403).json({ message: "User not authorized to delete this product" });
       }
       
+      console.log("Successfully deleted product:", deletedUserProduct);
       return res.json(deletedUserProduct);
     } catch (error) {
       console.error("Error deleting user product:", error);
