@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { memo } from "react";
-import { CurrencyDisplay } from "@/components/ui/currency-display";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
@@ -17,13 +16,11 @@ interface ProductListItemProps {
   onSuccessfulAction?: () => void;
 }
 
-// 실제 컴포넌트 구현
-function ProductListItemComponent({ 
-  product, 
-  userProduct, 
-  readOnly = false,
-  onSuccessfulAction 
-}: ProductListItemProps) {
+export function ProductListItem(props: ProductListItemProps) {
+  const { product, userProduct, readOnly = false, onSuccessfulAction } = props;
+  const [price, setPrice] = useState(0);
+  const [convertedPrice, setConvertedPrice] = useState(0);
+
   // product가 undefined인 경우 에러 처리
   if (!product) {
     return (
@@ -32,18 +29,26 @@ function ProductListItemComponent({
       </div>
     );
   }
+  
   const queryClient = useQueryClient();
   const { selectedCountry, exchangeRate } = useAppContext();
 
   // 비회원인지 여부 확인
   const { user } = useAuth();
   const isNonMember = !user;
+  
+  // useEffect를 사용하여 가격 계산
+  useEffect(() => {
+    const roundedPrice = Math.round(product.price);
+    const convertedPrice = Math.round(product.price * (exchangeRate || 9.57));
+    
+    setPrice(roundedPrice);
+    setConvertedPrice(convertedPrice);
+  }, [product.price, exchangeRate]);
 
   // Update user product status mutation
   const updateStatus = useMutation({
     mutationFn: async (newStatus: ProductStatus) => {
-      console.log("Updating status for ID:", userProduct.id, "to:", newStatus);
-      
       // 비회원인 경우 로컬 스토리지에서 상태 업데이트
       if (isNonMember) {
         const storageKey = `userProducts_${selectedCountry.id}`;
@@ -59,7 +64,6 @@ function ProductListItemComponent({
           });
           
           localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
-          console.log("로컬 스토리지 상태 업데이트 완료:", newStatus);
           return { status: newStatus, id: userProduct.id };
         }
         
@@ -67,25 +71,19 @@ function ProductListItemComponent({
       }
       
       // 회원인 경우 API 호출
-      try {
-        const response = await apiRequest(
-          "PATCH",
-          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
-          { status: newStatus }
-        );
-        if (!response.ok) {
-          console.error("Status update failed:", await response.json());
-          throw new Error("Status update operation failed");
-        }
-        return response.json();
-      } catch (error) {
-        console.error("Error updating status:", error);
-        throw error;
+      const response = await apiRequest(
+        "PATCH",
+        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
+        { status: newStatus }
+      );
+      
+      if (!response.ok) {
+        throw new Error("Status update operation failed");
       }
+      
+      return response.json();
     },
     onSuccess: () => {
-      console.log("Status update successful, invalidating queries");
-      
       // 공통: 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
@@ -95,17 +93,12 @@ function ProductListItemComponent({
       if (onSuccessfulAction) {
         onSuccessfulAction();
       }
-    },
-    onError: (error) => {
-      console.error("Status update mutation error:", error);
     }
   });
   
   // Delete user product mutation
   const deleteUserProduct = useMutation({
     mutationFn: async () => {
-      console.log("Deleting user product with ID:", userProduct.id);
-      
       // 비회원인 경우 로컬 스토리지에서 삭제
       if (isNonMember) {
         const storageKey = `userProducts_${selectedCountry.id}`;
@@ -116,7 +109,6 @@ function ProductListItemComponent({
           const updatedProducts = products.filter((item: any) => item.id !== userProduct.id);
           
           localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
-          console.log("로컬 스토리지에서 상품 삭제 완료:", userProduct.id);
           
           // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
           window.dispatchEvent(new Event('localStorageChange'));
@@ -128,24 +120,18 @@ function ProductListItemComponent({
       }
       
       // 회원인 경우 API 호출
-      try {
-        const response = await apiRequest(
-          "DELETE",
-          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
-        );
-        if (!response.ok) {
-          console.error("Delete failed:", await response.json());
-          throw new Error("Delete operation failed");
-        }
-        return response.json();
-      } catch (error) {
-        console.error("Error deleting product:", error);
-        throw error;
+      const response = await apiRequest(
+        "DELETE",
+        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
+      );
+      
+      if (!response.ok) {
+        throw new Error("Delete operation failed");
       }
+      
+      return response.json();
     },
     onSuccess: () => {
-      console.log("Delete successful, invalidating queries");
-      
       // 공통: 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
@@ -160,23 +146,12 @@ function ProductListItemComponent({
       if (onSuccessfulAction) {
         onSuccessfulAction();
       }
-    },
-    onError: (error) => {
-      console.error("Delete mutation error:", error);
     }
   });
 
   // Change product status directly
   const changeStatus = (newStatus: ProductStatus) => {
     updateStatus.mutate(newStatus);
-  };
-  
-  // Legacy function for backwards compatibility
-  const handleChangeClassification = () => {
-    const statuses = [ProductStatus.INTERESTED, ProductStatus.MAYBE, ProductStatus.NOT_INTERESTED];
-    const currentIndex = statuses.indexOf(userProduct.status as ProductStatus);
-    const nextIndex = (currentIndex + 1) % statuses.length;
-    updateStatus.mutate(statuses[nextIndex]);
   };
 
   // Opens Instagram in a new tab with the hashtag search
@@ -214,10 +189,10 @@ function ProductListItemComponent({
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
             <div className="flex items-center justify-between sm:flex-col sm:items-end">
               <div className="text-xs text-gray-500">
-                현지: <span className="font-medium">¥{Math.round(product.price).toLocaleString()}</span>
+                현지: <span className="font-medium">¥{price.toLocaleString()}</span>
               </div>
               <div className="text-xs text-gray-500">
-                <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
+                <span className="font-medium text-primary">{convertedPrice.toLocaleString()}원</span>
               </div>
             </div>
           </div>
@@ -297,6 +272,3 @@ function ProductListItemComponent({
     </div>
   );
 }
-
-// React.memo로 감싸서 불필요한 리렌더링 최적화
-export const ProductListItem = memo(ProductListItemComponent);
