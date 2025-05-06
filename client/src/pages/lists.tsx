@@ -208,7 +208,7 @@ export function Lists() {
       if (products.length === 0) return null;
       
       return (
-        <div className="flex items-center justify-between mb-4 border-b pb-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 border-b pb-3 gap-3">
           <div className="flex items-center space-x-2">
             <Checkbox 
               id="select-all" 
@@ -220,13 +220,13 @@ export function Lists() {
             </label>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-wrap gap-2">
             {selectedCount > 0 && (
               <>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="text-xs h-8">
-                      <RefreshCw className="h-3 w-3 mr-1" />
+                    <Button variant="outline" size="sm" className="text-xs h-8 flex-grow sm:flex-grow-0">
+                      <RefreshCw className="h-3 w-3 mr-1 sm:mr-2" />
                       분류변경
                     </Button>
                   </DropdownMenuTrigger>
@@ -255,10 +255,10 @@ export function Lists() {
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="text-xs h-8 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
+                  className="text-xs h-8 flex-grow sm:flex-grow-0 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
                   onClick={handleBatchDelete}
                 >
-                  <Trash2 className="h-3 w-3 mr-1" />
+                  <Trash2 className="h-3 w-3 mr-1 sm:mr-2" />
                   선택 삭제
                 </Button>
               </>
@@ -268,10 +268,10 @@ export function Lists() {
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="text-xs h-8 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
+                className="text-xs h-8 flex-grow sm:flex-grow-0 text-red-500 border-red-200 hover:bg-red-500 hover:text-white"
                 onClick={() => batchDelete.mutate(products.map(p => p.id))}
               >
-                <Trash2 className="h-3 w-3 mr-1" />
+                <Trash2 className="h-3 w-3 mr-1 sm:mr-2" />
                 전체 삭제
               </Button>
             )}
@@ -363,7 +363,7 @@ export function Lists() {
             <div className="mt-6 text-center">
               <Button
                 onClick={handleShare}
-                className="bg-primary text-white py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
+                className="bg-primary text-white w-full sm:w-auto py-3 px-6 rounded-full font-medium shadow-md hover:bg-opacity-90 transition-colors"
               >
                 <Share2 className="mr-2 h-4 w-4" />
                 관심 목록 공유하기

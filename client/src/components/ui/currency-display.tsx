@@ -116,14 +116,14 @@ export function CurrencyInfoPanel() {
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-3 mb-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center">
             <span className="text-sm font-medium">현재 환율</span>
             <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">LIVE</span>
           </div>
-          <div className="font-semibold text-2xl mt-1">
-            100엔 = <span className="text-red-500">{(exchangeRate * 100).toFixed(0)}원</span>
+          <div className="font-semibold text-xl sm:text-2xl mt-1">
+            100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = <span className="text-red-500">{(exchangeRate * 100).toFixed(0)}원</span>
           </div>
           <div className="text-xs text-gray-500 mt-1">
             ({lastUpdated ? new Date(lastUpdated).toLocaleString('ko-KR', {
