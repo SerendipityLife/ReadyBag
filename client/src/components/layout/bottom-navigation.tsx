@@ -10,15 +10,24 @@ export function BottomNavigation() {
   const { user } = useAuth();
   
   // 관심 상품 개수를 조회하는 쿼리
-  const { data: userProducts = [] } = useQuery({
-    queryKey: ['/api/user-products', selectedCountry.id, user?.id],
-    enabled: !!user // 로그인된 사용자만 조회
+  const { data: userProducts = [] } = useQuery<any[]>({
+    queryKey: ['/api/user-products', selectedCountry?.id, user?.id],
+    queryFn: async () => {
+      // countryId가 있을 때만 API 요청을 보냄
+      if (!selectedCountry?.id) return [];
+      
+      const response = await fetch(`/api/user-products?countryId=${selectedCountry.id}`);
+      if (!response.ok) return [];
+      const data = await response.json();
+      return data;
+    },
+    enabled: !!user && !!selectedCountry?.id // 로그인된 사용자와 국가 ID가 있을 때만 조회
   });
   
   // "관심" 상태의 상품만 필터링하여 개수 세기
-  const interestedCount = userProducts.filter(
+  const interestedCount = userProducts?.filter(
     (product: any) => product.status === ProductStatus.INTERESTED
-  ).length;
+  )?.length || 0;
   
   const navItems = [
     {
