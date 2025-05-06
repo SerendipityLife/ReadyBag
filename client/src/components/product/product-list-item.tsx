@@ -141,7 +141,7 @@ export function ProductListItem({
                   현지: <span className="font-medium">¥{Math.round(product.price).toLocaleString()}</span>
                 </div>
                 <div className="text-right text-xs text-gray-500">
-                  한국: <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
+                  <span className="font-medium text-primary">{Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원</span>
                 </div>
               </div>
 

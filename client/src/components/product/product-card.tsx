@@ -19,7 +19,7 @@ export function ProductCard({
   position = 0,
   onSwipe,
 }: ProductCardProps) {
-  const { selectedCountry } = useAppContext();
+  const { selectedCountry, exchangeRate } = useAppContext();
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [currentX, setCurrentX] = useState(0);
@@ -159,7 +159,6 @@ export function ProductCard({
               <div className="text-sm font-medium text-gray-600">
                 <div className="flex items-center mb-1">
                   <span>현지 가격</span>
-                  <span className="inline-block w-2 h-2 rounded-full bg-gray-300 ml-1"></span>
                 </div>
                 <div className="font-bold text-lg">
                   ¥{Math.round(product.price).toLocaleString()}
@@ -168,15 +167,11 @@ export function ProductCard({
               
               <div className="text-sm font-medium text-gray-600">
                 <div className="flex items-center mb-1">
-                  <span>한국 가격</span>
-                  <span className="inline-block w-2 h-2 rounded-full bg-green-400 ml-1"></span>
+                  <span>원화 환산</span>
                 </div>
-                <CurrencyDisplay 
-                  amount={product.price} 
-                  fromCurrency={selectedCountry.currency}
-                  showBase={false}
-                  className="font-bold text-lg"
-                />
+                <div className="font-bold text-lg text-primary">
+                  {Math.round(product.price * (exchangeRate || 9.57)).toLocaleString()}원
+                </div>
               </div>
             </div>
             
