@@ -32,7 +32,9 @@ export function ProductCardStack() {
   });
   
   // Get already categorized product IDs
-  const categorizedProductIds = userProducts.map(up => up.productId);
+  const categorizedProductIds = useMemo(() => {
+    return userProducts.map(up => up.productId);
+  }, [userProducts]);
   
   // Filter products by selected categories AND exclude already categorized products
   const filteredProducts = useMemo(() => {
@@ -67,15 +69,14 @@ export function ProductCardStack() {
     }
   });
   
-  // Initialize visible products when products are loaded or category changes
-  // useEffect with proper dependencies to prevent infinite updates
-  const hasProducts = filteredProducts.length > 0;
-  useEffect(() => {
-    if (hasProducts) {
+  // Initialize visible products when data changes
+  // Using useMemo instead of useEffect to prevent infinite updates
+  useMemo(() => {
+    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
       setVisibleProducts(filteredProducts.slice(0, 3));
-      setCurrentProductIndex(0); // Reset position counter when category changes
+      setCurrentProductIndex(0);
     }
-  }, [hasProducts, filteredProducts]);
+  }, [filteredProducts, visibleProducts.length]);
   
   // 처리 중인 productId를 추적하기 위한 상태
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
