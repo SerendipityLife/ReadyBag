@@ -308,8 +308,8 @@ export function Lists() {
   
   return (
     <div className="w-full max-w-3xl mx-auto pb-20">
-      {/* 상단 고정 영역 - 스티키 헤더 */}
-      <div className="sticky top-0 z-10 bg-gray-50 pt-2 pb-2">
+      {/* 상단 고정 영역 - 환율 정보와 탭 영역을 하나의 스티키 헤더로 */}
+      <div className="sticky top-0 z-50 bg-gray-50 pt-2 pb-2 border-b border-gray-100 shadow-sm">
         {/* 환율 정보 표시 */}
         {exchangeRate && (
           <div className="bg-white rounded-lg p-2 mb-2 flex items-center justify-between text-xs text-gray-600 shadow-sm">
@@ -330,36 +330,45 @@ export function Lists() {
             </div>
           </div>
         )}
+
+        {/* 탭 리스트 영역 - 스크롤해도 고정 */}
+        <div className="bg-white rounded-lg shadow-sm w-full">
+          <Tabs
+            defaultValue={ProductStatus.INTERESTED}
+            onValueChange={(value) => setActiveTab(value as ProductStatus)}
+            className="w-full"
+          >
+            <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
+              <TabsTrigger
+                value={ProductStatus.INTERESTED}
+                className="flex items-center justify-center"
+              >
+                <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
+              </TabsTrigger>
+              <TabsTrigger
+                value={ProductStatus.MAYBE}
+                className="flex items-center justify-center"
+              >
+                <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
+              </TabsTrigger>
+              <TabsTrigger
+                value={ProductStatus.NOT_INTERESTED}
+                className="flex items-center justify-center"
+              >
+                <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
-      {/* 탭 영역 */}
-      <div className="sticky top-14 z-10 bg-gray-50 pt-1 pb-2">
+      {/* 탭 컨텐츠 영역 - 스크롤 가능 */}
+      <div className="mt-2">
         <Tabs
           defaultValue={ProductStatus.INTERESTED}
-          onValueChange={(value) => setActiveTab(value as ProductStatus)}
+          value={activeTab}
           className="w-full"
         >
-          <TabsList className="w-full grid grid-cols-3 mb-2 bg-white rounded-lg shadow-sm">
-            <TabsTrigger
-              value={ProductStatus.INTERESTED}
-              className="flex items-center justify-center"
-            >
-              <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
-            </TabsTrigger>
-            <TabsTrigger
-              value={ProductStatus.MAYBE}
-              className="flex items-center justify-center"
-            >
-              <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
-            </TabsTrigger>
-            <TabsTrigger
-              value={ProductStatus.NOT_INTERESTED}
-              className="flex items-center justify-center"
-            >
-              <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
-            </TabsTrigger>
-          </TabsList>
-          
           <TabsContent value={ProductStatus.INTERESTED}>
             {renderTabContent(interestedProducts, ProductStatus.INTERESTED)}
             
