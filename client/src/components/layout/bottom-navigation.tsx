@@ -1,10 +1,24 @@
 import { useAppContext } from "@/contexts/AppContext";
-import { View } from "@/lib/constants";
+import { View, ProductStatus } from "@/lib/constants";
 import { Search, List, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 
 export function BottomNavigation() {
-  const { currentView, setCurrentView } = useAppContext();
+  const { currentView, setCurrentView, selectedCountry } = useAppContext();
+  const { user } = useAuth();
+  
+  // 관심 상품 개수를 조회하는 쿼리
+  const { data: userProducts = [] } = useQuery({
+    queryKey: ['/api/user-products', selectedCountry.id, user?.id],
+    enabled: !!user // 로그인된 사용자만 조회
+  });
+  
+  // "관심" 상태의 상품만 필터링하여 개수 세기
+  const interestedCount = userProducts.filter(
+    (product: any) => product.status === ProductStatus.INTERESTED
+  ).length;
   
   const navItems = [
     {
@@ -14,7 +28,7 @@ export function BottomNavigation() {
     },
     {
       id: View.LISTS,
-      label: "내 목록",
+      label: interestedCount > 0 ? `내 목록 (${interestedCount})` : "내 목록",
       icon: List,
     },
     {
