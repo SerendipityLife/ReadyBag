@@ -22,6 +22,7 @@ export type Country = typeof countries.$inferSelect;
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  nameJapanese: text("name_japanese"), // 일본어 상품명 추가
   description: text("description").notNull(),
   price: integer("price").notNull(),
   imageUrl: text("image_url").notNull(),

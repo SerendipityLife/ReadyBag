@@ -145,25 +145,35 @@ export function ProductCard({
         />
         
         <div className="p-5">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col">
             <h3 className="text-xl font-heading font-bold">{product.name}</h3>
-            <div className="flex flex-col items-end">
+            {product.nameJapanese && (
+              <p className="text-sm text-gray-600 mt-1 font-medium">
+                {product.nameJapanese}
+              </p>
+            )}
+          </div>
+          
+          <div className="mt-3 bg-gray-50 p-3 rounded-lg flex flex-col">
+            <div className="flex justify-between items-center">
+              <div className="text-sm font-medium text-gray-600">현지 가격</div>
+              <div className="font-bold text-lg">
+                ¥{Math.round(product.price).toLocaleString()}
+              </div>
+            </div>
+            <div className="border-t border-gray-200 my-2"></div>
+            <div className="flex justify-between items-center">
+              <div className="text-sm font-medium text-gray-600">한국 가격</div>
               <CurrencyDisplay 
                 amount={product.price} 
-                fromCurrency={selectedCountry.currency} 
+                fromCurrency={selectedCountry.currency}
+                showBase={false}
+                className="font-bold text-lg text-primary"
               />
             </div>
           </div>
           
-          <p className="mt-2 text-neutral text-sm">{product.description}</p>
-          
-          <div className="mt-3 flex flex-wrap gap-2">
-            {product.hashtags?.map((tag, index) => (
-              <span key={index} className="text-xs py-1 px-2 bg-neutral-light rounded-full text-neutral">
-                #{tag}
-              </span>
-            ))}
-          </div>
+          <p className="mt-3 text-neutral text-sm">{product.description}</p>
           
           <div className="mt-4 text-xs text-neutral flex items-center">
             <span className="mr-1">📍</span>
