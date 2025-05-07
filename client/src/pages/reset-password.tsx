@@ -62,7 +62,8 @@ export default function ResetPasswordPage() {
     resetPasswordMutation.mutate(
       { 
         token,
-        password: data.password 
+        password: data.password,
+        confirmPassword: data.confirmPassword // 확인 비밀번호도 함께 전송
       },
       {
         onSuccess: () => {

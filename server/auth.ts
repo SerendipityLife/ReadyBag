@@ -317,7 +317,7 @@ export function setupAuth(app: Express) {
     app.post("/api/auth/reset-password", async (req, res) => {
         try {
             // 요청 데이터 검증
-            const { token, password } = resetPasswordSchema.parse(req.body);
+            const { token, password, confirmPassword } = resetPasswordSchema.parse(req.body);
             
             // 토큰으로 사용자 조회
             const user = await db.query.users.findFirst({
