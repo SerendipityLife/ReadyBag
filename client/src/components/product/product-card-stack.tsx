@@ -191,9 +191,11 @@ export function ProductCardStack() {
     
     // 필터링된 상품이 있으면 강제 리셋 모드 비활성화
     if (filteredProducts.length > 0 && forceReset) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setForceReset(false);
       }, 100);
+      
+      return () => clearTimeout(timer);
     }
   }, [filteredProducts, totalCategoryCount, setCurrentProductIndex, forceReset]);
   
@@ -232,30 +234,31 @@ export function ProductCardStack() {
       return filteredProducts.slice(0, 3);
     }
     
-    // 다음 조건 중 하나라도 해당되면 필터링된 상품 목록에서 새로 가져옴:
-    // 1. 가시적인 제품이 없을 때
-    // 2. 필터링된 상품 목록이 변경되었을 때
-    // 3. 필터링된 상품 수와 원래 상품 수가 다를 때
-    if (filteredProducts.length > 0 && (
-      visibleProducts.length === 0 || 
-      filteredProducts.length !== originalTotalProducts ||
-      JSON.stringify(visibleProducts.map(p => p.id).sort()) !== 
-      JSON.stringify(filteredProducts.slice(0, visibleProducts.length).map(p => p.id).sort())
-    )) {
+    // 필터링된 상품이 있고, 원래 상품 수와 다르면 새로운 상품으로 갱신
+    if (filteredProducts.length > 0 && 
+        filteredProducts.length !== originalTotalProducts) {
       return filteredProducts.slice(0, 3);
     }
     
+    // 필터링된 상품은 있지만 보여줄 상품이 없으면 새로 설정
+    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
+      return filteredProducts.slice(0, 3); 
+    }
+    
+    // 그 외에는 기존 상품 유지 (상태 변경 최소화)
     return visibleProducts;
-  }, [filteredProducts, visibleProducts, originalTotalProducts, forceReset]);
+  }, [filteredProducts, originalTotalProducts, forceReset, visibleProducts.length]);
   
-  // visibleProductsToShow가 변경되고 visibleProducts와 다를 때만 업데이트
+  // visibleProductsToShow가 변경될 때만 업데이트
   useEffect(() => {
-    if (visibleProductsToShow !== visibleProducts && 
-        (visibleProducts.length === 0 || 
-         JSON.stringify(visibleProductsToShow) !== JSON.stringify(visibleProducts))) {
+    // 깊은 비교를 통해 실제 내용이 다를 때만 업데이트
+    const currentIds = visibleProducts.map(p => p.id).sort().join(',');
+    const newIds = visibleProductsToShow.map(p => p.id).sort().join(',');
+    
+    if (currentIds !== newIds) {
       setVisibleProducts(visibleProductsToShow);
     }
-  }, [visibleProductsToShow, visibleProducts]);
+  }, [visibleProductsToShow]);
     
   // 비회원일 경우 로컬 스토리지에 상품 상태 저장
   const saveToLocalStorage = (productId: number, status: ProductStatus) => {
