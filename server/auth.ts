@@ -296,7 +296,11 @@ export function setupAuth(app: Express) {
                 .where(eq(users.id, user.id));
             
             // 재설정 링크 생성
-            const resetLink = `${req.protocol}://${req.get("host")}/reset-password?token=${resetToken}`;
+            // 현재 Replit 환경 호스트 가져오기 (X-Forwarded-Host 또는 Host 헤더 사용)
+            const host = req.get("x-forwarded-host") || req.get("host");
+            // Replit에서는 HTTPS 사용
+            const protocol = req.get("x-forwarded-proto") || req.protocol;
+            const resetLink = `${protocol}://${host}/reset-password?token=${resetToken}`;
             
             // 이메일 전송
             await sendPasswordResetEmail(email, resetToken, resetLink);
@@ -323,7 +327,7 @@ export function setupAuth(app: Express) {
             const user = await db.query.users.findFirst({
                 where: and(
                     eq(users.resetToken, token),
-                    isNull(users.resetToken, false),
+                    // 만료 시간이 현재보다 커야 함 (아직 만료되지 않음)
                     gt(users.resetTokenExpiry as any, new Date())
                 ),
             });
