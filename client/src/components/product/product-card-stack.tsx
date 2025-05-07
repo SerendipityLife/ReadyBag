@@ -235,9 +235,12 @@ export function ProductCardStack() {
     // 다음 조건 중 하나라도 해당되면 필터링된 상품 목록에서 새로 가져옴:
     // 1. 가시적인 제품이 없을 때
     // 2. 필터링된 상품 목록이 변경되었을 때
+    // 3. 필터링된 상품 수와 원래 상품 수가 다를 때
     if (filteredProducts.length > 0 && (
       visibleProducts.length === 0 || 
-      filteredProducts.length !== originalTotalProducts
+      filteredProducts.length !== originalTotalProducts ||
+      JSON.stringify(visibleProducts.map(p => p.id).sort()) !== 
+      JSON.stringify(filteredProducts.slice(0, visibleProducts.length).map(p => p.id).sort())
     )) {
       return filteredProducts.slice(0, 3);
     }

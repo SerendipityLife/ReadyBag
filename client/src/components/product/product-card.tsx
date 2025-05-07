@@ -1,25 +1,27 @@
 import { useState, useRef } from "react";
-import { useSpring, animated, to } from "@react-spring/web";
-import { CurrencyDisplay } from "@/components/ui/currency-display";
+import { useSpring, animated } from "@react-spring/web";
 import { useAppContext } from "@/contexts/AppContext";
 import { Card } from "@/components/ui/card";
-import { ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
+import { SwipeDirection } from "@/lib/constants";
+import { Loader2 } from "lucide-react";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
   product: Product;
-  isTopCard?: boolean;
-  position?: number;
+  index: number;
+  total: number;
+  isProcessing?: boolean;
   onSwipe: (direction: SwipeDirection, productId: number) => void;
 }
 
 export function ProductCard({
   product,
-  isTopCard = false,
-  position = 0,
+  index,
+  total,
+  isProcessing = false,
   onSwipe,
 }: ProductCardProps) {
-  const { selectedCountry, exchangeRate } = useAppContext();
+  const { exchangeRate } = useAppContext();
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
   const [currentX, setCurrentX] = useState(0);
@@ -30,9 +32,11 @@ export function ProductCard({
   
   // Calculate styles based on position in the stack
   const styles = {
-    zIndex: isTopCard ? 10 : 10 - position,
-    opacity: isTopCard ? 1 : 1 - position * 0.2,
+    zIndex: index === 0 ? 10 : 10 - index,
+    opacity: index === 0 ? 1 : 1 - index * 0.2,
   };
+  
+  const isTopCard = index === 0;
   
   // Animation for the card movement
   const [{ x, y, rotate }, api] = useSpring(() => ({
@@ -43,6 +47,8 @@ export function ProductCard({
   }));
   
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
+    if (isProcessing) return;
+    
     if ("touches" in e) {
       setStartX(e.touches[0].clientX);
       setStartY(e.touches[0].clientY);
@@ -57,7 +63,7 @@ export function ProductCard({
   };
   
   const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging.current || !isTopCard) return;
+    if (!isDragging.current || !isTopCard || isProcessing) return;
     
     let posX, posY;
     if ("touches" in e) {
@@ -88,7 +94,7 @@ export function ProductCard({
   };
   
   const handleTouchEnd = () => {
-    if (!isDragging.current || !isTopCard) return;
+    if (!isDragging.current || !isTopCard || isProcessing) return;
     isDragging.current = false;
     setSwiping(false);
     
@@ -121,7 +127,7 @@ export function ProductCard({
   
   return (
     <animated.div
-      className={`card absolute inset-0 will-change-transform`}
+      className={`card absolute inset-0 will-change-transform ${isProcessing ? 'pointer-events-none' : ''}`}
       style={{
         ...styles,
         x,
@@ -137,7 +143,19 @@ export function ProductCard({
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      <Card className="h-full overflow-hidden max-h-[650px]">
+      <Card className="h-full overflow-hidden max-h-[650px] relative">
+        {/* 내비게이션 표시: 현재 위치 / 전체 */}
+        <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs font-medium px-2 py-1 rounded-full z-10">
+          {index + 1} / {total}
+        </div>
+        
+        {/* 로딩 표시 */}
+        {isProcessing && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
+            <Loader2 className="h-10 w-10 text-white animate-spin" />
+          </div>
+        )}
+        
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -174,8 +192,6 @@ export function ProductCard({
                 </div>
               </div>
             </div>
-            
-
           </div>
           
           <div className="mt-3 border-t border-gray-100 pt-3">
