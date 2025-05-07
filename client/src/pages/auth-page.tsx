@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { LoginUserInput, RegisterUserInput } from "@shared/schema";
+import { LoginUserInput, RegisterUserInput, ResetPasswordRequestInput } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Mail, Lock, UserCircle } from "lucide-react";
+import { Loader2, Mail, Lock, UserCircle, ArrowLeft } from "lucide-react";
 
 // 회원가입 스키마
 const registerSchema = z.object({
@@ -35,10 +35,16 @@ const loginSchema = z.object({
   password: z.string().min(1, "비밀번호를 입력해주세요"),
 });
 
+// 비밀번호 찾기 스키마
+const forgotPasswordSchema = z.object({
+  email: z.string().email("유효한 이메일 주소를 입력해주세요"),
+});
+
 export default function AuthPage() {
   const [, navigate] = useLocation();
-  const { user, loginMutation, registerMutation, isLoading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"login" | "register">("login");
+  const { user, loginMutation, registerMutation, resetPasswordRequestMutation, isLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot">("login");
+  const [isPasswordResetSent, setIsPasswordResetSent] = useState(false);
 
   // 페이지 진입 시 로컬 스토리지 초기화 (비회원 데이터 리셋)
   useEffect(() => {
@@ -129,6 +135,23 @@ export default function AuthPage() {
       },
     });
   };
+  
+  // 비밀번호 찾기 폼
+  const forgotPasswordForm = useForm<ResetPasswordRequestInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+  
+  // 비밀번호 찾기 제출 처리
+  const onForgotPasswordSubmit = (data: ResetPasswordRequestInput) => {
+    resetPasswordRequestMutation.mutate(data, {
+      onSuccess: () => {
+        setIsPasswordResetSent(true);
+      },
+    });
+  };
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
@@ -143,7 +166,7 @@ export default function AuthPage() {
           <Tabs 
             defaultValue="login" 
             value={activeTab} 
-            onValueChange={(value) => setActiveTab(value as "login" | "register")}
+            onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}
             className="w-full"
           >
             <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -234,16 +257,102 @@ export default function AuthPage() {
                     비회원으로 시작하기
                   </Button>
                 </div>
-                <div>
+                <div className="flex justify-center space-x-2">
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("register")}
                     className="text-sm text-gray-500 hover:text-primary"
                   >
-                    계정이 없으신가요? 회원가입하기
+                    계정이 없으신가요?
+                  </Button>
+                  <Button 
+                    variant="link" 
+                    onClick={() => setActiveTab("forgot")}
+                    className="text-sm text-gray-500 hover:text-primary"
+                  >
+                    비밀번호를 잊으셨나요?
                   </Button>
                 </div>
               </div>
+            </TabsContent>
+            
+            {/* 비밀번호 찾기 탭 */}
+            <TabsContent value="forgot">
+              {isPasswordResetSent ? (
+                <div className="text-center py-8">
+                  <div className="bg-green-50 p-6 rounded-lg mb-6">
+                    <h3 className="text-lg font-medium text-green-800 mb-2">이메일 전송 완료</h3>
+                    <p className="text-green-700">비밀번호 재설정 링크가 이메일로 전송되었습니다.</p>
+                    <p className="text-green-700 mt-2">이메일을 확인하고 링크를 클릭하여 비밀번호를 재설정하세요.</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setActiveTab("login")}
+                    className="mt-4"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    로그인으로 돌아가기
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-6">
+                    <h3 className="text-lg font-semibold mb-2">비밀번호 재설정</h3>
+                    <p className="text-sm text-gray-500">
+                      가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.
+                    </p>
+                  </div>
+                  
+                  <Form {...forgotPasswordForm}>
+                    <form 
+                      onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} 
+                      className="space-y-4"
+                    >
+                      <FormField
+                        control={forgotPasswordForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>이메일</FormLabel>
+                            <FormControl>
+                              <div className="relative">
+                                <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                                <Input 
+                                  placeholder="가입한 이메일 주소" 
+                                  className="pl-10" 
+                                  {...field} 
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <div className="flex justify-between pt-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setActiveTab("login")}
+                        >
+                          <ArrowLeft className="h-4 w-4 mr-2" />
+                          돌아가기
+                        </Button>
+                        
+                        <Button 
+                          type="submit" 
+                          disabled={resetPasswordRequestMutation.isPending}
+                        >
+                          {resetPasswordRequestMutation.isPending ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          ) : null}
+                          재설정 링크 보내기
+                        </Button>
+                      </div>
+                    </form>
+                  </Form>
+                </>
+              )}
             </TabsContent>
 
             {/* 회원가입 탭 */}

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
-import { ResetPasswordInput, ResetPasswordRequestInput } from "@shared/schema";
+import { ResetPasswordInput } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -15,16 +15,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Mail, Lock, ArrowLeft, CheckCircle } from "lucide-react";
-
-// 비밀번호 재설정 요청 스키마
-const resetRequestSchema = z.object({
-  email: z.string().email("유효한 이메일 주소를 입력해주세요"),
-});
+import { Loader2, Lock } from "lucide-react";
 
 // 비밀번호 재설정 스키마
 const resetPasswordSchema = z.object({
-  token: z.string(),
   password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다"),
   confirmPassword: z.string(),
 }).refine(data => data.password === data.confirmPassword, {
@@ -32,161 +26,100 @@ const resetPasswordSchema = z.object({
   path: ["confirmPassword"]
 });
 
-export default function ResetPassword() {
+// URL 쿼리 파라미터에서 토큰 추출 함수
+function useQueryParam(param: string): string | null {
+  if (typeof window === "undefined") return null;
+  const url = new URL(window.location.href);
+  return url.searchParams.get(param);
+}
+
+export default function ResetPasswordPage() {
   const [, navigate] = useLocation();
-  const location = useLocation()[0];
-  const token = new URLSearchParams(location.split("?")[1]).get("token");
-  const { resetPasswordRequestMutation, resetPasswordMutation } = useAuth();
-  const [isSuccess, setIsSuccess] = useState(false);
-
-  // 비밀번호 재설정 요청 폼
-  const resetRequestForm = useForm<ResetPasswordRequestInput>({
-    resolver: zodResolver(resetRequestSchema),
-    defaultValues: {
-      email: "",
-    },
-  });
-
+  const { resetPasswordMutation } = useAuth();
+  const [resetComplete, setResetComplete] = useState(false);
+  const token = useQueryParam("token");
+  
+  // 토큰이 없으면 인증 페이지로 리디렉션
+  useEffect(() => {
+    if (!token) {
+      navigate("/auth");
+    }
+  }, [token, navigate]);
+  
   // 비밀번호 재설정 폼
-  const resetPasswordForm = useForm<ResetPasswordInput>({
+  const form = useForm<Omit<ResetPasswordInput, "token">>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      token: token || "",
       password: "",
       confirmPassword: "",
     },
   });
-
-  // 비밀번호 재설정 요청 제출 처리
-  const onResetRequestSubmit = (data: ResetPasswordRequestInput) => {
-    resetPasswordRequestMutation.mutate(data, {
-      onSuccess: () => {
-        setIsSuccess(true);
+  
+  // 제출 처리
+  const onSubmit = (data: Omit<ResetPasswordInput, "token">) => {
+    if (!token) return;
+    
+    resetPasswordMutation.mutate(
+      { 
+        token,
+        password: data.password 
       },
-    });
+      {
+        onSuccess: () => {
+          setResetComplete(true);
+          // 5초 후 로그인 페이지로 이동
+          setTimeout(() => {
+            navigate("/auth");
+          }, 5000);
+        },
+      }
+    );
   };
-
-  // 비밀번호 재설정 제출 처리
-  const onResetPasswordSubmit = (data: ResetPasswordInput) => {
-    resetPasswordMutation.mutate(data, {
-      onSuccess: () => {
-        setIsSuccess(true);
-        // 3초 후 로그인 페이지로 이동
-        setTimeout(() => {
-          navigate("/auth");
-        }, 3000);
-      },
-    });
-  };
-
+  
+  if (!token) {
+    return null; // useEffect에서 리디렉션 처리
+  }
+  
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-50">
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-6 md:p-8">
-        <div className="flex items-center mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="p-0 mr-2"
-            onClick={() => navigate("/auth")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <h1 className="text-xl font-bold text-primary">비밀번호 재설정</h1>
+    <div className="flex min-h-screen flex-col items-center justify-center px-4 md:px-8 py-12">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">Ready<span className="font-extrabold">Bag</span></h1>
+          <p className="text-sm text-gray-500">비밀번호 재설정</p>
         </div>
-
-        {/* 토큰이 없으면 재설정 요청 폼, 있으면 비밀번호 재설정 폼 표시 */}
-        {!token ? (
-          isSuccess ? (
-            <div className="flex flex-col items-center text-center py-6">
-              <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">이메일 발송 완료</h2>
-              <p className="text-gray-600 mb-6">
-                비밀번호 재설정 링크가 이메일로 전송되었습니다. 메일함을 확인해주세요.
-              </p>
-              <Button onClick={() => navigate("/auth")}>
-                로그인 페이지로 돌아가기
-              </Button>
-            </div>
-          ) : (
-            <Form {...resetRequestForm}>
-              <form 
-                onSubmit={resetRequestForm.handleSubmit(onResetRequestSubmit)} 
-                className="space-y-4"
+        
+        {resetComplete ? (
+          <div className="bg-green-50 p-6 rounded-lg text-center">
+            <h2 className="text-xl font-semibold text-green-800 mb-4">비밀번호 재설정 완료</h2>
+            <p className="text-green-700 mb-2">
+              비밀번호가 성공적으로 재설정되었습니다.
+            </p>
+            <p className="text-green-700 mb-6">
+              새 비밀번호로 로그인해주세요.
+            </p>
+            <div className="text-center">
+              <Button 
+                onClick={() => navigate("/auth")}
+                className="px-6"
               >
-                <p className="text-sm text-gray-600 mb-4">
-                  가입 시 사용한 이메일 주소를 입력하시면 비밀번호 재설정 링크를 보내드립니다.
-                </p>
-                
-                <FormField
-                  control={resetRequestForm.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>이메일</FormLabel>
-                      <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
-                          <Input 
-                            placeholder="your@email.com" 
-                            className="pl-10" 
-                            {...field} 
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Button 
-                  type="submit" 
-                  className="w-full mt-6" 
-                  disabled={resetPasswordRequestMutation.isPending}
-                >
-                  {resetPasswordRequestMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : null}
-                  재설정 링크 받기
-                </Button>
-              </form>
-            </Form>
-          )
-        ) : (
-          isSuccess ? (
-            <div className="flex flex-col items-center text-center py-6">
-              <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-              <h2 className="text-xl font-semibold mb-2">비밀번호 변경 완료</h2>
-              <p className="text-gray-600 mb-6">
-                비밀번호가 성공적으로 변경되었습니다. 잠시 후 로그인 페이지로 이동합니다.
-              </p>
-              <Button onClick={() => navigate("/auth")}>
                 로그인 페이지로 이동
               </Button>
+              <p className="text-sm text-gray-500 mt-4">5초 후 자동으로 로그인 페이지로 이동합니다.</p>
             </div>
-          ) : (
-            <Form {...resetPasswordForm}>
-              <form 
-                onSubmit={resetPasswordForm.handleSubmit(onResetPasswordSubmit)} 
-                className="space-y-4"
-              >
-                <p className="text-sm text-gray-600 mb-4">
-                  새로운 비밀번호를 입력해주세요.
-                </p>
-
+          </div>
+        ) : (
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">새 비밀번호 설정</h2>
+              <p className="text-sm text-gray-500">
+                새로운 비밀번호를 입력해주세요. 비밀번호는 최소 8자 이상이어야 합니다.
+              </p>
+            </div>
+            
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
-                  control={resetPasswordForm.control}
-                  name="token"
-                  render={({ field }) => (
-                    <FormItem className="hidden">
-                      <FormControl>
-                        <Input type="hidden" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={resetPasswordForm.control}
+                  control={form.control}
                   name="password"
                   render={({ field }) => (
                     <FormItem>
@@ -206,9 +139,9 @@ export default function ResetPassword() {
                     </FormItem>
                   )}
                 />
-
+                
                 <FormField
-                  control={resetPasswordForm.control}
+                  control={form.control}
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
@@ -228,7 +161,7 @@ export default function ResetPassword() {
                     </FormItem>
                   )}
                 />
-
+                
                 <Button 
                   type="submit" 
                   className="w-full mt-6" 
@@ -237,11 +170,11 @@ export default function ResetPassword() {
                   {resetPasswordMutation.isPending ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  비밀번호 변경하기
+                  비밀번호 재설정
                 </Button>
               </form>
             </Form>
-          )
+          </div>
         )}
       </div>
     </div>
