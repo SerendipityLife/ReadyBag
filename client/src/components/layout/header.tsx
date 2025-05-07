@@ -97,17 +97,17 @@ export function Header() {
             </h1>
           </div>
           
-          <div className="flex items-center">
+          <div className="flex items-center ml-4">
             {!isAuthPage && (
               <>
                 <Button 
-                  variant="ghost" 
+                  variant="outline" 
                   size="sm"
-                  className="text-neutral hover:text-primary px-3 py-2 mr-1 flex items-center rounded-full transition-colors"
+                  className="text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-700 border-gray-200 px-3 py-2 mr-3 flex items-center rounded-md transition-colors"
                   onClick={handleShareClick}
                   title="공유하기"
                 >
-                  <Share2 size={20} />
+                  <Share2 size={18} className="text-gray-500" />
                   <span className="hidden md:inline ml-2 text-sm font-medium">공유</span>
                 </Button>
                 
@@ -115,17 +115,17 @@ export function Header() {
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button 
-                        variant="ghost" 
+                        variant="outline" 
                         size="sm" 
-                        className="px-3 py-2 flex items-center rounded-full hover:bg-gray-100 transition-colors"
+                        className="bg-white hover:bg-gray-50 border-gray-200 px-3 py-2 flex items-center rounded-md transition-colors"
                       >
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-primary/10 text-primary">
+                        <Avatar className="h-7 w-7">
+                          <AvatarFallback className="bg-gray-100 text-gray-700">
                             {getUserInitials()}
                           </AvatarFallback>
                         </Avatar>
-                        <span className="hidden md:inline ml-2 text-sm font-medium">내 계정</span>
-                        <ChevronDown className="h-4 w-4 ml-1" />
+                        <span className="hidden md:inline ml-2 text-sm font-medium text-gray-700">내 계정</span>
+                        <ChevronDown className="h-4 w-4 ml-1 text-gray-500" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
@@ -141,24 +141,24 @@ export function Header() {
                       </div>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        className="text-red-500 focus:text-red-500 cursor-pointer"
+                        className="text-gray-700 cursor-pointer"
                         onClick={handleLogoutClick}
                       >
-                        <LogOut className="mr-2 h-4 w-4" />
+                        <LogOut className="mr-2 h-4 w-4 text-gray-500" />
                         <span>로그아웃</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
                   <Button 
-                    variant="ghost" 
+                    variant="outline" 
                     size="sm"
-                    className="text-neutral hover:text-primary px-3 py-2 flex items-center rounded-full transition-colors"
+                    className="bg-white hover:bg-gray-50 hover:text-gray-700 border-gray-200 px-3 py-2 flex items-center rounded-md transition-colors"
                     onClick={handleLoginClick}
                     title="로그인"
                   >
-                    <LogIn size={20} />
-                    <span className="hidden md:inline ml-2 text-sm font-medium">로그인</span>
+                    <LogIn size={18} className="text-gray-500" />
+                    <span className="hidden md:inline ml-2 text-sm font-medium text-gray-700">로그인</span>
                   </Button>
                 )}
               </>
