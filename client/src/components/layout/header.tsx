@@ -97,27 +97,34 @@ export function Header() {
             </h1>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center">
             {!isAuthPage && (
               <>
                 <Button 
                   variant="ghost" 
                   size="sm"
-                  className="text-neutral hover:text-primary p-1"
+                  className="text-neutral hover:text-primary px-3 py-2 mr-1 flex items-center rounded-full transition-colors"
                   onClick={handleShareClick}
+                  title="공유하기"
                 >
-                  <Share2 size={18} />
+                  <Share2 size={20} />
+                  <span className="hidden md:inline ml-2 text-sm font-medium">공유</span>
                 </Button>
                 
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="p-1">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="px-3 py-2 flex items-center rounded-full hover:bg-gray-100 transition-colors"
+                      >
                         <Avatar className="h-8 w-8">
                           <AvatarFallback className="bg-primary/10 text-primary">
                             {getUserInitials()}
                           </AvatarFallback>
                         </Avatar>
+                        <span className="hidden md:inline ml-2 text-sm font-medium">내 계정</span>
                         <ChevronDown className="h-4 w-4 ml-1" />
                       </Button>
                     </DropdownMenuTrigger>
@@ -146,10 +153,12 @@ export function Header() {
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className="text-neutral hover:text-primary p-1"
+                    className="text-neutral hover:text-primary px-3 py-2 flex items-center rounded-full transition-colors"
                     onClick={handleLoginClick}
+                    title="로그인"
                   >
-                    <LogIn size={18} />
+                    <LogIn size={20} />
+                    <span className="hidden md:inline ml-2 text-sm font-medium">로그인</span>
                   </Button>
                 )}
               </>
