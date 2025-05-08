@@ -9,7 +9,7 @@ export function FilterCurrencyBar() {
   if (!exchangeRate) {
     return (
       <div className="w-full max-w-md flex justify-end mb-4">
-        <FilterButton />
+        <FilterButton compact={true} />
       </div>
     );
   }

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
-import { CurrencyInfoPanel } from "@/components/ui/currency-display";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
@@ -530,8 +529,6 @@ export function ProductCardStack() {
   
   return (
     <div className="w-full max-w-md mx-auto px-3">
-      <CurrencyInfoPanel />
-      
       <div className="card-stack relative h-[540px] md:h-[580px] w-full mx-auto">
         {visibleProducts.map((product, index) => (
           <ProductCard
