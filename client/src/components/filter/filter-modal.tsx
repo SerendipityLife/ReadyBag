@@ -41,6 +41,11 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
     selectedCountry, 
     selectedCategories,
     setSelectedCategories,
+    priceRange: contextPriceRange,
+    setPriceRange: setContextPriceRange,
+    tags: contextTags,
+    setTags: setContextTags,
+    applyFilters: applyContextFilters
   } = useAppContext();
   
   // 상품 데이터 가져오기
@@ -65,10 +70,14 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
   // 모달이 열릴 때 로컬 상태 초기화
   useEffect(() => {
     if (isOpen) {
+      // 카테고리 초기화
       setLocalCategories([...selectedCategories]);
       
-      // 제품 데이터에서 최대/최소 가격 계산
-      if (products && products.length > 0) {
+      // 가격 범위 초기화: 컨텍스트 값이 있으면 사용, 없으면 제품 데이터에서 계산
+      if (contextPriceRange && 
+          (contextPriceRange.min !== 0 || contextPriceRange.max !== 50000)) {
+        setLocalPriceRange(contextPriceRange);
+      } else if (products && products.length > 0) {
         const prices = products.map(p => p.price);
         const max = Math.max(...prices);
         const min = Math.min(...prices);
@@ -79,8 +88,13 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
           max: max
         });
       }
+      
+      // 태그 초기화
+      if (contextTags && contextTags.length > 0) {
+        setLocalTags([...contextTags]);
+      }
     }
-  }, [isOpen, products, selectedCategories]);
+  }, [isOpen, products, selectedCategories, contextPriceRange, contextTags]);
   
   // 카테고리 목록 생성
   useEffect(() => {
@@ -163,15 +177,38 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
   
   // 필터 적용 핸들러
   const handleApplyFilters = () => {
+    // 카테고리 필터 업데이트
     setSelectedCategories(localCategories);
-    // 여기에 나중에 태그와 가격 범위 필터 적용을 추가할 예정
+    
+    // 가격 범위 필터 업데이트
+    setContextPriceRange(localPriceRange);
+    
+    // 태그 필터 업데이트
+    setContextTags(localTags);
+    
+    // 필터 적용 함수 호출
+    applyContextFilters();
+    
+    // 모달 닫기
     onClose();
   };
   
   // 필터 초기화 핸들러
   const handleResetFilters = () => {
+    // 로컬 상태 초기화
     setLocalCategories(["ALL"]);
-    setLocalPriceRange({ min: minPrice, max: maxPrice });
+    
+    // 가격 범위 기본값으로 초기화 (상품의 min/max 가격 범위)
+    if (products && products.length > 0) {
+      const prices = products.map(p => p.price);
+      const max = Math.max(...prices);
+      const min = Math.min(...prices);
+      setLocalPriceRange({ min, max });
+    } else {
+      setLocalPriceRange({ min: 0, max: 50000 });
+    }
+    
+    // 태그 초기화
     setLocalTags([]);
   };
 

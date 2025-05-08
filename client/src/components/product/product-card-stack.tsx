@@ -259,9 +259,16 @@ export function ProductCardStack() {
 
   // 필터링된 상품이 변경되면 visible 상품과 카운트 초기화
   useEffect(() => {
-    setVisibleProducts([]);
-    setOriginalTotalProducts(totalCategoryCount);
-    setCurrentProductIndex(0);
+    // totalCategoryCount가 변경됐을 때만 originalTotalProducts 업데이트
+    if (totalCategoryCount !== originalTotalProducts) {
+      setOriginalTotalProducts(totalCategoryCount);
+    }
+    
+    // 필터링된 상품이 비어있지 않고 visible 상품이 비어있을 때만 업데이트
+    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
+      setVisibleProducts([]);
+      setCurrentProductIndex(0);
+    }
     
     // 필터링된 상품이 있으면 강제 리셋 모드 비활성화
     if (filteredProducts.length > 0 && forceReset) {
@@ -271,7 +278,7 @@ export function ProductCardStack() {
       
       return () => clearTimeout(timer);
     }
-  }, [filteredProducts, totalCategoryCount, setCurrentProductIndex, forceReset]);
+  }, [filteredProducts, totalCategoryCount, originalTotalProducts, visibleProducts.length, setCurrentProductIndex, forceReset]);
   
   const isLoading = productsLoading || userProductsLoading;
   
