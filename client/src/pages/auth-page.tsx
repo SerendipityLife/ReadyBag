@@ -45,7 +45,10 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation, resetPasswordRequestMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot">("login");
   const [isPasswordResetSent, setIsPasswordResetSent] = useState(false);
-  const [saveEmail, setSaveEmail] = useState<boolean>(false);
+  const [saveEmail, setSaveEmail] = useState<boolean>(() => {
+    // 로컬 스토리지에서 이메일 저장 설정 가져오기
+    return localStorage.getItem("saveEmail") === "true";
+  });
 
   // 페이지 진입 시 로컬 스토리지 초기화 (비회원 데이터 리셋)
   useEffect(() => {
