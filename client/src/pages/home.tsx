@@ -8,7 +8,6 @@ import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { View } from "@/lib/constants";
-import { CurrencyInfoPanel } from "@/components/ui/currency-display";
 import { NonMemberInfo } from "@/components/non-member-info";
 
 export default function Home() {
@@ -29,11 +28,6 @@ export default function Home() {
             {/* 2. 상품 컨텐츠 */}
             <div className="w-full flex flex-col items-center mb-4">
               <ProductCardStack />
-            </div>
-            
-            {/* 3. 환율 정보 패널 */}
-            <div className="w-full max-w-md mb-4">
-              <CurrencyInfoPanel />
             </div>
             
             {/* 4. 비회원 안내 정보 */}
