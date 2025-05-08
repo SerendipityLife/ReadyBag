@@ -7,7 +7,7 @@ import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { View } from "@/lib/constants";
-import { FilterCurrencyBar } from "@/components/filter-currency-bar";
+import { CustomTabs } from "@/components/custom-tabs";
 
 export default function Home() {
   const { currentView, setCurrentView } = useAppContext();
@@ -19,8 +19,8 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            {/* 1. 필터 및 환율 정보 컴포넌트 */}
-            <FilterCurrencyBar />
+            {/* 1. 상단 탭 버튼 */}
+            <CustomTabs />
             
             {/* 2. 상품 컨텐츠 */}
             <div className="w-full flex flex-col items-center mb-4">
