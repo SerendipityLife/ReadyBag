@@ -8,7 +8,6 @@ import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { View } from "@/lib/constants";
-import { NonMemberInfo } from "@/components/non-member-info";
 
 export default function Home() {
   const { currentView, setCurrentView } = useAppContext();
@@ -28,11 +27,6 @@ export default function Home() {
             {/* 2. 상품 컨텐츠 */}
             <div className="w-full flex flex-col items-center mb-4">
               <ProductCardStack />
-            </div>
-            
-            {/* 4. 비회원 안내 정보 */}
-            <div className="w-full max-w-md mb-4">
-              <NonMemberInfo />
             </div>
           </div>
         )}
