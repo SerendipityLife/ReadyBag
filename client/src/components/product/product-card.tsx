@@ -28,7 +28,7 @@ export function ProductCard({
   const [currentY, setCurrentY] = useState(0);
   const [swiping, setSwiping] = useState(false);
   const isDragging = useRef(false);
-  const swipeThreshold = 100; // Minimum distance to trigger swipe
+  const swipeThreshold = 120; // 의도적 스와이프를 위해 임계값 증가 (100 -> 120)
   
   // Calculate styles based on position in the stack
   const styles = {
@@ -77,19 +77,46 @@ export function ProductCard({
     const deltaX = posX - startX;
     const deltaY = posY - startY;
     
+    // 제스처 의도 분석: 수직 스크롤 vs 수평 스와이프
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    
+    // 명확한 수직 스크롤 의도가 있으면 카드 이동을 중단 (수직 이동이 수평보다 1.5배 이상 큰 경우)
+    if (absY > absX * 1.5 && absY < 40) {
+      // 일반 스크롤 의도로 간주, 카드 이동 차단
+      return;
+    }
+    
     setCurrentX(deltaX);
     setCurrentY(deltaY);
     
-    // Update the animation
-    api.start({
-      x: deltaX,
-      y: deltaY,
-      rotate: deltaX * 0.1, // Slight rotation based on drag distance
-    });
-    
-    // Prevent scrolling when swiping cards
-    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
-      e.preventDefault?.();
+    // 수평 스와이프가 우선시되는 경우에만 애니메이션 적용
+    if (absX > 10) {
+      // Update the animation
+      api.start({
+        x: deltaX,
+        y: 0, // 수평 스와이프 시 수직 이동 제한
+        rotate: deltaX * 0.1, // Slight rotation based on drag distance
+      });
+      
+      // 수평 스와이프 시에만 스크롤 방지
+      if (absX > 30) {
+        e.preventDefault?.();
+      }
+    } else if (absY > 50 && absY > absX * 2) {
+      // 명확한 상하 스와이프 의도가 있을 때만 수직 이동 허용 (위로 향하는 경우만)
+      if (deltaY < 0) {
+        api.start({
+          x: 0,
+          y: deltaY,
+          rotate: 0
+        });
+        
+        // 확실한 위쪽 스와이프인 경우만 스크롤 방지
+        if (absY > 70) {
+          e.preventDefault?.();
+        }
+      }
     }
   };
   
@@ -98,29 +125,47 @@ export function ProductCard({
     isDragging.current = false;
     setSwiping(false);
     
-    // Determine swipe direction based on stored state values
-    if (currentX > swipeThreshold) {
-      // 요청대로 바꿈: 오른쪽 스와이프 -> 관심 없음
-      api.start({
-        x: window.innerWidth + 200,
-        rotate: 30,
-        onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
-      });
-    } else if (currentX < -swipeThreshold) {
-      // 요청대로 바꿈: 왼쪽 스와이프 -> 관심 상품
-      api.start({
-        x: -window.innerWidth - 200,
-        rotate: -30,
-        onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
-      });
-    } else if (currentY < -swipeThreshold) {
+    const absX = Math.abs(currentX);
+    const absY = Math.abs(currentY);
+    
+    // 스와이프 제스처의 방향 의도를 분석
+    const isHorizontalSwipe = absX > absY && absX > 30;
+    const isVerticalSwipe = absY > absX * 1.5 && currentY < 0 && absY > 50;
+    
+    // 작은 움직임은 스와이프로 간주하지 않음 (일반 터치/클릭)
+    const isMinorMovement = absX < 20 && absY < 20;
+    
+    // 일정 거리 이상의 명확한 수평 스와이프만 처리
+    if (isHorizontalSwipe) {
+      if (currentX > swipeThreshold) {
+        // 오른쪽 스와이프 -> 관심 없음
+        api.start({
+          x: window.innerWidth + 200,
+          rotate: 30,
+          onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
+        });
+      } else if (currentX < -swipeThreshold) {
+        // 왼쪽 스와이프 -> 관심 상품
+        api.start({
+          x: -window.innerWidth - 200,
+          rotate: -30,
+          onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
+        });
+      } else {
+        // 스와이프 거리가 충분하지 않음
+        api.start({ x: 0, y: 0, rotate: 0 });
+      }
+    } 
+    // 명확한 위쪽 방향 스와이프만 처리 (위로 향하는 제스처와 충분한 거리)
+    else if (isVerticalSwipe && currentY < -swipeThreshold) {
       // 위로 스와이프 -> 나중에 (변경 없음)
       api.start({
         y: -window.innerHeight - 200,
         onRest: () => onSwipe(SwipeDirection.UP, product.id),
       });
-    } else {
-      // Reset position if not swiped far enough
+    } 
+    // 기타 모든 제스처는 리셋
+    else {
       api.start({ x: 0, y: 0, rotate: 0 });
     }
   };
@@ -133,9 +178,17 @@ export function ProductCard({
         x,
         y,
         rotate,
-        touchAction: "none"
+        touchAction: "pan-y" // 수직 스크롤은 허용
       }}
-      onTouchStart={handleTouchStart}
+      onTouchStart={(e) => {
+        // 터치 타겟이 이미지나 정보 영역인 경우만 스와이프 허용
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'IMG' || 
+            target.closest('.card-content') || 
+            target.closest('.product-info')) {
+          handleTouchStart(e);
+        }
+      }}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleTouchStart}
@@ -143,7 +196,7 @@ export function ProductCard({
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      <Card className="h-full overflow-hidden max-h-[650px] relative">
+      <Card className="h-full overflow-hidden max-h-[650px] relative card-content">
         {/* 내비게이션 표시: 현재 위치 / 전체 */}
         <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs font-medium px-2 py-1 rounded-full z-10">
           {index + 1} / {total}
@@ -162,7 +215,7 @@ export function ProductCard({
           className="w-full h-52 object-cover"
         />
         
-        <div className="p-5">
+        <div className="p-5 product-info">
           <div className="flex flex-col">
             <h3 className="text-xl font-heading font-bold">{product.name}</h3>
             {product.nameJapanese && (
