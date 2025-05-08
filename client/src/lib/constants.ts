@@ -5,7 +5,9 @@ export const COUNTRIES = [
     name: "일본",
     code: "JP",
     currency: "JPY",
-    flagUrl: "https://images.unsplash.com/photo-1543922596-b3bbaba80649?auto=format&fit=crop&w=50&h=50&q=80"
+    flagUrl: "https://images.unsplash.com/photo-1543922596-b3bbaba80649?auto=format&fit=crop&w=50&h=50&q=80",
+    createdAt: new Date(),
+    updatedAt: new Date()
   }
 ];
 

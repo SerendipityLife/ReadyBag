@@ -3,6 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductStatus, DEFAULT_COUNTRY, API_ROUTES, View } from "@/lib/constants";
 import type { Country, Product, UserProduct } from "@shared/schema";
 
+// 가격 범위 타입 정의
+interface PriceRange {
+  min: number;
+  max: number;
+}
+
 type AppContextType = {
   currentView: View;
   setCurrentView: (view: View) => void;
@@ -24,6 +30,13 @@ type AppContextType = {
   generateShareUrl: (status?: ProductStatus) => void;
   exchangeRate: number | null;
   lastUpdated: string | null;
+  
+  // 필터 관련 추가 상태와 함수
+  priceRange: PriceRange;
+  setPriceRange: (range: PriceRange) => void;
+  tags: string[];
+  setTags: (tags: string[]) => void;
+  applyFilters: () => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -40,6 +53,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+  
+  // 필터 관련 상태
+  const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 50000 });
+  const [tags, setTags] = useState<string[]>([]);
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
@@ -97,11 +114,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     enabled: !!selectedCountry
   });
 
+  // Exchange rate data type
+  interface ExchangeRateData {
+    rate: number;
+    lastUpdated: string;
+    fromCurrency: string;
+    toCurrency: string;
+  }
+  
   // Update exchange rate when data changes
   useEffect(() => {
     if (exchangeRateData) {
-      setExchangeRate(exchangeRateData.rate);
-      setLastUpdated(exchangeRateData.lastUpdated);
+      try {
+        const data = exchangeRateData as ExchangeRateData;
+        if (typeof data.rate === 'number') {
+          setExchangeRate(data.rate);
+        }
+        if (typeof data.lastUpdated === 'string') {
+          setLastUpdated(data.lastUpdated);
+        }
+      } catch (error) {
+        console.error('Error parsing exchange rate data:', error);
+      }
     }
   }, [exchangeRateData]);
 
@@ -129,6 +163,25 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       console.error('Error generating share URL:', error);
     }
   };
+  
+  // 필터 적용 함수
+  const applyFilters = () => {
+    // 현재는 카테고리만 사용하므로 별도로 처리할 내용이 없음
+    // 향후 태그, 가격 범위 등 추가 필터링 로직이 여기에 구현될 예정
+    console.log("Filters applied:", {
+      categories: selectedCategories,
+      priceRange,
+      tags
+    });
+    
+    // 필터 적용 후 상품 리스트 초기화
+    setCurrentProductIndex(0);
+    
+    // 필터 관련 쿼리 무효화하여 다시 불러오기
+    queryClient.invalidateQueries({
+      queryKey: [API_ROUTES.PRODUCTS]
+    });
+  };
 
   const value = {
     currentView,
@@ -150,7 +203,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setShareUrl,
     generateShareUrl,
     exchangeRate,
-    lastUpdated
+    lastUpdated,
+    
+    // 필터 관련 상태 및 함수
+    priceRange,
+    setPriceRange,
+    tags,
+    setTags,
+    applyFilters
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
