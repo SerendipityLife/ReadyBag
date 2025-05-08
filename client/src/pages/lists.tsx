@@ -703,11 +703,51 @@ export function Lists() {
           </TabsContent>
           
           <TabsContent value={ProductStatus.MAYBE}>
-            {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
+            <div className="flex flex-col md:flex-row">
+              {/* 좌측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
+              <div className="hidden md:block mr-4">
+                <AdBanner adFormat="vertical" />
+              </div>
+              
+              {/* 메인 컨텐츠 */}
+              <div className="flex-1">
+                {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
+              </div>
+              
+              {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
+              <div className="hidden md:block ml-4">
+                <AdBanner adFormat="vertical" />
+              </div>
+            </div>
+            
+            {/* 하단 사각형 광고 (모바일에서만 표시) */}
+            <div className="w-full flex justify-center mt-6 md:hidden">
+              <AdBanner adFormat="rectangle" />
+            </div>
           </TabsContent>
           
           <TabsContent value={ProductStatus.NOT_INTERESTED}>
-            {renderTabContent(notInterestedProducts, ProductStatus.NOT_INTERESTED)}
+            <div className="flex flex-col md:flex-row">
+              {/* 좌측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
+              <div className="hidden md:block mr-4">
+                <AdBanner adFormat="vertical" />
+              </div>
+              
+              {/* 메인 컨텐츠 */}
+              <div className="flex-1">
+                {renderTabContent(notInterestedProducts, ProductStatus.NOT_INTERESTED)}
+              </div>
+              
+              {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
+              <div className="hidden md:block ml-4">
+                <AdBanner adFormat="vertical" />
+              </div>
+            </div>
+            
+            {/* 하단 사각형 광고 (모바일에서만 표시) */}
+            <div className="w-full flex justify-center mt-6 md:hidden">
+              <AdBanner adFormat="rectangle" />
+            </div>
           </TabsContent>
         </Tabs>
       </div>
