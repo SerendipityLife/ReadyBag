@@ -5,7 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { FilterModal } from "@/components/filter/filter-modal";
 import { useAppContext } from "@/contexts/AppContext";
 
-export function FilterButton() {
+interface FilterButtonProps {
+  compact?: boolean;
+}
+
+export function FilterButton({ compact = false }: FilterButtonProps) {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const { 
     selectedCategories, 
@@ -37,6 +41,31 @@ export function FilterButton() {
   // 태그 필터 카운트 (각 태그당 +1)
   if (isFilteredByTags) {
     activeFilterCount += tags.length;
+  }
+  
+  if (compact) {
+    return (
+      <>
+        <Button
+          variant="ghost"
+          size="sm"
+          className={`p-1 h-7 w-7 rounded-full ${isFiltered ? 'text-primary' : ''}`}
+          onClick={() => setIsFilterModalOpen(true)}
+        >
+          <FilterIcon className="h-4 w-4" />
+          {activeFilterCount > 0 && (
+            <Badge className="absolute -top-1 -right-1 bg-primary text-white h-4 w-4 flex items-center justify-center p-0 rounded-full text-[10px]">
+              {activeFilterCount}
+            </Badge>
+          )}
+        </Button>
+        
+        <FilterModal 
+          isOpen={isFilterModalOpen} 
+          onClose={() => setIsFilterModalOpen(false)} 
+        />
+      </>
+    );
   }
   
   return (

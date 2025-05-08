@@ -1,8 +1,9 @@
 import { useAppContext } from "@/contexts/AppContext";
 import { FilterButton } from "@/components/filter/filter-button";
+import { format } from "date-fns";
 
 export function FilterCurrencyBar() {
-  const { exchangeRate, selectedCountry } = useAppContext();
+  const { exchangeRate, lastUpdated, selectedCountry } = useAppContext();
   
   // 환율 정보가 없는 경우
   if (!exchangeRate) {
@@ -14,20 +15,20 @@ export function FilterCurrencyBar() {
   }
   
   return (
-    <div className="w-full max-w-md flex justify-between items-center mb-4">
-      {/* 환율 정보 - 한 줄로 간결하게 */}
+    <div className="sticky top-[60px] md:top-[68px] z-40 w-full max-w-md mx-auto bg-white rounded-lg p-2 mb-4 flex items-center justify-between text-gray-600 shadow-sm">
       <div className="flex items-center">
-        <div className="flex items-center">
-          <span className="text-sm font-medium text-gray-700">현재 환율</span>
-          <span className="ml-1 px-1.5 py-0.5 bg-green-100 text-green-800 text-xs font-semibold rounded-full">LIVE</span>
-          <span className="ml-2 font-medium text-sm">
-            100엔 = <span className="text-red-500">{(exchangeRate * 100).toFixed(0)}원</span>
-          </span>
-        </div>
+        <span className="font-medium text-xs">현재 환율:</span>
+        <span className="ml-1 font-semibold text-xs">
+          100엔 = <span className="text-red-500">{(exchangeRate * 100).toFixed(0)}원</span>
+        </span>
+        <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
+        <span className="ml-2 text-gray-500 text-[10px]">
+          {lastUpdated && format(new Date(lastUpdated), "MM.dd HH:mm")} 기준
+        </span>
       </div>
       
       {/* 필터 버튼 */}
-      <FilterButton />
+      <FilterButton compact={true} />
     </div>
   );
 }
