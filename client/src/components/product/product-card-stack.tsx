@@ -15,7 +15,9 @@ export function ProductCardStack() {
     selectedCountry, 
     selectedCategories,
     isAllCategoriesSelected,
-    setCurrentProductIndex 
+    setCurrentProductIndex,
+    priceRange,
+    tags
   } = useAppContext();
   const { user } = useAuth();
   
@@ -25,9 +27,50 @@ export function ProductCardStack() {
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
   const [forceReset, setForceReset] = useState(false);
   
-  // Fetch products for the selected country
+  // API 요청을 위한 필터 파라미터 구성
+  const filterParams = useMemo(() => {
+    const params: Record<string, string> = { countryId: selectedCountry.id };
+    
+    // 카테고리 필터링
+    if (!isAllCategoriesSelected && selectedCategories.length > 0) {
+      params.categories = selectedCategories.join(',');
+    }
+    
+    // 가격 범위 필터링
+    if (priceRange) {
+      if (priceRange.min > 0) {
+        params.minPrice = priceRange.min.toString();
+      }
+      if (priceRange.max < Number.MAX_SAFE_INTEGER) {
+        params.maxPrice = priceRange.max.toString();
+      }
+    }
+    
+    // 태그 필터링
+    if (tags && tags.length > 0) {
+      params.tags = tags.join(',');
+    }
+    
+    return params;
+  }, [selectedCountry.id, selectedCategories, isAllCategoriesSelected, priceRange, tags]);
+  
+  // Fetch products for the selected country with filters
   const { data: allProducts = [], isLoading: productsLoading } = useQuery<Product[]>({
-    queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
+    queryKey: [API_ROUTES.PRODUCTS, filterParams],
+    queryFn: async () => {
+      // URL 파라미터 구성
+      const queryParams = new URLSearchParams();
+      Object.entries(filterParams).forEach(([key, value]) => {
+        queryParams.append(key, value);
+      });
+      
+      // API 요청
+      const response = await fetch(`${API_ROUTES.PRODUCTS}?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      return response.json();
+    },
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
   

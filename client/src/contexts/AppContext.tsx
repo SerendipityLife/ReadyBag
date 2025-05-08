@@ -166,8 +166,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   // 필터 적용 함수
   const applyFilters = () => {
-    // 현재는 카테고리만 사용하므로 별도로 처리할 내용이 없음
-    // 향후 태그, 가격 범위 등 추가 필터링 로직이 여기에 구현될 예정
+    // 적용할 필터 정보 로깅
     console.log("Filters applied:", {
       categories: selectedCategories,
       priceRange,
@@ -177,10 +176,21 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     // 필터 적용 후 상품 리스트 초기화
     setCurrentProductIndex(0);
     
-    // 필터 관련 쿼리 무효화하여 다시 불러오기
+    // 필터가 적용된 제품 목록을 다시 불러오기 위해 쿼리 무효화
+    // 모든 제품 쿼리 무효화
     queryClient.invalidateQueries({
-      queryKey: [API_ROUTES.PRODUCTS]
+      queryKey: [API_ROUTES.PRODUCTS],
+      refetchType: 'active', // 현재 활성화된 쿼리만 다시 가져오기
     });
+    
+    // 사용자 제품 목록도 관련이 있으므로 함께 무효화
+    queryClient.invalidateQueries({
+      queryKey: [API_ROUTES.USER_PRODUCTS],
+      refetchType: 'active',
+    });
+    
+    // 현재 뷰를 EXPLORE로 설정하여 필터링된 제품을 볼 수 있게 함
+    setCurrentView(View.EXPLORE);
   };
 
   const value = {
