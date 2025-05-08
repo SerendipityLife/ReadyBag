@@ -84,54 +84,85 @@ export function ProductCardStack() {
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
   
-  // 로컬 스토리지 변경 감지 (비회원용)
+  // 로컬 스토리지 및 로그아웃 이벤트 감지
   useEffect(() => {
-    if (!user) {
-      const handleStorageChange = (event: Event) => {
-        console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨", event.type);
+    const handleStorageChange = (event: Event) => {
+      console.log("[ProductCardStack] 로컬 스토리지 변경 감지됨", event.type);
+      
+      // auth 페이지에서 전체 삭제 확인 (데이터 초기화 케이스)
+      const isFullReset = event.type === 'localStorageChange' && 
+                         !localStorage.getItem(`userProducts_${selectedCountry.id}`);
+      
+      if (isFullReset) {
+        console.log("[ProductCardStack] 전체 초기화 감지됨 - 강제 리셋 모드 활성화");
         
-        // auth 페이지에서 전체 삭제 확인 (데이터 초기화 케이스)
-        const isFullReset = event.type === 'localStorageChange' && 
-                           !localStorage.getItem(`userProducts_${selectedCountry.id}`);
+        // 강제 리셋 모드 활성화
+        setForceReset(true);
         
-        if (isFullReset) {
-          console.log("[ProductCardStack] 전체 초기화 감지됨 - 강제 리셋 모드 활성화");
-          
-          // 강제 리셋 모드 활성화
-          setForceReset(true);
-          
-          // 모든 관련 상태 초기화
-          setVisibleProducts([]);
-          setCurrentProductIndex(0);
-          
-          // 데이터 리로드
-          queryClient.invalidateQueries({ 
-            queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-          });
-          
-          queryClient.invalidateQueries({ 
-            queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-          });
-        } else {
-          // 일반 변경일 경우 단순 쿼리 무효화
-          queryClient.invalidateQueries({ 
-            queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-          });
-        }
-      };
+        // 모든 관련 상태 초기화
+        setVisibleProducts([]);
+        setCurrentProductIndex(0);
+        
+        // 데이터 리로드
+        queryClient.invalidateQueries({ 
+          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        });
+        
+        queryClient.invalidateQueries({ 
+          queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+        });
+      } else {
+        // 일반 변경일 경우 단순 쿼리 무효화
+        queryClient.invalidateQueries({ 
+          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        });
+      }
+    };
+    
+    // 로그아웃 이벤트 처리
+    const handleLogoutReset = (event: Event) => {
+      console.log("[ProductCardStack] 로그아웃 감지 - 상품 목록 초기화");
       
-      // 일반 storage 이벤트 (다른 탭에서 변경 시)
-      window.addEventListener('storage', handleStorageChange);
+      // 현재 국가의 로컬 스토리지 데이터 초기화
+      if (selectedCountry?.id) {
+        localStorage.removeItem(`userProducts_${selectedCountry.id}`);
+      }
       
-      // 커스텀 이벤트 (같은 탭 내에서 변경 시)
-      window.addEventListener('localStorageChange', handleStorageChange);
+      // 모든 상태 초기화
+      setForceReset(true);
+      setVisibleProducts([]);
+      setCurrentProductIndex(0);
       
-      return () => {
-        window.removeEventListener('storage', handleStorageChange);
-        window.removeEventListener('localStorageChange', handleStorageChange);
-      };
-    }
-  }, [user, queryClient, selectedCountry?.id, setCurrentProductIndex]);
+      // 데이터 리로드
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+      });
+      
+      // 모든 상품 상태 쿼리 무효화
+      queryClient.invalidateQueries({
+        queryKey: [API_ROUTES.USER_PRODUCTS]
+      });
+    };
+    
+    // 일반 storage 이벤트 (다른 탭에서 변경 시)
+    window.addEventListener('storage', handleStorageChange);
+    
+    // 커스텀 이벤트 (같은 탭 내에서 변경 시)
+    window.addEventListener('localStorageChange', handleStorageChange);
+    
+    // 로그아웃 이벤트 리스너 추가
+    window.addEventListener('localStorageReset', handleLogoutReset);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('localStorageChange', handleStorageChange);
+      window.removeEventListener('localStorageReset', handleLogoutReset);
+    };
+  }, [queryClient, selectedCountry?.id, setCurrentProductIndex]);
   
   // Get already categorized product IDs - 간단한 계산으로 변경
   const categorizedProductIds = useMemo(() => {
