@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductCard } from "@/components/product/product-card";
 import { ActionButtons } from "@/components/product/action-buttons";
+import { CurrencyInfoPanel } from "@/components/ui/currency-display";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/use-auth";
 import { apiRequest } from "@/lib/queryClient";
