@@ -1,5 +1,6 @@
 import { db } from "@db";
-import { eq, and, desc, asc, or, isNull, inArray, gte, lte } from "drizzle-orm";
+import { eq, and, desc, asc, or, isNull, inArray } from "drizzle-orm";
+import { gte, lte } from "drizzle-orm/expressions";
 import {
   countries,
   products,
@@ -46,9 +47,24 @@ export const storage = {
       }
     }
     
-    // 태그 필터링 (향후 검색 기능으로 확장 가능)
-    // 현재 태그는 해시태그로 저장되어 있어 완전한 필터링은 어려움
-    // 향후 전체 텍스트 검색이나 태그 특정 필드가 추가되면 구현
+    // 태그 필터링: 상품 이름이나 설명에 태그와 일치하는 텍스트가 있는지 확인
+    if (filters?.tags && filters.tags.length > 0) {
+      // 각 태그마다 OR 조건 생성 (이름 또는 설명에 태그가 포함되어 있는지)
+      const tagConditions = filters.tags.map(tag => {
+        const pattern = `%${tag.toLowerCase()}%`;
+        const sql = require('drizzle-orm/sql');
+        return or(
+          sql.sql`LOWER(${products.name}) LIKE ${pattern}`,
+          sql.sql`LOWER(${products.nameJapanese}) LIKE ${pattern}`,
+          sql.sql`LOWER(${products.description}) LIKE ${pattern}`
+        );
+      });
+      
+      // 모든 태그 조건 중 하나라도 일치하면 포함
+      if (tagConditions.length > 0) {
+        conditions.push(or(...tagConditions));
+      }
+    }
     
     return await db.query.products.findMany({
       where: and(...conditions),

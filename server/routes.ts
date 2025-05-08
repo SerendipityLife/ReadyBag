@@ -87,8 +87,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/user-products`, async (req, res) => {
     try {
       const countryId = req.query.countryId as string;
-      const userId = req.user?.id ?? null;
-      const sessionId = req.session?.id || null;
+      const userId = req.user?.id ? String(req.user.id) : null;
+      const sessionId = req.session?.id || req.sessionID || null;
       
       if (!countryId) {
         return res.status(400).json({ message: "Country ID is required" });
