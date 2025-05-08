@@ -99,7 +99,7 @@ export function Header() {
             )}
             <h1 
               className={`text-xl md:text-2xl font-heading font-bold text-primary ${(currentView === View.LISTS || isSharedList) ? "ml-0" : "ml-1"} cursor-pointer`}
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/auth")}
             >
               <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
             </h1>
