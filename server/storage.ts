@@ -21,9 +21,37 @@ export const storage = {
   },
   
   // Products
-  async getProductsByCountry(countryId: string) {
+  async getProductsByCountry(
+    countryId: string, 
+    filters?: {
+      categories?: string[];
+      priceRange?: { min: number; max: number };
+      tags?: string[];
+    }
+  ) {
+    let conditions = [eq(products.countryId, countryId)];
+    
+    // 카테고리 필터링
+    if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
+      conditions.push(inArray(products.category, filters.categories));
+    }
+    
+    // 가격 범위 필터링
+    if (filters?.priceRange) {
+      if (typeof filters.priceRange.min === 'number') {
+        conditions.push(eq(products.price, filters.priceRange.min));
+      }
+      if (typeof filters.priceRange.max === 'number') {
+        conditions.push(eq(products.price, filters.priceRange.max));
+      }
+    }
+    
+    // 태그 필터링 (향후 검색 기능으로 확장 가능)
+    // 현재 태그는 해시태그로 저장되어 있어 완전한 필터링은 어려움
+    // 향후 전체 텍스트 검색이나 태그 특정 필드가 추가되면 구현
+    
     return await db.query.products.findMany({
-      where: eq(products.countryId, countryId),
+      where: and(...conditions),
       orderBy: [desc(products.featured), asc(products.name)],
     });
   },

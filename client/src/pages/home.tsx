@@ -4,6 +4,7 @@ import { Header } from "@/components/layout/header";
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { ProductCardStack } from "@/components/product/product-card-stack";
 import { CategorySelector } from "@/components/category-selector";
+import { FilterButton } from "@/components/filter/filter-button";
 import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
@@ -26,6 +27,10 @@ export default function Home() {
             </div>
             
             <div className="w-full max-w-md mx-auto mb-2 bg-gray-50 p-4 rounded-lg">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm font-medium">카테고리</h3>
+                <FilterButton />
+              </div>
               <CategorySelector />
             </div>
             

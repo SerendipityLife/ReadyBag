@@ -34,18 +34,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get products by country
+  // Get products by country with filter support
   app.get(`${apiPrefix}/products`, async (req, res) => {
     try {
       const countryId = req.query.countryId as string;
       
+      // 필터 파라미터 추출
+      const categories = req.query.categories 
+        ? (req.query.categories as string).split(',') 
+        : undefined;
+        
+      const minPrice = req.query.minPrice 
+        ? parseInt(req.query.minPrice as string) 
+        : undefined;
+        
+      const maxPrice = req.query.maxPrice 
+        ? parseInt(req.query.maxPrice as string) 
+        : undefined;
+        
+      const tags = req.query.tags 
+        ? (req.query.tags as string).split(',') 
+        : undefined;
+      
+      // 필터 객체 생성
+      const filters = {
+        categories,
+        priceRange: (minPrice !== undefined || maxPrice !== undefined) 
+          ? { 
+              min: minPrice !== undefined ? minPrice : 0, 
+              max: maxPrice !== undefined ? maxPrice : Number.MAX_SAFE_INTEGER 
+            } 
+          : undefined,
+        tags
+      };
+      
       if (!countryId) {
         // 기본값으로 일본 상품 반환
-        const defaultProducts = await storage.getProductsByCountry("japan");
+        const defaultProducts = await storage.getProductsByCountry("japan", filters);
         return res.json(defaultProducts);
       }
       
-      const products = await storage.getProductsByCountry(countryId);
+      console.log("Fetching products with filters:", filters);
+      const products = await storage.getProductsByCountry(countryId, filters);
       return res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);
