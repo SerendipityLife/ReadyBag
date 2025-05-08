@@ -9,6 +9,7 @@ import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { View } from "@/lib/constants";
 import { CurrencyInfoPanel } from "@/components/ui/currency-display";
+import { NonMemberInfo } from "@/components/non-member-info";
 
 export default function Home() {
   const { currentView, setCurrentView } = useAppContext();
@@ -20,19 +21,24 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            {/* 메인 컨텐츠 - 상품이 최상단에 위치 */}
-            <div className="w-full flex flex-col items-center">
+            {/* 1. 필터 버튼 */}
+            <div className="w-full max-w-md flex justify-end mb-4">
+              <FilterButton />
+            </div>
+            
+            {/* 2. 상품 컨텐츠 */}
+            <div className="w-full flex flex-col items-center mb-4">
               <ProductCardStack />
             </div>
             
-            {/* 환율 정보 패널 - 상품 아래에 배치 */}
-            <div className="w-full max-w-md mt-4">
+            {/* 3. 환율 정보 패널 */}
+            <div className="w-full max-w-md mb-4">
               <CurrencyInfoPanel />
             </div>
             
-            {/* 필터 버튼만 남기고 카테고리 체크박스 제거 */}
-            <div className="w-full max-w-md flex justify-end mb-2">
-              <FilterButton />
+            {/* 4. 비회원 안내 정보 */}
+            <div className="w-full max-w-md mb-4">
+              <NonMemberInfo />
             </div>
           </div>
         )}
