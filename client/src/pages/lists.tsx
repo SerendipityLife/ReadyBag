@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
+import { TrendingKeywords } from "@/components/trending-keywords";
 import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
@@ -26,6 +27,7 @@ export function Lists() {
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
   
   // 비회원 사용자의 로컬 스토리지 데이터 가져오기
   const getLocalUserProducts = async () => {
@@ -369,9 +371,30 @@ export function Lists() {
     }
   };
 
-  // Filter products by status
+  // 검색 키워드와 상태를 기준으로 상품 필터링
   const getProductsByStatus = (status: ProductStatus) => {
-    return userProducts.filter((up) => up.status === status) as ExtendedUserProduct[];
+    return userProducts.filter((up) => {
+      // 상태 필터링
+      const statusMatch = up.status === status;
+      
+      // 검색 키워드가 있으면 이름, 설명, 태그 등을 검색
+      if (searchKeyword && searchKeyword.trim() !== '') {
+        const keyword = searchKeyword.toLowerCase();
+        const nameMatch = up.product.name?.toLowerCase().includes(keyword);
+        const nameJapaneseMatch = up.product.nameJapanese?.toLowerCase().includes(keyword);
+        const descMatch = up.product.description?.toLowerCase().includes(keyword);
+        const categoryMatch = up.product.category?.toLowerCase().includes(keyword);
+        const locationMatch = up.product.location?.toLowerCase().includes(keyword);
+        
+        // 태그 검색
+        const hashtagMatch = Array.isArray(up.product.hashtags) && 
+          up.product.hashtags.some(tag => tag.toLowerCase().includes(keyword));
+          
+        return statusMatch && (nameMatch || nameJapaneseMatch || descMatch || categoryMatch || locationMatch || hashtagMatch);
+      }
+      
+      return statusMatch;
+    }) as ExtendedUserProduct[];
   };
   
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
@@ -749,6 +772,30 @@ export function Lists() {
               <AdBanner adFormat="rectangle" />
             </div>
           </TabsContent>
+          
+          {/* 트렌딩 키워드 - 모든 탭에서 공통으로 표시 */}
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            {searchKeyword && (
+              <div className="bg-blue-50 p-3 mb-4 rounded-lg flex items-center justify-between">
+                <div>
+                  <span className="text-sm text-blue-700 font-medium">검색 중: </span>
+                  <span className="font-bold text-blue-900">"{searchKeyword}"</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 px-2 text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+                  onClick={() => setSearchKeyword(null)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+            <TrendingKeywords
+              onKeywordSelect={(keyword) => setSearchKeyword(keyword)}
+              maxItems={12}
+            />
+          </div>
         </Tabs>
       </div>
     </div>
