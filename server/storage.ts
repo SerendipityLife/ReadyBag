@@ -1,5 +1,5 @@
 import { db } from "@db";
-import { eq, and, desc, asc, or, isNull, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, or, isNull, inArray, gte, lte } from "drizzle-orm";
 import {
   countries,
   products,
@@ -39,10 +39,10 @@ export const storage = {
     // 가격 범위 필터링
     if (filters?.priceRange) {
       if (typeof filters.priceRange.min === 'number') {
-        conditions.push(eq(products.price, filters.priceRange.min));
+        conditions.push(gte(products.price, filters.priceRange.min));
       }
       if (typeof filters.priceRange.max === 'number') {
-        conditions.push(eq(products.price, filters.priceRange.max));
+        conditions.push(lte(products.price, filters.priceRange.max));
       }
     }
     
