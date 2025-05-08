@@ -220,6 +220,13 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
             <DialogTitle className="text-lg font-semibold">
               필터 설정
             </DialogTitle>
+            <button 
+              onClick={onClose}
+              className="w-8 h-8 inline-flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+              aria-label="닫기"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
         </DialogHeader>
         
