@@ -218,7 +218,8 @@ export default function AuthPage() {
                             <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="your@email.com" 
-                              className="pl-10" 
+                              className="pl-10"
+                              autoComplete="email" 
                               {...field} 
                             />
                           </div>
@@ -251,9 +252,24 @@ export default function AuthPage() {
                     )}
                   />
 
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="rememberEmail"
+                        checked={saveEmail}
+                        onChange={(e) => setSaveEmail(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="rememberEmail" className="text-sm text-gray-500 select-none">
+                        이메일 저장
+                      </label>
+                    </div>
+                  </div>
+                  
                   <Button 
                     type="submit" 
-                    className="w-full mt-6" 
+                    className="w-full mt-4" 
                     disabled={loginMutation.isPending || isLoading}
                   >
                     {loginMutation.isPending ? (
@@ -400,7 +416,8 @@ export default function AuthPage() {
                             <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="your@email.com" 
-                              className="pl-10" 
+                              className="pl-10"
+                              autoComplete="email" 
                               {...field} 
                             />
                           </div>
@@ -443,7 +460,8 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="최소 8자 이상" 
-                              className="pl-10" 
+                              className="pl-10"
+                              autoComplete="new-password"
                               {...field} 
                             />
                           </div>
@@ -465,7 +483,8 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="비밀번호 확인" 
-                              className="pl-10" 
+                              className="pl-10"
+                              autoComplete="new-password" 
                               {...field} 
                             />
                           </div>
