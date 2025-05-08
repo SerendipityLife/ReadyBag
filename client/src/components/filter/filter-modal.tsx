@@ -268,7 +268,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
             <h3 className="text-sm font-medium">가격 범위</h3>
             <div className="px-2">
               <Slider
-                defaultValue={[localPriceRange.min, localPriceRange.max]}
+                value={[localPriceRange.min, localPriceRange.max]}
                 min={minPrice}
                 max={maxPrice}
                 step={100}
