@@ -215,11 +215,12 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent 
-        className="max-w-md max-h-[90vh] overflow-y-auto" 
+        className="max-w-md max-h-[90vh] overflow-y-auto p-6" 
         onEscapeKeyDown={onClose}
         onInteractOutside={onClose}
         onPointerDownOutside={onClose}
         forceMount={true}
+        hideCloseButton={true}
       >
         <DialogHeader className="sticky top-0 z-10 bg-background pb-2 border-b">
           <div className="flex items-center justify-between">
