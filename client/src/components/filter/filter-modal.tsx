@@ -220,7 +220,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
         onInteractOutside={onClose}
         onPointerDownOutside={onClose}
         forceMount={true}
-        hideCloseButton={true}
+        hideDefaultCloseButton={true}
       >
         <DialogHeader className="sticky top-0 z-10 bg-background pb-2 border-b">
           <div className="flex items-center justify-between">
