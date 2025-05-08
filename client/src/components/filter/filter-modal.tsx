@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAppContext } from "@/contexts/AppContext";
-import { X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { API_ROUTES, CATEGORIES } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
@@ -213,8 +213,14 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={() => {}}>
+      <DialogContent 
+        className="max-w-md max-h-[90vh] overflow-y-auto" 
+        onEscapeKeyDown={onClose}
+        onInteractOutside={onClose}
+        onPointerDownOutside={onClose}
+        forceMount={true}
+      >
         <DialogHeader className="sticky top-0 z-10 bg-background pb-2 border-b">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-lg font-semibold">
@@ -222,10 +228,10 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
             </DialogTitle>
             <button 
               onClick={onClose}
-              className="w-8 h-8 inline-flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
+              className="w-8 h-8 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
               aria-label="닫기"
             >
-              <X className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
           </div>
         </DialogHeader>
@@ -334,7 +340,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
                     className="h-4 w-4 p-0 ml-1 text-gray-500 hover:text-gray-700"
                     onClick={() => handleRemoveTag(tag)}
                   >
-                    <X className="h-3 w-3" />
+                    <span className="text-xs">×</span>
                   </Button>
                 </Badge>
               ))}
