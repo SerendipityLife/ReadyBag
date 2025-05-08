@@ -15,7 +15,7 @@ export function FilterCurrencyBar() {
   }
   
   return (
-    <div className="sticky top-[60px] md:top-[68px] z-40 w-full max-w-md mx-auto bg-white rounded-lg p-2 mb-4 flex items-center justify-between text-gray-600 shadow-sm">
+    <div className="sticky top-[60px] md:top-[68px] z-40 w-full max-w-md mx-auto bg-white rounded-lg p-2 mb-1 flex items-center justify-between text-gray-600 shadow-sm">
       <div className="flex items-center">
         <span className="font-medium text-xs">현재 환율:</span>
         <span className="ml-1 font-semibold text-xs">

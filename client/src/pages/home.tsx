@@ -23,7 +23,7 @@ export default function Home() {
             <FilterCurrencyBar />
             
             {/* 2. 상품 컨텐츠 */}
-            <div className="w-full flex flex-col items-center mb-4">
+            <div className="w-full flex flex-col items-center">
               <ProductCardStack />
             </div>
           </div>

@@ -528,7 +528,7 @@ export function ProductCardStack() {
   }
   
   return (
-    <div className="w-full max-w-md mx-auto px-3">
+    <div className="w-full max-w-md mx-auto">
       <div className="card-stack relative h-[540px] md:h-[580px] w-full mx-auto">
         {visibleProducts.map((product, index) => (
           <ProductCard
