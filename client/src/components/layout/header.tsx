@@ -55,8 +55,16 @@ export function Header() {
   };
 
   const handleLogoutClick = () => {
+    // 로그아웃 진행 전에 로컬 스토리지 초기화를 위한 이벤트 발생
+    const resetEvent = new CustomEvent('localStorageReset', {
+      detail: { type: 'logout' }
+    });
+    window.dispatchEvent(resetEvent);
+    
+    // 로그아웃 API 호출
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
+        // 모든 상품 관련 상태 초기화 후 인증 페이지로 이동
         navigate("/auth");
       }
     });
