@@ -111,7 +111,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const validatedData = schema.parse(req.body);
-      const userId = req.user?.id || null;
+      const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID;
       
       const userProduct = await storage.upsertUserProduct(
@@ -221,7 +221,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const validatedData = schema.parse(req.body);
       const status = req.query.status as string | undefined;
-      const userId = req.user?.id || null;
+      const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID;
       
       // Generate a unique share ID

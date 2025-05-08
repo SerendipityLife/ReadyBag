@@ -47,29 +47,23 @@ export const storage = {
       }
     }
     
-    // 태그 필터링: 상품 이름이나 설명에 태그와 일치하는 텍스트가 있는지 확인
-    if (filters?.tags && filters.tags.length > 0) {
-      // 각 태그마다 OR 조건 생성 (이름 또는 설명에 태그가 포함되어 있는지)
-      const tagConditions = filters.tags.map(tag => {
-        const pattern = `%${tag.toLowerCase()}%`;
-        const sql = require('drizzle-orm/sql');
-        return or(
-          sql.sql`LOWER(${products.name}) LIKE ${pattern}`,
-          sql.sql`LOWER(${products.nameJapanese}) LIKE ${pattern}`,
-          sql.sql`LOWER(${products.description}) LIKE ${pattern}`
-        );
-      });
-      
-      // 모든 태그 조건 중 하나라도 일치하면 포함
-      if (tagConditions.length > 0) {
-        conditions.push(or(...tagConditions));
-      }
-    }
+    // 태그 필터링: 간단한 구현 - 메모리에서 필터링 (database에서 필터링하지 않음)
+    // 태그 정보는 일단 메모리에서 필터링하고 나중에 DB에서 처리하도록 개선 가능
     
-    return await db.query.products.findMany({
+    const filteredProducts = await db.query.products.findMany({
       where: and(...conditions),
       orderBy: [desc(products.featured), asc(products.name)],
     });
+    
+    // 태그 기반 자바스크립트 필터링 추가
+    if (filters?.tags && Array.isArray(filters.tags) && filters.tags.length > 0) {
+      return filteredProducts.filter(product => {
+        const productText = `${product.name.toLowerCase()} ${product.nameJapanese?.toLowerCase() || ''} ${product.description?.toLowerCase() || ''}`;
+        return filters.tags!.some(tag => productText.includes(tag.toLowerCase()));
+      });
+    }
+    
+    return filteredProducts;
   },
   
   async getProductById(id: number) {
