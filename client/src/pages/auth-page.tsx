@@ -45,6 +45,7 @@ export default function AuthPage() {
   const { user, loginMutation, registerMutation, resetPasswordRequestMutation, isLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<"login" | "register" | "forgot">("login");
   const [isPasswordResetSent, setIsPasswordResetSent] = useState(false);
+  const [saveEmail, setSaveEmail] = useState<boolean>(false);
 
   // 페이지 진입 시 로컬 스토리지 초기화 (비회원 데이터 리셋)
   useEffect(() => {
@@ -66,6 +67,22 @@ export default function AuthPage() {
       }
     }
   }, [user]); // user 의존성 추가 - 로그인 상태가 변경될 때만 실행
+  
+  // 저장된 이메일 불러오기
+  useEffect(() => {
+    try {
+      // 저장된 이메일 가져오기
+      const savedEmail = localStorage.getItem('savedEmail');
+      const rememberEmail = localStorage.getItem('rememberEmail') === 'true';
+      
+      if (savedEmail && rememberEmail) {
+        loginForm.setValue('email', savedEmail);
+        setSaveEmail(true);
+      }
+    } catch (error) {
+      console.error("저장된 이메일 불러오기 오류:", error);
+    }
+  }, []); // 컴포넌트 마운트 시 한 번만 실행
   
   // 로그인 폼
   const loginForm = useForm<LoginUserInput>({
@@ -120,6 +137,15 @@ export default function AuthPage() {
 
   // 로그인 제출 처리
   const onLoginSubmit = (data: LoginUserInput) => {
+    // 이메일 저장 처리
+    if (saveEmail) {
+      localStorage.setItem('savedEmail', data.email);
+      localStorage.setItem('rememberEmail', 'true');
+    } else {
+      localStorage.removeItem('savedEmail');
+      localStorage.setItem('rememberEmail', 'false');
+    }
+    
     loginMutation.mutate(data, {
       onSuccess: () => {
         navigate("/");
@@ -215,6 +241,7 @@ export default function AuthPage() {
                               type="password" 
                               placeholder="********" 
                               className="pl-10" 
+                              autoComplete="current-password"
                               {...field} 
                             />
                           </div>
