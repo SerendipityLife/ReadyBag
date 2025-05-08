@@ -220,9 +220,6 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
             <DialogTitle className="text-lg font-semibold">
               필터 설정
             </DialogTitle>
-            <Button variant="ghost" className="w-8 h-8 p-0" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
           </div>
         </DialogHeader>
         
@@ -270,7 +267,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
               <div className="w-[45%]">
                 <label className="text-xs text-gray-500 mb-1 block">최소</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">¥</span>
+                  <span className="absolute left-3 top-2.5 text-gray-500">₩</span>
                   <Input
                     type="number"
                     value={localPriceRange.min}
@@ -286,7 +283,7 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
               <div className="w-[45%]">
                 <label className="text-xs text-gray-500 mb-1 block">최대</label>
                 <div className="relative">
-                  <span className="absolute left-3 top-2.5 text-gray-500">¥</span>
+                  <span className="absolute left-3 top-2.5 text-gray-500">₩</span>
                   <Input
                     type="number"
                     value={localPriceRange.max}
