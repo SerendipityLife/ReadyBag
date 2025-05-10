@@ -358,6 +358,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // 로그 확인용 엔드포인트 (개발 환경에서만 사용)
+  if (process.env.NODE_ENV !== 'production') {
+    const logger = await import('./logger');
+    
+    app.get(`${apiPrefix}/logs/api`, (req, res) => {
+      try {
+        const lines = req.query.lines ? parseInt(req.query.lines as string) : 100;
+        const logs = logger.readLogs('api', lines);
+        return res.json({ logs });
+      } catch (error) {
+        console.error('API 로그 열람 오류:', error);
+        return res.status(500).json({ message: 'API 로그 열람 중 오류가 발생했습니다.' });
+      }
+    });
+    
+    app.get(`${apiPrefix}/logs/error`, (req, res) => {
+      try {
+        const lines = req.query.lines ? parseInt(req.query.lines as string) : 100;
+        const logs = logger.readLogs('error', lines);
+        return res.json({ logs });
+      } catch (error) {
+        console.error('에러 로그 열람 오류:', error);
+        return res.status(500).json({ message: '에러 로그 열람 중 오류가 발생했습니다.' });
+      }
+    });
+  }
+
   const httpServer = createServer(app);
   return httpServer;
 }
