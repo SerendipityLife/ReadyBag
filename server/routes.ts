@@ -9,6 +9,7 @@ import { db } from "../db";
 import { userProducts } from "../shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { setupAuth } from "./auth";
+import cache from "./cache";
 
 // Extend Express Request type to have session properties
 declare module 'express-session' {
@@ -26,7 +27,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all countries
   app.get(`${apiPrefix}/countries`, async (req, res) => {
     try {
+      // 캐시에서 국가 목록 확인
+      const cacheKey = "countries:all";
+      const cachedData = cache.get(cacheKey);
+      
+      if (cachedData) {
+        console.log("Serving countries from cache");
+        return res.json(cachedData);
+      }
+      
       const countries = await storage.getCountries();
+      
+      // 캐시에 데이터 저장 (5분 유효)
+      cache.set(cacheKey, countries, 5 * 60 * 1000);
+      
       return res.json(countries);
     } catch (error) {
       console.error("Error fetching countries:", error);
@@ -37,7 +51,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get products by country with filter support
   app.get(`${apiPrefix}/products`, async (req, res) => {
     try {
-      const countryId = req.query.countryId as string;
+      const countryId = req.query.countryId as string || "japan";
       
       // 필터 파라미터 추출
       const categories = req.query.categories 
@@ -68,14 +82,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tags
       };
       
-      if (!countryId) {
-        // 기본값으로 일본 상품 반환
-        const defaultProducts = await storage.getProductsByCountry("japan", filters);
-        return res.json(defaultProducts);
+      // 캐시 키 생성
+      const cacheKey = `products:${countryId}:${JSON.stringify(filters)}`;
+      
+      // 캐시에서 데이터 확인
+      const cachedData = cache.get(cacheKey);
+      if (cachedData) {
+        console.log("Serving products from cache");
+        return res.json(cachedData);
       }
       
       console.log("Fetching products with filters:", filters);
       const products = await storage.getProductsByCountry(countryId, filters);
+      
+      // 캐시에 데이터 저장 (30초 유효)
+      cache.set(cacheKey, products, 30 * 1000);
+      
       return res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -94,7 +116,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Country ID is required" });
       }
       
+      // 캐시 키 생성 - 사용자 ID 또는 세션 ID로 구별
+      const userIdentifier = userId || sessionId || 'anonymous';
+      const cacheKey = `user-products:${countryId}:${userIdentifier}`;
+      
+      // 캐시에서 데이터 확인
+      const cachedData = cache.get(cacheKey);
+      if (cachedData) {
+        console.log("Serving user products from cache");
+        return res.json(cachedData);
+      }
+      
       const userProducts = await storage.getUserProducts(countryId, userId, sessionId);
+      
+      // 캐시에 데이터 저장 (15초 유효 - 사용자 제품은 자주 변경됨)
+      cache.set(cacheKey, userProducts, 15 * 1000);
+      
       return res.json(userProducts);
     } catch (error) {
       console.error("Error fetching user products:", error);
@@ -120,6 +157,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         sessionId
       );
+      
+      // 사용자 제품 관련 캐시 무효화
+      cache.deleteByPrefix("user-products:");
       
       return res.status(201).json(userProduct);
     } catch (error) {
@@ -160,6 +200,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(404).json({ message: "User product not found" });
         }
         
+        // 사용자 제품 관련 캐시 무효화
+        cache.deleteByPrefix("user-products:");
+        
         return res.json(updated);
       } catch (dbError) {
         console.error("Database error:", dbError);
@@ -199,6 +242,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .delete(userProducts)
           .where(eq(userProducts.id, id))
           .returning();
+        
+        // 사용자 제품 관련 캐시 무효화
+        cache.deleteByPrefix("user-products:");
         
         console.log("Successfully deleted product:", deleted);
         return res.json(deleted);
@@ -272,7 +318,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fromCurrency = req.query.from as string || "JPY";
       const toCurrency = req.query.to as string || "KRW";
       
+      // 캐시 키 생성
+      const cacheKey = `currency:${fromCurrency}:${toCurrency}`;
+      
+      // 캐시에서 환율 데이터 확인
+      const cachedData = cache.get(cacheKey);
+      if (cachedData) {
+        console.log("Serving currency data from cache");
+        return res.json(cachedData);
+      }
+      
       const rate = await getCurrencyRate(fromCurrency, toCurrency);
+      
+      // 캐시에 데이터 저장 (1시간 유효)
+      cache.set(cacheKey, rate, 60 * 60 * 1000);
       
       return res.json(rate);
     } catch (error) {
