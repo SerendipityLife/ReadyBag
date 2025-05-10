@@ -51,6 +51,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get products by country with filter support
   app.get(`${apiPrefix}/products`, async (req, res) => {
     try {
+      // 성능 측정 시작
+      const startTime = Date.now();
       const countryId = req.query.countryId as string || "japan";
       
       // 필터 파라미터 추출
@@ -89,6 +91,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log("Serving products from cache");
+        
+        // 로깅 추가
+        try {
+          // logger 모듈 동적 로드 (비동기 import가 실패해도 API는 계속 동작하도록)
+          const logger = await import('./logger').catch(() => null);
+          if (logger) {
+            const responseTime = Date.now() - startTime;
+            logger.logApiRequest(`[CACHE HIT] GET products - country: ${countryId}, filters: ${JSON.stringify(filters)}, responseTime: ${responseTime}ms, products: ${cachedData.length}`);
+          }
+        } catch (logError) {
+          // 로깅 실패해도 API 응답에는 영향 없도록
+          console.error("로깅 실패:", logError);
+        }
+        
         return res.json(cachedData);
       }
       
@@ -98,9 +114,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 캐시에 데이터 저장 (30초 유효)
       cache.set(cacheKey, products, 30 * 1000);
       
+      // 로깅 추가
+      try {
+        const logger = await import('./logger').catch(() => null);
+        if (logger) {
+          const responseTime = Date.now() - startTime;
+          logger.logApiRequest(`[DB QUERY] GET products - country: ${countryId}, filters: ${JSON.stringify(filters)}, responseTime: ${responseTime}ms, products: ${products.length}`);
+        }
+      } catch (logError) {
+        console.error("로깅 실패:", logError);
+      }
+      
       return res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);
+      
+      // 에러 로깅 추가
+      try {
+        const logger = await import('./logger').catch(() => null);
+        if (logger) {
+          logger.logError("API 오류: 제품 목록 불러오기 실패", error);
+        }
+      } catch (logError) {
+        console.error("에러 로깅 실패:", logError);
+      }
+      
       return res.status(500).json({ message: "Failed to fetch products" });
     }
   });
