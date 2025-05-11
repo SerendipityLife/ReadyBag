@@ -166,13 +166,26 @@ export function Lists() {
             
             // 유효한 productId만 남기기
             const validProductIds = allProducts.map((p: any) => p.id);
-            const validItems = parsedData.filter((item: any) => 
+            let validItems = parsedData.filter((item: any) => 
               item.productId && validProductIds.includes(item.productId)
             );
             
-            if (validItems.length !== parsedData.length) {
-              console.log(`유효하지 않은 항목 ${parsedData.length - validItems.length}개 제거됨`);
+            // "notInterested" 상태인 아이템을 "maybe"로 변경 (관심없음 -> 나중에)
+            validItems = validItems.map((item: any) => {
+              if (item.status === "notInterested") {
+                console.log(`상품 ID ${item.productId}의 상태를 'notInterested'에서 'maybe'로 변경`);
+                return { ...item, status: "maybe" };
+              }
+              return item;
+            });
+            
+            // 변경 사항이 있으면 스토리지 업데이트
+            if (validItems.length !== parsedData.length || validItems.some((item: any, idx: number) => item.status !== parsedData[idx].status)) {
+              console.log(`로컬 스토리지 항목 업데이트: ${validItems.length}개 항목 저장`);
               localStorage.setItem(storageKey, JSON.stringify(validItems));
+              
+              // 이벤트 발생시켜 UI 업데이트
+              window.dispatchEvent(new Event('localStorageChange'));
             }
           }
         }
@@ -508,7 +521,7 @@ export function Lists() {
                     {status !== ProductStatus.MAYBE && (
                       <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.MAYBE)}>
                         <Triangle className="h-4 w-4 mr-2 text-gray-600" />
-                        고민중
+                        나중에
                       </DropdownMenuItem>
                     )}
 

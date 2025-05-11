@@ -33,7 +33,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
           >
             <Triangle className="w-5 h-5 md:w-6 md:h-6 fill-gray-600" />
           </Button>
-          <span className="text-xs font-medium text-gray-600">고민중</span>
+          <span className="text-xs font-medium text-gray-600">나중에</span>
         </div>
         
         <div className="flex flex-col items-center">

@@ -104,7 +104,58 @@ export const storage = {
       up => up.product.countryId === countryId
     );
     
-    return filteredUserProducts;
+    // 관심없음(notInterested) 상태인 아이템들을 나중에(maybe) 상태로 변환하여 반환
+    // 동시에 업데이트가 필요한 항목들 처리
+    const updatedUserProducts = [];
+    const itemsToUpdate = [];
+    
+    for (const product of filteredUserProducts) {
+      if (product.status === 'notInterested') {
+        // 상태를 변경한 새 객체 생성 (원본은 수정하지 않음)
+        const updatedProduct = {
+          ...product,
+          status: 'maybe' // notInterested -> maybe로 변경
+        };
+        
+        // 데이터베이스 업데이트를 위해 저장
+        itemsToUpdate.push({
+          id: product.id,
+          userId: product.userId,
+          sessionId: product.sessionId
+        });
+        
+        // 변경된 객체를 결과에 추가
+        updatedUserProducts.push(updatedProduct);
+      } else {
+        // 변경이 필요 없는 항목은 그대로 추가
+        updatedUserProducts.push(product);
+      }
+    }
+    
+    // 데이터베이스 업데이트 작업 (비동기적으로 수행)
+    if (itemsToUpdate.length > 0) {
+      console.log(`${itemsToUpdate.length}개 상품 상태 업데이트: notInterested -> maybe`);
+      
+      // 각 항목을 순차적으로 업데이트
+      // Promise.all을 사용하지 않고 다음 처리를 기다리지 않도록 함
+      (async () => {
+        for (const item of itemsToUpdate) {
+          try {
+            await db
+              .update(userProducts)
+              .set({
+                status: 'maybe',
+                updatedAt: new Date()
+              })
+              .where(eq(userProducts.id, item.id));
+          } catch (error) {
+            console.error(`상품 ID ${item.id} 업데이트 실패:`, error);
+          }
+        }
+      })();
+    }
+    
+    return updatedUserProducts;
   },
   
   async upsertUserProduct(
