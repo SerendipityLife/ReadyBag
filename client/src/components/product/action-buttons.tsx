@@ -52,8 +52,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             id="skipBtn"
             variant="outline"
             size="icon"
-            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-400 text-gray-500 shadow-md hover:bg-gray-50 mb-1 ${getButtonAnimationClass(SwipeDirection.RIGHT)}`}
-            onClick={() => handleButtonClick(SwipeDirection.RIGHT)}
+            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-400 text-gray-500 shadow-md hover:bg-gray-50 mb-1 ${getButtonAnimationClass(SwipeDirection.LEFT)}`}
+            onClick={() => handleButtonClick(SwipeDirection.LEFT)}
             disabled={activeButton !== null}
             aria-label="건너뛰기"
           >
@@ -82,8 +82,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             id="likeBtn"
             variant="outline"
             size="icon"
-            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-red-500 text-red-500 shadow-md hover:bg-red-50 mb-1 ${getButtonAnimationClass(SwipeDirection.LEFT)}`}
-            onClick={() => handleButtonClick(SwipeDirection.LEFT)}
+            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-red-500 text-red-500 shadow-md hover:bg-red-50 mb-1 ${getButtonAnimationClass(SwipeDirection.RIGHT)}`}
+            onClick={() => handleButtonClick(SwipeDirection.RIGHT)}
             disabled={activeButton !== null}
             aria-label="관심"
           >

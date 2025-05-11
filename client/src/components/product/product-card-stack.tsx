@@ -405,7 +405,7 @@ export function ProductCardStack() {
     const status = SWIPE_TO_STATUS[direction];
     
     // 왼쪽 스와이프 (건너뛰기)는 DB에 저장하지 않고 스킵처리
-    if (status === "skip") {
+    if (status === ProductStatus.SKIP) {
       console.log(`[Swipe] 건너뛰기 처리: 제품 ID ${productId}`);
       
       // 처리 완료 후 처리 중인 제품 목록에서 제거

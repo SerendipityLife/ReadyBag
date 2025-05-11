@@ -39,7 +39,8 @@ export const API_ROUTES = {
 export enum ProductStatus {
   INTERESTED = "interested",
   MAYBE = "maybe",
-  UNSEEN = "unseen"
+  UNSEEN = "unseen",
+  SKIP = "skip"  // 건너뛰기 상태 추가
 }
 
 // Status Colors
@@ -63,7 +64,7 @@ export enum SwipeDirection {
 
 // Swipe to Status Mapping - 스와이프 방향 수정 (요구사항에 맞게)
 export const SWIPE_TO_STATUS = {
-  [SwipeDirection.LEFT]: "skip",                      // 왼쪽 스와이프: 건너뛰기 (저장 안 함)
+  [SwipeDirection.LEFT]: ProductStatus.SKIP,          // 왼쪽 스와이프: 건너뛰기 (저장 안 함)
   [SwipeDirection.UP]: ProductStatus.MAYBE,           // 위로 스와이프: 고민중
   [SwipeDirection.RIGHT]: ProductStatus.INTERESTED    // 오른쪽 스와이프: 관심
 };
@@ -72,7 +73,7 @@ export const SWIPE_TO_STATUS = {
 export const STATUS_TO_SWIPE = {
   [ProductStatus.INTERESTED]: SwipeDirection.RIGHT,   // 관심 상품: 오른쪽 스와이프
   [ProductStatus.MAYBE]: SwipeDirection.UP,           // 고민중: 위로 스와이프
-  "skip": SwipeDirection.LEFT                         // 건너뛰기: 왼쪽 스와이프
+  [ProductStatus.SKIP]: SwipeDirection.LEFT           // 건너뛰기: 왼쪽 스와이프
 };
 
 // Views

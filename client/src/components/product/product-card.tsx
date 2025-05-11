@@ -202,7 +202,7 @@ export function ProductCard({
     // 방향에 따른 애니메이션 적용
     setTimeout(() => {
       if (direction === SwipeDirection.LEFT) {
-        // 왼쪽 (관심)
+        // 왼쪽 (건너뛰기) - 방향 변경됨
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
@@ -210,7 +210,7 @@ export function ProductCard({
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.RIGHT) {
-        // 오른쪽 (건너뛰기)
+        // 오른쪽 (관심) - 방향 변경됨
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
@@ -218,7 +218,7 @@ export function ProductCard({
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.UP) {
-        // 위쪽 (고민중)
+        // 위쪽 (고민중) - 그대로 유지
         api.start({
           y: -window.innerHeight - 200,
           filter: 'blur(8px)',
@@ -256,7 +256,7 @@ export function ProductCard({
     // 일정 거리 이상의 명확한 수평 스와이프만 처리
     if (isHorizontalSwipe) {
       if (currentX > swipeThreshold) {
-        // 오른쪽 스와이프 -> 나중에 (관심없음 대신)
+        // 오른쪽 스와이프 -> 관심 상품으로 변경
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
@@ -264,7 +264,7 @@ export function ProductCard({
           onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
         });
       } else if (currentX < -swipeThreshold) {
-        // 왼쪽 스와이프 -> 관심 상품
+        // 왼쪽 스와이프 -> 건너뛰기로 변경
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
@@ -279,7 +279,7 @@ export function ProductCard({
     } 
     // 명확한 위쪽 방향 스와이프만 처리 (위로 향하는 제스처와 충분한 거리)
     else if (isVerticalSwipe && currentY < -swipeThreshold) {
-      // 위로 스와이프 -> 나중에 (변경 없음)
+      // 위로 스와이프 -> 고민중 (그대로 유지)
       api.start({
         y: -window.innerHeight - 200,
         filter: 'blur(8px)',
