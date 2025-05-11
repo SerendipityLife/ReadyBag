@@ -21,6 +21,13 @@ export function ProductCard({
   isProcessing = false,
   onSwipe,
 }: ProductCardProps) {
+  // 액션 트리거 함수를 외부에서 사용할 수 있도록 설정
+  // @ts-ignore
+  window.triggerCardAction = (direction: SwipeDirection, productId: number) => {
+    if (productId === product.id && index === 0) {
+      triggerAction(direction);
+    }
+  };
   const { exchangeRate } = useAppContext();
   const [startX, setStartX] = useState(0);
   const [startY, setStartY] = useState(0);
@@ -181,6 +188,46 @@ export function ProductCard({
     }
   };
   
+  // 외부에서 액션 트리거 함수 (버튼 클릭에 사용)
+  const triggerAction = (direction: SwipeDirection) => {
+    // 액션 방향 설정
+    setActiveDirection(direction);
+    setShowFeedbackIcon(true);
+    
+    // 블러 효과 적용
+    api.start({
+      filter: 'blur(5px)'
+    });
+    
+    // 방향에 따른 애니메이션 적용
+    setTimeout(() => {
+      if (direction === SwipeDirection.LEFT) {
+        // 왼쪽 (관심)
+        api.start({
+          x: -window.innerWidth - 200,
+          rotate: -30,
+          filter: 'blur(8px)',
+          onRest: () => onSwipe(direction, product.id),
+        });
+      } else if (direction === SwipeDirection.RIGHT) {
+        // 오른쪽 (건너뛰기)
+        api.start({
+          x: window.innerWidth + 200,
+          rotate: 30,
+          filter: 'blur(8px)',
+          onRest: () => onSwipe(direction, product.id),
+        });
+      } else if (direction === SwipeDirection.UP) {
+        // 위쪽 (고민중)
+        api.start({
+          y: -window.innerHeight - 200,
+          filter: 'blur(8px)',
+          onRest: () => onSwipe(direction, product.id),
+        });
+      }
+    }, 100);
+  };
+
   const handleTouchEnd = () => {
     if (!isDragging.current || !isTopCard || isProcessing) return;
     isDragging.current = false;
@@ -206,7 +253,7 @@ export function ProductCard({
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
-          filter: 'blur(5px)',
+          filter: 'blur(8px)',
           onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
         });
       } else if (currentX < -swipeThreshold) {
@@ -214,7 +261,7 @@ export function ProductCard({
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
-          filter: 'blur(5px)',
+          filter: 'blur(8px)',
           onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
         });
       } else {
@@ -228,7 +275,7 @@ export function ProductCard({
       // 위로 스와이프 -> 나중에 (변경 없음)
       api.start({
         y: -window.innerHeight - 200,
-        filter: 'blur(5px)',
+        filter: 'blur(8px)',
         onRest: () => onSwipe(SwipeDirection.UP, product.id),
       });
     } 
