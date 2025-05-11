@@ -511,12 +511,7 @@ export function Lists() {
                         고민중
                       </DropdownMenuItem>
                     )}
-                    {status !== ProductStatus.NOT_INTERESTED && (
-                      <DropdownMenuItem onClick={() => handleBatchChangeStatus(ProductStatus.NOT_INTERESTED)}>
-                        <X className="h-4 w-4 mr-2 text-orange-500" />
-                        관심없음
-                      </DropdownMenuItem>
-                    )}
+
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
