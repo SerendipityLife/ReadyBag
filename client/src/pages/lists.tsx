@@ -633,11 +633,6 @@ export function Lists() {
         </div>
       </div>
 
-      {/* 상단 배너 광고 */}
-      <div className="w-full flex justify-center my-4">
-        <AdBanner adFormat="horizontal" className="max-w-full" />
-      </div>
-      
       {/* 탭 컨텐츠 영역 - 스크롤 가능 */}
       <div className="mt-2">
         <Tabs
@@ -646,26 +641,11 @@ export function Lists() {
           className="w-full"
         >
           <TabsContent value={ProductStatus.INTERESTED}>
-            <div className="flex flex-col md:flex-row">
-              {/* 좌측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block mr-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-              
+            <div>
               {/* 메인 컨텐츠 */}
-              <div className="flex-1">
+              <div className="w-full">
                 {renderTabContent(interestedProducts, ProductStatus.INTERESTED)}
               </div>
-              
-              {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block ml-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-            </div>
-            
-            {/* 하단 사각형 광고 (모바일에서만 표시) */}
-            <div className="w-full flex justify-center mt-6 md:hidden">
-              <AdBanner adFormat="rectangle" />
             </div>
             
             {interestedProducts.length > 0 && (
@@ -698,26 +678,11 @@ export function Lists() {
           </TabsContent>
           
           <TabsContent value={ProductStatus.MAYBE}>
-            <div className="flex flex-col md:flex-row">
-              {/* 좌측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block mr-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-              
+            <div>
               {/* 메인 컨텐츠 */}
-              <div className="flex-1">
+              <div className="w-full">
                 {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
               </div>
-              
-              {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block ml-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-            </div>
-            
-            {/* 하단 사각형 광고 (모바일에서만 표시) */}
-            <div className="w-full flex justify-center mt-6 md:hidden">
-              <AdBanner adFormat="rectangle" />
             </div>
           </TabsContent>
         </Tabs>

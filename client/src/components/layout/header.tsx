@@ -87,7 +87,8 @@ export function Header() {
         {/* Top row: Logo and action buttons */}
         <div className="flex items-center justify-between w-full md:w-auto">
           <div className="flex items-center space-x-1 md:space-x-2">
-            {(currentView === View.LISTS || isSharedList) && (
+            {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
+            {isSharedList && (
               <Button 
                 variant="ghost" 
                 size="sm"
