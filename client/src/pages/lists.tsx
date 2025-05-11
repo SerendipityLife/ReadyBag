@@ -587,23 +587,23 @@ export function Lists() {
     <div className="w-full max-w-3xl mx-auto pb-20">
       {/* 메인 헤더 아래 위치하도록 top 값 조정 (헤더 높이 + 여백) */}
       <div className="sticky top-[60px] md:top-[68px] z-40 bg-gray-50 pt-2 pb-2 border-b border-gray-100 shadow-sm">
-        {/* 환율 정보 표시 */}
+        {/* 환율 정보 표시 - 한 줄로 간결하게 */}
         {exchangeRate && (
           <div className="bg-white rounded-lg p-2 mb-2 flex items-center justify-between text-xs text-gray-600 shadow-sm">
-            <div className="flex items-center">
-              <span className="font-medium">현재 환율:</span>
-              <span className="ml-1 font-semibold">
-                100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} = {(exchangeRate * 100).toFixed(0)}원
+            <div className="flex items-center whitespace-nowrap">
+              <span className="font-medium mr-1">100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} =</span>
+              <span className="font-semibold text-red-500">
+                {(exchangeRate * 100).toFixed(0)}원
               </span>
               <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
-            </div>
-            <div className="text-gray-500 text-[10px]">
-              {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
-                month: 'numeric',
-                day: 'numeric', 
-                hour: '2-digit',
-                minute: '2-digit'
-              })} 기준
+              <span className="ml-1 text-gray-500 text-[10px] hidden sm:inline-block">
+                {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
+                  month: 'numeric',
+                  day: 'numeric', 
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }).replace(/\s/g, ' ')}
+              </span>
             </div>
           </div>
         )}

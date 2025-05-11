@@ -10,6 +10,22 @@ import { View } from "@/lib/constants";
 
 export default function Home() {
   const { currentView, setCurrentView } = useAppContext();
+  
+  // Add no-scroll class to HTML element when in EXPLORE view for mobile devices
+  useEffect(() => {
+    const htmlElement = document.documentElement;
+    
+    if (currentView === View.EXPLORE) {
+      htmlElement.classList.add('no-scroll-mobile');
+    } else {
+      htmlElement.classList.remove('no-scroll-mobile');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      htmlElement.classList.remove('no-scroll-mobile');
+    };
+  }, [currentView]);
 
   return (
     <div className="min-h-screen flex flex-col">

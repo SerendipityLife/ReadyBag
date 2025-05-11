@@ -243,8 +243,15 @@ export function ProductCard({
     // 작은 움직임은 스와이프로 간주하지 않음 (일반 터치/클릭)
     const isMinorMovement = absX < 20 && absY < 20;
     
-    // 스와이프 방향에 따른 아이콘 표시
+    // 스와이프 방향에 따른 아이콘 표시 - 명확하게 큰 아이콘으로 표시
     setShowFeedbackIcon(true);
+    
+    // 효과 시간 이후 아이콘 숨기기 자동화
+    setTimeout(() => {
+      if (!isDragging.current) {
+        setShowFeedbackIcon(false);
+      }
+    }, 1500);
     
     // 일정 거리 이상의 명확한 수평 스와이프만 처리
     if (isHorizontalSwipe) {
@@ -289,33 +296,80 @@ export function ProductCard({
     setActiveDirection(null);
   };
   
-  // 방향에 따른 피드백 아이콘 결정
+  // 방향에 따른 피드백 아이콘 결정 - 더 크고 눈에 띄게 수정
   const getFeedbackIcon = () => {
     if (!showFeedbackIcon) return null;
     
-    const baseStyles = "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 w-24 h-24 bg-white bg-opacity-80 rounded-full flex items-center justify-center shadow-lg";
+    // 더 크고 강조된 아이콘 스타일
+    const baseStyles = "absolute inset-0 z-30 flex items-center justify-center bg-white bg-opacity-40";
+    const iconContainerStyles = "w-32 h-32 rounded-full flex items-center justify-center shadow-xl animate-pulse";
     
-    if (currentX > swipeThreshold) {
-      // 건너뛰기 (오른쪽 스와이프)
-      return (
-        <div className={`${baseStyles} border-8 border-gray-300`}>
-          <X className="w-12 h-12 text-gray-500" />
-        </div>
-      );
-    } else if (currentX < -swipeThreshold) {
-      // 관심 (왼쪽 스와이프)
-      return (
-        <div className={`${baseStyles} border-8 border-primary`}>
-          <Heart className="w-12 h-12 text-primary" />
-        </div>
-      );
-    } else if (currentY < -swipeThreshold) {
-      // 고민중 (위로 스와이프)
-      return (
-        <div className={`${baseStyles} border-8 border-amber-400`}>
-          <HelpCircle className="w-12 h-12 text-amber-500" />
-        </div>
-      );
+    // 버튼 클릭 시 activeDirection 사용, 스와이프 시 현재 위치 사용
+    const isButtonAction = activeDirection !== null;
+    
+    if (isButtonAction) {
+      // 버튼 클릭으로 인한 액션
+      switch(activeDirection) {
+        case SwipeDirection.RIGHT:
+          // 건너뛰기 (오른쪽)
+          return (
+            <div className={baseStyles}>
+              <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
+                <X className="w-16 h-16 text-gray-500" strokeWidth={2} />
+              </div>
+            </div>
+          );
+        case SwipeDirection.LEFT:
+          // 관심 (왼쪽)
+          return (
+            <div className={baseStyles}>
+              <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
+                <Heart className="w-16 h-16 text-primary fill-red-500" />
+              </div>
+            </div>
+          );
+        case SwipeDirection.UP:
+          // 고민중 (위로)
+          return (
+            <div className={baseStyles}>
+              <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
+                <HelpCircle className="w-16 h-16 text-amber-500" />
+              </div>
+            </div>
+          );
+        default:
+          return null;
+      }
+    } else {
+      // 스와이프로 인한 액션
+      if (currentX > swipeThreshold) {
+        // 건너뛰기 (오른쪽 스와이프)
+        return (
+          <div className={baseStyles}>
+            <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
+              <X className="w-16 h-16 text-gray-500" strokeWidth={2} />
+            </div>
+          </div>
+        );
+      } else if (currentX < -swipeThreshold) {
+        // 관심 (왼쪽 스와이프)
+        return (
+          <div className={baseStyles}>
+            <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
+              <Heart className="w-16 h-16 text-primary fill-red-500" />
+            </div>
+          </div>
+        );
+      } else if (currentY < -swipeThreshold) {
+        // 고민중 (위로 스와이프)
+        return (
+          <div className={baseStyles}>
+            <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
+              <HelpCircle className="w-16 h-16 text-amber-500" />
+            </div>
+          </div>
+        );
+      }
     }
     
     return null;

@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  /* Prevent scrolling on mobile devices in browse view */
+  html.no-scroll-mobile, 
+  html.no-scroll-mobile body {
+    @apply md:overflow-auto overflow-hidden h-full;
+  }
+  
   :root {
     --background: 0 0% 100%;
     --foreground: 0 0% 28%;
