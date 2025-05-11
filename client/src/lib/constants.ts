@@ -61,17 +61,18 @@ export enum SwipeDirection {
   UP = "up"
 }
 
-// Swipe to Status Mapping
+// Swipe to Status Mapping - 스와이프 방향 수정 (요구사항에 맞게)
 export const SWIPE_TO_STATUS = {
-  [SwipeDirection.LEFT]: ProductStatus.INTERESTED,    // 왼쪽 스와이프: 관심 상품
-  [SwipeDirection.UP]: ProductStatus.MAYBE,           // 위로 스와이프: 나중에 
-  [SwipeDirection.RIGHT]: ProductStatus.MAYBE         // 오른쪽 스와이프: 나중에 (관심없음 대신)
+  [SwipeDirection.LEFT]: "skip",                      // 왼쪽 스와이프: 건너뛰기 (저장 안 함)
+  [SwipeDirection.UP]: ProductStatus.MAYBE,           // 위로 스와이프: 고민중
+  [SwipeDirection.RIGHT]: ProductStatus.INTERESTED    // 오른쪽 스와이프: 관심
 };
 
-// Status to Swipe Mapping
+// Status to Swipe Mapping - 수정된 스와이프 방향에 맞춰 업데이트
 export const STATUS_TO_SWIPE = {
-  [ProductStatus.INTERESTED]: SwipeDirection.LEFT,    // 관심 상품: 왼쪽 스와이프
-  [ProductStatus.MAYBE]: SwipeDirection.UP            // 나중에: 위로 스와이프
+  [ProductStatus.INTERESTED]: SwipeDirection.RIGHT,   // 관심 상품: 오른쪽 스와이프
+  [ProductStatus.MAYBE]: SwipeDirection.UP,           // 고민중: 위로 스와이프
+  "skip": SwipeDirection.LEFT                         // 건너뛰기: 왼쪽 스와이프
 };
 
 // Views

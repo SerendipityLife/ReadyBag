@@ -404,7 +404,19 @@ export function ProductCardStack() {
     
     const status = SWIPE_TO_STATUS[direction];
     
-    if (user) {
+    // 왼쪽 스와이프 (건너뛰기)는 DB에 저장하지 않고 스킵처리
+    if (status === "skip") {
+      console.log(`[Swipe] 건너뛰기 처리: 제품 ID ${productId}`);
+      
+      // 처리 완료 후 처리 중인 제품 목록에서 제거
+      setProcessingProductIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+    // 관심 또는 고민중은 저장
+    else if (user) {
       // 로그인한 사용자: API 호출로 상태 저장
       updateProductStatus.mutate({ productId, status }, {
         onSuccess: () => {

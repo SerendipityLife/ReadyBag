@@ -296,13 +296,13 @@ export function ProductCard({
     setActiveDirection(null);
   };
   
-  // 방향에 따른 피드백 아이콘 결정 - 더 크고 눈에 띄게 수정
+  // 방향에 따른 피드백 아이콘 결정 - 수정된 스와이프 방향 적용
   const getFeedbackIcon = () => {
     if (!showFeedbackIcon) return null;
     
-    // 더 크고 강조된 아이콘 스타일
-    const baseStyles = "absolute inset-0 z-30 flex items-center justify-center bg-white bg-opacity-40";
-    const iconContainerStyles = "w-32 h-32 rounded-full flex items-center justify-center shadow-xl animate-pulse";
+    // 더 크고 강조된 아이콘 스타일 - 블러효과 없이 아이콘만 뚜렷하게
+    const baseStyles = "absolute inset-0 z-50 flex items-center justify-center";
+    const iconContainerStyles = "w-32 h-32 rounded-full flex items-center justify-center shadow-xl animate-pulse filter-none";
     
     // 버튼 클릭 시 activeDirection 사용, 스와이프 시 현재 위치 사용
     const isButtonAction = activeDirection !== null;
@@ -310,30 +310,30 @@ export function ProductCard({
     if (isButtonAction) {
       // 버튼 클릭으로 인한 액션
       switch(activeDirection) {
-        case SwipeDirection.RIGHT:
-          // 건너뛰기 (오른쪽)
+        case SwipeDirection.LEFT:
+          // 건너뛰기 (왼쪽) - 수정됨
           return (
             <div className={baseStyles}>
               <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
-                <X className="w-16 h-16 text-gray-500" strokeWidth={2} />
+                <X className="w-16 h-16 text-gray-500 filter-none" strokeWidth={2.5} />
               </div>
             </div>
           );
-        case SwipeDirection.LEFT:
-          // 관심 (왼쪽)
+        case SwipeDirection.RIGHT:
+          // 관심 (오른쪽) - 수정됨
           return (
             <div className={baseStyles}>
               <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
-                <Heart className="w-16 h-16 text-primary fill-red-500" />
+                <Heart className="w-16 h-16 text-primary fill-red-500 filter-none" />
               </div>
             </div>
           );
         case SwipeDirection.UP:
-          // 고민중 (위로)
+          // 고민중 (위로) - 그대로 유지
           return (
             <div className={baseStyles}>
               <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
-                <HelpCircle className="w-16 h-16 text-amber-500" />
+                <HelpCircle className="w-16 h-16 text-amber-500 filter-none" />
               </div>
             </div>
           );
@@ -343,29 +343,29 @@ export function ProductCard({
     } else {
       // 스와이프로 인한 액션
       if (currentX > swipeThreshold) {
-        // 건너뛰기 (오른쪽 스와이프)
+        // 관심 (오른쪽 스와이프) - 수정됨
         return (
           <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
-              <X className="w-16 h-16 text-gray-500" strokeWidth={2} />
+            <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
+              <Heart className="w-16 h-16 text-primary fill-red-500 filter-none" />
             </div>
           </div>
         );
       } else if (currentX < -swipeThreshold) {
-        // 관심 (왼쪽 스와이프)
+        // 건너뛰기 (왼쪽 스와이프) - 수정됨
         return (
           <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
-              <Heart className="w-16 h-16 text-primary fill-red-500" />
+            <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
+              <X className="w-16 h-16 text-gray-500 filter-none" strokeWidth={2.5} />
             </div>
           </div>
         );
       } else if (currentY < -swipeThreshold) {
-        // 고민중 (위로 스와이프)
+        // 고민중 (위로 스와이프) - 그대로 유지
         return (
           <div className={baseStyles}>
             <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
-              <HelpCircle className="w-16 h-16 text-amber-500" />
+              <HelpCircle className="w-16 h-16 text-amber-500 filter-none" />
             </div>
           </div>
         );
