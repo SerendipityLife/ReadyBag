@@ -38,7 +38,6 @@ export const API_ROUTES = {
 // User Product Status
 export enum ProductStatus {
   INTERESTED = "interested",
-  NOT_INTERESTED = "notInterested",
   MAYBE = "maybe",
   UNSEEN = "unseen"
 }
@@ -46,14 +45,12 @@ export enum ProductStatus {
 // Status Colors
 export const STATUS_COLORS = {
   [ProductStatus.INTERESTED]: "status-interested",
-  [ProductStatus.NOT_INTERESTED]: "status-orange", 
   [ProductStatus.MAYBE]: "status-gray"
 };
 
 // Status Icons
 export const STATUS_ICONS = {
   [ProductStatus.INTERESTED]: "heart",
-  [ProductStatus.NOT_INTERESTED]: "times",
   [ProductStatus.MAYBE]: "bookmark"
 };
 
@@ -68,13 +65,12 @@ export enum SwipeDirection {
 export const SWIPE_TO_STATUS = {
   [SwipeDirection.LEFT]: ProductStatus.INTERESTED,    // 왼쪽 스와이프: 관심 상품
   [SwipeDirection.UP]: ProductStatus.MAYBE,           // 위로 스와이프: 나중에 
-  [SwipeDirection.RIGHT]: ProductStatus.NOT_INTERESTED // 오른쪽 스와이프: 관심 없음
+  [SwipeDirection.RIGHT]: ProductStatus.MAYBE         // 오른쪽 스와이프: 나중에 (관심없음 대신)
 };
 
 // Status to Swipe Mapping
 export const STATUS_TO_SWIPE = {
   [ProductStatus.INTERESTED]: SwipeDirection.LEFT,    // 관심 상품: 왼쪽 스와이프
-  [ProductStatus.NOT_INTERESTED]: SwipeDirection.RIGHT, // 관심 없음: 오른쪽 스와이프
   [ProductStatus.MAYBE]: SwipeDirection.UP            // 나중에: 위로 스와이프
 };
 
