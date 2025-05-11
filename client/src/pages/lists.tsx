@@ -376,7 +376,6 @@ export function Lists() {
   
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
   const maybeProducts = getProductsByStatus(ProductStatus.MAYBE);
-  const notInterestedProducts = getProductsByStatus(ProductStatus.NOT_INTERESTED);
   
   // Get count badge for each tab
   const getCountBadge = (count: number) => (
@@ -401,9 +400,7 @@ export function Lists() {
     
     if (checked) {
       // 현재 활성 탭의 모든 제품 선택
-      const productsToSelect = activeTab === ProductStatus.INTERESTED ? interestedProducts :
-                               activeTab === ProductStatus.MAYBE ? maybeProducts :
-                               notInterestedProducts;
+      const productsToSelect = activeTab === ProductStatus.INTERESTED ? interestedProducts : maybeProducts;
       
       const newSelectedIds: Record<number, boolean> = {};
       productsToSelect.forEach(product => {
