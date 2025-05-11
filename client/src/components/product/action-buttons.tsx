@@ -38,7 +38,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
         
         <div className="flex flex-col items-center">
           <Button
-            id="dislikeBtn"
+            id="skipBtn"
             variant="outline"
             size="icon"
             className="w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-orange-500 text-orange-500 shadow-md hover:bg-orange-50 mb-1"
@@ -46,7 +46,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
           >
             <X className="w-5 h-5 md:w-6 md:h-6 font-bold" strokeWidth={3} />
           </Button>
-          <span className="text-xs font-medium text-orange-500">관심없음</span>
+          <span className="text-xs font-medium text-orange-500">건너뛰기</span>
         </div>
       </div>
     </div>
