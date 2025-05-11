@@ -626,7 +626,7 @@ export function Lists() {
                 value={ProductStatus.MAYBE}
                 className="flex items-center justify-center"
               >
-                <span className="text-gray-600">나중에</span> {getCountBadge(maybeProducts.length)}
+                <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
               </TabsTrigger>
             </TabsList>
           </Tabs>

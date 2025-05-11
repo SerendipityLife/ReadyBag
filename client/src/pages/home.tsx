@@ -7,7 +7,6 @@ import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { View } from "@/lib/constants";
-import { FilterCurrencyBar } from "@/components/filter-currency-bar";
 
 export default function Home() {
   const { currentView, setCurrentView } = useAppContext();
@@ -19,10 +18,7 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            {/* 1. 환율 정보와 필터 버튼을 같은 가로 선상에 배치 */}
-            <FilterCurrencyBar />
-            
-            {/* 2. 상품 컨텐츠 */}
+            {/* 상품 컨텐츠 */}
             <div className="w-full flex flex-col items-center">
               <ProductCardStack />
             </div>
