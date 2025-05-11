@@ -250,15 +250,6 @@ export function ProductListItem(props: ProductListItemProps) {
                       <Triangle className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.MAYBE ? 'fill-orange-500 text-orange-500' : ''}`} />
                       나중에
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className={`justify-start text-xs ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'bg-neutral-50 text-neutral-500' : ''}`}
-                      onClick={() => changeStatus(ProductStatus.NOT_INTERESTED)}
-                    >
-                      <X className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.NOT_INTERESTED ? 'text-neutral-500' : ''}`} />
-                      관심없음
-                    </Button>
                   </div>
                 </PopoverContent>
               </Popover>

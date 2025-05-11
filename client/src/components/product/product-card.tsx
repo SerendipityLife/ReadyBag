@@ -138,7 +138,7 @@ export function ProductCard({
     // 일정 거리 이상의 명확한 수평 스와이프만 처리
     if (isHorizontalSwipe) {
       if (currentX > swipeThreshold) {
-        // 오른쪽 스와이프 -> 관심 없음
+        // 오른쪽 스와이프 -> 나중에 (관심없음 대신)
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,

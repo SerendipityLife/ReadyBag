@@ -461,10 +461,6 @@ export function Lists() {
           emptyMessage = "고민중인 상품들이 여기에 표시됩니다.";
           emptyIcon = <Bookmark className="w-16 h-16 mb-4 opacity-20" />;
           break;
-        case ProductStatus.NOT_INTERESTED:
-          emptyMessage = "관심없는 상품들이 여기에 표시됩니다.";
-          emptyIcon = <X className="w-16 h-16 mb-4 opacity-20" />;
-          break;
       }
       
       return (
@@ -611,7 +607,7 @@ export function Lists() {
             onValueChange={(value) => setActiveTab(value as ProductStatus)}
             className="w-full"
           >
-            <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
+            <TabsList className="w-full grid grid-cols-2 bg-white rounded-lg mb-2">
               <TabsTrigger
                 value={ProductStatus.INTERESTED}
                 className="flex items-center justify-center"
@@ -623,12 +619,6 @@ export function Lists() {
                 className="flex items-center justify-center"
               >
                 <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
-              </TabsTrigger>
-              <TabsTrigger
-                value={ProductStatus.NOT_INTERESTED}
-                className="flex items-center justify-center"
-              >
-                <span className="text-orange-500">관심없음</span> {getCountBadge(notInterestedProducts.length)}
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -709,30 +699,6 @@ export function Lists() {
               {/* 메인 컨텐츠 */}
               <div className="flex-1">
                 {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
-              </div>
-              
-              {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block ml-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-            </div>
-            
-            {/* 하단 사각형 광고 (모바일에서만 표시) */}
-            <div className="w-full flex justify-center mt-6 md:hidden">
-              <AdBanner adFormat="rectangle" />
-            </div>
-          </TabsContent>
-          
-          <TabsContent value={ProductStatus.NOT_INTERESTED}>
-            <div className="flex flex-col md:flex-row">
-              {/* 좌측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
-              <div className="hidden md:block mr-4">
-                <AdBanner adFormat="vertical" />
-              </div>
-              
-              {/* 메인 컨텐츠 */}
-              <div className="flex-1">
-                {renderTabContent(notInterestedProducts, ProductStatus.NOT_INTERESTED)}
               </div>
               
               {/* 우측 사이드바 광고 (태블릿 및 데스크탑에서만 표시) */}
