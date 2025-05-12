@@ -52,7 +52,7 @@ export const STATUS_COLORS = {
 // Status Icons
 export const STATUS_ICONS = {
   [ProductStatus.INTERESTED]: "heart",
-  [ProductStatus.MAYBE]: "bookmark"
+  [ProductStatus.MAYBE]: "help-circle"  // bookmark에서 help-circle(물음표)로 변경
 };
 
 // Swipe Directions

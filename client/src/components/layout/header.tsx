@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/use-auth";
 import { CountrySelector } from "@/components/country-selector";
+import { FilterModal } from "@/components/filter/filter-modal";
 import { View } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { 
@@ -12,7 +13,8 @@ import {
   LogOut, 
   LogIn,
   ChevronDown,
-  User
+  User,
+  SlidersHorizontal
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,6 +31,7 @@ export function Header() {
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   
   const handleBackClick = () => {
     if (isSharedList) {
@@ -104,16 +107,24 @@ export function Header() {
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
-            <div className="ml-1">
+            <div className="ml-4">
               <CountrySelector />
             </div>
           )}
         </div>
         
         {/* Action buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           {!isAuthPage && (
             <>
+              <button 
+                className="p-1.5 rounded-full hover:bg-gray-100"
+                onClick={() => setIsFilterModalOpen(true)}
+                title="필터"
+              >
+                <SlidersHorizontal size={16} className="text-gray-600" />
+              </button>
+              
               <button 
                 className="p-1.5 rounded-full hover:bg-gray-100"
                 onClick={handleShareClick}
@@ -167,6 +178,13 @@ export function Header() {
           )}
         </div>
       </div>
+      
+      {/* 필터 모달 */}
+      <FilterModal 
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        scope={currentView}
+      />
     </header>
   );
 }
