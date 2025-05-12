@@ -48,12 +48,15 @@ export function ProductCard({
   
   const isTopCard = index === 0;
   
-  // Animation for the card movement
-  const [{ x, y, rotate, filter }, api] = useSpring(() => ({
+  // Animation for the card movement including border and background color
+  const [{ x, y, rotate, filter, borderColor, borderWidth, boxShadow }, api] = useSpring(() => ({
     x: 0,
     y: 0,
     rotate: 0,
     filter: 'blur(0px)',
+    borderColor: 'rgba(255,255,255,0)',
+    borderWidth: '0px',
+    boxShadow: '0 0 0 0 rgba(0,0,0,0)',
     config: { tension: 300, friction: 20 }
   }));
   
@@ -158,12 +161,36 @@ export function ProductCard({
     
     // 수평 스와이프가 우선시되는 경우에만 애니메이션 적용
     if (absX > 10) {
+      // 테두리 색상 결정 - 방향에 따라 다른 색상 적용
+      let borderColorValue = 'rgba(255,255,255,0)';
+      let shadowColor = 'rgba(0,0,0,0)';
+      
+      // 오른쪽 스와이프 (관심)
+      if (deltaX > swipeThreshold / 2) {
+        // 빨간색 테두리 (관심)
+        borderColorValue = 'rgba(239, 68, 68, 0.8)'; // 빨간색
+        shadowColor = 'rgba(239, 68, 68, 0.4)';
+      } 
+      // 왼쪽 스와이프 (건너뛰기)
+      else if (deltaX < -swipeThreshold / 2) {
+        // 회색 테두리 (건너뛰기)
+        borderColorValue = 'rgba(156, 163, 175, 0.8)'; // 회색
+        shadowColor = 'rgba(156, 163, 175, 0.4)';
+      }
+      
+      // 테두리 두께 계산 (스와이프 거리에 비례)
+      const maxBorderWidth = 6; // 최대 테두리 두께 (px)
+      const borderWidthValue = Math.min(Math.max(absX, 0) / swipeThreshold * maxBorderWidth, maxBorderWidth);
+      
       // Update the animation
       api.start({
         x: deltaX,
         y: 0, // 수평 스와이프 시 수직 이동 제한
         rotate: deltaX * 0.1, // Slight rotation based on drag distance
         filter: `blur(${blurAmount}px)`, // 블러 효과 적용
+        borderColor: borderColorValue,
+        borderWidth: `${borderWidthValue}px`,
+        boxShadow: `0 0 15px 5px ${shadowColor}`,
       });
       
       // 수평 스와이프 시에만 스크롤 방지
@@ -173,11 +200,18 @@ export function ProductCard({
     } else if (absY > 50 && absY > absX * 2) {
       // 명확한 상하 스와이프 의도가 있을 때만 수직 이동 허용 (위로 향하는 경우만)
       if (deltaY < 0) {
+        // 위로 스와이프 (고민중) - 노란색 테두리
+        const maxBorderWidth = 6; // 최대 테두리 두께 (px)
+        const borderWidthValue = Math.min(Math.max(absY, 0) / swipeThreshold * maxBorderWidth, maxBorderWidth);
+        
         api.start({
           x: 0,
           y: deltaY,
           rotate: 0,
           filter: `blur(${blurAmount}px)`, // 블러 효과 적용
+          borderColor: 'rgba(245, 158, 11, 0.8)', // 노란색 (고민중)
+          borderWidth: `${borderWidthValue}px`,
+          boxShadow: '0 0 15px 5px rgba(245, 158, 11, 0.4)',
         });
         
         // 확실한 위쪽 스와이프인 경우만 스크롤 방지
@@ -194,9 +228,31 @@ export function ProductCard({
     setActiveDirection(direction);
     setShowFeedbackIcon(true);
     
-    // 블러 효과 적용
+    // 방향에 따른 테두리 색상 설정
+    let borderColorValue = 'rgba(255,255,255,0)';
+    let shadowColor = 'rgba(0,0,0,0)';
+    
+    switch (direction) {
+      case SwipeDirection.LEFT: // 건너뛰기 (왼쪽) - 회색
+        borderColorValue = 'rgba(156, 163, 175, 0.8)';
+        shadowColor = 'rgba(156, 163, 175, 0.4)';
+        break;
+      case SwipeDirection.RIGHT: // 관심 (오른쪽) - 빨간색
+        borderColorValue = 'rgba(239, 68, 68, 0.8)';
+        shadowColor = 'rgba(239, 68, 68, 0.4)';
+        break;
+      case SwipeDirection.UP: // 고민중 (위로) - 노란색
+        borderColorValue = 'rgba(245, 158, 11, 0.8)';
+        shadowColor = 'rgba(245, 158, 11, 0.4)';
+        break;
+    }
+    
+    // 즉각적인 테두리 효과 적용
     api.start({
-      filter: 'blur(5px)'
+      filter: 'blur(3px)',
+      borderColor: borderColorValue,
+      borderWidth: '6px',
+      boxShadow: `0 0 20px 8px ${shadowColor}`,
     });
     
     // 방향에 따른 애니메이션 적용
@@ -207,6 +263,9 @@ export function ProductCard({
           x: -window.innerWidth - 200,
           rotate: -30,
           filter: 'blur(8px)',
+          borderColor: borderColorValue,
+          borderWidth: '8px',
+          boxShadow: `0 0 30px 10px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.RIGHT) {
@@ -215,6 +274,9 @@ export function ProductCard({
           x: window.innerWidth + 200,
           rotate: 30,
           filter: 'blur(8px)',
+          borderColor: borderColorValue,
+          borderWidth: '8px',
+          boxShadow: `0 0 30px 10px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.UP) {
@@ -222,6 +284,9 @@ export function ProductCard({
         api.start({
           y: -window.innerHeight - 200,
           filter: 'blur(8px)',
+          borderColor: borderColorValue,
+          borderWidth: '8px',
+          boxShadow: `0 0 30px 10px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       }
@@ -256,39 +321,73 @@ export function ProductCard({
     // 일정 거리 이상의 명확한 수평 스와이프만 처리
     if (isHorizontalSwipe) {
       if (currentX > swipeThreshold) {
-        // 오른쪽 스와이프 -> 관심 상품으로 변경
+        // 오른쪽 스와이프 -> 관심 상품으로 변경 (빨간색)
+        const borderColorValue = 'rgba(239, 68, 68, 0.9)'; // 빨간색
+        const shadowColor = 'rgba(239, 68, 68, 0.5)';
+        
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
           filter: 'blur(8px)',
+          borderColor: borderColorValue,
+          borderWidth: '8px',
+          boxShadow: `0 0 30px 10px ${shadowColor}`,
           onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
         });
       } else if (currentX < -swipeThreshold) {
-        // 왼쪽 스와이프 -> 건너뛰기로 변경
+        // 왼쪽 스와이프 -> 건너뛰기로 변경 (회색)
+        const borderColorValue = 'rgba(156, 163, 175, 0.9)'; // 회색
+        const shadowColor = 'rgba(156, 163, 175, 0.5)';
+        
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
           filter: 'blur(8px)',
+          borderColor: borderColorValue,
+          borderWidth: '8px',
+          boxShadow: `0 0 30px 10px ${shadowColor}`,
           onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
         });
       } else {
-        // 스와이프 거리가 충분하지 않음
-        api.start({ x: 0, y: 0, rotate: 0, filter: 'blur(0px)' });
+        // 스와이프 거리가 충분하지 않음 - 원래 상태로 복원
+        api.start({ 
+          x: 0, 
+          y: 0, 
+          rotate: 0, 
+          filter: 'blur(0px)',
+          borderColor: 'rgba(255,255,255,0)',
+          borderWidth: '0px',
+          boxShadow: '0 0 0 0 rgba(0,0,0,0)'
+        });
         setShowFeedbackIcon(false);
       }
     } 
     // 명확한 위쪽 방향 스와이프만 처리 (위로 향하는 제스처와 충분한 거리)
     else if (isVerticalSwipe && currentY < -swipeThreshold) {
-      // 위로 스와이프 -> 고민중 (그대로 유지)
+      // 위로 스와이프 -> 고민중 (노란색)
+      const borderColorValue = 'rgba(245, 158, 11, 0.9)'; // 노란색
+      const shadowColor = 'rgba(245, 158, 11, 0.5)';
+      
       api.start({
         y: -window.innerHeight - 200,
         filter: 'blur(8px)',
+        borderColor: borderColorValue,
+        borderWidth: '8px',
+        boxShadow: `0 0 30px 10px ${shadowColor}`,
         onRest: () => onSwipe(SwipeDirection.UP, product.id),
       });
     } 
     // 기타 모든 제스처는 리셋
     else {
-      api.start({ x: 0, y: 0, rotate: 0, filter: 'blur(0px)' });
+      api.start({ 
+        x: 0, 
+        y: 0, 
+        rotate: 0, 
+        filter: 'blur(0px)',
+        borderColor: 'rgba(255,255,255,0)',
+        borderWidth: '0px',
+        boxShadow: '0 0 0 0 rgba(0,0,0,0)'
+      });
       setShowFeedbackIcon(false);
     }
     
@@ -301,8 +400,9 @@ export function ProductCard({
     if (!showFeedbackIcon) return null;
     
     // 더 크고 강조된 아이콘 스타일 - 블러효과 없이 아이콘만 뚜렷하게
-    const baseStyles = "absolute inset-0 z-50 flex items-center justify-center";
-    const iconContainerStyles = "w-32 h-32 rounded-full flex items-center justify-center shadow-xl animate-pulse filter-none";
+    const baseStyles = "absolute inset-0 z-50 flex items-center justify-center pointer-events-none";
+    // 더 큰 컨테이너와 애니메이션 추가
+    const iconContainerStyles = "w-40 h-40 rounded-full flex items-center justify-center shadow-2xl animate-bounce-subtle filter-none backdrop-blur-sm";
     
     // 버튼 클릭 시 activeDirection 사용, 스와이프 시 현재 위치 사용
     const isButtonAction = activeDirection !== null;
@@ -314,8 +414,8 @@ export function ProductCard({
           // 건너뛰기 (왼쪽) - 수정됨
           return (
             <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
-                <X className="w-16 h-16 text-gray-500 filter-none" strokeWidth={2.5} />
+              <div className={`${iconContainerStyles} bg-gray-100/90 border-8 border-gray-400`}>
+                <X className="w-24 h-24 text-gray-600 filter-none" strokeWidth={3} />
               </div>
             </div>
           );
@@ -323,8 +423,8 @@ export function ProductCard({
           // 관심 (오른쪽) - 수정됨
           return (
             <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
-                <Heart className="w-16 h-16 text-primary fill-red-500 filter-none" />
+              <div className={`${iconContainerStyles} bg-red-50/90 border-8 border-red-500`}>
+                <Heart className="w-24 h-24 text-red-600 fill-red-500 filter-none" strokeWidth={2} />
               </div>
             </div>
           );
@@ -332,8 +432,8 @@ export function ProductCard({
           // 고민중 (위로) - 그대로 유지
           return (
             <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
-                <HelpCircle className="w-16 h-16 text-amber-500 filter-none" />
+              <div className={`${iconContainerStyles} bg-amber-50/90 border-8 border-amber-500`}>
+                <HelpCircle className="w-24 h-24 text-amber-600 filter-none" strokeWidth={2} />
               </div>
             </div>
           );
@@ -346,8 +446,8 @@ export function ProductCard({
         // 관심 (오른쪽 스와이프) - 수정됨
         return (
           <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-red-50 border-8 border-primary`}>
-              <Heart className="w-16 h-16 text-primary fill-red-500 filter-none" />
+            <div className={`${iconContainerStyles} bg-red-50/90 border-8 border-red-500`}>
+              <Heart className="w-24 h-24 text-red-600 fill-red-500 filter-none" strokeWidth={2} />
             </div>
           </div>
         );
@@ -355,8 +455,8 @@ export function ProductCard({
         // 건너뛰기 (왼쪽 스와이프) - 수정됨
         return (
           <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-gray-100 border-8 border-gray-300`}>
-              <X className="w-16 h-16 text-gray-500 filter-none" strokeWidth={2.5} />
+            <div className={`${iconContainerStyles} bg-gray-100/90 border-8 border-gray-400`}>
+              <X className="w-24 h-24 text-gray-600 filter-none" strokeWidth={3} />
             </div>
           </div>
         );
@@ -364,8 +464,8 @@ export function ProductCard({
         // 고민중 (위로 스와이프) - 그대로 유지
         return (
           <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-amber-50 border-8 border-amber-400`}>
-              <HelpCircle className="w-16 h-16 text-amber-500 filter-none" />
+            <div className={`${iconContainerStyles} bg-amber-50/90 border-8 border-amber-500`}>
+              <HelpCircle className="w-24 h-24 text-amber-600 filter-none" strokeWidth={2} />
             </div>
           </div>
         );
@@ -410,7 +510,7 @@ export function ProductCard({
       onMouseUp={handleTouchEnd}
       onMouseLeave={handleTouchEnd}
     >
-      <Card className="h-full overflow-hidden max-h-[650px] relative card-content">
+      <Card className="h-full overflow-hidden max-h-[650px] relative card-content transition-all duration-200">
         {/* 피드백 아이콘 */}
         {getFeedbackIcon()}
         
