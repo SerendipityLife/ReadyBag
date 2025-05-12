@@ -260,15 +260,39 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     const myCategoryCounts: Record<string, number> = {};
     
     if (isFilteringLists) {
-      console.log("카테고리 생성: 내 목록 필터링중, 상품 개수:", myListProducts.length);
+      // 로컬 스토리지에서 직접 데이터 가져오기
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      const storedData = localStorage.getItem(storageKey);
       
-      // 내 목록에 있는 상품들의 카테고리 카운트
-      myListProducts.forEach(product => {
-        if (product.category) {
-          myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
-          console.log(`카테고리 ${product.category}에 상품 추가 - 현재 카운트:`, myCategoryCounts[product.category]);
+      console.log("👀 필터 카테고리 생성 중 - 내 목록 모드, 스토리지 키:", storageKey);
+      
+      if (storedData) {
+        try {
+          // 로컬 스토리지에서 사용자 상품 정보 파싱
+          const localItems: UserProduct[] = JSON.parse(storedData);
+          
+          // 상품 ID 목록 추출
+          const productIds = localItems.map((item: UserProduct) => item.productId);
+          console.log("👀 내 목록 상품 ID:", productIds);
+          
+          // 전체 상품 목록에서 해당 ID에 해당하는 상품 찾기
+          if (exploreProducts.length > 0 && productIds.length > 0) {
+            const userProductDetails = exploreProducts.filter(p => productIds.includes(p.id));
+            
+            console.log("👀 찾은 상품 수:", userProductDetails.length);
+            
+            // 카테고리별 카운트 생성
+            userProductDetails.forEach(product => {
+              if (product.category) {
+                myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
+                console.log(`👀 카테고리 ${product.category}에 상품 추가 - 현재 카운트:`, myCategoryCounts[product.category]);
+              }
+            });
+          }
+        } catch (err) {
+          console.error("❌ 로컬 스토리지 데이터 파싱 오류:", err);
         }
-      });
+      }
     } else {
       // 둘러보기 탭에 있는 상품들의 카테고리 카운트
       if (categoriesSource && categoriesSource.length > 0) {
@@ -281,10 +305,14 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     }
     
     // 전체 카테고리 옵션 - 선택된 필터에 맞는 상품 수
+    const totalCount = isFilteringLists
+      ? Object.values(myCategoryCounts).reduce((sum, count) => sum + count, 0)
+      : (categoriesSource?.length || 0);
+    
     const allCategory: ProductCategory = { 
       id: "ALL", 
       name: "전체", 
-      count: isFilteringLists ? myListProducts.length : (categoriesSource?.length || 0)
+      count: totalCount
     };
     
     // 모든 가능한 카테고리 목록 생성 (제품 유무와 상관없이)
