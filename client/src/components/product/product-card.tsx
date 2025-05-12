@@ -178,19 +178,30 @@ export function ProductCard({
         shadowColor = 'rgba(156, 163, 175, 0.4)';
       }
       
-      // 테두리 두께 계산 (스와이프 거리에 비례)
-      const maxBorderWidth = 6; // 최대 테두리 두께 (px)
-      const borderWidthValue = Math.min(Math.max(absX, 0) / swipeThreshold * maxBorderWidth, maxBorderWidth);
+      // 테두리 두께 계산 (스와이프 거리에 비례) - 더 두껍게 조정
+      const maxBorderWidth = 12; // 최대 테두리 두께 (px) - 더 강조
       
-      // Update the animation
+      // 최소 테두리 두께를 보장하여 더 빨리 표시되도록 함
+      let borderWidthValue = 0;
+      if (absX > swipeThreshold * 0.2) {
+        // 최소 4px부터 시작하여 최대 12px까지
+        const ratio = Math.min((absX - (swipeThreshold * 0.2)) / (swipeThreshold * 0.8), 1);
+        borderWidthValue = 4 + (ratio * 8);
+      }
+      
+      // 테두리 투명도 조정 (더 선명하게)
+      borderColorValue = borderColorValue.replace(/[^,]+(?=\))/, '0.95');
+      shadowColor = shadowColor.replace(/[^,]+(?=\))/, '0.7');
+      
+      // Update the animation - 블러 효과 제거
       api.start({
         x: deltaX,
         y: 0, // 수평 스와이프 시 수직 이동 제한
         rotate: deltaX * 0.1, // Slight rotation based on drag distance
-        filter: `blur(${blurAmount}px)`, // 블러 효과 적용
+        filter: 'blur(0px)', // 블러 효과 제거
         borderColor: borderColorValue,
         borderWidth: `${borderWidthValue}px`,
-        boxShadow: `0 0 15px 5px ${shadowColor}`,
+        boxShadow: `0 0 25px 10px ${shadowColor}`,
       });
       
       // 수평 스와이프 시에만 스크롤 방지
@@ -200,18 +211,30 @@ export function ProductCard({
     } else if (absY > 50 && absY > absX * 2) {
       // 명확한 상하 스와이프 의도가 있을 때만 수직 이동 허용 (위로 향하는 경우만)
       if (deltaY < 0) {
-        // 위로 스와이프 (고민중) - 노란색 테두리
-        const maxBorderWidth = 6; // 최대 테두리 두께 (px)
-        const borderWidthValue = Math.min(Math.max(absY, 0) / swipeThreshold * maxBorderWidth, maxBorderWidth);
+        // 위로 스와이프 (고민중) - 노란색 테두리 (강화)
+        // 최대 테두리 두께 (px) - 더 강조
+        const maxBorderWidth = 12;
+        
+        // 최소 테두리 두께를 보장하여 더 빨리 표시되도록 함
+        let borderWidthValue = 0;
+        if (absY > swipeThreshold * 0.2) {
+          // 최소 4px부터 시작하여 최대 12px까지
+          const ratio = Math.min((absY - (swipeThreshold * 0.2)) / (swipeThreshold * 0.8), 1);
+          borderWidthValue = 4 + (ratio * 8);
+        }
+        
+        // 테두리 색상 및 그림자 (더 선명하게)
+        const borderColor = 'rgba(245, 158, 11, 0.95)'; // 노란색 (고민중) - 더 불투명하게
+        const shadowColor = 'rgba(245, 158, 11, 0.7)'; // 그림자도 더 강하게
         
         api.start({
           x: 0,
           y: deltaY,
           rotate: 0,
-          filter: `blur(${blurAmount}px)`, // 블러 효과 적용
-          borderColor: 'rgba(245, 158, 11, 0.8)', // 노란색 (고민중)
+          filter: 'blur(0px)', // 블러 효과 제거
+          borderColor: borderColor,
           borderWidth: `${borderWidthValue}px`,
-          boxShadow: '0 0 15px 5px rgba(245, 158, 11, 0.4)',
+          boxShadow: `0 0 25px 10px ${shadowColor}`,
         });
         
         // 확실한 위쪽 스와이프인 경우만 스크롤 방지
@@ -328,10 +351,10 @@ export function ProductCard({
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)', // 블러 효과 제거
           borderColor: borderColorValue,
-          borderWidth: '8px',
-          boxShadow: `0 0 30px 10px ${shadowColor}`,
+          borderWidth: '10px', // 더 굵게
+          boxShadow: `0 0 35px 15px ${shadowColor}`,
           onRest: () => onSwipe(SwipeDirection.RIGHT, product.id),
         });
       } else if (currentX < -swipeThreshold) {
@@ -342,10 +365,10 @@ export function ProductCard({
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)', // 블러 효과 제거
           borderColor: borderColorValue,
-          borderWidth: '8px',
-          boxShadow: `0 0 30px 10px ${shadowColor}`,
+          borderWidth: '10px', // 더 굵게
+          boxShadow: `0 0 35px 15px ${shadowColor}`,
           onRest: () => onSwipe(SwipeDirection.LEFT, product.id),
         });
       } else {
@@ -397,15 +420,49 @@ export function ProductCard({
   
   // 방향에 따른 피드백 아이콘 결정 - 수정된 스와이프 방향 적용
   const getFeedbackIcon = () => {
-    if (!showFeedbackIcon) return null;
+    // 스와이프 강도에 따라 아이콘 표시 여부 결정 (임계값의 50%를 넘으면 아이콘 표시)
+    const shouldShowIcon = (
+      (Math.abs(currentX) > swipeThreshold * 0.5) || 
+      (currentY < -swipeThreshold * 0.5) || 
+      activeDirection !== null
+    );
     
-    // 더 크고 강조된 아이콘 스타일 - 블러효과 없이 아이콘만 뚜렷하게
-    const baseStyles = "absolute inset-0 z-50 flex items-center justify-center pointer-events-none";
-    // 더 큰 컨테이너와 애니메이션 추가
-    const iconContainerStyles = "w-40 h-40 rounded-full flex items-center justify-center shadow-2xl animate-bounce-subtle filter-none backdrop-blur-sm";
+    if (!shouldShowIcon) return null;
+    
+    // 화면 정중앙에 위치하는 아이콘 스타일 (포인터 이벤트 무시)
+    const baseStyles = "fixed inset-0 z-[100] flex items-center justify-center pointer-events-none";
+    // 더 큰 컨테이너와 애니메이션 추가 (블러 효과 제거)
+    const iconContainerStyles = "w-48 h-48 rounded-full flex items-center justify-center shadow-2xl";
     
     // 버튼 클릭 시 activeDirection 사용, 스와이프 시 현재 위치 사용
     const isButtonAction = activeDirection !== null;
+    
+    // 아이콘 투명도 (스와이프 강도에 비례)
+    const getOpacity = () => {
+      if (isButtonAction) return 1;
+      
+      // 스와이프 거리에 비례하는 투명도 (0.5~1)
+      const xRatio = Math.abs(currentX) / swipeThreshold;
+      const yRatio = Math.abs(currentY) / swipeThreshold;
+      const ratio = Math.max(xRatio, yRatio);
+      
+      // 임계값의 50%에서 시작해서 강도에 따라 완전히 불투명하게
+      return Math.min(0.5 + ratio * 0.5, 1);
+    };
+    
+    // 아이콘 크기 (스와이프 강도에 비례)
+    const getSize = () => {
+      if (isButtonAction) return "w-28 h-28";
+      
+      // 스와이프 거리에 비례하는 아이콘 크기
+      const xRatio = Math.abs(currentX) / swipeThreshold;
+      const yRatio = Math.abs(currentY) / swipeThreshold;
+      const ratio = Math.max(xRatio, yRatio);
+      
+      // 기본 크기의 70%에서 시작해서 강도에 따라 완전한 크기로
+      const sizePercent = 70 + ratio * 30;
+      return `w-[${sizePercent}%] h-[${sizePercent}%] max-w-28 max-h-28`;
+    };
     
     if (isButtonAction) {
       // 버튼 클릭으로 인한 액션
@@ -413,27 +470,27 @@ export function ProductCard({
         case SwipeDirection.LEFT:
           // 건너뛰기 (왼쪽) - 수정됨
           return (
-            <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-gray-100/90 border-8 border-gray-400`}>
-                <X className="w-24 h-24 text-gray-600 filter-none" strokeWidth={3} />
+            <div className={baseStyles} style={{ opacity: getOpacity() }}>
+              <div className={`${iconContainerStyles} bg-gray-100/95 border-8 border-gray-500 animate-pulse-strong`}>
+                <X className="w-28 h-28 text-gray-600" strokeWidth={3} />
               </div>
             </div>
           );
         case SwipeDirection.RIGHT:
           // 관심 (오른쪽) - 수정됨
           return (
-            <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-red-50/90 border-8 border-red-500`}>
-                <Heart className="w-24 h-24 text-red-600 fill-red-500 filter-none" strokeWidth={2} />
+            <div className={baseStyles} style={{ opacity: getOpacity() }}>
+              <div className={`${iconContainerStyles} bg-red-50/95 border-8 border-red-500 animate-pulse-strong`}>
+                <Heart className="w-28 h-28 text-red-600 fill-red-500" strokeWidth={2.5} />
               </div>
             </div>
           );
         case SwipeDirection.UP:
           // 고민중 (위로) - 그대로 유지
           return (
-            <div className={baseStyles}>
-              <div className={`${iconContainerStyles} bg-amber-50/90 border-8 border-amber-500`}>
-                <HelpCircle className="w-24 h-24 text-amber-600 filter-none" strokeWidth={2} />
+            <div className={baseStyles} style={{ opacity: getOpacity() }}>
+              <div className={`${iconContainerStyles} bg-amber-50/95 border-8 border-amber-500 animate-pulse-strong`}>
+                <HelpCircle className="w-28 h-28 text-amber-600" strokeWidth={2.5} />
               </div>
             </div>
           );
@@ -442,30 +499,30 @@ export function ProductCard({
       }
     } else {
       // 스와이프로 인한 액션
-      if (currentX > swipeThreshold) {
+      if (currentX > swipeThreshold * 0.5) {
         // 관심 (오른쪽 스와이프) - 수정됨
         return (
-          <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-red-50/90 border-8 border-red-500`}>
-              <Heart className="w-24 h-24 text-red-600 fill-red-500 filter-none" strokeWidth={2} />
+          <div className={baseStyles} style={{ opacity: getOpacity() }}>
+            <div className={`${iconContainerStyles} bg-red-50/95 border-8 border-red-500`}>
+              <Heart className="w-28 h-28 text-red-600 fill-red-500" strokeWidth={2.5} />
             </div>
           </div>
         );
-      } else if (currentX < -swipeThreshold) {
+      } else if (currentX < -swipeThreshold * 0.5) {
         // 건너뛰기 (왼쪽 스와이프) - 수정됨
         return (
-          <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-gray-100/90 border-8 border-gray-400`}>
-              <X className="w-24 h-24 text-gray-600 filter-none" strokeWidth={3} />
+          <div className={baseStyles} style={{ opacity: getOpacity() }}>
+            <div className={`${iconContainerStyles} bg-gray-100/95 border-8 border-gray-500`}>
+              <X className="w-28 h-28 text-gray-600" strokeWidth={3} />
             </div>
           </div>
         );
-      } else if (currentY < -swipeThreshold) {
+      } else if (currentY < -swipeThreshold * 0.5) {
         // 고민중 (위로 스와이프) - 그대로 유지
         return (
-          <div className={baseStyles}>
-            <div className={`${iconContainerStyles} bg-amber-50/90 border-8 border-amber-500`}>
-              <HelpCircle className="w-24 h-24 text-amber-600 filter-none" strokeWidth={2} />
+          <div className={baseStyles} style={{ opacity: getOpacity() }}>
+            <div className={`${iconContainerStyles} bg-amber-50/95 border-8 border-amber-500`}>
+              <HelpCircle className="w-28 h-28 text-amber-600" strokeWidth={2.5} />
             </div>
           </div>
         );
