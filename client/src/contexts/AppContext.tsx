@@ -36,7 +36,7 @@ type AppContextType = {
   setPriceRange: (range: PriceRange) => void;
   tags: string[];
   setTags: (tags: string[]) => void;
-  applyFilters: () => void;
+  applyFilters: (scope?: View) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);

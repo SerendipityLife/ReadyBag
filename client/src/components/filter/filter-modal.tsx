@@ -281,10 +281,12 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
               
               console.log("📊 필터 모달: 찾은 상품 수:", userProductDetails.length);
               
-              // 카테고리별 카운트 생성
+              // 카테고리별 카운트 생성 (통합된 카테고리 적용)
               userProductDetails.forEach(product => {
                 if (product.category) {
-                  myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
+                  // 원래 카테고리를 통합된 카테고리로 변환
+                  const normalizedCategory = normalizeCategory(product.category);
+                  myCategoryCounts[normalizedCategory] = (myCategoryCounts[normalizedCategory] || 0) + 1;
                 }
               });
             }
@@ -296,11 +298,13 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
         console.log("📊 필터 모달: 로컬 스토리지 데이터 없음");
       }
     } else {
-      // 둘러보기 탭에 있는 상품들의 카테고리 카운트
+      // 둘러보기 탭에 있는 상품들의 카테고리 카운트 (통합된 카테고리 적용)
       if (categoriesSource && categoriesSource.length > 0) {
         categoriesSource.forEach(product => {
           if (product.category) {
-            myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
+            // 원래 카테고리를 통합된 카테고리로 변환
+            const normalizedCategory = normalizeCategory(product.category);
+            myCategoryCounts[normalizedCategory] = (myCategoryCounts[normalizedCategory] || 0) + 1;
           }
         });
       }
@@ -389,7 +393,10 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   
   // 상품 카테고리 정규화 함수 (통합된 카테고리로 매핑)
   const normalizeCategory = (category: string): string => {
-    return CATEGORY_MAPPING[category] || category;
+    // 타입 안전을 위한 더 안전한 접근법
+    return category in CATEGORY_MAPPING 
+      ? CATEGORY_MAPPING[category as keyof typeof CATEGORY_MAPPING] 
+      : category;
   };
 
   // 선택된 카테고리에 해당하는 제품 개수 계산
