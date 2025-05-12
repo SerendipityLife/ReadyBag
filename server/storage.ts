@@ -43,15 +43,16 @@ export const storage = {
       // conditions.push(inArray(products.category, filters.categories));
     }
     
-    // 가격 범위 필터링
-    if (filters?.priceRange) {
-      if (typeof filters.priceRange.min === 'number') {
-        conditions.push(gte(products.price, filters.priceRange.min));
-      }
-      if (typeof filters.priceRange.max === 'number') {
-        conditions.push(lte(products.price, filters.priceRange.max));
-      }
-    }
+    // 가격 범위 필터링 - 아예 제거하고 메모리에서 처리
+    // 이렇게 하면 카테고리 필터링과 함께 더 유연하게 처리 가능
+    // if (filters?.priceRange) {
+    //  if (typeof filters.priceRange.min === 'number') {
+    //    conditions.push(gte(products.price, filters.priceRange.min));
+    //  }
+    //  if (typeof filters.priceRange.max === 'number') {
+    //    conditions.push(lte(products.price, filters.priceRange.max));
+    //  }
+    // }
     
     // 태그 필터링: 간단한 구현 - 메모리에서 필터링 (database에서 필터링하지 않음)
     // 태그 정보는 일단 메모리에서 필터링하고 나중에 DB에서 처리하도록 개선 가능
@@ -64,6 +65,34 @@ export const storage = {
     // 필터 객체 복사 (원본 변경 방지)
     let filteredProducts = [...products_list];
     
+    // lib/constants.ts의 CATEGORY_MAPPING을 서버에서 복제하여 사용
+    // 향후 클라이언트와 서버 간 일관된 매핑을 위해 공유 파일로 리팩토링 고려
+    const CATEGORY_MAPPING: Record<string, string> = {
+      // 기본 카테고리는 그대로 유지
+      "BEAUTY": "BEAUTY",
+      "FOOD": "FOOD", 
+      "ELECTRONICS": "ELECTRONICS",
+      "FASHION": "FASHION",
+      "HEALTH": "HEALTH",
+      "TOYS": "TOYS",
+      "LIQUOR": "LIQUOR",
+      
+      // 통합 대상 카테고리
+      "IT": "ELECTRONICS", // IT → 전자제품/가전
+      "CHARACTER": "TOYS", // 캐릭터 굿즈 → 장난감
+      
+      // 삭제 대상 카테고리 (기타로 매핑)
+      "HOME": "ELECTRONICS",
+      "OTHER": "ELECTRONICS"
+    };
+    
+    // 카테고리 정규화 함수 (매핑 테이블 활용)
+    const normalizeCategory = (category: string): string => {
+      return category in CATEGORY_MAPPING 
+        ? CATEGORY_MAPPING[category] 
+        : category;
+    };
+    
     // 카테고리 필터링 (메모리에서 처리)
     if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
       console.log("카테고리 필터링 처리 - 메모리 필터링:", {
@@ -71,49 +100,68 @@ export const storage = {
         전체상품수: filteredProducts.length
       });
       
-      // lib/constants.ts의 CATEGORY_MAPPING을 서버에서 복제하여 사용
-      // 향후 클라이언트와 서버 간 일관된 매핑을 위해 공유 파일로 리팩토링 고려
-      const CATEGORY_MAPPING: Record<string, string> = {
-        // 기본 카테고리는 그대로 유지
-        "BEAUTY": "BEAUTY",
-        "FOOD": "FOOD", 
-        "ELECTRONICS": "ELECTRONICS",
-        "FASHION": "FASHION",
-        "HEALTH": "HEALTH",
-        "TOYS": "TOYS",
-        "LIQUOR": "LIQUOR",
-        
-        // 통합 대상 카테고리
-        "IT": "ELECTRONICS", // IT → 전자제품/가전
-        "CHARACTER": "TOYS", // 캐릭터 굿즈 → 장난감
-        
-        // 삭제 대상 카테고리 (기타로 매핑)
-        "HOME": "ELECTRONICS",
-        "OTHER": "ELECTRONICS"
-      };
+      // 메모리에서 양방향 카테고리 필터링 
+      // 카테고리 매핑 엔트리를 뒤집어 역매핑 테이블 생성
+      const REVERSE_MAPPING: Record<string, string[]> = {};
       
-      // 카테고리 정규화 함수 (매핑 테이블 활용)
-      const normalizeCategory = (category: string): string => {
-        return category in CATEGORY_MAPPING 
-          ? CATEGORY_MAPPING[category] 
-          : category;
-      };
+      // 역방향 매핑 테이블 생성
+      Object.entries(CATEGORY_MAPPING).forEach(([src, dest]) => {
+        if (!REVERSE_MAPPING[dest]) {
+          REVERSE_MAPPING[dest] = [];
+        }
+        REVERSE_MAPPING[dest].push(src);
+      });
+      
+      console.log("역방향 카테고리 매핑:", REVERSE_MAPPING);
+      
+      // 확장된 카테고리 목록 생성 (필터링 확장을 위한)
+      const expandedCategories = new Set<string>();
+      
+      // 요청된 각 카테고리에 대해 처리
+      filters.categories.forEach(category => {
+        // 직접 카테고리 추가
+        expandedCategories.add(category);
+        
+        // 역방향 매핑 추가 (해당 카테고리로 매핑된 모든 원본 카테고리)
+        if (REVERSE_MAPPING[category]) {
+          REVERSE_MAPPING[category].forEach(srcCategory => {
+            expandedCategories.add(srcCategory);
+          });
+        }
+      });
+      
+      console.log("확장된 카테고리 목록:", [...expandedCategories]);
       
       // 메모리에서 카테고리 필터링
       filteredProducts = filteredProducts.filter(product => {
-        // 1. 정확한 카테고리 일치 확인
-        if (filters.categories!.includes(product.category)) {
-          return true;
-        }
-        
-        // 2. 정규화된 카테고리 확인
-        const normalizedCategory = normalizeCategory(product.category);
-        return filters.categories!.includes(normalizedCategory);
+        return expandedCategories.has(product.category);
       });
       
       console.log("카테고리 필터링 결과:", {
         필터링후상품수: filteredProducts.length,
         샘플카테고리: filteredProducts.slice(0, 3).map(p => p.category)
+      });
+    }
+    
+    // 가격 범위 필터링 (메모리에서 처리)
+    if (filters?.priceRange) {
+      console.log("가격 필터링 처리 - 메모리 필터링:", {
+        최소가격: filters.priceRange.min,
+        최대가격: filters.priceRange.max,
+        필터링전상품수: filteredProducts.length
+      });
+      
+      // 메모리에서 가격 필터링
+      filteredProducts = filteredProducts.filter(product => {
+        const price = product.price;
+        return (
+          (typeof filters.priceRange!.min !== 'number' || price >= filters.priceRange!.min) &&
+          (typeof filters.priceRange!.max !== 'number' || price <= filters.priceRange!.max)
+        );
+      });
+      
+      console.log("가격 필터링 결과:", {
+        필터링후상품수: filteredProducts.length
       });
     }
     
