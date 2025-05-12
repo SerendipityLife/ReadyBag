@@ -34,38 +34,7 @@ export const storage = {
     
     // 카테고리 필터링
     if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
-      // 엄격한 카테고리 매칭 대신 OR 조건을 사용하여 더 유연하게 매칭
-      const categoryConditions = [];
-      
-      // 예: FOOD 카테고리로 필터링할 때 FOOD, SNACK, DESSERT 등을 모두 포함
-      for (const category of filters.categories) {
-        if (category === "FOOD") {
-          categoryConditions.push(eq(products.category, "FOOD"));
-          categoryConditions.push(eq(products.category, "SNACK"));
-          categoryConditions.push(eq(products.category, "DESSERT"));
-        } 
-        else if (category === "TOYS") {
-          categoryConditions.push(eq(products.category, "TOYS"));
-          categoryConditions.push(eq(products.category, "CHARACTER"));
-        } 
-        else if (category === "ELECTRONICS") {
-          categoryConditions.push(eq(products.category, "ELECTRONICS"));
-          categoryConditions.push(eq(products.category, "IT"));
-          categoryConditions.push(eq(products.category, "HOME"));
-        }
-        else {
-          categoryConditions.push(eq(products.category, category));
-        }
-      }
-      
-      console.log("필터링 카테고리:", filters.categories);
-      
-      // 모든 카테고리 조건을 OR로 연결
-      if (categoryConditions.length > 0) {
-        conditions.push(or(...categoryConditions));
-      } else {
-        conditions.push(inArray(products.category, filters.categories));
-      }
+      conditions.push(inArray(products.category, filters.categories));
     }
     
     // 가격 범위 필터링
