@@ -3,13 +3,14 @@ import { useAppContext } from "@/contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
 import { API_ROUTES, CATEGORIES, View } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
-import type { Product } from "@shared/schema";
+import type { Product, UserProduct } from "@shared/schema";
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle,
   DialogFooter,
+  DialogDescription
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -54,11 +55,34 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   const isFilteringDifferentView = (currentView === View.LISTS && scope === View.EXPLORE) || 
                                  (currentView === View.EXPLORE && scope === View.LISTS);
   
-  // 상품 데이터 가져오기
-  const { data: products = [] } = useQuery<Product[]>({
+  // 필터링 대상 결정 (내 목록 또는 둘러보기)
+  const isFilteringLists = scope === View.LISTS;
+  
+  // 각 탭에 맞는 데이터 가져오기
+  const { data: exploreProducts = [] } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
-    enabled: !!selectedCountry.id && isOpen,
+    enabled: !!selectedCountry.id && isOpen && scope === View.EXPLORE,
   });
+  
+  // 내 목록에 있는 상품들 (로컬 스토리지에서 불러오기)
+  const { data: userProducts = [] } = useQuery<UserProduct[]>({
+    queryKey: [API_ROUTES.USER_PRODUCTS, selectedCountry.id],
+    enabled: isOpen && scope === View.LISTS,
+  });
+  
+  // 사용자 제품 정보 가져오기 (내 목록에서 필터링할 때 사용)
+  const { data: listProducts = [] } = useQuery<Product[]>({
+    queryKey: ['listProducts', userProducts],
+    enabled: isOpen && userProducts.length > 0 && scope === View.LISTS,
+    queryFn: async () => {
+      // userProducts에서 productId 추출하여 관련 상품 정보 가져오기
+      const productIds = userProducts.map(up => up.productId);
+      return exploreProducts.filter(p => productIds.includes(p.id));
+    }
+  });
+  
+  // 현재 필터링할 제품 목록 결정
+  const products = isFilteringLists ? listProducts : exploreProducts;
 
   // 로컬 상태 - 필터 변경 사항을 임시로 저장
   const [localCategories, setLocalCategories] = useState<string[]>(selectedCategories);
@@ -230,9 +254,14 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       >
         <DialogHeader className="sticky top-0 z-10 bg-background pb-2 border-b">
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">
-              필터 설정
-            </DialogTitle>
+            <div>
+              <DialogTitle className="text-lg font-semibold">
+                필터 설정
+              </DialogTitle>
+              <DialogDescription className="text-xs text-gray-500 mt-1">
+                {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 탭의 상품 필터링
+              </DialogDescription>
+            </div>
             <button 
               onClick={onClose}
               className="w-8 h-8 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 focus:outline-none"
