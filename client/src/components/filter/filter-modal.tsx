@@ -468,25 +468,74 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     console.log("📊 필터 모달: 카테고리 생성 완료 - 총 상품 수:", totalCount);
   }, [isOpen, selectedCountry.id, exploreProducts, isFilteringLists]);
   
-  // 카테고리 변경 핸들러
-  const handleCategoryChange = (categoryId: string) => {
-    if (categoryId === "ALL") {
-      setLocalCategories(["ALL"]);
+  // 선택된 카테고리에 맞게 가격 범위 계산하는 함수
+  const updatePriceRangeForCategories = (categories: string[]) => {
+    // 현재 상품 리스트 결정 (내 목록 또는 둘러보기)
+    const productList = isFilteringLists ? myListProducts : exploreProducts;
+    
+    if (!productList || productList.length === 0) return;
+    
+    // 카테고리로 상품 필터링
+    let filteredProducts: Product[] = [];
+    
+    if (categories.includes("ALL")) {
+      // 전체 선택 시 모든 상품 사용
+      filteredProducts = [...productList];
     } else {
-      setLocalCategories(prev => {
-        const withoutAll = prev.filter(c => c !== "ALL");
-        const hasCategory = withoutAll.includes(categoryId);
-        
-        if (hasCategory) {
-          // 이미 선택된 카테고리라면 제거
-          const result = withoutAll.filter(c => c !== categoryId);
-          return result.length === 0 ? ["ALL"] : result;
-        } else {
-          // 선택되지 않은 카테고리라면 추가
-          return [...withoutAll, categoryId];
-        }
+      // 특정 카테고리 필터링
+      filteredProducts = productList.filter(product => {
+        // 카테고리 정규화 (매핑 적용)
+        const normalizedCategory = normalizeCategory(product.category);
+        return categories.includes(normalizedCategory);
       });
     }
+    
+    // 필터링된 상품이 있으면 가격 범위 계산
+    if (filteredProducts.length > 0) {
+      const prices = filteredProducts.map(p => p.price);
+      let min = Math.min(...prices);
+      let max = Math.max(...prices);
+      
+      // 환율 적용 (엔화 -> 원화)
+      if (selectedCountry?.currency === "JPY" && exchangeRate) {
+        min = Math.floor(min * exchangeRate);
+        max = Math.ceil(max * exchangeRate);
+      }
+      
+      // 가격 범위 업데이트
+      setLocalPriceRange({
+        min,
+        max
+      });
+    }
+  };
+  
+  // 카테고리 변경 핸들러
+  const handleCategoryChange = (categoryId: string) => {
+    let newCategories: string[];
+    
+    if (categoryId === "ALL") {
+      newCategories = ["ALL"];
+    } else {
+      // 현재 선택된 카테고리에서 'ALL' 제외
+      const withoutAll = localCategories.filter(c => c !== "ALL");
+      const hasCategory = withoutAll.includes(categoryId);
+      
+      if (hasCategory) {
+        // 이미 선택된 카테고리라면 제거
+        const result = withoutAll.filter(c => c !== categoryId);
+        newCategories = result.length === 0 ? ["ALL"] : result;
+      } else {
+        // 선택되지 않은 카테고리라면 추가
+        newCategories = [...withoutAll, categoryId];
+      }
+    }
+    
+    // 카테고리 상태 업데이트
+    setLocalCategories(newCategories);
+    
+    // 선택된 카테고리에 맞게 가격 범위 업데이트
+    updatePriceRangeForCategories(newCategories);
   };
   
   // 태그 추가 핸들러
@@ -502,8 +551,36 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     setLocalTags(prev => prev.filter(t => t !== tag));
   };
   
+  // 필터 적용 전 데이터 확인
+  const validateBeforeApply = () => {
+    // 현재 필터링할 상품 목록 (내 목록 또는 둘러보기)
+    const currentProducts = isFilteringLists ? myListProducts : exploreProducts;
+    
+    // 선택된 카테고리에 맞는 상품 수 확인
+    if (!localCategories.includes("ALL")) {
+      const filteredProducts = currentProducts.filter(product => {
+        // 카테고리 정규화하여 비교
+        const normalizedCategory = normalizeCategory(product.category);
+        return localCategories.includes(normalizedCategory);
+      });
+      
+      console.log("필터 적용 전 확인:", {
+        선택카테고리: localCategories,
+        필터링된상품수: filteredProducts.length,
+        상품예시: filteredProducts.slice(0, 3).map(p => ({ id: p.id, 카테고리: p.category, 정규화: normalizeCategory(p.category) }))
+      });
+    }
+    
+    return true;
+  };
+
   // 필터 적용 핸들러
   const handleApplyFilters = () => {
+    // 필터 데이터 검증
+    if (!validateBeforeApply()) {
+      return;
+    }
+    
     // 카테고리 필터 업데이트
     setSelectedCategories(localCategories);
     
