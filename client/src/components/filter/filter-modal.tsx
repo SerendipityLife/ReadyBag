@@ -105,8 +105,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       // 태그 초기화
       setLocalTags(contextTags || []);
       
-      // 카테고리 목록 생성
-      generateCategoryList();
+      // 카테고리 목록은 이미 별도의 useEffect에서 생성됨 (147-189라인)
     }
   }, [isOpen, scope, selectedCategories, contextPriceRange, contextTags]);
   
