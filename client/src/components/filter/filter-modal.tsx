@@ -48,7 +48,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     tags: contextTags,
     setTags: setContextTags,
     applyFilters: applyContextFilters,
-    currentView
+    currentView,
+    exchangeRate
   } = useAppContext();
   
   // 현재 필터 범위가 lists 페이지이면서 scope가 EXPLORE인 경우, 또는 그 반대인 경우 다른 필터 설정을 사용
@@ -213,15 +214,31 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
           (contextPriceRange.min !== 0 || contextPriceRange.max !== 50000)) {
         setLocalPriceRange(contextPriceRange);
       } else if (products && products.length > 0) {
-        const prices = products.map(p => p.price);
-        const max = Math.max(...prices);
-        const min = Math.min(...prices);
-        setMaxPrice(max);
-        setMinPrice(min);
-        setLocalPriceRange({
-          min: min,
-          max: max
-        });
+        // 환율 정보가 있으면 일본 엔화를 한국 원화로 변환
+        if (exchangeRate && exchangeRate > 0) {
+          console.log("환율 정보를 사용하여 가격 변환:", exchangeRate);
+          const convertedPrices = products.map(p => Math.round(p.price * exchangeRate));
+          const max = Math.max(...convertedPrices);
+          const min = Math.min(...convertedPrices);
+          setMaxPrice(max);
+          setMinPrice(min);
+          setLocalPriceRange({
+            min: min,
+            max: max
+          });
+        } else {
+          // 환율 정보가 없는 경우 원래 가격 사용 (엔화)
+          console.log("환율 정보가 없어 원래 가격 사용");
+          const prices = products.map(p => p.price);
+          const max = Math.max(...prices);
+          const min = Math.min(...prices);
+          setMaxPrice(max);
+          setMinPrice(min);
+          setLocalPriceRange({
+            min: min,
+            max: max
+          });
+        }
       }
       
       // 태그 초기화
@@ -229,7 +246,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
         setLocalTags([...contextTags]);
       }
     }
-  }, [isOpen, products, selectedCategories, contextPriceRange, contextTags]);
+  }, [isOpen, products, selectedCategories, contextPriceRange, contextTags, exchangeRate]);
   
   // 카테고리 목록 생성 (isOpen이 변경될 때만 실행)
   useEffect(() => {
@@ -431,10 +448,19 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     
     // 가격 범위 기본값으로 초기화 (상품의 min/max 가격 범위)
     if (products && products.length > 0) {
-      const prices = products.map(p => p.price);
-      const max = Math.max(...prices);
-      const min = Math.min(...prices);
-      setLocalPriceRange({ min, max });
+      // 환율 정보가 있으면 일본 엔화를 한국 원화로 변환
+      if (exchangeRate && exchangeRate > 0) {
+        const convertedPrices = products.map(p => Math.round(p.price * exchangeRate));
+        const max = Math.max(...convertedPrices);
+        const min = Math.min(...convertedPrices);
+        setLocalPriceRange({ min, max });
+      } else {
+        // 환율 정보가 없는 경우 원래 가격 사용 (엔화)
+        const prices = products.map(p => p.price);
+        const max = Math.max(...prices);
+        const min = Math.min(...prices);
+        setLocalPriceRange({ min, max });
+      }
     } else {
       setLocalPriceRange({ min: 0, max: 50000 });
     }
