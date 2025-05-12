@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
-import { API_ROUTES, CATEGORIES, View } from "@/lib/constants";
+import { API_ROUTES, CATEGORIES, View, ProductStatus } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
 import { 
@@ -68,53 +68,104 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   const [userProducts, setUserProducts] = useState<UserProduct[]>([]);
   const [myListProducts, setMyListProducts] = useState<Product[]>([]);
   
-  // 로컬 스토리지에서 직접 사용자 상품 정보 로드
+  // 로컬 스토리지 데이터를 가져오는 함수
+  const getLocalStorageData = useCallback(() => {
+    if (!selectedCountry?.id) return [];
+    
+    try {
+      const storageKey = `userProducts_${selectedCountry.id}`;
+      const storedData = localStorage.getItem(storageKey);
+      
+      if (!storedData) {
+        console.log("⚠️ 로컬 스토리지에 데이터가 없습니다:", storageKey);
+        return [];
+      }
+      
+      const localData = JSON.parse(storedData);
+      
+      if (!Array.isArray(localData)) {
+        console.log("⚠️ 로컬 스토리지 데이터가 배열이 아닙니다:", typeof localData);
+        return [];
+      }
+      
+      return localData;
+    } catch (e) {
+      console.error("⚠️ 로컬 스토리지 데이터 파싱 오류:", e);
+      return [];
+    }
+  }, [selectedCountry]);
+  
+  // 로컬 스토리지 이벤트 리스너
   useEffect(() => {
-    if (isOpen && scope === View.LISTS) {
-      try {
-        // 올바른 스토리지 키 사용
-        const storageKey = `userProducts_${selectedCountry.id}`;
-        const storedData = localStorage.getItem(storageKey) || '[]';
-        
-        // 로컬 스토리지에서 사용자 상품 정보 파싱
-        const items: UserProduct[] = JSON.parse(storedData);
-        
-        // 상태별 필터링 (이미 lists.tsx에서 상태별로 필터링하므로 여기서는 모든 상품 사용)
-        const interestedProducts = items.filter(item => item.status === ProductStatus.INTERESTED);
-        const maybeProducts = items.filter(item => item.status === ProductStatus.MAYBE);
-        
-        console.log("⭐ 내 목록 상품 정보 (스토리지 키:", storageKey, "):", {
-          관심상품: interestedProducts.length,
-          고민중인상품: maybeProducts.length,
-          전체: items.length,
-          원본데이터: items
-        });
-        
-        // 유저 상품 목록 설정
+    const handleStorageChange = () => {
+      if (isOpen && scope === View.LISTS) {
+        // 로컬 스토리지 변경 시 데이터 다시 로드
+        const items = getLocalStorageData();
         setUserProducts(items);
         
-        // 해당 상품 ID들로 전체 상품 목록에서 필터링
+        // 제품 목록 필터링
         if (items.length > 0 && exploreProducts.length > 0) {
-          const productIds = items.map(item => item.productId);
+          const productIds = items.map((item: UserProduct) => item.productId);
           const filteredProducts = exploreProducts.filter(p => productIds.includes(p.id));
-          
-          console.log("⭐ 내 목록에서 찾은 상품:", {
-            요청된상품ID: productIds,
-            찾은상품수: filteredProducts.length,
-            상품정보: filteredProducts.map(p => ({ id: p.id, name: p.name, category: p.category }))
-          });
-          
           setMyListProducts(filteredProducts);
         } else {
           setMyListProducts([]);
         }
-      } catch (error) {
-        console.error("⚠️ 로컬 스토리지에서 상품 정보를 불러오는데 실패했습니다:", error);
-        setUserProducts([]);
+      }
+    };
+    
+    // 모달이 열릴 때 초기 데이터 로드
+    if (isOpen && scope === View.LISTS) {
+      handleStorageChange();
+    }
+    
+    // 이벤트 리스너 등록
+    window.addEventListener('localStorageChange', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('localStorageChange', handleStorageChange);
+    };
+  }, [isOpen, scope, selectedCountry, exploreProducts, getLocalStorageData]);
+  
+  // 모달이 열릴 때 데이터 로드
+  useEffect(() => {
+    if (isOpen && scope === View.LISTS) {
+      // 로컬 스토리지에서 데이터 가져오기
+      const items = getLocalStorageData();
+      
+      // 상태별 필터링 (관련 통계용)
+      const interestedItems = items.filter((item: UserProduct) => item.status === ProductStatus.INTERESTED);
+      const maybeItems = items.filter((item: UserProduct) => item.status === ProductStatus.MAYBE);
+      
+      console.log("✅ 내 목록 정보:", {
+        총상품수: items.length,
+        관심상품: interestedItems.length,
+        고민중: maybeItems.length
+      });
+      
+      // 사용자 상품 목록 설정
+      setUserProducts(items);
+      
+      // 상품 필터링
+      if (items.length > 0 && exploreProducts.length > 0) {
+        // 사용자 상품 ID 목록 추출
+        const productIds = items.map((item: UserProduct) => item.productId);
+        
+        // 전체 상품에서 사용자 상품만 필터링
+        const filteredProducts = exploreProducts.filter(p => productIds.includes(p.id));
+        
+        console.log("✅ 내 목록 필터링 결과:", {
+          요청ID수: productIds.length,
+          찾은상품수: filteredProducts.length,
+          카테고리: filteredProducts.map(p => p.category)
+        });
+        
+        setMyListProducts(filteredProducts);
+      } else {
         setMyListProducts([]);
       }
     }
-  }, [isOpen, scope, selectedCountry.id, exploreProducts]);
+  }, [isOpen, scope, exploreProducts, getLocalStorageData]);
   
   // 현재 필터링할 제품 목록 결정 - 결과 표시용
   const products = isFilteringLists ? myListProducts : exploreProducts;
