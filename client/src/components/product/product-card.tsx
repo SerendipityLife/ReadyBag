@@ -270,12 +270,12 @@ export function ProductCard({
         break;
     }
     
-    // 즉각적인 테두리 효과 적용
+    // 즉각적인 테두리 효과 적용 (더 두껍고 선명하게)
     api.start({
-      filter: 'blur(3px)',
-      borderColor: borderColorValue,
-      borderWidth: '6px',
-      boxShadow: `0 0 20px 8px ${shadowColor}`,
+      filter: 'blur(0px)', // 블러 효과 제거
+      borderColor: borderColorValue.replace(/[^,]+(?=\))/, '0.95'), // 더 선명하게
+      borderWidth: '10px', // 더 두껍게
+      boxShadow: `0 0 25px 15px ${shadowColor.replace(/[^,]+(?=\))/, '0.7')}`, // 그림자 강화
     });
     
     // 방향에 따른 애니메이션 적용
@@ -393,10 +393,10 @@ export function ProductCard({
       
       api.start({
         y: -window.innerHeight - 200,
-        filter: 'blur(8px)',
+        filter: 'blur(0px)', // 블러 효과 제거
         borderColor: borderColorValue,
-        borderWidth: '8px',
-        boxShadow: `0 0 30px 10px ${shadowColor}`,
+        borderWidth: '10px', // 더 굵게
+        boxShadow: `0 0 35px 15px ${shadowColor}`,
         onRest: () => onSwipe(SwipeDirection.UP, product.id),
       });
     } 
