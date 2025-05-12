@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
-import { API_ROUTES, CATEGORIES, View, ProductStatus } from "@/lib/constants";
+import { API_ROUTES, CATEGORIES, CATEGORY_MAPPING, View, ProductStatus } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
 import { 
@@ -235,22 +235,21 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   useEffect(() => {
     if (!isOpen) return; // 모달이 열려있을 때만 실행
   
-    // 카테고리 정보 설정
+    // 카테고리 정보 설정 (통합됨)
     const categoryNames: Record<string, string> = {
-      "IT": "IT 제품",
       "BEAUTY": "화장품/뷰티",
       "LIQUOR": "주류",
       "HEALTH": "의약품/건강",
       "FOOD": "식품/간식",
-      "CHARACTER": "캐릭터 굿즈",
       "FASHION": "의류/잡화",
-      "ELECTRONICS": "전자제품/가전",
+      "ELECTRONICS": "전자제품/가전", // IT 제품 포함됨
+      "TOYS": "장난감", // 캐릭터 굿즈 포함됨
     };
     
-    // 모든 가능한 카테고리 추출 (전체 상품 기준)
+    // 모든 가능한 카테고리 추출 (통합된 카테고리만 표시)
     const allCategoriesSet = new Set<string>();
     
-    // CATEGORIES에서 모든 카테고리 ID 추출 (상품에 관계없이 모든 카테고리 보여주기 위함)
+    // CATEGORIES에서 모든 카테고리 ID 추출 (상품에 관계없이 보여줄 카테고리)
     Object.keys(CATEGORIES).forEach(categoryId => {
       allCategoriesSet.add(categoryId);
     });
@@ -388,6 +387,11 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     onClose();
   };
   
+  // 상품 카테고리 정규화 함수 (통합된 카테고리로 매핑)
+  const normalizeCategory = (category: string): string => {
+    return CATEGORY_MAPPING[category] || category;
+  };
+
   // 선택된 카테고리에 해당하는 제품 개수 계산
   const getFilteredProductCount = (): number => {
     // 현재 필터링 대상 제품 목록 결정 - 내 목록 또는 둘러보기
@@ -403,8 +407,10 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     
     // 선택된 모든 카테고리에 대해 제품 수 합산
     localCategories.forEach(categoryId => {
-      // 해당 카테고리에 속한 제품 필터링
-      const filteredProducts = targetProducts.filter(product => product.category === categoryId);
+      // 해당 카테고리에 속한 제품 필터링 (원래 카테고리와 매핑된 카테고리 모두 고려)
+      const filteredProducts = targetProducts.filter(product => 
+        normalizeCategory(product.category) === categoryId || product.category === categoryId
+      );
       count += filteredProducts.length;
     });
     

@@ -18,15 +18,31 @@ export const DEFAULT_COUNTRY = COUNTRIES[0];
 export const CATEGORIES = {
   BEAUTY: "💄",
   FOOD: "🍣",
-  ELECTRONICS: "📱",
+  ELECTRONICS: "📱", // 전자제품/가전 (통합됨: IT)
   FASHION: "👗",
   HEALTH: "💊",
-  TOYS: "🧸",
-  HOME: "🏠",
-  OTHER: "🛍️",
-  IT: "📱",
-  CHARACTER: "🧸",
+  TOYS: "🧸", // 장난감 (통합됨: CHARACTER)
   LIQUOR: "🍷"
+};
+
+// 카테고리 매핑 (통합을 위한 참조 테이블)
+export const CATEGORY_MAPPING = {
+  // 기본 카테고리는 그대로 유지
+  BEAUTY: "BEAUTY",
+  FOOD: "FOOD",
+  ELECTRONICS: "ELECTRONICS",
+  FASHION: "FASHION",
+  HEALTH: "HEALTH",
+  TOYS: "TOYS",
+  LIQUOR: "LIQUOR",
+  
+  // 통합 대상 카테고리
+  IT: "ELECTRONICS", // IT → 전자제품/가전
+  CHARACTER: "TOYS", // 캐릭터 굿즈 → 장난감
+  
+  // 삭제 대상 카테고리 (기타로 매핑)
+  HOME: "ELECTRONICS",
+  OTHER: "ELECTRONICS"
 };
 
 // API Routes
