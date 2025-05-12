@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductListItem } from "@/components/product/product-list-item";
 import { useAppContext } from "@/contexts/AppContext";
-import { API_ROUTES, ProductStatus } from "@/lib/constants";
+import { API_ROUTES, ProductStatus, CATEGORY_MAPPING } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle } from "lucide-react";
@@ -382,8 +382,32 @@ export function Lists() {
     }
   };
 
+  // 상품 카테고리 정규화 함수 (통합된 카테고리로 매핑)
+  const normalizeCategory = (category: string): string => {
+    if (!category) return "";
+    return category in CATEGORY_MAPPING 
+      ? CATEGORY_MAPPING[category as keyof typeof CATEGORY_MAPPING]
+      : category;
+  };
+
   // 카테고리 필터링 상태 확인
   const isAllCategoriesSelected = selectedCategories.includes("ALL") || selectedCategories.length === 0;
+
+  // 상품이 선택된 카테고리에 포함되는지 확인하는 함수
+  const isProductInSelectedCategories = (product: any): boolean => {
+    if (!product || !product.category) return false;
+    
+    // 상품의 원래 카테고리와 정규화된 카테고리 모두 확인
+    const originalCategory = product.category;
+    const normalizedCategory = normalizeCategory(originalCategory);
+    
+    // 디버깅 정보
+    console.log(`상품 카테고리 확인: ${originalCategory} → ${normalizedCategory}, 선택됨: ${selectedCategories.includes(originalCategory) || selectedCategories.includes(normalizedCategory)}`);
+    
+    // 원래 카테고리나 정규화된 카테고리가 선택된 카테고리에 포함되면 true
+    return selectedCategories.includes(originalCategory) || 
+           selectedCategories.includes(normalizedCategory);
+  };
 
   // 카테고리 필터링과 상태 필터링을 함께 적용
   const getProductsByStatus = (status: ProductStatus) => {
@@ -395,12 +419,19 @@ export function Lists() {
       return filteredByStatus;
     }
     
+    // 디버깅 정보
+    console.log(`필터링 전 ${status} 상품 수:`, filteredByStatus.length);
+    console.log("선택된 카테고리:", selectedCategories);
+    
     // 선택된 카테고리에 따라 필터링
-    return filteredByStatus.filter(userProduct => {
-      // 상품의 카테고리가 선택된 카테고리 중 하나에 포함되는지 확인
-      return userProduct.product && userProduct.product.category && 
-             selectedCategories.includes(userProduct.product.category);
-    });
+    const result = filteredByStatus.filter(userProduct => 
+      isProductInSelectedCategories(userProduct.product)
+    );
+    
+    // 디버깅 정보
+    console.log(`필터링 후 ${status} 상품 수:`, result.length);
+    
+    return result;
   };
   
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
