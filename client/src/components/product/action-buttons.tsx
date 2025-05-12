@@ -36,20 +36,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
     // 버튼 활성화 상태 설정
     setActiveButton(direction);
     
-    // 부드러운 아이콘 애니메이션 및 카드 효과 적용
-    
-    // 1. 먼저 작은 아이콘으로 시작하여 점점 커지는 아이콘 애니메이션 시작
-    // @ts-ignore
-    if (window.startIconAnimation && typeof window.startIconAnimation === 'function') {
-      try {
-        // @ts-ignore
-        window.startIconAnimation(direction);
-      } catch (e) {
-        console.error('Icon animation failed', e);
-      }
-    }
-    
-    // 2. 카드 액션 트리거 (전역 함수를 통해 현재 카드에 효과 적용)
+    // 카드 액션 트리거 - 아이콘 애니메이션과 카드 효과를 동시에 적용
     // @ts-ignore
     if (window.triggerCardAction && typeof window.triggerCardAction === 'function') {
       try {
@@ -60,8 +47,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       }
     }
     
-    // 애니메이션 지연 시간 (ms)
-    const animationDelay = 500;
+    // 애니메이션 지연 시간 (ms) - 아이콘 애니메이션이 보이도록 충분한 시간 제공
+    const animationDelay = 650;
     
     // 애니메이션 후 액션 실행
     setTimeout(() => {

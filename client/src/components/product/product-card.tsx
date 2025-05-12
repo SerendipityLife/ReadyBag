@@ -285,9 +285,31 @@ export function ProductCard({
   
   // 외부에서 액션 트리거 함수 (버튼 클릭에 사용)
   const triggerAction = (direction: SwipeDirection) => {
+    if (isProcessing || !isTopCard) return;
+  
     // 액션 방향 설정
     setActiveDirection(direction);
     setShowFeedbackIcon(true);
+    setButtonShake(true); // 버튼 진동 효과 활성화
+    
+    // 버튼 클릭 시 아이콘 애니메이션 시작
+    setAnimatingIcon(true);
+    setIconAnimation({
+      direction: direction,
+      opacity: 0,
+      size: 0
+    });
+    
+    // 단계별로 아이콘이 커지도록 애니메이션 설정
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.3, size: 40 })), 50);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.6, size: 70 })), 150);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.9, size: 100 })), 250);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 120 })), 350);
+    
+    // 일정 시간 후 아이콘 애니메이션 종료
+    setTimeout(() => {
+      setAnimatingIcon(false);
+    }, 1000);
     
     // 방향에 따른 테두리 색상 설정
     let borderColorValue = 'rgba(255,255,255,0)';
