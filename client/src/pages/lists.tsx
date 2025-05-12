@@ -20,7 +20,7 @@ import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
   const queryClient = useQueryClient();
-  const { selectedCountry, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
+  const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user; // 비회원 여부 확인
   const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
@@ -382,9 +382,25 @@ export function Lists() {
     }
   };
 
-  // Filter products by status
+  // 카테고리 필터링 상태 확인
+  const isAllCategoriesSelected = selectedCategories.includes("ALL") || selectedCategories.length === 0;
+
+  // 카테고리 필터링과 상태 필터링을 함께 적용
   const getProductsByStatus = (status: ProductStatus) => {
-    return userProducts.filter((up) => up.status === status) as ExtendedUserProduct[];
+    // 먼저 상태로 필터링
+    const filteredByStatus = userProducts.filter((up) => up.status === status) as ExtendedUserProduct[];
+    
+    // 모든 카테고리가 선택되었으면 추가 필터링 없이 반환
+    if (isAllCategoriesSelected) {
+      return filteredByStatus;
+    }
+    
+    // 선택된 카테고리에 따라 필터링
+    return filteredByStatus.filter(userProduct => {
+      // 상품의 카테고리가 선택된 카테고리 중 하나에 포함되는지 확인
+      return userProduct.product && userProduct.product.category && 
+             selectedCategories.includes(userProduct.product.category);
+    });
   };
   
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
