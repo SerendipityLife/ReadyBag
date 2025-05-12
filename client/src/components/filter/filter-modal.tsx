@@ -72,31 +72,33 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   useEffect(() => {
     if (isOpen && scope === View.LISTS) {
       try {
-        // 관심 상품
-        const interestedItems = localStorage.getItem(`${selectedCountry.id}_interested`) || '[]';
-        // 고민중인 상품
-        const maybeItems = localStorage.getItem(`${selectedCountry.id}_maybe`) || '[]';
+        // 올바른 스토리지 키 사용
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey) || '[]';
         
-        // 모든 사용자 상품 합치기 (관심 + 고민중)
-        const interestedProducts: UserProduct[] = JSON.parse(interestedItems);
-        const maybeProducts: UserProduct[] = JSON.parse(maybeItems);
+        // 로컬 스토리지에서 사용자 상품 정보 파싱
+        const items: UserProduct[] = JSON.parse(storedData);
         
-        const allUserProducts = [...interestedProducts, ...maybeProducts];
+        // 상태별 필터링 (이미 lists.tsx에서 상태별로 필터링하므로 여기서는 모든 상품 사용)
+        const interestedProducts = items.filter(item => item.status === ProductStatus.INTERESTED);
+        const maybeProducts = items.filter(item => item.status === ProductStatus.MAYBE);
         
-        console.log("내 목록 상품 정보:", {
+        console.log("⭐ 내 목록 상품 정보 (스토리지 키:", storageKey, "):", {
           관심상품: interestedProducts.length,
           고민중인상품: maybeProducts.length,
-          전체: allUserProducts.length
+          전체: items.length,
+          원본데이터: items
         });
         
-        setUserProducts(allUserProducts);
+        // 유저 상품 목록 설정
+        setUserProducts(items);
         
         // 해당 상품 ID들로 전체 상품 목록에서 필터링
-        if (allUserProducts.length > 0 && exploreProducts.length > 0) {
-          const productIds = allUserProducts.map(item => item.productId);
+        if (items.length > 0 && exploreProducts.length > 0) {
+          const productIds = items.map(item => item.productId);
           const filteredProducts = exploreProducts.filter(p => productIds.includes(p.id));
           
-          console.log("내 목록에서 찾은 상품:", {
+          console.log("⭐ 내 목록에서 찾은 상품:", {
             요청된상품ID: productIds,
             찾은상품수: filteredProducts.length,
             상품정보: filteredProducts.map(p => ({ id: p.id, name: p.name, category: p.category }))
@@ -107,7 +109,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
           setMyListProducts([]);
         }
       } catch (error) {
-        console.error("로컬 스토리지에서 상품 정보를 불러오는데 실패했습니다:", error);
+        console.error("⚠️ 로컬 스토리지에서 상품 정보를 불러오는데 실패했습니다:", error);
         setUserProducts([]);
         setMyListProducts([]);
       }
