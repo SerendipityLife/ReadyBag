@@ -420,116 +420,167 @@ export function ProductCard({
   
   // 방향에 따른 피드백 아이콘 결정 - 수정된 스와이프 방향 적용
   const getFeedbackIcon = () => {
-    // 스와이프 강도에 따라 아이콘 표시 여부 결정 (임계값의 50%를 넘으면 아이콘 표시)
-    const shouldShowIcon = (
-      (Math.abs(currentX) > swipeThreshold * 0.5) || 
-      (currentY < -swipeThreshold * 0.5) || 
-      activeDirection !== null
+    // 스와이프 강도에 따라 아이콘 크기와 투명도 결정
+    // 임계값의 20%부터 아이콘이 조금씩 나타나기 시작
+    const minThreshold = swipeThreshold * 0.2;
+    const swipeIntensity = Math.max(
+      Math.abs(currentX) > minThreshold ? (Math.abs(currentX) - minThreshold) / (swipeThreshold - minThreshold) : 0,
+      currentY < -minThreshold ? (Math.abs(currentY) - minThreshold) / (swipeThreshold - minThreshold) : 0
     );
     
+    const shouldShowIcon = swipeIntensity > 0 || activeDirection !== null;
     if (!shouldShowIcon) return null;
     
     // 화면 정중앙에 위치하는 아이콘 스타일 (포인터 이벤트 무시)
-    const baseStyles = "fixed inset-0 z-[100] flex items-center justify-center pointer-events-none";
-    // 더 큰 컨테이너와 애니메이션 추가 (블러 효과 제거)
-    const iconContainerStyles = "w-48 h-48 rounded-full flex items-center justify-center shadow-2xl";
+    const baseStyles = "fixed inset-0 z-[100] flex items-center justify-center pointer-events-none transition-all duration-200";
     
     // 버튼 클릭 시 activeDirection 사용, 스와이프 시 현재 위치 사용
     const isButtonAction = activeDirection !== null;
     
-    // 아이콘 투명도 (스와이프 강도에 비례)
+    // 아이콘 투명도 및 크기 계산 (스와이프 강도에 비례)
     const getOpacity = () => {
+      // 버튼 클릭인 경우 완전 불투명
       if (isButtonAction) return 1;
       
-      // 스와이프 거리에 비례하는 투명도 (0.5~1)
-      const xRatio = Math.abs(currentX) / swipeThreshold;
-      const yRatio = Math.abs(currentY) / swipeThreshold;
-      const ratio = Math.max(xRatio, yRatio);
-      
-      // 임계값의 50%에서 시작해서 강도에 따라 완전히 불투명하게
-      return Math.min(0.5 + ratio * 0.5, 1);
+      // 스와이프 강도에 비례 (0.2~1)
+      return Math.min(0.2 + swipeIntensity * 0.8, 1);
     };
     
-    // 아이콘 크기 (스와이프 강도에 비례)
+    // 아이콘 크기 계산 (스와이프 강도에 비례) - 실제 스타일에 적용될 크기
     const getSize = () => {
-      if (isButtonAction) return "w-28 h-28";
+      // 최소 크기에서 시작해서 강도에 따라 증가
+      const minSize = 32; // 최소 크기 (px)
+      const maxSize = 120; // 최대 크기 (px)
       
-      // 스와이프 거리에 비례하는 아이콘 크기
-      const xRatio = Math.abs(currentX) / swipeThreshold;
-      const yRatio = Math.abs(currentY) / swipeThreshold;
-      const ratio = Math.max(xRatio, yRatio);
+      // 버튼 클릭이거나 최대 임계값을 넘으면 최대 크기
+      if (isButtonAction || swipeIntensity >= 1) {
+        return maxSize;
+      }
       
-      // 기본 크기의 70%에서 시작해서 강도에 따라 완전한 크기로
-      const sizePercent = 70 + ratio * 30;
-      return `w-[${sizePercent}%] h-[${sizePercent}%] max-w-28 max-h-28`;
+      // 스와이프 강도에 비례하여 크기 결정 (부드러운 전환)
+      return minSize + (maxSize - minSize) * swipeIntensity;
     };
     
-    if (isButtonAction) {
-      // 버튼 클릭으로 인한 액션
-      switch(activeDirection) {
-        case SwipeDirection.LEFT:
-          // 건너뛰기 (왼쪽) - 수정됨
-          return (
-            <div className={baseStyles} style={{ opacity: getOpacity() }}>
-              <div className={`${iconContainerStyles} bg-gray-100/95 border-8 border-gray-500 animate-pulse-strong`}>
-                <X className="w-28 h-28 text-gray-600" strokeWidth={3} />
-              </div>
-            </div>
-          );
-        case SwipeDirection.RIGHT:
-          // 관심 (오른쪽) - 수정됨
-          return (
-            <div className={baseStyles} style={{ opacity: getOpacity() }}>
-              <div className={`${iconContainerStyles} bg-red-50/95 border-8 border-red-500 animate-pulse-strong`}>
-                <Heart className="w-28 h-28 text-red-600 fill-red-500" strokeWidth={2.5} />
-              </div>
-            </div>
-          );
-        case SwipeDirection.UP:
-          // 고민중 (위로) - 그대로 유지
-          return (
-            <div className={baseStyles} style={{ opacity: getOpacity() }}>
-              <div className={`${iconContainerStyles} bg-amber-50/95 border-8 border-amber-500 animate-pulse-strong`}>
-                <HelpCircle className="w-28 h-28 text-amber-600" strokeWidth={2.5} />
-              </div>
-            </div>
-          );
-        default:
-          return null;
-      }
-    } else {
-      // 스와이프로 인한 액션
-      if (currentX > swipeThreshold * 0.5) {
-        // 관심 (오른쪽 스와이프) - 수정됨
-        return (
-          <div className={baseStyles} style={{ opacity: getOpacity() }}>
-            <div className={`${iconContainerStyles} bg-red-50/95 border-8 border-red-500`}>
-              <Heart className="w-28 h-28 text-red-600 fill-red-500" strokeWidth={2.5} />
-            </div>
-          </div>
-        );
-      } else if (currentX < -swipeThreshold * 0.5) {
-        // 건너뛰기 (왼쪽 스와이프) - 수정됨
-        return (
-          <div className={baseStyles} style={{ opacity: getOpacity() }}>
-            <div className={`${iconContainerStyles} bg-gray-100/95 border-8 border-gray-500`}>
-              <X className="w-28 h-28 text-gray-600" strokeWidth={3} />
-            </div>
-          </div>
-        );
-      } else if (currentY < -swipeThreshold * 0.5) {
-        // 고민중 (위로 스와이프) - 그대로 유지
-        return (
-          <div className={baseStyles} style={{ opacity: getOpacity() }}>
-            <div className={`${iconContainerStyles} bg-amber-50/95 border-8 border-amber-500`}>
-              <HelpCircle className="w-28 h-28 text-amber-600" strokeWidth={2.5} />
-            </div>
-          </div>
-        );
+    // 컨테이너 크기 계산 (아이콘 크기보다 약간 더 큼)
+    const getContainerSize = () => {
+      const iconSize = getSize();
+      return iconSize * 1.5; // 아이콘보다 50% 더 큰 컨테이너
+    };
+    
+    // 아이콘 컨테이너 크기와 아이콘 크기를 동적으로 계산
+    const containerSize = getContainerSize();
+    const iconSize = getSize();
+    
+    // 현재 활성화된 방향 확인
+    let direction = activeDirection;
+    if (!direction) {
+      // 스와이프 방향에 따라 활성화 방향 결정
+      if (currentX > minThreshold) {
+        direction = SwipeDirection.RIGHT;
+      } else if (currentX < -minThreshold) {
+        direction = SwipeDirection.LEFT;
+      } else if (currentY < -minThreshold) {
+        direction = SwipeDirection.UP;
       }
     }
     
-    return null;
+    // 방향에 따른 아이콘 스타일 결정
+    let iconElement = null;
+    let containerStyle = {};
+    
+    switch (direction) {
+      case SwipeDirection.LEFT:
+        // 건너뛰기 (왼쪽) - 회색
+        containerStyle = {
+          width: `${containerSize}px`,
+          height: `${containerSize}px`,
+          backgroundColor: 'rgba(243, 244, 246, 0.9)',
+          borderRadius: '50%',
+          border: '8px solid rgba(156, 163, 175, 0.95)',
+          boxShadow: '0 0 30px 10px rgba(156, 163, 175, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease-in-out'
+        };
+        iconElement = (
+          <X
+            width={iconSize}
+            height={iconSize}
+            className="text-gray-600 transition-all duration-200"
+            strokeWidth={3}
+          />
+        );
+        break;
+        
+      case SwipeDirection.RIGHT:
+        // 관심 (오른쪽) - 빨간색
+        containerStyle = {
+          width: `${containerSize}px`,
+          height: `${containerSize}px`,
+          backgroundColor: 'rgba(254, 242, 242, 0.9)',
+          borderRadius: '50%',
+          border: '8px solid rgba(239, 68, 68, 0.95)',
+          boxShadow: '0 0 30px 10px rgba(239, 68, 68, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease-in-out'
+        };
+        iconElement = (
+          <Heart
+            width={iconSize}
+            height={iconSize}
+            className="text-red-600 fill-red-500 transition-all duration-200"
+            strokeWidth={2.5}
+          />
+        );
+        break;
+        
+      case SwipeDirection.UP:
+        // 고민중 (위로) - 노란색
+        containerStyle = {
+          width: `${containerSize}px`,
+          height: `${containerSize}px`,
+          backgroundColor: 'rgba(255, 251, 235, 0.9)',
+          borderRadius: '50%',
+          border: '8px solid rgba(245, 158, 11, 0.95)',
+          boxShadow: '0 0 30px 10px rgba(245, 158, 11, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          transition: 'all 0.2s ease-in-out'
+        };
+        iconElement = (
+          <HelpCircle
+            width={iconSize}
+            height={iconSize}
+            className="text-amber-600 transition-all duration-200"
+            strokeWidth={2.5}
+          />
+        );
+        break;
+        
+      default:
+        return null;
+    }
+    
+    // 버튼 클릭 시 맥동 효과 추가
+    const animation = isButtonAction ? 'animate-pulse-strong' : '';
+    
+    return (
+      <div 
+        className={baseStyles} 
+        style={{ opacity: getOpacity(), transition: 'opacity 0.2s ease-in-out' }}
+      >
+        <div 
+          className={animation}
+          style={containerStyle}
+        >
+          {iconElement}
+        </div>
+      </div>
+    );
   };
   
   // 방향에 따른 버튼 진동 효과 클래스
