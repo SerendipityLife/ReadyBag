@@ -396,10 +396,34 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     setSelectedCategories(localCategories);
     
     // 가격 범위 필터 업데이트
-    setContextPriceRange(localPriceRange);
+    // 환율 정보가 있으면 원화 가격을 다시 엔화로 변환해서 서버에 전달
+    if (exchangeRate && exchangeRate > 0) {
+      const convertedMinPrice = Math.round(localPriceRange.min / exchangeRate);
+      const convertedMaxPrice = Math.round(localPriceRange.max / exchangeRate);
+      setContextPriceRange({
+        min: convertedMinPrice,
+        max: convertedMaxPrice
+      });
+      console.log("필터 적용: 원화 -> 엔화 변환:", {
+        원화_범위: localPriceRange,
+        엔화_범위: { min: convertedMinPrice, max: convertedMaxPrice },
+        환율: exchangeRate
+      });
+    } else {
+      setContextPriceRange(localPriceRange);
+    }
     
     // 태그 필터 업데이트
     setContextTags(localTags);
+    
+    // 디버깅 정보 출력
+    console.log("확장된 카테고리 목록:", localCategories);
+    const testProducts = products.slice(0, 5);
+    console.log("카테고리 필터 디버깅:", {
+      선택된카테고리: localCategories,
+      확장된카테고리: localCategories,
+      카테고리매핑정보: localCategories.map(cat => `${cat} -> ${CATEGORY_MAPPING[cat as keyof typeof CATEGORY_MAPPING] || cat}`)
+    });
     
     // 필터 적용 함수 호출 (현재 스코프를 전달하여 같은 탭에 머물도록 함)
     applyContextFilters(scope);
