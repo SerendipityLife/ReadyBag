@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { RefreshCw, Instagram, Trash2, Heart, Triangle, X } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Instagram, Trash2, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Product, UserProduct } from "@shared/schema";
 
@@ -219,41 +218,6 @@ export function ProductListItem(props: ProductListItemProps) {
         {!readOnly && (
           <div className="mt-3 flex flex-wrap gap-2">
             <div className="flex gap-2 w-full sm:w-auto">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
-                  >
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    분류변경
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="p-0 w-40" align="start">
-                  <div className="flex flex-col gap-1 p-1">
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className={`justify-start text-xs ${userProduct.status === ProductStatus.INTERESTED ? 'bg-red-50 text-red-500' : ''}`}
-                      onClick={() => changeStatus(ProductStatus.INTERESTED)}
-                    >
-                      <Heart className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.INTERESTED ? 'fill-red-500 text-red-500' : ''}`} />
-                      관심 상품
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className={`justify-start text-xs ${userProduct.status === ProductStatus.MAYBE ? 'bg-orange-50 text-orange-500' : ''}`}
-                      onClick={() => changeStatus(ProductStatus.MAYBE)}
-                    >
-                      <Triangle className={`h-3.5 w-3.5 mr-2 ${userProduct.status === ProductStatus.MAYBE ? 'fill-orange-500 text-orange-500' : ''}`} />
-                      나중에
-                    </Button>
-                  </div>
-                </PopoverContent>
-              </Popover>
-              
               <Button
                 variant="outline"
                 size="sm"
@@ -264,17 +228,17 @@ export function ProductListItem(props: ProductListItemProps) {
                 <Instagram className="h-3 w-3 mr-1" />
                 인스타
               </Button>
-            </div>
             
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full sm:w-auto text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
-              onClick={() => deleteUserProduct.mutate()}
-            >
-              <Trash2 className="h-3 w-3 mr-1" />
-              삭제
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 sm:w-auto text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
+                onClick={() => deleteUserProduct.mutate()}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />
+                삭제
+              </Button>
+            </div>
           </div>
         )}
       </div>
