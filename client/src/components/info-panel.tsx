@@ -48,11 +48,12 @@ export function InfoPanel() {
         <h3 className="text-lg font-heading font-semibold mb-2 mt-6">사용 방법</h3>
         <ul className="list-disc pl-5 text-neutral space-y-2 mb-6">
           <li>방문할 국가를 선택하세요.</li>
-          <li>카드를 좌우로 스와이프하여 상품을 분류하세요.</li>
+          <li>카드를 스와이프하여 상품을 분류하세요.</li>
           <li>오른쪽으로 스와이프: 관심 있는 상품</li>
-          <li>왼쪽으로 스와이프: 관심 없는 상품</li>
-          <li>위로 스와이프: 나중에 다시 볼 상품</li>
-          <li>분류한 상품 목록은 언제든 '내 목록'에서 확인하고 관리할 수 있습니다.</li>
+          <li>왼쪽으로 스와이프: 건너뛰기 (저장 안 함)</li>
+          <li>위로 스와이프: 고민중인 상품</li>
+          <li>분류한 상품 목록은 '내 목록'에서 확인하고 관리할 수 있습니다.</li>
+          <li>카테고리와 가격 범위로 상품을 필터링할 수 있습니다.</li>
         </ul>
         
         <hr className="my-6 border-gray-200" />
@@ -97,7 +98,7 @@ export function InfoPanel() {
         
         <div className="mt-8 text-center text-sm text-neutral">
           <p>ReadyBag v1.0.0</p>
-          <p className="mt-1">© 2023 ReadyBag. All rights reserved.</p>
+          <p className="mt-1">© 2025 ReadyBag. All rights reserved.</p>
         </div>
       </div>
     </div>
