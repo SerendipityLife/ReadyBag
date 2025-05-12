@@ -4,6 +4,7 @@ import { ArrowLeft, X } from "lucide-react";
 import { API_ROUTES, CATEGORIES, CATEGORY_MAPPING, View, ProductStatus } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
+import { useSpring, animated, config } from "@react-spring/web";
 import { 
   Dialog, 
   DialogContent, 
@@ -507,20 +508,12 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             </div>
             <div className="grid grid-cols-3 gap-2">
               {categories.map((category) => (
-                <div 
+                <CategoryItem 
                   key={category.id}
+                  category={category}
+                  isSelected={localCategories.includes(category.id)}
                   onClick={() => handleCategoryChange(category.id)}
-                  className={`
-                    flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border
-                    ${localCategories.includes(category.id) 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-gray-200 hover:border-gray-300 bg-background'}
-                  `}
-                >
-                  <span className="text-xl mb-1">{category.icon || "🛍️"}</span>
-                  <span className="text-xs font-medium text-center">{category.name}</span>
-                  <span className="text-xs text-gray-500">({category.count})</span>
-                </div>
+                />
               ))}
             </div>
           </div>
