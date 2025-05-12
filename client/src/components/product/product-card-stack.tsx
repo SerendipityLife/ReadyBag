@@ -247,9 +247,33 @@ export function ProductCardStack() {
           return false;
         }
         
-        // Check if this product's category is in the selected categories
-        const isInSelectedCategory = selectedCategories.includes(product.category);
-        return isInSelectedCategory;
+        // CATEGORY_MAPPING 정의
+        const CATEGORY_MAPPING: Record<string, string> = {
+          "BEAUTY": "BEAUTY",
+          "FOOD": "FOOD",
+          "ELECTRONICS": "ELECTRONICS",
+          "FASHION": "FASHION",
+          "HEALTH": "HEALTH",
+          "TOYS": "TOYS",
+          "LIQUOR": "LIQUOR",
+          "IT": "ELECTRONICS", // IT → 전자제품/가전
+          "CHARACTER": "TOYS", // 캐릭터 굿즈 → 장난감
+          "HOME": "ELECTRONICS",
+          "OTHER": "ELECTRONICS"
+        };
+        
+        // 1. 직접 카테고리 일치 (기본 체크)
+        if (selectedCategories.includes(product.category)) {
+          return true;
+        }
+        
+        // 2. 매핑된 카테고리 확인 (FOOD->FOOD, CHARACTER->TOYS 등)
+        const mappedCategory = CATEGORY_MAPPING[product.category];
+        if (mappedCategory && selectedCategories.includes(mappedCategory)) {
+          return true;
+        }
+        
+        return false;
       });
     }
     

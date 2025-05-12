@@ -172,21 +172,65 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       : category;
   };
 
+  // 역방향 카테고리 매핑 함수 (TOYS -> CHARACTER 등을 찾기 위함)
+  const getReverseMappedCategories = (categories: string[]): string[] => {
+    if (!categories || categories.length === 0 || categories.includes("ALL")) {
+      return ["ALL"];
+    }
+    
+    // 역방향 매핑 테이블 생성
+    const REVERSE_MAPPING: Record<string, string[]> = {};
+    Object.entries(CATEGORY_MAPPING).forEach(([src, dest]) => {
+      if (!REVERSE_MAPPING[dest]) {
+        REVERSE_MAPPING[dest] = [];
+      }
+      REVERSE_MAPPING[dest].push(src);
+    });
+    
+    // 확장된 카테고리 목록 생성
+    const expandedCategories = new Set<string>();
+    
+    // 선택된 각 카테고리에 대해
+    categories.forEach(category => {
+      // 직접 카테고리 추가
+      expandedCategories.add(category);
+      
+      // 역방향 매핑 추가
+      if (REVERSE_MAPPING[category]) {
+        REVERSE_MAPPING[category].forEach(srcCategory => {
+          expandedCategories.add(srcCategory);
+        });
+      }
+    });
+    
+    return Array.from(expandedCategories);
+  };
+
   // 필터 적용 함수
   const applyFilters = (scope?: View) => {
-    // FOOD 카테고리 필터링 문제 해결을 위한 전처리
+    // 역방향 매핑을 포함한 확장된 카테고리 목록 생성
+    let effectiveCategories = selectedCategories;
     if (selectedCategories.length > 0 && !selectedCategories.includes("ALL")) {
-      console.log("카테고리 필터 디버깅:", {
-        선택된카테고리: selectedCategories,
-        카테고리매핑정보: Object.entries(CATEGORY_MAPPING)
-          .filter(([key]) => selectedCategories.includes(key))
-          .map(([key, value]) => `${key} -> ${value}`)
-      });
+      // 확장된 카테고리 목록 (역방향 매핑 포함)
+      const expandedCategories = getReverseMappedCategories(selectedCategories);
+      console.log("확장된 카테고리 목록:", expandedCategories);
+      
+      // 실제 API 요청에서는 원래 카테고리 목록 사용 (서버에서 확장 처리)
+      effectiveCategories = selectedCategories; 
     }
+    
+    // 카테고리 필터링 문제 해결을 위한 디버깅 로그
+    console.log("카테고리 필터 디버깅:", {
+      선택된카테고리: selectedCategories,
+      확장된카테고리: effectiveCategories,
+      카테고리매핑정보: Object.entries(CATEGORY_MAPPING)
+        .filter(([key]) => selectedCategories.includes(key))
+        .map(([key, value]) => `${key} -> ${value}`)
+    });
     
     // 적용할 필터 정보 로깅
     console.log("Filters applied:", {
-      categories: selectedCategories,
+      categories: effectiveCategories,
       priceRange,
       tags,
       scope
@@ -199,13 +243,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     // 모든 제품 쿼리 무효화
     queryClient.invalidateQueries({
       queryKey: [API_ROUTES.PRODUCTS],
-      refetchType: 'active', // 현재 활성화된 쿼리만 다시 가져오기
+      refetchType: 'all', // 모든 쿼리 다시 불러오기 (적극적 무효화)
     });
     
     // 사용자 제품 목록도 관련이 있으므로 함께 무효화
     queryClient.invalidateQueries({
       queryKey: [API_ROUTES.USER_PRODUCTS],
-      refetchType: 'active',
+      refetchType: 'all', // 모든 쿼리 다시 불러오기
     });
     
     // scope 파라미터가 전달된 경우에만 뷰 변경
