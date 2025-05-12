@@ -323,10 +323,10 @@ export function ProductCard({
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)', // 블러 효과 제거
           borderColor: borderColorValue,
-          borderWidth: '8px',
-          boxShadow: `0 0 30px 10px ${shadowColor}`,
+          borderWidth: '10px', // 더 두껍게
+          boxShadow: `0 0 35px 15px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.RIGHT) {
@@ -334,20 +334,20 @@ export function ProductCard({
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)', // 블러 효과 제거
           borderColor: borderColorValue,
-          borderWidth: '8px',
-          boxShadow: `0 0 30px 10px ${shadowColor}`,
+          borderWidth: '10px', // 더 두껍게
+          boxShadow: `0 0 35px 15px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       } else if (direction === SwipeDirection.UP) {
         // 위쪽 (고민중) - 그대로 유지
         api.start({
           y: -window.innerHeight - 200,
-          filter: 'blur(8px)',
+          filter: 'blur(0px)', // 블러 효과 제거
           borderColor: borderColorValue,
-          borderWidth: '8px',
-          boxShadow: `0 0 30px 10px ${shadowColor}`,
+          borderWidth: '10px', // 더 두껍게
+          boxShadow: `0 0 35px 15px ${shadowColor}`,
           onRest: () => onSwipe(direction, product.id),
         });
       }
@@ -657,7 +657,7 @@ export function ProductCard({
       onMouseLeave={handleTouchEnd}
     >
       <Card className="h-full overflow-hidden max-h-[650px] relative card-content transition-all duration-200">
-        {/* 피드백 아이콘 */}
+        {/* 피드백 아이콘 - 스와이프 동작 시 */}
         {getFeedbackIcon()}
         
         {/* 내비게이션 표시: 현재 위치 / 전체 */}
@@ -669,6 +669,109 @@ export function ProductCard({
         {isProcessing && (
           <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 z-20">
             <Loader2 className="h-10 w-10 text-white animate-spin" />
+          </div>
+        )}
+        
+        {/* 버튼 클릭 시 애니메이션 아이콘 */}
+        {animatingIcon && iconAnimation.direction && (
+          <div 
+            className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none"
+            style={{ transition: 'all 0.2s ease-in-out' }}
+          >
+            {(() => {
+              const size = iconAnimation.size;
+              const containerSize = size * 1.5;
+              
+              // 방향에 따른 아이콘 스타일 및 색상 설정
+              let containerStyle = {};
+              let iconElement = null;
+              
+              switch (iconAnimation.direction) {
+                case SwipeDirection.LEFT:
+                  // 건너뛰기 (왼쪽) - 회색
+                  containerStyle = {
+                    width: `${containerSize}px`,
+                    height: `${containerSize}px`,
+                    backgroundColor: 'rgba(243, 244, 246, 0.9)',
+                    borderRadius: '50%',
+                    opacity: iconAnimation.opacity,
+                    border: '8px solid rgba(156, 163, 175, 0.95)',
+                    boxShadow: '0 0 30px 10px rgba(156, 163, 175, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease-in-out'
+                  };
+                  iconElement = (
+                    <X 
+                      width={size} 
+                      height={size}
+                      className="text-gray-600 transition-all duration-200" 
+                      strokeWidth={3}
+                    />
+                  );
+                  break;
+                
+                case SwipeDirection.RIGHT:
+                  // 관심 (오른쪽) - 빨간색
+                  containerStyle = {
+                    width: `${containerSize}px`,
+                    height: `${containerSize}px`, 
+                    backgroundColor: 'rgba(254, 242, 242, 0.9)',
+                    borderRadius: '50%',
+                    opacity: iconAnimation.opacity,
+                    border: '8px solid rgba(239, 68, 68, 0.95)',
+                    boxShadow: '0 0 30px 10px rgba(239, 68, 68, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease-in-out'
+                  };
+                  iconElement = (
+                    <Heart 
+                      width={size} 
+                      height={size}
+                      className="text-red-600 fill-red-500 transition-all duration-200" 
+                      strokeWidth={2.5}
+                    />
+                  );
+                  break;
+                
+                case SwipeDirection.UP:
+                  // 고민중 (위로) - 노란색
+                  containerStyle = {
+                    width: `${containerSize}px`,
+                    height: `${containerSize}px`,
+                    backgroundColor: 'rgba(255, 251, 235, 0.9)',
+                    borderRadius: '50%',
+                    opacity: iconAnimation.opacity,
+                    border: '8px solid rgba(245, 158, 11, 0.95)',
+                    boxShadow: '0 0 30px 10px rgba(245, 158, 11, 0.7)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.2s ease-in-out'
+                  };
+                  iconElement = (
+                    <HelpCircle 
+                      width={size} 
+                      height={size}
+                      className="text-amber-600 transition-all duration-200" 
+                      strokeWidth={2.5}
+                    />
+                  );
+                  break;
+                
+                default:
+                  return null;
+              }
+              
+              return (
+                <div style={containerStyle}>
+                  {iconElement}
+                </div>
+              );
+            })()}
           </div>
         )}
         
