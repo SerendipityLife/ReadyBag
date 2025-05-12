@@ -44,14 +44,12 @@ interface CategoryItemProps {
 export function CategoryItem({ category, isSelected, onClick }: CategoryItemProps) {
   const [isHovered, setIsHovered] = useState(false);
   
-  // 애니메이션 스프링 설정
+  // 애니메이션 스프링 설정 - boxShadow와 transform만 애니메이션 적용
   const springProps = useSpring({
-    scale: isHovered ? 1.05 : 1,
+    transform: `scale(${isHovered ? 1.05 : 1})`,
     boxShadow: isHovered 
       ? '0 4px 8px rgba(0, 0, 0, 0.1)' 
       : '0 1px 2px rgba(0, 0, 0, 0.05)',
-    borderColor: isSelected ? 'var(--primary)' : isHovered ? '#d1d5db' : '#e5e7eb',
-    backgroundColor: isSelected ? 'rgba(var(--primary-rgb), 0.1)' : 'white',
     config: { tension: 300, friction: 20 }
   });
   
@@ -75,7 +73,10 @@ export function CategoryItem({ category, isSelected, onClick }: CategoryItemProp
   return (
     <animated.div
       style={springProps}
-      className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border"
+      className={`flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border
+        ${isSelected 
+          ? 'border-primary bg-primary/10' 
+          : 'border-gray-200 hover:border-gray-300 bg-background'}`}
       onClick={onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -105,9 +106,9 @@ export function ApplyFilterButton({ onClick, scope, count }: ApplyFilterButtonPr
   // 애니메이션 스프링 설정
   const buttonSpring = useSpring({
     scale: isClicked ? 0.95 : isHovered ? 1.03 : 1,
-    backgroundColor: isHovered 
-      ? 'var(--primary-600)' 
-      : 'var(--primary)',
+    // React Spring은 backgroundColor를 rgb 배열로 변환하므로 직접 CSS 변수를 사용하지 않고 
+    // 클래스로 스타일링하고 transform만 애니메이션으로 처리
+    transform: `scale(${isClicked ? 0.95 : isHovered ? 1.03 : 1})`,
     config: { tension: 300, friction: 20 }
   });
   
@@ -130,7 +131,7 @@ export function ApplyFilterButton({ onClick, scope, count }: ApplyFilterButtonPr
   return (
     <animated.div
       style={buttonSpring}
-      className="bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-sm font-medium ring-offset-background transition-colors px-4 py-2 h-10 flex items-center justify-center"
+      className="bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-sm font-medium ring-offset-background px-4 py-2 h-10 flex items-center justify-center cursor-pointer"
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
