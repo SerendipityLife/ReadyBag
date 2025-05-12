@@ -5,11 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { FilterModal } from "@/components/filter/filter-modal";
 import { useAppContext } from "@/contexts/AppContext";
 
+import { View } from "@/lib/constants";
+
 interface FilterButtonProps {
   compact?: boolean;
+  scope?: View; // 필터가 적용될 범위 (EXPLORE 또는 LISTS)
 }
 
-export function FilterButton({ compact = false }: FilterButtonProps) {
+export function FilterButton({ compact = false, scope = View.EXPLORE }: FilterButtonProps) {
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const { 
     selectedCategories, 

@@ -83,104 +83,99 @@ export function Header() {
   
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="container mx-auto px-2 py-2 md:px-4 md:py-3 flex flex-col md:flex-row md:items-center justify-between">
-        {/* Top row: Logo and action buttons */}
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <div className="flex items-center space-x-1 md:space-x-2">
-            {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
-            {isSharedList && (
+      <div className="container mx-auto px-2 py-1 md:px-4 md:py-2 flex items-center justify-between">
+        {/* Logo */}
+        <div className="flex items-center">
+          {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
+          {isSharedList && (
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="md:hidden text-neutral hover:text-primary p-1 mr-1"
+              onClick={handleBackClick}
+            >
+              <ArrowLeft size={18} />
+            </Button>
+          )}
+          <h1 
+            className="text-xl md:text-2xl font-heading font-bold text-primary cursor-pointer"
+            onClick={() => navigate("/auth")}
+          >
+            <span className="inline">Ready</span><span className="inline font-bold">Bag</span>
+          </h1>
+          
+          {/* Country selector - 모바일에서는 외형만 작게 표시 */}
+          {!isSharedList && !isAuthPage && (
+            <div className="ml-2 md:ml-4">
+              <CountrySelector />
+            </div>
+          )}
+        </div>
+        
+        {/* Action buttons */}
+        <div className="flex items-center">
+          {!isAuthPage && (
+            <>
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="md:hidden text-neutral hover:text-primary p-1"
-                onClick={handleBackClick}
+                className="h-8 w-8 p-0 mr-1 flex items-center justify-center rounded-full hover:bg-gray-100"
+                onClick={handleShareClick}
+                title="공유하기"
               >
-                <ArrowLeft size={18} />
+                <Share2 size={18} className="text-gray-500" />
               </Button>
-            )}
-            <h1 
-              className={`text-xl md:text-2xl font-heading font-bold text-primary ${(currentView === View.LISTS || isSharedList) ? "ml-0" : "ml-1"} cursor-pointer`}
-              onClick={() => navigate("/auth")}
-            >
-              <span className="md:inline">Ready</span><span className="inline font-bold">Bag</span>
-            </h1>
-          </div>
-          
-          <div className="flex items-center ml-4">
-            {!isAuthPage && (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-gray-600 bg-white hover:bg-gray-50 hover:text-gray-700 border-gray-200 px-3 py-2 mr-3 flex items-center rounded-md transition-colors"
-                  onClick={handleShareClick}
-                  title="공유하기"
-                >
-                  <Share2 size={18} className="text-gray-500" />
-                  <span className="hidden md:inline ml-2 text-sm font-medium">공유</span>
-                </Button>
-                
-                {user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="bg-white hover:bg-gray-50 border-gray-200 px-3 py-2 flex items-center rounded-md transition-colors"
-                      >
-                        <Avatar className="h-7 w-7">
-                          <AvatarFallback className="bg-gray-100 text-gray-700">
-                            {getUserInitials()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <span className="hidden md:inline ml-2 text-sm font-medium text-gray-700">내 계정</span>
-                        <ChevronDown className="h-4 w-4 ml-1 text-gray-500" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56">
-                      <div className="flex items-center justify-start p-2">
-                        <div className="flex flex-col space-y-1 leading-none">
-                          {user.nickname && (
-                            <p className="font-medium">{user.nickname}</p>
-                          )}
-                          <p className="text-sm text-gray-500 truncate">
-                            {user.email}
-                          </p>
-                        </div>
+              
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-8 w-8 p-0 flex items-center justify-center rounded-full hover:bg-gray-100"
+                    >
+                      <Avatar className="h-7 w-7">
+                        <AvatarFallback className="bg-gray-100 text-gray-700">
+                          {getUserInitials()}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="flex items-center justify-start p-2">
+                      <div className="flex flex-col space-y-1 leading-none">
+                        {user.nickname && (
+                          <p className="font-medium">{user.nickname}</p>
+                        )}
+                        <p className="text-sm text-gray-500 truncate">
+                          {user.email}
+                        </p>
                       </div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        className="text-gray-700 cursor-pointer"
-                        onClick={handleLogoutClick}
-                      >
-                        <LogOut className="mr-2 h-4 w-4 text-gray-500" />
-                        <span>로그아웃</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    className="bg-white hover:bg-gray-50 hover:text-gray-700 border-gray-200 px-3 py-2 flex items-center rounded-md transition-colors"
-                    onClick={handleLoginClick}
-                    title="로그인"
-                  >
-                    <LogIn size={18} className="text-gray-500" />
-                    <span className="hidden md:inline ml-2 text-sm font-medium text-gray-700">로그인</span>
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="text-gray-700 cursor-pointer"
+                      onClick={handleLogoutClick}
+                    >
+                      <LogOut className="mr-2 h-4 w-4 text-gray-500" />
+                      <span>로그아웃</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="h-8 w-8 p-0 flex items-center justify-center rounded-full hover:bg-gray-100"
+                  onClick={handleLoginClick}
+                  title="로그인"
+                >
+                  <LogIn size={18} className="text-gray-500" />
+                </Button>
+              )}
+            </>
+          )}
         </div>
-        
-        {/* Bottom row: Country selector */}
-        {!isSharedList && !isAuthPage && (
-          <div className="mt-1 md:mt-0">
-            <CountrySelector />
-          </div>
-        )}
       </div>
     </header>
   );
