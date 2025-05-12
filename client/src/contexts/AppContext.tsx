@@ -164,8 +164,26 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
   
+  // 카테고리 정규화 함수 (매핑 테이블 활용)
+  const normalizeCategory = (category: string): string => {
+    // 타입 안전을 위한 더 안전한 접근법
+    return category in CATEGORY_MAPPING 
+      ? CATEGORY_MAPPING[category as keyof typeof CATEGORY_MAPPING] 
+      : category;
+  };
+
   // 필터 적용 함수
   const applyFilters = (scope?: View) => {
+    // FOOD 카테고리 필터링 문제 해결을 위한 전처리
+    if (selectedCategories.length > 0 && !selectedCategories.includes("ALL")) {
+      console.log("카테고리 필터 디버깅:", {
+        선택된카테고리: selectedCategories,
+        카테고리매핑정보: Object.entries(CATEGORY_MAPPING)
+          .filter(([key]) => selectedCategories.includes(key))
+          .map(([key, value]) => `${key} -> ${value}`)
+      });
+    }
+    
     // 적용할 필터 정보 로깅
     console.log("Filters applied:", {
       categories: selectedCategories,
@@ -194,7 +212,6 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     if (scope) {
       setCurrentView(scope);
     }
-    // 이전 코드: setCurrentView(View.EXPLORE); - 항상 둘러보기 탭으로 이동하는 문제 해결
   };
 
   const value = {

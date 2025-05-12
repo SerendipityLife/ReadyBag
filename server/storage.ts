@@ -34,7 +34,13 @@ export const storage = {
     
     // 카테고리 필터링
     if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
-      conditions.push(inArray(products.category, filters.categories));
+      // 카테고리 매핑 처리
+      // UI에서 넘어온 카테고리(FOOD)와 DB에 저장된 카테고리(FOOD)를 비교하기 위해
+      // 메모리에서 필터링하도록 수정 (inArray 조건은 사용하지 않음)
+      // 최적화를 위해 추후 DB 스키마 수정 필요할 수 있음
+      
+      // 여기서는 조건을 추가하지 않고, 쿼리 후 카테고리 필터링을 메모리에서 처리
+      // conditions.push(inArray(products.category, filters.categories));
     }
     
     // 가격 범위 필터링
@@ -50,10 +56,66 @@ export const storage = {
     // 태그 필터링: 간단한 구현 - 메모리에서 필터링 (database에서 필터링하지 않음)
     // 태그 정보는 일단 메모리에서 필터링하고 나중에 DB에서 처리하도록 개선 가능
     
-    const filteredProducts = await db.query.products.findMany({
+    const products_list = await db.query.products.findMany({
       where: and(...conditions),
       orderBy: [desc(products.featured), asc(products.name)],
     });
+    
+    // 필터 객체 복사 (원본 변경 방지)
+    let filteredProducts = [...products_list];
+    
+    // 카테고리 필터링 (메모리에서 처리)
+    if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
+      console.log("카테고리 필터링 처리 - 메모리 필터링:", {
+        요청카테고리: filters.categories,
+        전체상품수: filteredProducts.length
+      });
+      
+      // lib/constants.ts의 CATEGORY_MAPPING을 서버에서 복제하여 사용
+      // 향후 클라이언트와 서버 간 일관된 매핑을 위해 공유 파일로 리팩토링 고려
+      const CATEGORY_MAPPING: Record<string, string> = {
+        // 기본 카테고리는 그대로 유지
+        "BEAUTY": "BEAUTY",
+        "FOOD": "FOOD", 
+        "ELECTRONICS": "ELECTRONICS",
+        "FASHION": "FASHION",
+        "HEALTH": "HEALTH",
+        "TOYS": "TOYS",
+        "LIQUOR": "LIQUOR",
+        
+        // 통합 대상 카테고리
+        "IT": "ELECTRONICS", // IT → 전자제품/가전
+        "CHARACTER": "TOYS", // 캐릭터 굿즈 → 장난감
+        
+        // 삭제 대상 카테고리 (기타로 매핑)
+        "HOME": "ELECTRONICS",
+        "OTHER": "ELECTRONICS"
+      };
+      
+      // 카테고리 정규화 함수 (매핑 테이블 활용)
+      const normalizeCategory = (category: string): string => {
+        return category in CATEGORY_MAPPING 
+          ? CATEGORY_MAPPING[category] 
+          : category;
+      };
+      
+      // 메모리에서 카테고리 필터링
+      filteredProducts = filteredProducts.filter(product => {
+        // 1. 정확한 카테고리 일치 확인
+        if (filters.categories!.includes(product.category)) {
+          return true;
+        }
+        
+        // 2. 정규화된 카테고리 확인
+        const normalizedCategory = normalizeCategory(product.category);
+        return filters.categories!.includes(normalizedCategory);
+      });
+      
+      console.log("카테고리 필터링 결과:", {
+        필터링후상품수: filteredProducts.length,
+        샘플카테고리: filteredProducts.slice(0, 3).map(p => p.category)
+      });
+    }
     
     // 태그 기반 자바스크립트 필터링 추가
     if (filters?.tags && Array.isArray(filters.tags) && filters.tags.length > 0) {
