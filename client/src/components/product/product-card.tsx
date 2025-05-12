@@ -300,16 +300,16 @@ export function ProductCard({
       size: 0
     });
     
-    // 단계별로 아이콘이 커지도록 애니메이션 설정
-    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.3, size: 40 })), 50);
-    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.6, size: 70 })), 150);
-    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.9, size: 100 })), 250);
-    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 120 })), 350);
+    // 단계별로 아이콘이 커지도록 애니메이션 설정 - 더 크고 빠르게
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.5, size: 50 })), 50);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.8, size: 90 })), 150);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 120 })), 250);
+    setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 140 })), 350);
     
-    // 일정 시간 후 아이콘 애니메이션 종료
+    // 일정 시간 후 아이콘 애니메이션 종료 - 더 오래 유지
     setTimeout(() => {
       setAnimatingIcon(false);
-    }, 1000);
+    }, 1200);
     
     // 방향에 따른 테두리 색상 설정
     let borderColorValue = 'rgba(255,255,255,0)';
@@ -694,15 +694,16 @@ export function ProductCard({
           </div>
         )}
         
-        {/* 버튼 클릭 시 애니메이션 아이콘 */}
+        {/* 버튼 클릭 시 애니메이션 아이콘 - 카드 내부에 표시 */}
         {animatingIcon && iconAnimation.direction && (
           <div 
-            className="fixed inset-0 z-[200] flex items-center justify-center pointer-events-none"
+            className="absolute inset-0 z-[200] flex items-center justify-center pointer-events-none"
             style={{ transition: 'all 0.2s ease-in-out' }}
           >
             {(() => {
-              const size = iconAnimation.size;
-              const containerSize = size * 1.5;
+              // 카드 내부에서는 아이콘을 더 크게 표시
+              const size = iconAnimation.size * 1.5; // 50% 더 크게
+              const containerSize = size * 1.6;
               
               // 방향에 따른 아이콘 스타일 및 색상 설정
               let containerStyle = {};
