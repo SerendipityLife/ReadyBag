@@ -239,6 +239,26 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     onClose();
   };
   
+  // 선택된 카테고리에 해당하는 제품 개수 계산
+  const getFilteredProductCount = (): number => {
+    // 1. 전체 카테고리가 선택된 경우 전체 제품 수 반환
+    if (localCategories.includes("ALL")) {
+      return products.length;
+    }
+    
+    // 2. 특정 카테고리가 선택된 경우, 해당 카테고리에 속한 제품의 수 계산
+    let count = 0;
+    
+    // 선택된 모든 카테고리에 대해 제품 수 합산
+    localCategories.forEach(categoryId => {
+      // 해당 카테고리에 속한 제품 필터링
+      const filteredProducts = products.filter(product => product.category === categoryId);
+      count += filteredProducts.length;
+    });
+    
+    return count;
+  };
+  
   // 필터 초기화 핸들러
   const handleResetFilters = () => {
     // 로컬 상태 초기화
@@ -363,44 +383,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             </div>
           </div>
           
-          {/* 태그/키워드 섹션 */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium">태그/키워드</h3>
-            <div className="flex items-center space-x-2">
-              <Input
-                placeholder="태그 추가..."
-                value={newTag}
-                onChange={(e) => setNewTag(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
-              />
-              <Button 
-                type="button" 
-                variant="outline" 
-                onClick={handleAddTag}
-                disabled={!newTag.trim()}
-              >
-                추가
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {localTags.map(tag => (
-                <Badge key={tag} variant="outline" className="flex items-center gap-1 py-1 px-2">
-                  {tag}
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-4 w-4 p-0 ml-1 text-gray-500 hover:text-gray-700"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    <span className="text-xs">×</span>
-                  </Button>
-                </Badge>
-              ))}
-              {localTags.length === 0 && (
-                <p className="text-xs text-gray-500 italic">선택된 태그가 없습니다</p>
-              )}
-            </div>
-          </div>
+
         </div>
         
         <DialogFooter className="sticky bottom-0 z-10 bg-background pt-2 border-t">
@@ -410,7 +393,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             </Button>
             <Button onClick={handleApplyFilters}>
               {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용 
-              {products.length > 0 && <span className="ml-1 text-xs opacity-80">({products.length}개)</span>}
+              {getFilteredProductCount() > 0 && <span className="ml-1 text-xs opacity-80">({getFilteredProductCount()}개)</span>}
             </Button>
           </div>
         </DialogFooter>
