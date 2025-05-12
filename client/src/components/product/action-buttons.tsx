@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { SwipeDirection } from "@/lib/constants";
 import { Heart, X, HelpCircle } from "lucide-react";
@@ -9,8 +9,30 @@ interface ActionButtonsProps {
 
 export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   const [activeButton, setActiveButton] = useState<SwipeDirection | null>(null);
+  // 반대 방향 hover 효과용 상태
+  const [hoverButton, setHoverButton] = useState<SwipeDirection | null>(null);
+  // 버튼 활성화 효과 클래스
+  const [showActive, setShowActive] = useState(false);
+  
+  // 효과 애니메이션
+  useEffect(() => {
+    if (activeButton) {
+      // 즉시 활성화 표시
+      setShowActive(true);
+      
+      // 애니메이션 종료 후 제거
+      const timer = setTimeout(() => {
+        setShowActive(false);
+      }, 700);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [activeButton]);
   
   const handleButtonClick = (direction: SwipeDirection) => {
+    // 이미 활성화된 버튼이 있으면 무시
+    if (activeButton !== null) return;
+    
     // 버튼 활성화 상태 설정
     setActiveButton(direction);
     
@@ -25,8 +47,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       }
     }
     
-    // 아이콘 효과 지연 시간 (ms)
-    const animationDelay = 300;
+    // 애니메이션 지연 시간 (ms)
+    const animationDelay = 500;
     
     // 애니메이션 후 액션 실행
     setTimeout(() => {
@@ -39,57 +61,127 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
     }, animationDelay);
   };
   
-  // 버튼 애니메이션 클래스 결정
-  const getButtonAnimationClass = (direction: SwipeDirection) => {
-    return activeButton === direction ? "animate-wiggle" : "";
+  // 버튼 상태에 따른 스타일 클래스 결정
+  const getButtonStyles = (direction: SwipeDirection) => {
+    const base = "transition-all duration-200 relative";
+    const size = "w-16 h-16 md:w-18 md:h-18"; // 더 큰 버튼 사이즈
+    const isActive = activeButton === direction;
+    
+    // 각 방향별 기본 스타일
+    let styles = "";
+    
+    switch (direction) {
+      case SwipeDirection.LEFT: // 건너뛰기 (회색)
+        styles = `${base} ${size} rounded-full border-3 
+          ${isActive 
+            ? "border-gray-500 bg-gray-100 shadow-lg scale-110 animate-pulse-strong" 
+            : "border-gray-400 hover:border-gray-500 hover:bg-gray-50 hover:scale-105"}
+          text-gray-500 shadow-md mb-1`;
+        break;
+        
+      case SwipeDirection.UP: // 고민중 (노란색)
+        styles = `${base} ${size} rounded-full border-3 
+          ${isActive 
+            ? "border-amber-500 bg-amber-100 shadow-lg scale-110 animate-pulse-strong" 
+            : "border-amber-400 hover:border-amber-500 hover:bg-amber-50 hover:scale-105"}
+          text-amber-500 shadow-md mb-1`;
+        break;
+        
+      case SwipeDirection.RIGHT: // 관심 (빨간색)
+        styles = `${base} ${size} rounded-full border-3 
+          ${isActive 
+            ? "border-red-500 bg-red-100 shadow-lg scale-110 animate-pulse-strong" 
+            : "border-red-500 hover:border-red-600 hover:bg-red-50 hover:scale-105"}
+          text-red-500 shadow-md mb-1`;
+        break;
+    }
+    
+    // hover 상태 추가
+    if (hoverButton === direction) {
+      styles += " scale-105 shadow-lg";
+    }
+    
+    // 진동 애니메이션 추가
+    if (isActive && showActive) {
+      styles += " animate-wiggle";
+    }
+    
+    return styles;
+  };
+  
+  // 아이콘 크기 결정
+  const getIconStyles = (direction: SwipeDirection) => {
+    const isActive = activeButton === direction;
+    return isActive 
+      ? "w-7 h-7 md:w-8 md:h-8 transition-all duration-200 scale-110" 
+      : "w-6 h-6 md:w-7 md:h-7 transition-all duration-200";
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-6 px-2 w-full max-w-md mx-auto">
+    <div className="action-buttons flex flex-col items-center mt-8 px-2 w-full max-w-md mx-auto">
       <div className="flex justify-between items-center w-full">
+        {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
           <Button
             id="skipBtn"
             variant="outline"
             size="icon"
-            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-gray-400 text-gray-500 shadow-md hover:bg-gray-50 mb-1 ${getButtonAnimationClass(SwipeDirection.LEFT)}`}
+            className={getButtonStyles(SwipeDirection.LEFT)}
             onClick={() => handleButtonClick(SwipeDirection.LEFT)}
             disabled={activeButton !== null}
             aria-label="건너뛰기"
+            onMouseEnter={() => setHoverButton(SwipeDirection.LEFT)}
+            onMouseLeave={() => setHoverButton(null)}
           >
-            <X className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
+            <X 
+              className={getIconStyles(SwipeDirection.LEFT)} 
+              strokeWidth={3} 
+            />
           </Button>
-          <span className="text-xs font-medium text-gray-500">건너뛰기</span>
+          <span className="text-sm font-medium text-gray-600 mt-1">건너뛰기</span>
         </div>
         
+        {/* 고민중 버튼 */}
         <div className="flex flex-col items-center">
           <Button
             id="maybeBtn"
             variant="outline"
             size="icon"
-            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-amber-400 text-amber-500 shadow-md hover:bg-amber-50 mb-1 ${getButtonAnimationClass(SwipeDirection.UP)}`}
+            className={getButtonStyles(SwipeDirection.UP)}
             onClick={() => handleButtonClick(SwipeDirection.UP)}
             disabled={activeButton !== null}
             aria-label="고민중"
+            onMouseEnter={() => setHoverButton(SwipeDirection.UP)}
+            onMouseLeave={() => setHoverButton(null)}
           >
-            <HelpCircle className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
+            <HelpCircle 
+              className={getIconStyles(SwipeDirection.UP)} 
+              strokeWidth={2.5} 
+            />
           </Button>
-          <span className="text-xs font-medium text-amber-500">고민중</span>
+          <span className="text-sm font-medium text-amber-600 mt-1">고민중</span>
         </div>
         
+        {/* 관심 버튼 */}
         <div className="flex flex-col items-center">
           <Button
             id="likeBtn"
             variant="outline"
             size="icon"
-            className={`w-14 h-14 md:w-16 md:h-16 rounded-full border-2 border-red-500 text-red-500 shadow-md hover:bg-red-50 mb-1 ${getButtonAnimationClass(SwipeDirection.RIGHT)}`}
+            className={getButtonStyles(SwipeDirection.RIGHT)}
             onClick={() => handleButtonClick(SwipeDirection.RIGHT)}
             disabled={activeButton !== null}
             aria-label="관심"
+            onMouseEnter={() => setHoverButton(SwipeDirection.RIGHT)}
+            onMouseLeave={() => setHoverButton(null)}
           >
-            <Heart className="w-5 h-5 md:w-6 md:h-6 fill-red-500" strokeWidth={2} />
+            <Heart 
+              className={getIconStyles(SwipeDirection.RIGHT)} 
+              fill={activeButton === SwipeDirection.RIGHT ? "currentColor" : "#f87171"}
+              strokeWidth={2} 
+            />
           </Button>
-          <span className="text-xs font-medium text-red-500">관심</span>
+          <span className="text-sm font-medium text-red-600 mt-1">관심</span>
         </div>
       </div>
     </div>
