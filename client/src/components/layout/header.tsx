@@ -83,95 +83,85 @@ export function Header() {
   
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
-      <div className="container mx-auto px-2 py-1 md:px-4 md:py-2 flex items-center justify-between">
-        {/* Logo */}
+      <div className="flex items-center justify-between h-12 px-2">
+        {/* Logo & Country Selector */}
         <div className="flex items-center">
           {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
           {isSharedList && (
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="md:hidden text-neutral hover:text-primary p-1 mr-1"
+            <button 
+              className="p-1 mr-1 text-gray-600 md:hidden"
               onClick={handleBackClick}
             >
-              <ArrowLeft size={18} />
-            </Button>
+              <ArrowLeft size={16} />
+            </button>
           )}
           <h1 
-            className="text-xl md:text-2xl font-heading font-bold text-primary cursor-pointer"
-            onClick={() => navigate("/auth")}
+            className="text-lg font-bold text-primary cursor-pointer"
+            onClick={() => navigate("/")}
           >
-            <span className="inline">Ready</span><span className="inline font-bold">Bag</span>
+            <span>Ready</span><span className="font-bold">Bag</span>
           </h1>
           
-          {/* Country selector - 모바일에서는 외형만 작게 표시 */}
+          {/* Country selector */}
           {!isSharedList && !isAuthPage && (
-            <div className="ml-2 md:ml-4">
+            <div className="ml-1">
               <CountrySelector />
             </div>
           )}
         </div>
         
         {/* Action buttons */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-1">
           {!isAuthPage && (
             <>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="h-8 w-8 p-0 mr-1 flex items-center justify-center rounded-full hover:bg-gray-100"
+              <button 
+                className="p-1.5 rounded-full hover:bg-gray-100"
                 onClick={handleShareClick}
                 title="공유하기"
               >
-                <Share2 size={18} className="text-gray-500" />
-              </Button>
+                <Share2 size={16} className="text-gray-600" />
+              </button>
               
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-8 w-8 p-0 flex items-center justify-center rounded-full hover:bg-gray-100"
-                    >
-                      <Avatar className="h-7 w-7">
-                        <AvatarFallback className="bg-gray-100 text-gray-700">
+                    <button className="p-0.5 rounded-full hover:bg-gray-100">
+                      <Avatar className="h-6 w-6">
+                        <AvatarFallback className="text-xs bg-gray-100 text-gray-700">
                           {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
-                    </Button>
+                    </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <div className="flex items-center justify-start p-2">
-                      <div className="flex flex-col space-y-1 leading-none">
+                    <div className="flex items-center p-2">
+                      <div className="flex flex-col">
                         {user.nickname && (
                           <p className="font-medium">{user.nickname}</p>
                         )}
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-xs text-gray-500 truncate">
                           {user.email}
                         </p>
                       </div>
                     </div>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      className="text-gray-700 cursor-pointer"
+                      className="text-sm cursor-pointer"
                       onClick={handleLogoutClick}
                     >
-                      <LogOut className="mr-2 h-4 w-4 text-gray-500" />
+                      <LogOut className="mr-2 h-3.5 w-3.5 text-gray-500" />
                       <span>로그아웃</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               ) : (
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="h-8 w-8 p-0 flex items-center justify-center rounded-full hover:bg-gray-100"
+                <button 
+                  className="p-1.5 rounded-full hover:bg-gray-100"
                   onClick={handleLoginClick}
                   title="로그인"
                 >
-                  <LogIn size={18} className="text-gray-500" />
-                </Button>
+                  <LogIn size={16} className="text-gray-600" />
+                </button>
               )}
             </>
           )}
