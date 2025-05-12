@@ -6,7 +6,6 @@
 
 1. 시스템에 필요한 라이브러리가 설치되어 있어야 합니다:
    - pandas
-   - openpyxl
    - psycopg2
 2. 데이터베이스 접속 정보 (DATABASE_URL 환경 변수)
 
@@ -14,22 +13,22 @@
 
 ### 1. 상품 데이터 준비
 
-- `product_registration_template.xlsx` 템플릿을 사용하여 상품 정보 작성
-- 또는 `product_sample_data.xlsx` 참조하여 자체 파일 생성
+- `product_registration_template.csv` 템플릿을 사용하여 상품 정보 작성
+- 또는 `product_sample_data.csv` 참조하여 자체 파일 생성
 
 ### 2. 스크립트 실행
 
 제공된 `products_upload_script.py` 스크립트를 사용하여 데이터베이스에 상품을 업로드합니다:
 
 ```bash
-python products_upload_script.py path/to/your/products.xlsx
+python products_upload_script.py path/to/your/products.csv
 ```
 
 ### 3. 상품 검증 및 확인
 
 스크립트는 다음 작업을 수행합니다:
 
-1. 엑셀 파일에서 상품 데이터 로드
+1. CSV 파일에서 상품 데이터 로드
 2. 각 상품의 데이터 유효성 검사
 3. 유효한 상품만 필터링
 4. 업로드 전 확인 요청
@@ -48,7 +47,7 @@ python products_upload_script.py path/to/your/products.xlsx
 ## 문제 해결
 
 - **데이터베이스 연결 오류**: DATABASE_URL 환경 변수가 올바르게 설정되었는지 확인
-- **엑셀 파일 로드 오류**: 파일 형식 및 내용이 템플릿과 일치하는지 확인
+- **CSV 파일 로드 오류**: 파일 형식 및 내용이 템플릿과 일치하는지 확인
 - **JSON 형식 오류**: 해시태그 필드의 JSON 형식 확인
 
 ## 주의사항

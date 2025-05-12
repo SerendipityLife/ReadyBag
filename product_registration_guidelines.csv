@@ -1,0 +1,11 @@
+필드명,설명,입력 예시,비고
+name,한국어 상품명 (필수),"SK-II 페이셜 트리트먼트 에센스",필수 입력
+name_japanese,일본어 상품명 (선택사항),"SK-II フェイシャル トリートメント エッセンス",선택 입력
+description,상품에 대한 설명 (필수),"SK-II의 베스트셀러 제품으로 피부 결을 개선하고 맑고 투명한 피부로 가꿔줍니다.",필수 입력
+price,엔화(JPY) 기준 가격 (필수),29500,필수 입력 (숫자만)
+image_url,상품 이미지 URL (필수),"https://example.com/images/skii.jpg",필수 입력
+country_id,국가 ID - japan으로 고정 (필수),japan,"현재는 japan만 지원"
+category,상품 카테고리 코드 (필수),BEAUTY,"카테고리: BEAUTY, FOOD, ELECTRONICS, FASHION, HEALTH, TOYS, LIQUOR"
+hashtags,해시태그 목록,"[""#SKII"", ""#에센스"", ""#스킨케어""]",선택 입력 (JSON 형식)
+location,구매 가능 위치 정보 (선택사항),"도쿄 / 긴자 / 신주쿠",선택 입력
+featured,추천 상품 여부 (TRUE/FALSE),TRUE,선택 입력 (기본값: FALSE)
