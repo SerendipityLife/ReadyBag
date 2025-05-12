@@ -33,6 +33,116 @@ export type ProductCategory = {
   icon?: string;
 };
 
+// CategoryItem 컴포넌트 - 카테고리 선택 시 마이크로 인터랙션 적용
+interface CategoryItemProps {
+  category: ProductCategory;
+  isSelected: boolean;
+  onClick: () => void;
+}
+
+// 내보낸 컴포넌트로 변경하여 JSX에서 접근 가능하게 함
+export function CategoryItem({ category, isSelected, onClick }: CategoryItemProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  
+  // 애니메이션 스프링 설정
+  const springProps = useSpring({
+    scale: isHovered ? 1.05 : 1,
+    boxShadow: isHovered 
+      ? '0 4px 8px rgba(0, 0, 0, 0.1)' 
+      : '0 1px 2px rgba(0, 0, 0, 0.05)',
+    borderColor: isSelected ? 'var(--primary)' : isHovered ? '#d1d5db' : '#e5e7eb',
+    backgroundColor: isSelected ? 'rgba(var(--primary-rgb), 0.1)' : 'white',
+    config: { tension: 300, friction: 20 }
+  });
+  
+  // 아이콘 애니메이션
+  const iconSpring = useSpring({
+    transform: isSelected 
+      ? 'scale(1.1) translateY(-2px)' 
+      : 'scale(1) translateY(0px)',
+    config: config.wobbly
+  });
+
+  // 카운트 배지 애니메이션
+  const countBadgeSpring = useSpring({
+    opacity: 1,
+    transform: 'scale(1)',
+    from: { opacity: 0, transform: 'scale(0.8)' },
+    reset: true,
+    config: { tension: 200, friction: 12 }
+  });
+  
+  return (
+    <animated.div
+      style={springProps}
+      className="flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border"
+      onClick={onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <animated.span style={iconSpring} className="text-xl mb-1">
+        {category.icon || "🛍️"}
+      </animated.span>
+      <span className="text-xs font-medium text-center">{category.name}</span>
+      <animated.span style={countBadgeSpring} className="text-xs text-gray-500">
+        ({category.count})
+      </animated.span>
+    </animated.div>
+  );
+}
+
+// 필터 적용 버튼 컴포넌트 - 마이크로 인터랙션 추가
+interface ApplyFilterButtonProps {
+  onClick: () => void;
+  scope: View;
+  count: number;
+}
+
+export function ApplyFilterButton({ onClick, scope, count }: ApplyFilterButtonProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isClicked, setIsClicked] = useState(false);
+  
+  // 애니메이션 스프링 설정
+  const buttonSpring = useSpring({
+    scale: isClicked ? 0.95 : isHovered ? 1.03 : 1,
+    backgroundColor: isHovered 
+      ? 'var(--primary-600)' 
+      : 'var(--primary)',
+    config: { tension: 300, friction: 20 }
+  });
+  
+  // 카운트 배지 애니메이션
+  const countSpring = useSpring({
+    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
+    config: config.gentle
+  });
+  
+  const handleClick = () => {
+    setIsClicked(true);
+    
+    // 클릭 효과 후 원래 상태로 돌아오기
+    setTimeout(() => {
+      setIsClicked(false);
+      onClick();
+    }, 150);
+  };
+  
+  return (
+    <animated.div
+      style={buttonSpring}
+      className="bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-sm font-medium ring-offset-background transition-colors px-4 py-2 h-10 flex items-center justify-center"
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용
+      <animated.span style={countSpring} className="ml-1 text-xs opacity-80">
+        ({count}개)
+      </animated.span>
+    </animated.div>
+  );
+}
+
 // 가격 범위 타입 정의
 interface PriceRange {
   min: number;
@@ -575,10 +685,11 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             <Button variant="outline" onClick={handleResetFilters}>
               초기화
             </Button>
-            <Button onClick={handleApplyFilters}>
-              {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용 
-              <span className="ml-1 text-xs opacity-80">({getFilteredProductCount()}개)</span>
-            </Button>
+            <ApplyFilterButton 
+              onClick={handleApplyFilters} 
+              scope={scope}
+              count={getFilteredProductCount()}
+            />
           </div>
         </DialogFooter>
       </DialogContent>
