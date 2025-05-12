@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
-import { API_ROUTES, CATEGORIES } from "@/lib/constants";
+import { API_ROUTES, CATEGORIES, View } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
 import { 
@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 export interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  scope?: View; // 필터가 적용될 범위 (EXPLORE 또는 LISTS)
 }
 
 // 카테고리 타입 정의
@@ -36,7 +37,7 @@ interface PriceRange {
   max: number;
 }
 
-export function FilterModal({ isOpen, onClose }: FilterModalProps) {
+export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterModalProps) {
   const { 
     selectedCountry, 
     selectedCategories,
@@ -45,8 +46,13 @@ export function FilterModal({ isOpen, onClose }: FilterModalProps) {
     setPriceRange: setContextPriceRange,
     tags: contextTags,
     setTags: setContextTags,
-    applyFilters: applyContextFilters
+    applyFilters: applyContextFilters,
+    currentView
   } = useAppContext();
+  
+  // 현재 필터 범위가 lists 페이지이면서 scope가 EXPLORE인 경우, 또는 그 반대인 경우 다른 필터 설정을 사용
+  const isFilteringDifferentView = (currentView === View.LISTS && scope === View.EXPLORE) || 
+                                 (currentView === View.EXPLORE && scope === View.LISTS);
   
   // 상품 데이터 가져오기
   const { data: products = [] } = useQuery<Product[]>({

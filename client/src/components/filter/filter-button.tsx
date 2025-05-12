@@ -90,7 +90,8 @@ export function FilterButton({ compact = false, scope = View.EXPLORE }: FilterBu
       
       <FilterModal 
         isOpen={isFilterModalOpen} 
-        onClose={() => setIsFilterModalOpen(false)} 
+        onClose={() => setIsFilterModalOpen(false)}
+        scope={scope}
       />
     </>
   );
