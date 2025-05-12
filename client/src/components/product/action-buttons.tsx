@@ -36,7 +36,20 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
     // 버튼 활성화 상태 설정
     setActiveButton(direction);
     
-    // 카드 액션 트리거 (전역 함수를 통해 현재 카드에 효과 적용)
+    // 부드러운 아이콘 애니메이션 및 카드 효과 적용
+    
+    // 1. 먼저 작은 아이콘으로 시작하여 점점 커지는 아이콘 애니메이션 시작
+    // @ts-ignore
+    if (window.startIconAnimation && typeof window.startIconAnimation === 'function') {
+      try {
+        // @ts-ignore
+        window.startIconAnimation(direction);
+      } catch (e) {
+        console.error('Icon animation failed', e);
+      }
+    }
+    
+    // 2. 카드 액션 트리거 (전역 함수를 통해 현재 카드에 효과 적용)
     // @ts-ignore
     if (window.triggerCardAction && typeof window.triggerCardAction === 'function') {
       try {

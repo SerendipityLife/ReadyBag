@@ -21,11 +21,49 @@ export function ProductCard({
   isProcessing = false,
   onSwipe,
 }: ProductCardProps) {
+  // 아이콘 애니메이션을 위한 상태 추가
+  const [animatingIcon, setAnimatingIcon] = useState(false);
+  const [iconAnimation, setIconAnimation] = useState({
+    direction: null as SwipeDirection | null,
+    opacity: 0,
+    size: 0
+  });
+  
   // 액션 트리거 함수를 외부에서 사용할 수 있도록 설정
   // @ts-ignore
   window.triggerCardAction = (direction: SwipeDirection, productId: number) => {
-    if (productId === product.id && index === 0) {
+    if ((productId === 0 || productId === product.id) && index === 0) {
       triggerAction(direction);
+    }
+  };
+  
+  // 아이콘 애니메이션 함수를 외부에서 사용할 수 있도록 설정
+  // @ts-ignore
+  window.startIconAnimation = (direction: SwipeDirection) => {
+    if (index === 0) {
+      // 현재 활성화된 애니메이션이 있으면 리셋
+      setAnimatingIcon(false);
+      
+      // 새 애니메이션 시작 
+      setTimeout(() => {
+        setAnimatingIcon(true);
+        setIconAnimation({
+          direction: direction,
+          opacity: 0,
+          size: 0
+        });
+        
+        // 여러 단계로 나누어 아이콘이 부드럽게 커지도록 함
+        setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.3, size: 40 })), 50);
+        setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.6, size: 70 })), 150);
+        setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.9, size: 100 })), 250);
+        setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 120 })), 350);
+        
+        // 일정 시간 후 아이콘 숨기기
+        setTimeout(() => {
+          setAnimatingIcon(false);
+        }, 1000);
+      }, 20);
     }
   };
   const { exchangeRate } = useAppContext();
