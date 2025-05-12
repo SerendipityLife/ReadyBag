@@ -136,7 +136,7 @@ export function ApplyFilterButton({ onClick, scope, count }: ApplyFilterButtonPr
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용
+      적용
       <animated.span style={countSpring} className="ml-1 text-xs opacity-80">
         ({count}개)
       </animated.span>
