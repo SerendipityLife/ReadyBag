@@ -231,8 +231,10 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     }
   }, [isOpen, products, selectedCategories, contextPriceRange, contextTags]);
   
-  // 카테고리 목록 생성
+  // 카테고리 목록 생성 (isOpen이 변경될 때만 실행)
   useEffect(() => {
+    if (!isOpen) return; // 모달이 열려있을 때만 실행
+  
     // 카테고리 정보 설정
     const categoryNames: Record<string, string> = {
       "IT": "IT 제품",
@@ -248,13 +250,10 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     // 모든 가능한 카테고리 추출 (전체 상품 기준)
     const allCategoriesSet = new Set<string>();
     
-    if (categoriesSource && categoriesSource.length > 0) {
-      categoriesSource.forEach(product => {
-        if (product.category) {
-          allCategoriesSet.add(product.category);
-        }
-      });
-    }
+    // CATEGORIES에서 모든 카테고리 ID 추출 (상품에 관계없이 모든 카테고리 보여주기 위함)
+    CATEGORIES.forEach(category => {
+      allCategoriesSet.add(category.id);
+    });
     
     // 내 목록의 상품에 해당하는 카테고리별 카운트 계산
     const myCategoryCounts: Record<string, number> = {};
@@ -264,7 +263,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
       
-      console.log("👀 필터 카테고리 생성 중 - 내 목록 모드, 스토리지 키:", storageKey);
+      console.log("📊 필터 모달: 내 목록 모드, 스토리지 키:", storageKey);
       
       if (storedData) {
         try {
@@ -273,25 +272,29 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
           
           // 상품 ID 목록 추출
           const productIds = localItems.map((item: UserProduct) => item.productId);
-          console.log("👀 내 목록 상품 ID:", productIds);
           
-          // 전체 상품 목록에서 해당 ID에 해당하는 상품 찾기
-          if (exploreProducts.length > 0 && productIds.length > 0) {
-            const userProductDetails = exploreProducts.filter(p => productIds.includes(p.id));
+          if (productIds.length > 0) {
+            console.log("📊 필터 모달: 내 목록 상품 ID 개수:", productIds.length);
             
-            console.log("👀 찾은 상품 수:", userProductDetails.length);
-            
-            // 카테고리별 카운트 생성
-            userProductDetails.forEach(product => {
-              if (product.category) {
-                myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
-                console.log(`👀 카테고리 ${product.category}에 상품 추가 - 현재 카운트:`, myCategoryCounts[product.category]);
-              }
-            });
+            // 전체 상품 목록에서 해당 ID에 해당하는 상품 찾기
+            if (exploreProducts.length > 0) {
+              const userProductDetails = exploreProducts.filter(p => productIds.includes(p.id));
+              
+              console.log("📊 필터 모달: 찾은 상품 수:", userProductDetails.length);
+              
+              // 카테고리별 카운트 생성
+              userProductDetails.forEach(product => {
+                if (product.category) {
+                  myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
+                }
+              });
+            }
           }
         } catch (err) {
-          console.error("❌ 로컬 스토리지 데이터 파싱 오류:", err);
+          console.error("📊 필터 모달: 로컬 스토리지 데이터 파싱 오류:", err);
         }
+      } else {
+        console.log("📊 필터 모달: 로컬 스토리지 데이터 없음");
       }
     } else {
       // 둘러보기 탭에 있는 상품들의 카테고리 카운트
@@ -321,7 +324,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       name: categoryNames[categoryId] || categoryId,
       // 해당 탭에 맞는 카운트 사용
       count: myCategoryCounts[categoryId] || 0,
-      icon: CATEGORIES[categoryId as keyof typeof CATEGORIES] || "🛍️"
+      icon: CATEGORIES.find(c => c.id === categoryId)?.icon || "🛍️"
     }));
     
     // 전체 카테고리를 맨 앞에 추가하고 나머지 카테고리는 이름 순으로 정렬
@@ -330,8 +333,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       ...categoryList.sort((a, b) => a.name.localeCompare(b.name))
     ]);
     
-    console.log("카테고리 생성 완료:", allCategory, categoryList);
-  }, [categoriesSource, myListProducts, isFilteringLists]);
+    console.log("📊 필터 모달: 카테고리 생성 완료 - 총 상품 수:", totalCount);
+  }, [isOpen, selectedCountry.id, exploreProducts, isFilteringLists]);
   
   // 카테고리 변경 핸들러
   const handleCategoryChange = (categoryId: string) => {
