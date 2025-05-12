@@ -251,8 +251,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     const allCategoriesSet = new Set<string>();
     
     // CATEGORIES에서 모든 카테고리 ID 추출 (상품에 관계없이 모든 카테고리 보여주기 위함)
-    CATEGORIES.forEach(category => {
-      allCategoriesSet.add(category.id);
+    Object.keys(CATEGORIES).forEach(categoryId => {
+      allCategoriesSet.add(categoryId);
     });
     
     // 내 목록의 상품에 해당하는 카테고리별 카운트 계산
@@ -324,7 +324,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       name: categoryNames[categoryId] || categoryId,
       // 해당 탭에 맞는 카운트 사용
       count: myCategoryCounts[categoryId] || 0,
-      icon: CATEGORIES.find(c => c.id === categoryId)?.icon || "🛍️"
+      icon: CATEGORIES[categoryId as keyof typeof CATEGORIES] || "🛍️"
     }));
     
     // 전체 카테고리를 맨 앞에 추가하고 나머지 카테고리는 이름 순으로 정렬
