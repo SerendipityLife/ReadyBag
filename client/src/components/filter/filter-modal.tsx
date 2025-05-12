@@ -64,28 +64,55 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     enabled: !!selectedCountry.id && isOpen, // 항상 활성화
   });
   
-  // 내 목록에 있는 상품들 (로컬 스토리지에서 불러오기)
-  const { data: userProducts = [] } = useQuery<UserProduct[]>({
-    queryKey: [API_ROUTES.USER_PRODUCTS, selectedCountry.id],
-    enabled: isOpen && scope === View.LISTS,
-  });
+  // 로컬 스토리지에서 사용자 제품 가져오기
+  const [userProducts, setUserProducts] = useState<UserProduct[]>([]);
+  const [myListProducts, setMyListProducts] = useState<Product[]>([]);
   
-  // 사용자 제품 정보 가져오기 (내 목록에서 필터링할 때 사용)
-  const { data: listProducts = [] } = useQuery<Product[]>({
-    queryKey: ['listProducts', userProducts],
-    enabled: isOpen && scope === View.LISTS, // userProducts.length > 0 조건 제거 (비어있는 경우도 처리)
-    queryFn: async () => {
-      // userProducts에서 productId 추출하여 관련 상품 정보 가져오기
-      if (userProducts.length === 0) {
-        return []; // 내 목록이 비어있으면 빈 배열 반환
+  // 로컬 스토리지에서 직접 사용자 상품 정보 로드
+  useEffect(() => {
+    if (isOpen && scope === View.LISTS) {
+      try {
+        // 관심 상품
+        const interestedItems = localStorage.getItem(`${selectedCountry.id}_interested`) || '[]';
+        // 고민중인 상품
+        const maybeItems = localStorage.getItem(`${selectedCountry.id}_maybe`) || '[]';
+        
+        // 모든 사용자 상품 합치기 (관심 + 고민중)
+        const interestedProducts: UserProduct[] = JSON.parse(interestedItems);
+        const maybeProducts: UserProduct[] = JSON.parse(maybeItems);
+        
+        const allUserProducts = [...interestedProducts, ...maybeProducts];
+        
+        console.log("내 목록 상품 정보:", {
+          관심상품: interestedProducts.length,
+          고민중인상품: maybeProducts.length,
+          전체: allUserProducts.length
+        });
+        
+        setUserProducts(allUserProducts);
+        
+        // 해당 상품 ID들로 전체 상품 목록에서 필터링
+        if (allUserProducts.length > 0 && exploreProducts.length > 0) {
+          const productIds = allUserProducts.map(item => item.productId);
+          const filteredProducts = exploreProducts.filter(p => productIds.includes(p.id));
+          
+          console.log("내 목록에서 찾은 상품:", {
+            요청된상품ID: productIds,
+            찾은상품수: filteredProducts.length,
+            상품정보: filteredProducts.map(p => ({ id: p.id, name: p.name, category: p.category }))
+          });
+          
+          setMyListProducts(filteredProducts);
+        } else {
+          setMyListProducts([]);
+        }
+      } catch (error) {
+        console.error("로컬 스토리지에서 상품 정보를 불러오는데 실패했습니다:", error);
+        setUserProducts([]);
+        setMyListProducts([]);
       }
-      const productIds = userProducts.map(up => up.productId);
-      return exploreProducts.filter(p => productIds.includes(p.id));
     }
-  });
-  
-  // 내 목록 필터링 시 사용할 제품 목록
-  const myListProducts = listProducts;
+  }, [isOpen, scope, selectedCountry.id, exploreProducts]);
   
   // 현재 필터링할 제품 목록 결정 - 결과 표시용
   const products = isFilteringLists ? myListProducts : exploreProducts;
@@ -153,73 +180,76 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   
   // 카테고리 목록 생성
   useEffect(() => {
+    // 카테고리 정보 설정
+    const categoryNames: Record<string, string> = {
+      "IT": "IT 제품",
+      "BEAUTY": "화장품/뷰티",
+      "LIQUOR": "주류",
+      "HEALTH": "의약품/건강",
+      "FOOD": "식품/간식",
+      "CHARACTER": "캐릭터 굿즈",
+      "FASHION": "의류/잡화",
+      "ELECTRONICS": "전자제품/가전",
+    };
+    
+    // 모든 가능한 카테고리 추출 (전체 상품 기준)
+    const allCategoriesSet = new Set<string>();
+    
     if (categoriesSource && categoriesSource.length > 0) {
-      // 카테고리 정보 설정
-      const categoryNames: Record<string, string> = {
-        "IT": "IT 제품",
-        "BEAUTY": "화장품/뷰티",
-        "LIQUOR": "주류",
-        "HEALTH": "의약품/건강",
-        "FOOD": "식품/간식",
-        "CHARACTER": "캐릭터 굿즈",
-        "FASHION": "의류/잡화",
-        "ELECTRONICS": "전자제품/가전",
-      };
-      
-      // 모든 가능한 카테고리 추출 (전체 상품 기준)
-      const allCategoriesSet = new Set<string>();
       categoriesSource.forEach(product => {
         if (product.category) {
           allCategoriesSet.add(product.category);
         }
       });
+    }
+    
+    // 내 목록의 상품에 해당하는 카테고리별 카운트 계산
+    const myCategoryCounts: Record<string, number> = {};
+    
+    if (isFilteringLists) {
+      console.log("카테고리 생성: 내 목록 필터링중, 상품 개수:", myListProducts.length);
       
-      // 내 목록의 상품에 해당하는 카테고리별 카운트 계산
-      const myCategoryCounts: Record<string, number> = {};
-      
-      if (isFilteringLists) {
-        // 내 목록에 있는 상품들의 카테고리 카운트
-        myListProducts.forEach(product => {
-          if (product.category) {
-            myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
-          }
-        });
-      } else {
-        // 둘러보기 탭에 있는 상품들의 카테고리 카운트
+      // 내 목록에 있는 상품들의 카테고리 카운트
+      myListProducts.forEach(product => {
+        if (product.category) {
+          myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
+          console.log(`카테고리 ${product.category}에 상품 추가 - 현재 카운트:`, myCategoryCounts[product.category]);
+        }
+      });
+    } else {
+      // 둘러보기 탭에 있는 상품들의 카테고리 카운트
+      if (categoriesSource && categoriesSource.length > 0) {
         categoriesSource.forEach(product => {
           if (product.category) {
             myCategoryCounts[product.category] = (myCategoryCounts[product.category] || 0) + 1;
           }
         });
       }
-      
-      // 전체 카테고리 옵션 - 선택된 필터에 맞는 상품 수
-      const allCategory: ProductCategory = { 
-        id: "ALL", 
-        name: "전체", 
-        count: isFilteringLists ? myListProducts.length : categoriesSource.length
-      };
-      
-      // 모든 가능한 카테고리 목록 생성 (제품 유무와 상관없이)
-      const categoryList = Array.from(allCategoriesSet).map(categoryId => ({
-        id: categoryId,
-        name: categoryNames[categoryId] || categoryId,
-        // 해당 탭에 맞는 카운트 사용
-        count: myCategoryCounts[categoryId] || 0,
-        icon: CATEGORIES[categoryId as keyof typeof CATEGORIES] || "🛍️"
-      }));
-      
-      // 전체 카테고리를 맨 앞에 추가하고 나머지 카테고리는 이름 순으로 정렬
-      setCategories([
-        allCategory,
-        ...categoryList.sort((a, b) => a.name.localeCompare(b.name))
-      ]);
-    } else {
-      // 상품 정보가 아직 로드되지 않은 경우 기본값 설정
-      setCategories([
-        { id: "ALL", name: "전체", count: 0 }
-      ]);
     }
+    
+    // 전체 카테고리 옵션 - 선택된 필터에 맞는 상품 수
+    const allCategory: ProductCategory = { 
+      id: "ALL", 
+      name: "전체", 
+      count: isFilteringLists ? myListProducts.length : (categoriesSource?.length || 0)
+    };
+    
+    // 모든 가능한 카테고리 목록 생성 (제품 유무와 상관없이)
+    const categoryList = Array.from(allCategoriesSet).map(categoryId => ({
+      id: categoryId,
+      name: categoryNames[categoryId] || categoryId,
+      // 해당 탭에 맞는 카운트 사용
+      count: myCategoryCounts[categoryId] || 0,
+      icon: CATEGORIES[categoryId as keyof typeof CATEGORIES] || "🛍️"
+    }));
+    
+    // 전체 카테고리를 맨 앞에 추가하고 나머지 카테고리는 이름 순으로 정렬
+    setCategories([
+      allCategory,
+      ...categoryList.sort((a, b) => a.name.localeCompare(b.name))
+    ]);
+    
+    console.log("카테고리 생성 완료:", allCategory, categoryList);
   }, [categoriesSource, myListProducts, isFilteringLists]);
   
   // 카테고리 변경 핸들러
