@@ -32,55 +32,7 @@ export function ProductListItem(props: ProductListItemProps) {
   const [productHashtags, setProductHashtags] = useState<string[] | null>(null);
   const [hasProductError, setHasProductError] = useState(false);
   
-  // Update user product status mutation
-  const updateStatus = useMutation({
-    mutationFn: async (newStatus: ProductStatus) => {
-      // 비회원인 경우 로컬 스토리지에서 상태 업데이트
-      if (isNonMember) {
-        const storageKey = `userProducts_${selectedCountry.id}`;
-        const storedData = localStorage.getItem(storageKey);
-        
-        if (storedData) {
-          const products = JSON.parse(storedData);
-          const updatedProducts = products.map((item: any) => {
-            if (item.id === userProduct.id) {
-              return { ...item, status: newStatus };
-            }
-            return item;
-          });
-          
-          localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
-          return { status: newStatus, id: userProduct.id };
-        }
-        
-        throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
-      }
-      
-      // 회원인 경우 API 호출
-      const response = await apiRequest(
-        "PATCH",
-        `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
-        { status: newStatus }
-      );
-      
-      if (!response.ok) {
-        throw new Error("Status update operation failed");
-      }
-      
-      return response.json();
-    },
-    onSuccess: () => {
-      // 공통: 쿼리 무효화
-      queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-      });
-      
-      // Call callback if provided
-      if (onSuccessfulAction) {
-        onSuccessfulAction();
-      }
-    }
-  });
+  // '분류변경' 기능 제거로 인해 상품 상태 변경 기능도 제거됨
   
   // Delete user product mutation
   const deleteUserProduct = useMutation({
@@ -156,11 +108,6 @@ export function ProductListItem(props: ProductListItemProps) {
     setPrice(roundedPrice);
     setConvertedPrice(calculatedPrice);
   }, [product, exchangeRate]);
-
-  // Change product status directly
-  const changeStatus = (newStatus: ProductStatus) => {
-    updateStatus.mutate(newStatus);
-  };
 
   // Opens Instagram in a new tab with the hashtag search
   const handleInstagramSearch = () => {
