@@ -23,7 +23,10 @@ export const CATEGORIES = {
   HEALTH: "💊",
   TOYS: "🧸",
   HOME: "🏠",
-  OTHER: "🛍️"
+  OTHER: "🛍️",
+  IT: "📱",
+  CHARACTER: "🧸",
+  LIQUOR: "🍷"
 };
 
 // API Routes
