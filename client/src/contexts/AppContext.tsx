@@ -165,12 +165,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   };
   
   // 필터 적용 함수
-  const applyFilters = () => {
+  const applyFilters = (scope?: View) => {
     // 적용할 필터 정보 로깅
     console.log("Filters applied:", {
       categories: selectedCategories,
       priceRange,
-      tags
+      tags,
+      scope
     });
     
     // 필터 적용 후 상품 리스트 초기화
@@ -189,8 +190,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       refetchType: 'active',
     });
     
-    // 현재 뷰를 EXPLORE로 설정하여 필터링된 제품을 볼 수 있게 함
-    setCurrentView(View.EXPLORE);
+    // scope 파라미터가 전달된 경우에만 뷰 변경
+    if (scope) {
+      setCurrentView(scope);
+    }
+    // 이전 코드: setCurrentView(View.EXPLORE); - 항상 둘러보기 탭으로 이동하는 문제 해결
   };
 
   const value = {

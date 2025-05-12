@@ -381,8 +381,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     // 태그 필터 업데이트
     setContextTags(localTags);
     
-    // 필터 적용 함수 호출
-    applyContextFilters();
+    // 필터 적용 함수 호출 (현재 스코프를 전달하여 같은 탭에 머물도록 함)
+    applyContextFilters(scope);
     
     // 모달 닫기
     onClose();
