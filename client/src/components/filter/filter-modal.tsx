@@ -93,6 +93,23 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   // 카테고리 목록 생성
   const [categories, setCategories] = useState<ProductCategory[]>([]);
   
+  // 모달이 열릴 때 해당 탭의 필터 설정으로 초기화
+  useEffect(() => {
+    if (isOpen) {
+      // 카테고리 초기화
+      setLocalCategories(selectedCategories);
+      
+      // 가격 범위 초기화
+      setLocalPriceRange(contextPriceRange || { min: 0, max: 50000 });
+      
+      // 태그 초기화
+      setLocalTags(contextTags || []);
+      
+      // 카테고리 목록 생성
+      generateCategoryList();
+    }
+  }, [isOpen, scope, selectedCategories, contextPriceRange, contextTags]);
+  
   // 상품 최대/최소 가격 계산
   const [maxPrice, setMaxPrice] = useState<number>(50000);
   const [minPrice, setMinPrice] = useState<number>(0);
@@ -393,7 +410,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
               초기화
             </Button>
             <Button onClick={handleApplyFilters}>
-              필터 적용
+              {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용 
+              {products.length > 0 && <span className="ml-1 text-xs opacity-80">({products.length}개)</span>}
             </Button>
           </div>
         </DialogFooter>
