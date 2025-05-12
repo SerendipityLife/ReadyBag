@@ -4,7 +4,6 @@ import { ArrowLeft, X } from "lucide-react";
 import { API_ROUTES, CATEGORIES, CATEGORY_MAPPING, View, ProductStatus } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
-import { useSpring, animated, config } from "@react-spring/web";
 import { 
   Dialog, 
   DialogContent, 
@@ -32,117 +31,6 @@ export type ProductCategory = {
   count: number;
   icon?: string;
 };
-
-// CategoryItem 컴포넌트 - 카테고리 선택 시 마이크로 인터랙션 적용
-interface CategoryItemProps {
-  category: ProductCategory;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
-// 내보낸 컴포넌트로 변경하여 JSX에서 접근 가능하게 함
-export function CategoryItem({ category, isSelected, onClick }: CategoryItemProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  
-  // 애니메이션 스프링 설정 - boxShadow와 transform만 애니메이션 적용
-  const springProps = useSpring({
-    transform: `scale(${isHovered ? 1.05 : 1})`,
-    boxShadow: isHovered 
-      ? '0 4px 8px rgba(0, 0, 0, 0.1)' 
-      : '0 1px 2px rgba(0, 0, 0, 0.05)',
-    config: { tension: 300, friction: 20 }
-  });
-  
-  // 아이콘 애니메이션
-  const iconSpring = useSpring({
-    transform: isSelected 
-      ? 'scale(1.1) translateY(-2px)' 
-      : 'scale(1) translateY(0px)',
-    config: config.wobbly
-  });
-
-  // 카운트 배지 애니메이션
-  const countBadgeSpring = useSpring({
-    opacity: 1,
-    transform: 'scale(1)',
-    from: { opacity: 0, transform: 'scale(0.8)' },
-    reset: true,
-    config: { tension: 200, friction: 12 }
-  });
-  
-  return (
-    <animated.div
-      style={springProps}
-      className={`flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border
-        ${isSelected 
-          ? 'border-primary bg-primary/10' 
-          : 'border-gray-200 hover:border-gray-300 bg-background'}`}
-      onClick={onClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <animated.span style={iconSpring} className="text-xl mb-1">
-        {category.icon || "🛍️"}
-      </animated.span>
-      <span className="text-xs font-medium text-center">{category.name}</span>
-      <animated.span style={countBadgeSpring} className="text-xs text-gray-500">
-        ({category.count})
-      </animated.span>
-    </animated.div>
-  );
-}
-
-// 필터 적용 버튼 컴포넌트 - 마이크로 인터랙션 추가
-interface ApplyFilterButtonProps {
-  onClick: () => void;
-  scope: View;
-  count: number;
-}
-
-export function ApplyFilterButton({ onClick, scope, count }: ApplyFilterButtonProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const [isClicked, setIsClicked] = useState(false);
-  
-  // 애니메이션 스프링 설정
-  const buttonSpring = useSpring({
-    scale: isClicked ? 0.95 : isHovered ? 1.03 : 1,
-    // React Spring은 backgroundColor를 rgb 배열로 변환하므로 직접 CSS 변수를 사용하지 않고 
-    // 클래스로 스타일링하고 transform만 애니메이션으로 처리
-    transform: `scale(${isClicked ? 0.95 : isHovered ? 1.03 : 1})`,
-    config: { tension: 300, friction: 20 }
-  });
-  
-  // 카운트 배지 애니메이션
-  const countSpring = useSpring({
-    transform: isHovered ? 'scale(1.1)' : 'scale(1)',
-    config: config.gentle
-  });
-  
-  const handleClick = () => {
-    setIsClicked(true);
-    
-    // 클릭 효과 후 원래 상태로 돌아오기
-    setTimeout(() => {
-      setIsClicked(false);
-      onClick();
-    }, 150);
-  };
-  
-  return (
-    <animated.div
-      style={buttonSpring}
-      className="bg-primary text-primary-foreground shadow hover:bg-primary/90 rounded-md text-sm font-medium ring-offset-background px-4 py-2 h-10 flex items-center justify-center cursor-pointer"
-      onClick={handleClick}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      적용
-      <animated.span style={countSpring} className="ml-1 text-xs opacity-80">
-        ({count}개)
-      </animated.span>
-    </animated.div>
-  );
-}
 
 // 가격 범위 타입 정의
 interface PriceRange {
@@ -468,74 +356,25 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     console.log("📊 필터 모달: 카테고리 생성 완료 - 총 상품 수:", totalCount);
   }, [isOpen, selectedCountry.id, exploreProducts, isFilteringLists]);
   
-  // 선택된 카테고리에 맞게 가격 범위 계산하는 함수
-  const updatePriceRangeForCategories = (categories: string[]) => {
-    // 현재 상품 리스트 결정 (내 목록 또는 둘러보기)
-    const productList = isFilteringLists ? myListProducts : exploreProducts;
-    
-    if (!productList || productList.length === 0) return;
-    
-    // 카테고리로 상품 필터링
-    let filteredProducts: Product[] = [];
-    
-    if (categories.includes("ALL")) {
-      // 전체 선택 시 모든 상품 사용
-      filteredProducts = [...productList];
-    } else {
-      // 특정 카테고리 필터링
-      filteredProducts = productList.filter(product => {
-        // 카테고리 정규화 (매핑 적용)
-        const normalizedCategory = normalizeCategory(product.category);
-        return categories.includes(normalizedCategory);
-      });
-    }
-    
-    // 필터링된 상품이 있으면 가격 범위 계산
-    if (filteredProducts.length > 0) {
-      const prices = filteredProducts.map(p => p.price);
-      let min = Math.min(...prices);
-      let max = Math.max(...prices);
-      
-      // 환율 적용 (엔화 -> 원화)
-      if (selectedCountry?.currency === "JPY" && exchangeRate) {
-        min = Math.floor(min * exchangeRate);
-        max = Math.ceil(max * exchangeRate);
-      }
-      
-      // 가격 범위 업데이트
-      setLocalPriceRange({
-        min,
-        max
-      });
-    }
-  };
-  
   // 카테고리 변경 핸들러
   const handleCategoryChange = (categoryId: string) => {
-    let newCategories: string[];
-    
     if (categoryId === "ALL") {
-      newCategories = ["ALL"];
+      setLocalCategories(["ALL"]);
     } else {
-      // 현재 선택된 카테고리에서 'ALL' 제외
-      const withoutAll = localCategories.filter(c => c !== "ALL");
-      const hasCategory = withoutAll.includes(categoryId);
-      
-      if (hasCategory) {
-        // 이미 선택된 카테고리라면 제거
-        const result = withoutAll.filter(c => c !== categoryId);
-        newCategories = result.length === 0 ? ["ALL"] : result;
-      } else {
-        // 선택되지 않은 카테고리라면 추가
-        newCategories = [...withoutAll, categoryId];
-      }
+      setLocalCategories(prev => {
+        const withoutAll = prev.filter(c => c !== "ALL");
+        const hasCategory = withoutAll.includes(categoryId);
+        
+        if (hasCategory) {
+          // 이미 선택된 카테고리라면 제거
+          const result = withoutAll.filter(c => c !== categoryId);
+          return result.length === 0 ? ["ALL"] : result;
+        } else {
+          // 선택되지 않은 카테고리라면 추가
+          return [...withoutAll, categoryId];
+        }
+      });
     }
-    
-    // 카테고리 상태 업데이트
-    setLocalCategories(newCategories);
-    
-    // 선택된 카테고리에 맞게 가격 범위 업데이트
-    updatePriceRangeForCategories(newCategories);
   };
   
   // 태그 추가 핸들러
@@ -551,36 +390,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     setLocalTags(prev => prev.filter(t => t !== tag));
   };
   
-  // 필터 적용 전 데이터 확인
-  const validateBeforeApply = () => {
-    // 현재 필터링할 상품 목록 (내 목록 또는 둘러보기)
-    const currentProducts = isFilteringLists ? myListProducts : exploreProducts;
-    
-    // 선택된 카테고리에 맞는 상품 수 확인
-    if (!localCategories.includes("ALL")) {
-      const filteredProducts = currentProducts.filter(product => {
-        // 카테고리 정규화하여 비교
-        const normalizedCategory = normalizeCategory(product.category);
-        return localCategories.includes(normalizedCategory);
-      });
-      
-      console.log("필터 적용 전 확인:", {
-        선택카테고리: localCategories,
-        필터링된상품수: filteredProducts.length,
-        상품예시: filteredProducts.slice(0, 3).map(p => ({ id: p.id, 카테고리: p.category, 정규화: normalizeCategory(p.category) }))
-      });
-    }
-    
-    return true;
-  };
-
   // 필터 적용 핸들러
   const handleApplyFilters = () => {
-    // 필터 데이터 검증
-    if (!validateBeforeApply()) {
-      return;
-    }
-    
     // 카테고리 필터 업데이트
     setSelectedCategories(localCategories);
     
@@ -696,12 +507,20 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             </div>
             <div className="grid grid-cols-3 gap-2">
               {categories.map((category) => (
-                <CategoryItem 
+                <div 
                   key={category.id}
-                  category={category}
-                  isSelected={localCategories.includes(category.id)}
                   onClick={() => handleCategoryChange(category.id)}
-                />
+                  className={`
+                    flex flex-col items-center justify-center p-3 rounded-lg cursor-pointer border
+                    ${localCategories.includes(category.id) 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-gray-200 hover:border-gray-300 bg-background'}
+                  `}
+                >
+                  <span className="text-xl mb-1">{category.icon || "🛍️"}</span>
+                  <span className="text-xs font-medium text-center">{category.name}</span>
+                  <span className="text-xs text-gray-500">({category.count})</span>
+                </div>
               ))}
             </div>
           </div>
@@ -763,11 +582,10 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             <Button variant="outline" onClick={handleResetFilters}>
               초기화
             </Button>
-            <ApplyFilterButton 
-              onClick={handleApplyFilters} 
-              scope={scope}
-              count={getFilteredProductCount()}
-            />
+            <Button onClick={handleApplyFilters}>
+              {scope === View.EXPLORE ? '둘러보기' : '내 목록'} 필터 적용 
+              <span className="ml-1 text-xs opacity-80">({getFilteredProductCount()}개)</span>
+            </Button>
           </div>
         </DialogFooter>
       </DialogContent>
