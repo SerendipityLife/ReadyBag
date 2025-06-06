@@ -840,10 +840,7 @@ export function ProductCard({
             <p className="text-neutral text-sm line-clamp-5">{product.description}</p>
           </div>
           
-          <div className="mt-4 text-xs text-neutral flex items-center">
-            <span className="mr-1">📍</span>
-            <span>{product.location}</span>
-          </div>
+
         </div>
       </Card>
     </animated.div>

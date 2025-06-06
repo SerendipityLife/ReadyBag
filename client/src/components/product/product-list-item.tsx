@@ -142,12 +142,7 @@ export function ProductListItem(props: ProductListItemProps) {
               <p className="text-xs text-gray-500 mt-0.5">{productNameJapanese}</p>
             )}
             
-            {productLocation && (
-              <div className="flex items-center mt-1 text-xs text-gray-500">
-                <span className="mr-1">📍</span>
-                <span>{productLocation}</span>
-              </div>
-            )}
+
           </div>
           
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
