@@ -186,9 +186,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   // 필터 적용 함수
   const applyFilters = (scope?: View) => {
-    // 적용할 필터 정보 로깅
+    // 적용할 필터 정보 로깅 (새로운 두단계 시스템 포함)
     console.log("Filters applied:", {
-      categories: selectedCategories,
+      storeTypes: selectedStoreTypes,
+      purposeCategories: selectedPurposeCategories,
+      categories: selectedCategories, // 호환성을 위해 유지
       priceRange,
       tags,
       scope
