@@ -30,6 +30,7 @@ export const products = pgTable("products", {
   category: text("category").notNull(),
   hashtags: jsonb("hashtags").$type<string[]>(),
   location: text("location"),
+  storeType: text("store_type"), // 판매 장소 구분: 'donkihote', 'convenience', 'drugstore'
   featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
