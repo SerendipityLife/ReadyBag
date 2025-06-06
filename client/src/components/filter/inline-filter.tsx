@@ -96,16 +96,16 @@ export function InlineFilter() {
   };
 
   return (
-    <div className="w-full bg-white rounded-lg shadow-sm border p-4 space-y-4 mb-6">
-      {/* 판매처 필터 */}
-      <div className="space-y-2">
-        <Label className="text-sm font-semibold text-blue-600 flex items-center gap-2">
+    <div className="w-full bg-white rounded-lg shadow-sm border p-3 space-y-2 mb-4">
+      {/* 판매처 필터 - 인라인으로 압축 */}
+      <div className="flex items-center gap-2">
+        <Label className="text-xs font-semibold text-blue-600 min-w-fit">
           🏪 판매처
         </Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 flex-1">
           <Badge 
             variant={localStoreTypes.includes('ALL') ? "default" : "outline"}
-            className={`cursor-pointer transition-colors ${
+            className={`cursor-pointer text-xs py-1 px-2 h-6 ${
               localStoreTypes.includes('ALL') 
                 ? 'bg-blue-500 text-white hover:bg-blue-600' 
                 : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
@@ -118,7 +118,7 @@ export function InlineFilter() {
             <Badge 
               key={type.id}
               variant={localStoreTypes.includes(type.id) ? "default" : "outline"}
-              className={`cursor-pointer transition-colors ${
+              className={`cursor-pointer text-xs py-1 px-2 h-6 ${
                 localStoreTypes.includes(type.id) 
                   ? 'bg-blue-500 text-white hover:bg-blue-600' 
                   : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
@@ -131,15 +131,15 @@ export function InlineFilter() {
         </div>
       </div>
 
-      {/* 용도 카테고리 필터 */}
-      <div className="space-y-2">
-        <Label className="text-sm font-semibold text-green-600 flex items-center gap-2">
+      {/* 용도 카테고리 필터 - 인라인으로 압축 */}
+      <div className="flex items-center gap-2">
+        <Label className="text-xs font-semibold text-green-600 min-w-fit">
           📦 용도
         </Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1 flex-1">
           <Badge 
             variant={localPurposeCategories.includes('ALL') ? "default" : "outline"}
-            className={`cursor-pointer transition-colors ${
+            className={`cursor-pointer text-xs py-1 px-2 h-6 ${
               localPurposeCategories.includes('ALL') 
                 ? 'bg-green-500 text-white hover:bg-green-600' 
                 : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
@@ -152,7 +152,7 @@ export function InlineFilter() {
             <Badge 
               key={category.id}
               variant={localPurposeCategories.includes(category.id) ? "default" : "outline"}
-              className={`cursor-pointer transition-colors ${
+              className={`cursor-pointer text-xs py-1 px-2 h-6 ${
                 localPurposeCategories.includes(category.id) 
                   ? 'bg-green-500 text-white hover:bg-green-600' 
                   : 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100'
@@ -165,10 +165,10 @@ export function InlineFilter() {
         </div>
       </div>
 
-      {/* 가격 범위 필터 */}
-      <div className="space-y-3">
-        <Label className="text-sm font-semibold text-gray-700">가격 범위</Label>
-        <div className="px-2">
+      {/* 가격 범위 필터 - 더 컴팩트하게 */}
+      <div className="flex items-center gap-2">
+        <Label className="text-xs font-semibold text-gray-700 min-w-fit">가격 범위</Label>
+        <div className="flex-1 px-1">
           <Slider
             min={0}
             max={50000}
@@ -179,19 +179,19 @@ export function InlineFilter() {
             }
             className="w-full"
           />
-          <div className="flex justify-between mt-2 text-sm text-gray-600">
+          <div className="flex justify-between text-xs text-gray-600 mt-1">
             <span>¥{localPriceRange.min.toLocaleString()}</span>
             <span>¥{localPriceRange.max.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
-      {/* 액션 버튼 */}
-      <div className="flex gap-2 pt-2">
-        <Button variant="outline" onClick={handleResetFilters} className="flex-1">
+      {/* 액션 버튼 - 더 작게 */}
+      <div className="flex gap-2 pt-1">
+        <Button variant="outline" onClick={handleResetFilters} className="flex-1 h-8 text-xs">
           초기화
         </Button>
-        <Button onClick={handleApplyFilters} className="flex-1">
+        <Button onClick={handleApplyFilters} className="flex-1 h-8 text-xs">
           필터 적용
         </Button>
       </div>
