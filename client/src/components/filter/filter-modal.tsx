@@ -247,11 +247,12 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       "TOYS": "장난감", // 캐릭터 굿즈 포함됨
     };
     
-    // 모든 가능한 카테고리 추출 (통합된 카테고리만 표시)
+    // 새로운 두단계 카테고리 시스템을 위한 설정
     const allCategoriesSet = new Set<string>();
     
-    // CATEGORIES에서 모든 카테고리 ID 추출 (상품에 관계없이 보여줄 카테고리)
-    Object.keys(CATEGORIES).forEach(categoryId => {
+    // 기본 카테고리 목록 (호환성을 위해 유지)
+    const defaultCategories = ['food', 'cosmetic', 'etc', 'clothing'];
+    defaultCategories.forEach(categoryId => {
       allCategoriesSet.add(categoryId);
     });
     

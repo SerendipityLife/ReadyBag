@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/use-auth";
 import { CountrySelector } from "@/components/country-selector";
-import { FilterModal } from "@/components/filter/filter-modal";
+import { FilterModal } from "@/components/filter/filter-modal-simplified";
 import { View } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { 
