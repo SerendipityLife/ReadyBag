@@ -27,10 +27,10 @@ export const products = pgTable("products", {
   price: integer("price").notNull(),
   imageUrl: text("image_url").notNull(),
   countryId: text("country_id").references(() => countries.id).notNull(),
-  category: text("category").notNull(),
+  storeType: text("store_type").notNull(), // 상위 카테고리 - 판매처: donkihote, convenience, drugstore
+  purposeCategory: text("purpose_category").notNull(), // 하위 카테고리 - 용도: food, drink, cosmetic, clothing, etc
   hashtags: jsonb("hashtags").$type<string[]>(),
   location: text("location"),
-  storeType: text("store_type"), // 판매 장소 구분: 'donkihote', 'convenience', 'drugstore'
   featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
