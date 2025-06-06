@@ -68,12 +68,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-lg font-semibold">상품 필터</DialogTitle>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
+          <DialogTitle className="text-lg font-semibold">상품 필터</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
