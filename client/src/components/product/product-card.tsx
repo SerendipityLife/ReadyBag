@@ -682,10 +682,7 @@ export function ProductCard({
         {/* 피드백 아이콘 - 스와이프 동작 시 */}
         {getFeedbackIcon()}
         
-        {/* 내비게이션 표시: 현재 위치 / 전체 */}
-        <div className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs font-medium px-2 py-1 rounded-full z-10">
-          {index + 1} / {total}
-        </div>
+
         
         {/* 로딩 표시 */}
         {isProcessing && (
