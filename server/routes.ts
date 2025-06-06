@@ -148,6 +148,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get product by ID
+  app.get(`${apiPrefix}/products/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const product = await storage.getProductById(id);
+      
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      return res.json(product);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      return res.status(500).json({ message: "Failed to fetch product" });
+    }
+  });
+
   // Get user products (categorized)
   app.get(`${apiPrefix}/user-products`, async (req, res) => {
     try {

@@ -279,7 +279,7 @@ export function ProductCardStack() {
     // 필터링된 상품이 비어있지 않고 visible 상품이 비어있을 때만 업데이트
     if (filteredProducts.length > 0 && visibleProducts.length === 0) {
       setVisibleProducts([]);
-      setCurrentProductIndex(0);
+      // setCurrentProductIndex는 AppContext에서 가져온 함수이므로 직접 호출하지 않음
     }
     
     // 필터링된 상품이 있으면 강제 리셋 모드 비활성화
@@ -290,7 +290,7 @@ export function ProductCardStack() {
       
       return () => clearTimeout(timer);
     }
-  }, [filteredProducts, totalCategoryCount, originalTotalProducts, visibleProducts.length, setCurrentProductIndex, forceReset]);
+  }, [filteredProducts, totalCategoryCount, originalTotalProducts, visibleProducts.length, forceReset]);
   
   const isLoading = productsLoading || userProductsLoading;
   
