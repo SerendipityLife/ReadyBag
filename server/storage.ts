@@ -25,16 +25,22 @@ export const storage = {
   async getProductsByCountry(
     countryId: string, 
     filters?: {
-      categories?: string[];
+      storeTypes?: string[];
+      purposeCategories?: string[];
       priceRange?: { min: number; max: number };
       tags?: string[];
     }
   ) {
     let conditions = [eq(products.countryId, countryId)];
     
-    // 카테고리 필터링
-    if (filters?.categories && filters.categories.length > 0 && !filters.categories.includes("ALL")) {
-      conditions.push(inArray(products.category, filters.categories));
+    // 판매처 필터링 (상위 카테고리)
+    if (filters?.storeTypes && filters.storeTypes.length > 0 && !filters.storeTypes.includes("ALL")) {
+      conditions.push(inArray(products.storeType, filters.storeTypes));
+    }
+    
+    // 용도 카테고리 필터링 (하위 카테고리)
+    if (filters?.purposeCategories && filters.purposeCategories.length > 0 && !filters.purposeCategories.includes("ALL")) {
+      conditions.push(inArray(products.purposeCategory, filters.purposeCategories));
     }
     
     // 가격 범위 필터링

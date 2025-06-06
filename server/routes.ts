@@ -55,9 +55,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const startTime = Date.now();
       const countryId = req.query.countryId as string || "japan";
       
-      // 필터 파라미터 추출
-      const categories = req.query.categories 
-        ? (req.query.categories as string).split(',') 
+      // 필터 파라미터 추출 - 새로운 두단계 카테고리 시스템
+      const storeTypes = req.query.storeTypes 
+        ? (req.query.storeTypes as string).split(',') 
+        : undefined;
+        
+      const purposeCategories = req.query.purposeCategories 
+        ? (req.query.purposeCategories as string).split(',') 
         : undefined;
         
       const minPrice = req.query.minPrice 
@@ -72,9 +76,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? (req.query.tags as string).split(',') 
         : undefined;
       
-      // 필터 객체 생성
+      // 필터 객체 생성 - 새로운 두단계 카테고리 시스템
       const filters = {
-        categories,
+        storeTypes,
+        purposeCategories,
         priceRange: (minPrice !== undefined || maxPrice !== undefined) 
           ? { 
               min: minPrice !== undefined ? minPrice : 0, 
@@ -98,7 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const logger = await import('./logger').catch(() => null);
           if (logger) {
             const responseTime = Date.now() - startTime;
-            logger.logApiRequest(`[CACHE HIT] GET products - country: ${countryId}, filters: ${JSON.stringify(filters)}, responseTime: ${responseTime}ms, products: ${cachedData.length}`);
+            logger.logApiRequest(`[CACHE HIT] GET products - country: ${countryId}, filters: ${JSON.stringify(filters)}, responseTime: ${responseTime}ms, products: ${Array.isArray(cachedData) ? cachedData.length : 0}`);
           }
         } catch (logError) {
           // 로깅 실패해도 API 응답에는 영향 없도록
@@ -422,6 +427,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     });
   }
+
+  // 새로운 카테고리 필터 엔드포인트
+  app.get(`${apiPrefix}/categories/store-types`, async (_req, res) => {
+    try {
+      const storeTypes = [
+        { id: 'donkihote', name: '돈키호테', nameJapanese: 'ドン・キホーテ' },
+        { id: 'convenience', name: '편의점', nameJapanese: 'コンビニ' },
+        { id: 'drugstore', name: '드럭스토어', nameJapanese: 'ドラッグストア' }
+      ];
+      res.json(storeTypes);
+    } catch (error) {
+      console.error("Error fetching store types:", error);
+      res.status(500).json({ message: "Failed to fetch store types" });
+    }
+  });
+
+  app.get(`${apiPrefix}/categories/purpose-categories`, async (_req, res) => {
+    try {
+      const purposeCategories = [
+        { id: 'food', name: '먹을거', nameJapanese: '食べ物' },
+        { id: 'drink', name: '마실거', nameJapanese: '飲み物' },
+        { id: 'cosmetic', name: '바를거', nameJapanese: 'コスメ' },
+        { id: 'clothing', name: '입을거', nameJapanese: '衣類' },
+        { id: 'etc', name: '기타', nameJapanese: 'その他' }
+      ];
+      res.json(purposeCategories);
+    } catch (error) {
+      console.error("Error fetching purpose categories:", error);
+      res.status(500).json({ message: "Failed to fetch purpose categories" });
+    }
+  });
 
   // Google Maps API 키 제공 엔드포인트
   app.get(`${apiPrefix}/config/google-maps`, (_req, res) => {
