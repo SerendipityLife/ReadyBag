@@ -850,11 +850,6 @@ export function ProductCard({
               }</span>
             </div>
           </div>
-          
-          <div className="mt-3 border-t border-gray-100 pt-3">
-            <p className="text-neutral text-sm line-clamp-5">{product.description}</p>
-          </div>
-          
 
         </div>
       </Card>
