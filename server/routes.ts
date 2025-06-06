@@ -423,6 +423,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
+  // Google Maps API 키 제공 엔드포인트
+  app.get(`${apiPrefix}/config/google-maps`, (_req, res) => {
+    res.json({ 
+      apiKey: process.env.GOOGLE_MAPS_API_KEY || '' 
+    });
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

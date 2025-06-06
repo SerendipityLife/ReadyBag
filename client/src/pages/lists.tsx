@@ -5,7 +5,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus, CATEGORY_MAPPING } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle } from "lucide-react";
+import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
+import { LocationSearch } from "@/components/location/location-search";
 import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
@@ -23,7 +24,7 @@ export function Lists() {
   const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user; // 비회원 여부 확인
-  const [activeTab, setActiveTab] = useState<ProductStatus>(ProductStatus.INTERESTED);
+  const [activeTab, setActiveTab] = useState<ProductStatus | "location">(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
   
@@ -659,10 +660,10 @@ export function Lists() {
         <div className="bg-white rounded-lg shadow-sm w-full">
           <Tabs
             defaultValue={ProductStatus.INTERESTED}
-            onValueChange={(value) => setActiveTab(value as ProductStatus)}
+            onValueChange={(value) => setActiveTab(value as ProductStatus | "location")}
             className="w-full"
           >
-            <TabsList className="w-full grid grid-cols-2 bg-white rounded-lg mb-2">
+            <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
               <TabsTrigger
                 value={ProductStatus.INTERESTED}
                 className="flex items-center justify-center"
@@ -674,6 +675,13 @@ export function Lists() {
                 className="flex items-center justify-center"
               >
                 <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
+              </TabsTrigger>
+              <TabsTrigger
+                value="location"
+                className="flex items-center justify-center"
+              >
+                <MapPin className="h-4 w-4 mr-1" />
+                <span className="text-blue-600">위치</span>
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -730,6 +738,12 @@ export function Lists() {
               <div className="w-full">
                 {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
               </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="location">
+            <div className="w-full">
+              <LocationSearch />
             </div>
           </TabsContent>
         </Tabs>
