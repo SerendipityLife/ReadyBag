@@ -836,6 +836,21 @@ export function ProductCard({
             </div>
           </div>
           
+          {/* 새로운 두단계 카테고리 표시 */}
+          <div className="mt-3 flex gap-2">
+            <div className="flex items-center gap-1 bg-blue-50 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">
+              <span>{product.storeType === 'donkihote' ? '돈키호테' : product.storeType === 'convenience' ? '편의점' : '드럭스토어'}</span>
+            </div>
+            <div className="flex items-center gap-1 bg-green-50 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+              <span>{
+                product.purposeCategory === 'food' ? '먹을거' :
+                product.purposeCategory === 'drink' ? '마실거' :
+                product.purposeCategory === 'cosmetic' ? '바를거' :
+                product.purposeCategory === 'clothing' ? '입을거' : '기타'
+              }</span>
+            </div>
+          </div>
+          
           <div className="mt-3 border-t border-gray-100 pt-3">
             <p className="text-neutral text-sm line-clamp-5">{product.description}</p>
           </div>

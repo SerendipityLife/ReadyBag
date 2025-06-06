@@ -14,12 +14,23 @@ type AppContextType = {
   setCurrentView: (view: View) => void;
   selectedCountry: Country;
   setSelectedCountry: (country: Country) => void;
+  
+  // 새로운 두단계 카테고리 시스템
+  selectedStoreTypes: string[];
+  setSelectedStoreTypes: (storeTypes: string[]) => void;
+  selectedPurposeCategories: string[];
+  setSelectedPurposeCategories: (categories: string[]) => void;
+  isAllStoreTypesSelected: boolean;
+  isAllPurposeCategoriesSelected: boolean;
+  
+  // 기존 카테고리 관련 (호환성을 위해 유지, 내부적으로는 새 시스템 사용)
   selectedCategories: string[];
   setSelectedCategories: (categories: string[]) => void;
   addCategory: (category: string) => void;
   removeCategory: (category: string) => void;
   toggleCategory: (category: string) => void;
   isAllCategoriesSelected: boolean;
+  
   currentProductIndex: number;
   setCurrentProductIndex: (index: number) => void;
   isShareModalOpen: boolean;
@@ -47,7 +58,14 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // App state
   const [currentView, setCurrentView] = useState<View>(View.EXPLORE);
   const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
+  
+  // 새로운 두단계 카테고리 시스템
+  const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>(["ALL"]);
+  const [selectedPurposeCategories, setSelectedPurposeCategories] = useState<string[]>(["ALL"]);
+  
+  // 기존 호환성을 위한 카테고리 상태
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["ALL"]);
+  
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
@@ -60,6 +78,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
+  const isAllStoreTypesSelected = selectedStoreTypes.includes("ALL") || selectedStoreTypes.length === 0;
+  const isAllPurposeCategoriesSelected = selectedPurposeCategories.includes("ALL") || selectedPurposeCategories.length === 0;
 
   // Category management functions
   const addCategory = (category: string) => {
@@ -202,12 +222,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setCurrentView,
     selectedCountry,
     setSelectedCountry,
+    
+    // 새로운 두단계 카테고리 시스템
+    selectedStoreTypes,
+    setSelectedStoreTypes,
+    selectedPurposeCategories,
+    setSelectedPurposeCategories,
+    isAllStoreTypesSelected,
+    isAllPurposeCategoriesSelected,
+    
+    // 기존 카테고리 (호환성)
     selectedCategories,
     setSelectedCategories,
     addCategory,
     removeCategory,
     toggleCategory,
     isAllCategoriesSelected,
+    
     currentProductIndex,
     setCurrentProductIndex,
     isShareModalOpen,

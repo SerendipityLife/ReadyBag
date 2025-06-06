@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAppContext } from "@/contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
-import { API_ROUTES, CATEGORIES, CATEGORY_MAPPING, View, ProductStatus } from "@/lib/constants";
+import { API_ROUTES, View, ProductStatus } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
 import { 
@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { CategoryFilter } from "./category-filter-new";
 
 export interface FilterModalProps {
   isOpen: boolean;
