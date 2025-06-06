@@ -142,8 +142,9 @@ def insert_products(conn, df):
                 }
                 image_url = image_urls.get(category, image_urls['LIFESTYLE'])
                 
-                # 해시태그 생성
-                hashtags = [f"#{category.lower()}", "#일본쇼핑", "#여행필수템"]
+                # 해시태그 생성 (JSON 형태로)
+                import json
+                hashtags = json.dumps([f"#{category.lower()}", "#일본쇼핑", "#여행필수템"])
                 
                 # 빈 이름이나 설명 스킵
                 if not name or name.lower() in ['nan', 'null', '']:
@@ -152,9 +153,9 @@ def insert_products(conn, df):
                 # SQL 삽입
                 insert_sql = """
                 INSERT INTO products (
-                    name, "nameJapanese", description, price, "imageUrl", 
-                    "countryId", category, hashtags, location, featured,
-                    "createdAt", "updatedAt"
+                    name, name_japanese, description, price, image_url, 
+                    country_id, category, hashtags, location, featured,
+                    created_at, updated_at
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
                 
