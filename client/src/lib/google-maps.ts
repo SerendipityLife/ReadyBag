@@ -329,22 +329,24 @@ class GoogleMapsService {
   generateMapsUrlWithAddress(originAddress: string, destination: { lat: number; lng: number; name: string }): string {
     // 출발지는 주소 텍스트로, 목적지는 좌표와 이름으로 설정
     const encodedOrigin = encodeURIComponent(originAddress);
+    const encodedDestinationName = encodeURIComponent(destination.name);
     const destinationParam = `${destination.lat},${destination.lng}`;
     
-    // Google Maps 길찾기 URL - 출발지를 주소로 명시하여 GPS 위치 오버라이드 방지
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
+    // Google Maps 길찾기 URL - 출발지를 주소로 명시하고 목적지에 이름도 포함
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${encodedDestinationName}/@${destinationParam}&travelmode=walking`;
   }
 
-  // 범용 길찾기 함수 - 앱 전체에서 사용
+  // 범용 길찾기 함수 - 사용자 입력 주소를 정확히 전달
   navigateFromAccommodation(accommodationAddress: string, destination: { lat: number; lng: number; name: string }): void {
-    const encodedOrigin = encodeURIComponent(accommodationAddress);
+    const formattedAddress = accommodationAddress.trim();
+    const encodedOrigin = encodeURIComponent(formattedAddress);
     const destinationParam = `${destination.lat},${destination.lng}`;
+    
+    // 사용자 입력 주소를 Google Maps에 전달하는 URL
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
     
-    console.log('✅ 길찾기 실행');
-    console.log('📍 출발지 (사용자 입력 원본):', accommodationAddress);
-    console.log('🎯 목적지:', destination.name);
-    console.log('🔗 생성된 URL:', mapsUrl);
+    console.log('길찾기: 출발지 -', formattedAddress);
+    console.log('길찾기: 목적지 -', destination.name);
     
     window.open(mapsUrl, '_blank');
   }

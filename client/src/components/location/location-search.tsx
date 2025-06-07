@@ -324,17 +324,14 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
   const handleNavigate = (place: PlaceResult) => {
     // 항상 글로벌 앱 컨텍스트의 숙박지 주소를 출발지로 사용
     if (accommodationLocation) {
-      console.log('출발지 (숙박지):', accommodationLocation);
-      console.log('목적지 (편의점):', place);
+      console.log('📍 사용자 입력 원본 주소:', accommodationLocation.address);
+      console.log('🎯 목적지:', place.name);
       
-      // 글로벌 숙박지 주소를 명시적으로 사용하여 URL 생성
-      const mapsUrl = googleMapsService.generateMapsUrlWithAddress(
-        accommodationLocation.address, // 항상 글로벌 숙박지 주소 사용
+      // 사용자 입력 원본 주소를 직접 Google Maps에 전달
+      googleMapsService.navigateFromAccommodation(
+        accommodationLocation.address, // 사용자가 입력한 정확한 주소
         { lat: place.lat, lng: place.lng, name: place.name }
       );
-      
-      console.log('생성된 길찾기 URL:', mapsUrl);
-      window.open(mapsUrl, '_blank');
     } else {
       console.error('숙박지 위치가 설정되지 않았습니다.');
       setError('먼저 숙박지 주소를 설정해주세요.');
