@@ -341,9 +341,10 @@ class GoogleMapsService {
     const destinationParam = `${destination.lat},${destination.lng}`;
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
     
-    console.log('범용 길찾기 - 출발지 (숙박지):', accommodationAddress);
-    console.log('범용 길찾기 - 목적지:', destination);
-    console.log('범용 길찾기 URL:', mapsUrl);
+    console.log('✅ 길찾기 실행');
+    console.log('📍 출발지 (사용자 입력 원본):', accommodationAddress);
+    console.log('🎯 목적지:', destination.name);
+    console.log('🔗 생성된 URL:', mapsUrl);
     
     window.open(mapsUrl, '_blank');
   }

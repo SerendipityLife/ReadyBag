@@ -74,13 +74,14 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       const location = await googleMapsService.geocodeAddress(locationAddress);
       if (location) {
         setCurrentLocation(location);
-        // 글로벌 앱 상태에 숙박지 주소 저장
+        // 글로벌 앱 상태에 숙박지 주소 저장 - 사용자 입력 원본 주소 보존
         setAccommodationLocation({
           name: location.name,
-          address: location.address,
+          address: locationAddress, // 지오코딩된 주소가 아닌 사용자 입력 원본 사용
           lat: location.lat,
           lng: location.lng
         });
+        console.log('✅ 숙박지 주소 저장 완료 (사용자 입력 원본):', locationAddress);
         onLocationSelect?.(location);
         setError(null);
         setNearbyPlaces([]); // 새 위치 검색 시 이전 결과 초기화
