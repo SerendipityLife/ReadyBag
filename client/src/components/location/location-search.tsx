@@ -97,20 +97,36 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       } else {
         // 상위 카테고리만 선택된 경우 (모든 브랜드)
         if (facilityType.subTypes.length > 0) {
-          console.log('편의점 통합 검색 시작 - 기준 위치:', currentLocation);
+          console.log('모든 브랜드 편의점 검색 시작 - 기준 위치:', currentLocation);
           console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
           
-          // 편의점의 경우 통합 검색 수행 - 반경 1km 내에서 검색
-          const allBrandResults = await googleMapsService.findAllConvenienceStores(
-            { lat: currentLocation.lat, lng: currentLocation.lng }
-          );
+          // 모든 편의점 브랜드 키워드로 통합 검색 (일관성 확보)
+          const allBrandKeywords = ['편의점', 'convenience store', '세븐일레븐', '7-Eleven', '패밀리마트', 'FamilyMart', '로손', 'Lawson'];
+          let allResults: PlaceResult[] = [];
+
+          for (const keyword of allBrandKeywords) {
+            const results = await googleMapsService.findNearbyPlaces(
+              { lat: currentLocation.lat, lng: currentLocation.lng },
+              'convenience_store',
+              keyword
+            );
+            allResults = [...allResults, ...results];
+          }
           
-          console.log('검색된 편의점:', allBrandResults.length, '개');
+          // 중복 제거
+          const uniqueResults = allResults.filter((result, index, arr) => {
+            return !arr.slice(0, index).some(prev => 
+              prev.placeId === result.placeId ||
+              (Math.abs(prev.lat - result.lat) < 0.0001 && Math.abs(prev.lng - result.lng) < 0.0001)
+            );
+          });
+
+          console.log('모든 브랜드 검색 결과:', uniqueResults.length, '개');
           
-          // Distance Matrix API로 실제 도보 거리 계산 후 정렬
+          // Distance Matrix API로 실제 도보 거리 계산
           const resultsWithDistance = await googleMapsService.calculateDistances(
             { lat: currentLocation.lat, lng: currentLocation.lng },
-            allBrandResults // 모든 결과에 대해 거리 계산
+            uniqueResults
           );
 
           // Google Maps 실제 도보 거리 기준으로 정렬하여 TOP 3 선택
@@ -123,7 +139,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
             })
             .slice(0, 3);
 
-          console.log('Distance Matrix API 기준 TOP 3 편의점:', sortedByActualDistance);
+          console.log('모든 브랜드 Distance Matrix API 기준 TOP 3:', sortedByActualDistance);
           setNearbyPlaces(sortedByActualDistance);
           setIsLoadingPlaces(false);
           return;

@@ -145,7 +145,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 1000, // 1km 반경
+        radius: 500, // 500m 반경
         keyword: keyword,
         type: type as any
       };
@@ -192,7 +192,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 1000, // 1km 반경으로 통일
+        radius: 500, // 500m 반경
         type: 'convenience_store' as any
       };
 
