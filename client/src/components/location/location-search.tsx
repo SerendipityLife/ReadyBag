@@ -100,21 +100,31 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
           console.log('편의점 통합 검색 시작 - 기준 위치:', currentLocation);
           console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
           
-          // 편의점의 경우 통합 검색 수행 - 반경 1km 내에서 가장 가까운 순으로
+          // 편의점의 경우 통합 검색 수행 - 반경 1km 내에서 검색
           const allBrandResults = await googleMapsService.findAllConvenienceStores(
             { lat: currentLocation.lat, lng: currentLocation.lng }
           );
           
           console.log('검색된 편의점:', allBrandResults.length, '개');
           
-          // 거리 계산하여 TOP 3 선택 (이미 거리순으로 정렬된 상태)
+          // Distance Matrix API로 실제 도보 거리 계산 후 정렬
           const resultsWithDistance = await googleMapsService.calculateDistances(
             { lat: currentLocation.lat, lng: currentLocation.lng },
-            allBrandResults.slice(0, 3) // 가장 가까운 3개만 선택
+            allBrandResults // 모든 결과에 대해 거리 계산
           );
 
-          console.log('최종 TOP 3 편의점:', resultsWithDistance);
-          setNearbyPlaces(resultsWithDistance);
+          // Google Maps 실제 도보 거리 기준으로 정렬하여 TOP 3 선택
+          const sortedByActualDistance = resultsWithDistance
+            .filter(place => place.distance && place.distance !== '거리 정보 없음')
+            .sort((a, b) => {
+              const distanceA = parseFloat(a.distance.replace(/[^\d.]/g, ''));
+              const distanceB = parseFloat(b.distance.replace(/[^\d.]/g, ''));
+              return distanceA - distanceB;
+            })
+            .slice(0, 3);
+
+          console.log('Distance Matrix API 기준 TOP 3 편의점:', sortedByActualDistance);
+          setNearbyPlaces(sortedByActualDistance);
           setIsLoadingPlaces(false);
           return;
         } else {
@@ -147,27 +157,27 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         );
       });
 
-      // 거리로 재정렬하여 가장 가까운 곳부터 선택
-      const sortedByDistance = uniqueResults
-        .map(place => {
-          const distance = googleMapsService.calculateDistance(
-            currentLocation.lat, currentLocation.lng,
-            place.lat, place.lng
-          );
-          return { ...place, calculatedDistance: distance };
-        })
-        .sort((a, b) => a.calculatedDistance - b.calculatedDistance)
-        .slice(0, 3); // 가장 가까운 TOP 3만
+      console.log('중복 제거 후 결과:', uniqueResults.length, '개');
 
-      console.log('거리순 정렬된 결과:', sortedByDistance);
-
-      // 거리 계산 - TOP 3에 대해서만
+      // Distance Matrix API로 실제 도보 거리 계산
       const resultsWithDistance = await googleMapsService.calculateDistances(
         { lat: currentLocation.lat, lng: currentLocation.lng },
-        sortedByDistance.map(r => ({ ...r, distance: '', duration: '' }))
+        uniqueResults
       );
 
-      setNearbyPlaces(resultsWithDistance);
+      // Google Maps 실제 도보 거리 기준으로 정렬하여 TOP 3 선택
+      const sortedByActualDistance = resultsWithDistance
+        .filter(place => place.distance && place.distance !== '거리 정보 없음')
+        .sort((a, b) => {
+          const distanceA = parseFloat(a.distance.replace(/[^\d.]/g, ''));
+          const distanceB = parseFloat(b.distance.replace(/[^\d.]/g, ''));
+          return distanceA - distanceB;
+        })
+        .slice(0, 3);
+
+      console.log('Distance Matrix API 기준 특정 브랜드 TOP 3:', sortedByActualDistance);
+
+      setNearbyPlaces(sortedByActualDistance);
     } catch (error) {
       console.error("주변 시설 검색 오류:", error);
       setError("주변 시설 검색 중 오류가 발생했습니다.");

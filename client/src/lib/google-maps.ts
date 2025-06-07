@@ -198,20 +198,11 @@ class GoogleMapsService {
 
       this.service!.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          // 모든 편의점 결과를 거리순으로 정렬
+          // 모든 편의점 결과를 PlaceResult 형태로 변환 (거리 계산은 나중에 Distance Matrix API로)
           const allConvenienceStores = results
             .filter(place => place.geometry?.location && place.name)
-            .map(place => {
-              const placeLocation = place.geometry!.location!;
-              const distance = this.calculateDistance(
-                location.lat, location.lng,
-                placeLocation.lat(), placeLocation.lng()
-              );
-              return { place, distance };
-            })
-            .sort((a, b) => a.distance - b.distance)
-            .slice(0, 10) // 더 많은 결과에서 선택
-            .map(({ place }) => ({
+            .slice(0, 15) // 더 많은 결과에서 선택
+            .map(place => ({
               name: place.name || '이름 없음',
               address: place.vicinity || place.formatted_address || '주소 정보 없음',
               distance: '',
