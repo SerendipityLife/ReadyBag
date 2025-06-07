@@ -156,9 +156,27 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         uniqueResults
       );
 
-      // Google Maps 실제 도보 거리 기준으로 정렬하여 TOP 3 선택
-      const sortedByActualDistance = resultsWithDistance
-        .filter(place => place.distance && place.distance !== '거리 정보 없음')
+      // Distance Matrix API 실패 시 직선 거리로 대체 계산
+      const resultsWithFallbackDistance = resultsWithDistance.map(place => {
+        if (!place.distance || place.distance === '거리 정보 없음' || place.distance === '계산 실패' || place.distance === '정보 없음') {
+          const straightLineDistance = googleMapsService.calculateDistance(
+            currentLocation.lat, currentLocation.lng,
+            place.lat, place.lng
+          );
+          return {
+            ...place,
+            distance: `${(straightLineDistance * 1000).toFixed(0)} m`,
+            duration: `${Math.ceil(straightLineDistance * 12)} 분`,
+            fallback: true
+          };
+        }
+        return { ...place, fallback: false };
+      });
+
+      console.log('Distance Matrix API + 직선거리 대체 결과:', resultsWithFallbackDistance);
+
+      // 거리 기준으로 정렬하여 TOP 3 선택
+      const sortedByActualDistance = resultsWithFallbackDistance
         .sort((a, b) => {
           const distanceA = parseFloat(a.distance.replace(/[^\d.]/g, ''));
           const distanceB = parseFloat(b.distance.replace(/[^\d.]/g, ''));

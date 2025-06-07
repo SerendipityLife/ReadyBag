@@ -238,25 +238,42 @@ class GoogleMapsService {
         destinations: destinationLatLngs,
         travelMode: google.maps.TravelMode.WALKING,
         unitSystem: google.maps.UnitSystem.METRIC,
-        avoidHighways: true,
-        avoidTolls: true
+        avoidHighways: false,
+        avoidTolls: false
       }, (response, status) => {
+        console.log('Distance Matrix API 응답:', { status, response });
+        
         if (status === 'OK' && response && response.rows[0]) {
           const elements = response.rows[0].elements;
+          console.log('Distance Matrix API 엘리먼트:', elements);
+          
           const updatedDestinations = destinations.map((dest, index) => {
             const element = elements[index];
-            if (element.status === 'OK') {
+            console.log(`목적지 ${index} (${dest.name}):`, element);
+            
+            if (element && element.status === 'OK') {
               return {
                 ...dest,
                 distance: element.distance?.text || '거리 정보 없음',
                 duration: element.duration?.text || '시간 정보 없음'
               };
             }
-            return dest;
+            return {
+              ...dest,
+              distance: '계산 실패',
+              duration: '계산 실패'
+            };
           });
           resolve(updatedDestinations);
         } else {
-          resolve(destinations);
+          console.error('Distance Matrix API 오류:', status, response);
+          // API 실패 시 기본 거리/시간으로 대체
+          const fallbackDestinations = destinations.map(dest => ({
+            ...dest,
+            distance: '정보 없음',
+            duration: '정보 없음'
+          }));
+          resolve(fallbackDestinations);
         }
       });
     });
