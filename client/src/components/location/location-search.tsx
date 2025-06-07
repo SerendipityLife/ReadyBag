@@ -140,12 +140,39 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         placeId: store.placeId
       })));
 
-      // 중복 제거 (같은 placeId나 매우 가까운 위치)
+      // 강화된 중복 제거 로직 (지하철역 내 같은 브랜드 매장 중복 제거)
       const uniqueResults = allResults.filter((result, index, arr) => {
-        return !arr.slice(0, index).some(prev => 
-          prev.placeId === result.placeId ||
-          (Math.abs(prev.lat - result.lat) < 0.0001 && Math.abs(prev.lng - result.lng) < 0.0001)
-        );
+        // 1차: placeId 중복 제거
+        const hasSamePlace = arr.slice(0, index).some(prev => prev.placeId === result.placeId);
+        if (hasSamePlace) return false;
+        
+        // 2차: 같은 브랜드 + 유사한 위치 중복 제거
+        const brandName = result.name.toLowerCase()
+          .replace(/s osl|station|home|south|north|east|west|exit|floor|flr|2nd|chuo|御堂筋線|なんば駅|2番ホーム/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+          
+        const hasNearbyBrand = arr.slice(0, index).some(prev => {
+          const prevBrandName = prev.name.toLowerCase()
+            .replace(/s osl|station|home|south|north|east|west|exit|floor|flr|2nd|chuo|御堂筋線|なんば駅|2番ホーム/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+            
+          // 브랜드명이 유사하고 100m 이내에 있는 경우
+          const isSimilarBrand = brandName === prevBrandName || 
+                                (brandName.includes('lawson') && prevBrandName.includes('lawson')) ||
+                                (brandName.includes('familymart') && prevBrandName.includes('familymart')) ||
+                                (brandName.includes('seven') && prevBrandName.includes('seven'));
+                                
+          const distance = Math.sqrt(
+            Math.pow((prev.lat - result.lat) * 111000, 2) + 
+            Math.pow((prev.lng - result.lng) * 111000, 2)
+          );
+          
+          return isSimilarBrand && distance < 100; // 100m 이내 같은 브랜드는 중복으로 간주
+        });
+        
+        return !hasNearbyBrand;
       });
 
       console.log('중복 제거 후 결과:', uniqueResults.length, '개');
