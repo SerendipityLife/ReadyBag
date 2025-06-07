@@ -150,10 +150,14 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       console.log('중복 제거 후 결과:', uniqueResults.length, '개');
 
+      // Distance Matrix API 한도를 고려하여 최대 10개까지만 계산
+      const limitedResults = uniqueResults.slice(0, 10);
+      console.log('Distance Matrix API 계산 대상:', limitedResults.length, '개');
+      
       // Distance Matrix API로 실제 도보 거리 계산
       const resultsWithDistance = await googleMapsService.calculateDistances(
         { lat: currentLocation.lat, lng: currentLocation.lng },
-        uniqueResults
+        limitedResults
       );
 
       // Distance Matrix API 실패 시 직선 거리로 대체 계산
