@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Navigation, Loader2, Home } from "lucide-react";
 import { googleMapsService, type PlaceResult, type HotelLocation } from "@/lib/google-maps";
+import { useAppContext, type AccommodationLocation } from "@/contexts/AppContext";
 
 interface LocationSearchProps {
   onLocationSelect?: (location: HotelLocation) => void;
@@ -37,14 +38,28 @@ const FACILITY_TYPES = [
 ];
 
 export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
+  const { accommodationLocation, setAccommodationLocation } = useAppContext();
   const [locationAddress, setLocationAddress] = useState("");
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
-  const [selectedSubType, setSelectedSubType] = useState<string>("all_brands"); // 하위 브랜드 선택
+  const [selectedSubType, setSelectedSubType] = useState<string>("all_brands");
   const [currentLocation, setCurrentLocation] = useState<HotelLocation | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // 앱 컨텍스트의 숙박지 주소로부터 초기화
+  useEffect(() => {
+    if (accommodationLocation) {
+      setLocationAddress(accommodationLocation.address);
+      setCurrentLocation({
+        name: accommodationLocation.name,
+        address: accommodationLocation.address,
+        lat: accommodationLocation.lat,
+        lng: accommodationLocation.lng
+      });
+    }
+  }, [accommodationLocation]);
 
   const handleLocationSearch = async () => {
     if (!locationAddress.trim()) {
@@ -59,6 +74,13 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       const location = await googleMapsService.geocodeAddress(locationAddress);
       if (location) {
         setCurrentLocation(location);
+        // 글로벌 앱 상태에 숙박지 주소 저장
+        setAccommodationLocation({
+          name: location.name,
+          address: location.address,
+          lat: location.lat,
+          lng: location.lng
+        });
         onLocationSelect?.(location);
         setError(null);
         setNearbyPlaces([]); // 새 위치 검색 시 이전 결과 초기화
@@ -296,13 +318,14 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
   };
 
   const handleNavigate = (place: PlaceResult) => {
-    if (currentLocation) {
-      console.log('출발지 (숙박지):', currentLocation);
+    // 항상 글로벌 앱 컨텍스트의 숙박지 주소를 출발지로 사용
+    if (accommodationLocation) {
+      console.log('출발지 (숙박지):', accommodationLocation);
       console.log('목적지 (편의점):', place);
       
-      // 숙박지 주소를 명시적으로 사용하여 URL 생성
+      // 글로벌 숙박지 주소를 명시적으로 사용하여 URL 생성
       const mapsUrl = googleMapsService.generateMapsUrlWithAddress(
-        currentLocation.address, // 숙박지 주소 사용
+        accommodationLocation.address, // 항상 글로벌 숙박지 주소 사용
         { lat: place.lat, lng: place.lng, name: place.name }
       );
       

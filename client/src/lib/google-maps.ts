@@ -334,6 +334,19 @@ class GoogleMapsService {
     // Google Maps 길찾기 URL - 출발지를 주소로 명시하여 GPS 위치 오버라이드 방지
     return `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
   }
+
+  // 범용 길찾기 함수 - 앱 전체에서 사용
+  navigateFromAccommodation(accommodationAddress: string, destination: { lat: number; lng: number; name: string }): void {
+    const encodedOrigin = encodeURIComponent(accommodationAddress);
+    const destinationParam = `${destination.lat},${destination.lng}`;
+    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
+    
+    console.log('범용 길찾기 - 출발지 (숙박지):', accommodationAddress);
+    console.log('범용 길찾기 - 목적지:', destination);
+    console.log('범용 길찾기 URL:', mapsUrl);
+    
+    window.open(mapsUrl, '_blank');
+  }
 }
 
 export const googleMapsService = new GoogleMapsService();

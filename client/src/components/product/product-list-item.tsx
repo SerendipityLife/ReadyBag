@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X } from "lucide-react";
+import { Instagram, Trash2, X, Navigation } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { googleMapsService } from "@/lib/google-maps";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
@@ -18,7 +19,7 @@ interface ProductListItemProps {
 export function ProductListItem(props: ProductListItemProps) {
   const { product, userProduct, readOnly = false, onSuccessfulAction } = props;
   const queryClient = useQueryClient();
-  const { selectedCountry, exchangeRate } = useAppContext();
+  const { selectedCountry, exchangeRate, accommodationLocation } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user;
   
