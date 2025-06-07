@@ -311,6 +311,11 @@ export function ProductCard({
       setAnimatingIcon(false);
     }, 1200);
     
+    // 버튼 클릭 시 카드 슬라이드 애니메이션 트리거
+    let targetX = 0;
+    let targetY = 0;
+    let targetRotate = 0;
+    
     // 방향에 따른 테두리 색상 설정
     let borderColorValue = 'rgba(255,255,255,0)';
     let shadowColor = 'rgba(0,0,0,0)';
@@ -338,39 +343,51 @@ export function ProductCard({
       boxShadow: `0 0 25px 15px ${shadowColor.replace(/[^,]+(?=\))/, '0.7')}`, // 그림자 강화
     });
     
-    // 방향에 따른 애니메이션 적용
+    // 방향에 따른 애니메이션 적용 - 아이콘 애니메이션과 동시에 시작
     setTimeout(() => {
       if (direction === SwipeDirection.LEFT) {
-        // 왼쪽 (건너뛰기) - 방향 변경됨
+        // 왼쪽 (건너뛰기)
         api.start({
           x: -window.innerWidth - 200,
           rotate: -30,
-          filter: 'blur(0px)', // 블러 효과 제거
+          filter: 'blur(0px)',
           borderColor: borderColorValue,
-          borderWidth: '10px', // 더 두껍게
+          borderWidth: '10px',
           boxShadow: `0 0 35px 15px ${shadowColor}`,
-          onRest: () => onSwipe(direction, product.id),
+          config: { tension: 180, friction: 20 },
+          onRest: () => {
+            // 슬라이드 완료 후 스와이프 처리
+            onSwipe(direction, product.id);
+          },
         });
       } else if (direction === SwipeDirection.RIGHT) {
-        // 오른쪽 (관심) - 방향 변경됨
+        // 오른쪽 (관심)
         api.start({
           x: window.innerWidth + 200,
           rotate: 30,
-          filter: 'blur(0px)', // 블러 효과 제거
+          filter: 'blur(0px)',
           borderColor: borderColorValue,
-          borderWidth: '10px', // 더 두껍게
+          borderWidth: '10px',
           boxShadow: `0 0 35px 15px ${shadowColor}`,
-          onRest: () => onSwipe(direction, product.id),
+          config: { tension: 180, friction: 20 },
+          onRest: () => {
+            // 슬라이드 완료 후 스와이프 처리
+            onSwipe(direction, product.id);
+          },
         });
       } else if (direction === SwipeDirection.UP) {
-        // 위쪽 (고민중) - 그대로 유지
+        // 위쪽 (고민중)
         api.start({
           y: -window.innerHeight - 200,
-          filter: 'blur(0px)', // 블러 효과 제거
+          filter: 'blur(0px)',
           borderColor: borderColorValue,
-          borderWidth: '10px', // 더 두껍게
+          borderWidth: '10px',
           boxShadow: `0 0 35px 15px ${shadowColor}`,
-          onRest: () => onSwipe(direction, product.id),
+          config: { tension: 180, friction: 20 },
+          onRest: () => {
+            // 슬라이드 완료 후 스와이프 처리
+            onSwipe(direction, product.id);
+          },
         });
       }
     }, 100);

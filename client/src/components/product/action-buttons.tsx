@@ -50,15 +50,11 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
     // 애니메이션 지연 시간 (ms) - 아이콘 애니메이션이 완전히 보이도록 충분한 시간 제공
     const animationDelay = 900;
     
-    // 애니메이션 후 액션 실행
+    // 애니메이션은 triggerCardAction에서 처리되므로 여기서는 버튼 상태만 관리
+    // 카드 애니메이션이 완료된 후 버튼 상태 초기화
     setTimeout(() => {
-      onActionClick(direction);
-      
-      // 액션 후 버튼 상태 초기화 (조금 더 길게 보여주기 위해 딜레이 추가)
-      setTimeout(() => {
-        setActiveButton(null);
-      }, 200);
-    }, animationDelay);
+      setActiveButton(null);
+    }, animationDelay + 500); // 카드 슬라이드 애니메이션이 완료될 때까지 대기
   };
   
   // 버튼 상태에 따른 스타일 클래스 결정
