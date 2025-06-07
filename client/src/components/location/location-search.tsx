@@ -100,27 +100,20 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
           console.log('편의점 통합 검색 시작 - 기준 위치:', currentLocation);
           console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
           
-          // 편의점의 경우 통합 검색 수행
+          // 편의점의 경우 통합 검색 수행 - 반경 1km 내에서 가장 가까운 순으로
           const allBrandResults = await googleMapsService.findAllConvenienceStores(
             { lat: currentLocation.lat, lng: currentLocation.lng }
           );
           
           console.log('검색된 편의점:', allBrandResults.length, '개');
-          console.log('편의점 위치들:', allBrandResults.slice(0, 5).map(store => ({
-            name: store.name,
-            lat: store.lat,
-            lng: store.lng,
-            address: store.address
-          })));
           
-          // 거리 계산하여 가장 가까운 TOP 3만 선택
+          // 거리 계산하여 TOP 3 선택 (이미 거리순으로 정렬된 상태)
           const resultsWithDistance = await googleMapsService.calculateDistances(
             { lat: currentLocation.lat, lng: currentLocation.lng },
-            allBrandResults.slice(0, 3)
+            allBrandResults.slice(0, 3) // 가장 가까운 3개만 선택
           );
 
-          console.log('거리 계산 완료:', resultsWithDistance);
-
+          console.log('최종 TOP 3 편의점:', resultsWithDistance);
           setNearbyPlaces(resultsWithDistance);
           setIsLoadingPlaces(false);
           return;
@@ -130,6 +123,9 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       }
 
       let allResults: PlaceResult[] = [];
+
+      console.log('특정 브랜드 검색 시작 - 키워드:', searchKeywords);
+      console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
 
       // 각 키워드로 검색하여 결과 수집
       for (const keyword of searchKeywords) {
@@ -141,6 +137,8 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         allResults = [...allResults, ...results];
       }
 
+      console.log('키워드 검색 결과:', allResults.length, '개');
+
       // 중복 제거 (같은 placeId나 매우 가까운 위치)
       const uniqueResults = allResults.filter((result, index, arr) => {
         return !arr.slice(0, index).some(prev => 
@@ -149,10 +147,24 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         );
       });
 
-      // 거리 계산 - TOP 3로 제한
+      // 거리로 재정렬하여 가장 가까운 곳부터 선택
+      const sortedByDistance = uniqueResults
+        .map(place => {
+          const distance = googleMapsService.calculateDistance(
+            currentLocation.lat, currentLocation.lng,
+            place.lat, place.lng
+          );
+          return { ...place, calculatedDistance: distance };
+        })
+        .sort((a, b) => a.calculatedDistance - b.calculatedDistance)
+        .slice(0, 3); // 가장 가까운 TOP 3만
+
+      console.log('거리순 정렬된 결과:', sortedByDistance);
+
+      // 거리 계산 - TOP 3에 대해서만
       const resultsWithDistance = await googleMapsService.calculateDistances(
         { lat: currentLocation.lat, lng: currentLocation.lng },
-        uniqueResults.slice(0, 3) // TOP 3만
+        sortedByDistance.map(r => ({ ...r, distance: '', duration: '' }))
       );
 
       setNearbyPlaces(resultsWithDistance);

@@ -188,11 +188,11 @@ class GoogleMapsService {
       await this.initialize();
     }
 
-    // 모든 편의점을 찾기 위한 통합 검색
+    // 모든 편의점을 찾기 위한 통합 검색 - 1km 반경으로 통일
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 1500, // 1.5km 반경으로 확장
+        radius: 1000, // 1km 반경으로 통일
         type: 'convenience_store' as any
       };
 
@@ -271,7 +271,7 @@ class GoogleMapsService {
     });
   }
 
-  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371; // 지구의 반지름 (km)
     const dLat = this.deg2rad(lat2 - lat1);
     const dLng = this.deg2rad(lng2 - lng1);
