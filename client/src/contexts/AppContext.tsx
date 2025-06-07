@@ -9,11 +9,23 @@ interface PriceRange {
   max: number;
 }
 
+// 숙박지 위치 타입 정의
+export interface AccommodationLocation {
+  name: string;
+  address: string;
+  lat: number;
+  lng: number;
+}
+
 type AppContextType = {
   currentView: View;
   setCurrentView: (view: View) => void;
   selectedCountry: Country;
   setSelectedCountry: (country: Country) => void;
+  
+  // 숙박지 주소 관리
+  accommodationLocation: AccommodationLocation | null;
+  setAccommodationLocation: (location: AccommodationLocation | null) => void;
   
   // 새로운 두단계 카테고리 시스템
   selectedStoreTypes: string[];
@@ -58,6 +70,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // App state
   const [currentView, setCurrentView] = useState<View>(View.EXPLORE);
   const [selectedCountry, setSelectedCountry] = useState<Country>(DEFAULT_COUNTRY);
+  
+  // 숙박지 주소 상태
+  const [accommodationLocation, setAccommodationLocation] = useState<AccommodationLocation | null>(null);
   
   // 새로운 두단계 카테고리 시스템
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>(["ALL"]);
@@ -251,6 +266,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     generateShareUrl,
     exchangeRate,
     lastUpdated,
+    
+    // 숙박지 주소 상태 및 함수
+    accommodationLocation,
+    setAccommodationLocation,
     
     // 필터 관련 상태 및 함수
     priceRange,
