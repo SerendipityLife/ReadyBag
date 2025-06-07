@@ -153,11 +153,19 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
   const handleNavigate = (place: PlaceResult) => {
     if (currentLocation) {
+      console.log('출발지 (숙박지):', currentLocation);
+      console.log('목적지 (편의점):', place);
+      
       const mapsUrl = googleMapsService.generateMapsUrl(
         { lat: currentLocation.lat, lng: currentLocation.lng },
         { lat: place.lat, lng: place.lng }
       );
+      
+      console.log('생성된 길찾기 URL:', mapsUrl);
       window.open(mapsUrl, '_blank');
+    } else {
+      console.error('숙박지 위치가 설정되지 않았습니다.');
+      setError('먼저 숙박지 주소를 설정해주세요.');
     }
   };
 

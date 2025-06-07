@@ -288,7 +288,12 @@ class GoogleMapsService {
   }
 
   generateMapsUrl(origin: { lat: number; lng: number }, destination: { lat: number; lng: number }): string {
-    return `https://www.google.com/maps/dir/${origin.lat},${origin.lng}/${destination.lat},${destination.lng}/`;
+    // 더 명확한 출발지와 목적지 설정을 위해 파라미터 추가
+    const originParam = `${origin.lat},${origin.lng}`;
+    const destinationParam = `${destination.lat},${destination.lng}`;
+    
+    // Google Maps 길찾기 URL with explicit direction mode (walking)
+    return `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=${destinationParam}&travelmode=walking`;
   }
 }
 
