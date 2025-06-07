@@ -95,14 +95,22 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
           searchKeywords = subType.keywords;
         }
       } else {
-        // 상위 카테고리만 선택된 경우, 모든 하위 브랜드 + 일반 키워드 검색
+        // 상위 카테고리만 선택된 경우 (모든 브랜드)
         if (facilityType.subTypes.length > 0) {
-          // 모든 하위 브랜드의 키워드 수집
-          facilityType.subTypes.forEach(subType => {
-            searchKeywords = [...searchKeywords, ...subType.keywords];
-          });
-          // 일반 키워드도 추가
-          searchKeywords = [...searchKeywords, ...facilityType.keywords];
+          // 편의점의 경우 통합 검색 수행
+          const allBrandResults = await googleMapsService.findAllConvenienceStores(
+            { lat: currentLocation.lat, lng: currentLocation.lng }
+          );
+          
+          // 거리 계산하여 가장 가까운 TOP 3만 선택
+          const resultsWithDistance = await googleMapsService.calculateDistances(
+            { lat: currentLocation.lat, lng: currentLocation.lng },
+            allBrandResults.slice(0, 3)
+          );
+
+          setNearbyPlaces(resultsWithDistance);
+          setIsLoadingPlaces(false);
+          return;
         } else {
           searchKeywords = facilityType.keywords;
         }

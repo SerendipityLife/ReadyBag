@@ -183,6 +183,52 @@ class GoogleMapsService {
     });
   }
 
+  async findAllConvenienceStores(location: { lat: number; lng: number }): Promise<PlaceResult[]> {
+    if (!this.service) {
+      await this.initialize();
+    }
+
+    // 모든 편의점을 찾기 위한 통합 검색
+    return new Promise((resolve) => {
+      const request: google.maps.places.PlaceSearchRequest = {
+        location: new google.maps.LatLng(location.lat, location.lng),
+        radius: 1500, // 1.5km 반경으로 확장
+        type: 'convenience_store' as any
+      };
+
+      this.service!.nearbySearch(request, (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+          // 모든 편의점 결과를 거리순으로 정렬
+          const allConvenienceStores = results
+            .filter(place => place.geometry?.location && place.name)
+            .map(place => {
+              const placeLocation = place.geometry!.location!;
+              const distance = this.calculateDistance(
+                location.lat, location.lng,
+                placeLocation.lat(), placeLocation.lng()
+              );
+              return { place, distance };
+            })
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 10) // 더 많은 결과에서 선택
+            .map(({ place }) => ({
+              name: place.name || '이름 없음',
+              address: place.vicinity || place.formatted_address || '주소 정보 없음',
+              distance: '',
+              duration: '',
+              lat: place.geometry!.location!.lat(),
+              lng: place.geometry!.location!.lng(),
+              placeId: place.place_id
+            }));
+
+          resolve(allConvenienceStores);
+        } else {
+          resolve([]);
+        }
+      });
+    });
+  }
+
   async calculateDistances(
     origin: { lat: number; lng: number },
     destinations: PlaceResult[]
