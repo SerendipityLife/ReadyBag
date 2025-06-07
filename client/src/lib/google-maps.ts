@@ -122,7 +122,7 @@ class GoogleMapsService {
           
           resolve({
             name: address,
-            address: bestResult.formatted_address,
+            address: address, // 사용자가 입력한 원본 주소를 보존
             lat: location.lat(),
             lng: location.lng()
           });
