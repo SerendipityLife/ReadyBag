@@ -88,61 +88,26 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       let searchKeywords: string[] = [];
       
-      // 하위 브랜드가 선택된 경우 해당 브랜드만 검색 ("all_brands"가 아닌 경우)
+      // 편의점 검색 키워드 설정
       if (selectedSubType && selectedSubType !== "all_brands") {
+        // 특정 브랜드 선택
         const subType = facilityType.subTypes.find(st => st.value === selectedSubType);
         if (subType) {
           searchKeywords = subType.keywords;
         }
       } else {
-        // 상위 카테고리만 선택된 경우 (모든 브랜드)
+        // 모든 브랜드 선택 - 모든 편의점 브랜드 키워드 사용
         if (facilityType.subTypes.length > 0) {
-          console.log('모든 브랜드 편의점 검색 시작 - 기준 위치:', currentLocation);
-          console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
-          
-          // 모든 편의점 브랜드 키워드로 통합 검색 (일관성 확보)
-          const allBrandKeywords = ['편의점', 'convenience store', '세븐일레븐', '7-Eleven', '패밀리마트', 'FamilyMart', '로손', 'Lawson'];
-          let allResults: PlaceResult[] = [];
-
-          for (const keyword of allBrandKeywords) {
-            const results = await googleMapsService.findNearbyPlaces(
-              { lat: currentLocation.lat, lng: currentLocation.lng },
-              'convenience_store',
-              keyword
-            );
-            allResults = [...allResults, ...results];
-          }
-          
-          // 중복 제거
-          const uniqueResults = allResults.filter((result, index, arr) => {
-            return !arr.slice(0, index).some(prev => 
-              prev.placeId === result.placeId ||
-              (Math.abs(prev.lat - result.lat) < 0.0001 && Math.abs(prev.lng - result.lng) < 0.0001)
-            );
-          });
-
-          console.log('모든 브랜드 검색 결과:', uniqueResults.length, '개');
-          
-          // Distance Matrix API로 실제 도보 거리 계산
-          const resultsWithDistance = await googleMapsService.calculateDistances(
-            { lat: currentLocation.lat, lng: currentLocation.lng },
-            uniqueResults
-          );
-
-          // Google Maps 실제 도보 거리 기준으로 정렬하여 TOP 3 선택
-          const sortedByActualDistance = resultsWithDistance
-            .filter(place => place.distance && place.distance !== '거리 정보 없음')
-            .sort((a, b) => {
-              const distanceA = parseFloat(a.distance.replace(/[^\d.]/g, ''));
-              const distanceB = parseFloat(b.distance.replace(/[^\d.]/g, ''));
-              return distanceA - distanceB;
-            })
-            .slice(0, 3);
-
-          console.log('모든 브랜드 Distance Matrix API 기준 TOP 3:', sortedByActualDistance);
-          setNearbyPlaces(sortedByActualDistance);
-          setIsLoadingPlaces(false);
-          return;
+          searchKeywords = [
+            // 일반 편의점 키워드
+            '편의점', 'convenience store',
+            // 세븐일레븐
+            '세븐일레븐', '7-Eleven', 'Seven Eleven',
+            // 패밀리마트  
+            '패밀리마트', 'FamilyMart', 'ファミリーマート',
+            // 로손
+            '로손', 'Lawson', 'ローソン'
+          ];
         } else {
           searchKeywords = facilityType.keywords;
         }
@@ -150,7 +115,8 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       let allResults: PlaceResult[] = [];
 
-      console.log('특정 브랜드 검색 시작 - 키워드:', searchKeywords);
+      const searchType = selectedSubType === 'all_brands' ? '모든 브랜드' : '특정 브랜드';
+      console.log(`${searchType} 편의점 검색 시작 - 키워드:`, searchKeywords);
       console.log('검색 좌표:', { lat: currentLocation.lat, lng: currentLocation.lng });
 
       // 각 키워드로 검색하여 결과 수집
@@ -191,7 +157,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         })
         .slice(0, 3);
 
-      console.log('Distance Matrix API 기준 특정 브랜드 TOP 3:', sortedByActualDistance);
+      console.log(`Distance Matrix API 기준 ${searchType} TOP 3:`, sortedByActualDistance);
 
       setNearbyPlaces(sortedByActualDistance);
     } catch (error) {
