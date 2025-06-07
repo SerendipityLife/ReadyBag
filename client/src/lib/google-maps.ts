@@ -145,7 +145,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 300, // 300m 반경
+        radius: 100, // 100m 반경
         keyword: keyword,
         type: type as any
       };
@@ -207,53 +207,15 @@ class GoogleMapsService {
       };
 
       try {
-        // 1차: 기본 편의점 검색 (300m)
+        // 기본 편의점 검색 (100m 반경)
         const basicResults = await performSearch({
           location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 300,
-          type: 'convenience_store' as any
-        });
-
-        // 2차: 확장된 반경 검색 (500m)
-        const extendedResults = await performSearch({
-          location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 500,
-          type: 'convenience_store' as any
-        });
-
-        // 3차: 로손 브랜드 검색
-        const lawsonResults = await performSearch({
-          location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 500,
-          keyword: 'lawson',
-          type: 'convenience_store' as any
-        });
-
-        // 4차: 패밀리마트 브랜드 검색
-        const familymartResults = await performSearch({
-          location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 500,
-          keyword: 'familymart',
-          type: 'convenience_store' as any
-        });
-
-        // 5차: 세븐일레븐 브랜드 검색
-        const sevenResults = await performSearch({
-          location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 500,
-          keyword: '7-eleven',
-          type: 'convenience_store' as any
-        });
-
-        // 6차: 도톤보리 지역 편의점 검색
-        const dotonboriResults = await performSearch({
-          location: new google.maps.LatLng(34.6684, 135.5044), // 도톤보리 중심 좌표
-          radius: 200,
+          radius: 100,
           type: 'convenience_store' as any
         });
 
         // 모든 결과 통합 및 중복 제거
-        [...basicResults, ...extendedResults, ...lawsonResults, ...familymartResults, ...sevenResults, ...dotonboriResults]
+        [...basicResults]
           .forEach(place => {
             if (place.place_id && place.geometry?.location && place.name && !seenPlaceIds.has(place.place_id)) {
               seenPlaceIds.add(place.place_id);

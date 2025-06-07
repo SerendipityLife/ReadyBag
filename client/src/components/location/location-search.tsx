@@ -184,8 +184,25 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       console.log('편의점 필터링 결과:', filteredConvenienceStores.length, '개');
       console.log('편의점 목록:', filteredConvenienceStores.map(p => ({ name: p.name, address: p.address })));
       
-      // 편의점이 충분하지 않으면 모든 결과에서 거리순으로 선택
-      const finalResults = filteredConvenienceStores.length >= 3 ? filteredConvenienceStores : uniqueResults;
+      // 브랜드 필터링 로직 추가
+      let finalResults = filteredConvenienceStores;
+      
+      if (selectedSubType && selectedSubType !== 'all_brands') {
+        const brandKeywords: { [key: string]: string[] } = {
+          'family_mart': ['familymart', 'family mart', '패밀리마트', 'ファミリーマート'],
+          'lawson': ['lawson', '로손', 'ローソン'],
+          'seven_eleven': ['7-eleven', 'seven eleven', '세븐일레븐', 'セブンイレブン']
+        };
+        
+        const keywords = brandKeywords[selectedSubType] || [];
+        finalResults = filteredConvenienceStores.filter(place => {
+          const name = place.name.toLowerCase();
+          return keywords.some((keyword: string) => name.includes(keyword.toLowerCase()));
+        });
+        
+        console.log(`${selectedSubType} 브랜드 필터링 결과:`, finalResults.length, '개');
+        console.log(`${selectedSubType} 매장 목록:`, finalResults.map(p => ({ name: p.name, address: p.address })));
+      }
       
       const sortedByDistance = finalResults
         .map(place => ({
@@ -196,9 +213,9 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
           )
         }))
         .sort((a, b) => a.straightDistance - b.straightDistance)
-        .slice(0, 10);
+        .slice(0, Math.min(3, finalResults.length)); // 최대 3개, 없으면 있는 만큼만
       
-      console.log('직선거리 기준 가장 가까운 10개:', sortedByDistance.map(p => ({
+      console.log(`직선거리 기준 가장 가까운 ${sortedByDistance.length}개:`, sortedByDistance.map(p => ({
         name: p.name,
         distance: `${(p.straightDistance * 1000).toFixed(0)}m`,
         address: p.address
