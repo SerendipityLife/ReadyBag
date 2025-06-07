@@ -105,6 +105,9 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
     setError(null);
 
     try {
+      // 항상 글로벌 숙박지 위치를 기준으로 사용 (모든 시설 타입에 적용)
+      const originLocation = accommodationLocation || currentLocation;
+      
       const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
       if (!facilityType) return;
 
@@ -253,8 +256,6 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         console.log(`${selectedSubType} 매장 목록:`, finalResults.map(p => ({ name: p.name, address: p.address })));
       }
       
-      // 항상 글로벌 숙박지 위치를 기준으로 거리 계산
-      const originLocation = accommodationLocation || currentLocation;
       const sortedByDistance = finalResults
         .map(place => ({
           ...place,
