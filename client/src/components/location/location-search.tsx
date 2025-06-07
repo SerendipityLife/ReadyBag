@@ -12,14 +12,34 @@ interface LocationSearchProps {
 }
 
 const FACILITY_TYPES = [
-  { value: "convenience_store", label: "편의점", keywords: ["세븐일레븐", "패밀리마트", "로손", "convenience store"] },
-  { value: "store", label: "돈키호테", keywords: ["돈키호테", "don quijote", "ドン・キホーテ"] },
-  { value: "pharmacy", label: "드럭스토어", keywords: ["drugstore", "pharmacy", "matsumoto", "마츠모토키요시", "ドラッグストア"] }
+  { 
+    value: "convenience_store", 
+    label: "편의점", 
+    keywords: ["convenience store", "コンビニ", "편의점"],
+    subTypes: [
+      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐"] },
+      { value: "lawson", label: "로손", keywords: ["Lawson", "ローソン", "로손"] },
+      { value: "family_mart", label: "패밀리마트", keywords: ["FamilyMart", "ファミリーマート", "패밀리마트"] }
+    ]
+  },
+  { 
+    value: "store", 
+    label: "돈키호테", 
+    keywords: ["돈키호테", "don quijote", "ドン・キホーテ"],
+    subTypes: []
+  },
+  { 
+    value: "pharmacy", 
+    label: "드럭스토어", 
+    keywords: ["drugstore", "pharmacy", "matsumoto", "마츠모토키요시", "ドラッグストア"],
+    subTypes: []
+  }
 ];
 
 export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
   const [locationAddress, setLocationAddress] = useState("");
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
+  const [selectedSubType, setSelectedSubType] = useState<string>(""); // 하위 브랜드 선택
   const [currentLocation, setCurrentLocation] = useState<HotelLocation | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -66,10 +86,32 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
       if (!facilityType) return;
 
+      let searchKeywords: string[] = [];
+      
+      // 하위 브랜드가 선택된 경우 해당 브랜드만 검색
+      if (selectedSubType) {
+        const subType = facilityType.subTypes.find(st => st.value === selectedSubType);
+        if (subType) {
+          searchKeywords = subType.keywords;
+        }
+      } else {
+        // 상위 카테고리만 선택된 경우, 모든 하위 브랜드 + 일반 키워드 검색
+        if (facilityType.subTypes.length > 0) {
+          // 모든 하위 브랜드의 키워드 수집
+          facilityType.subTypes.forEach(subType => {
+            searchKeywords = [...searchKeywords, ...subType.keywords];
+          });
+          // 일반 키워드도 추가
+          searchKeywords = [...searchKeywords, ...facilityType.keywords];
+        } else {
+          searchKeywords = facilityType.keywords;
+        }
+      }
+
       let allResults: PlaceResult[] = [];
 
       // 각 키워드로 검색하여 결과 수집
-      for (const keyword of facilityType.keywords) {
+      for (const keyword of searchKeywords) {
         const results = await googleMapsService.findNearbyPlaces(
           { lat: currentLocation.lat, lng: currentLocation.lng },
           selectedFacilityType,
@@ -86,10 +128,10 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         );
       });
 
-      // 거리 계산
+      // 거리 계산 - TOP 3로 제한
       const resultsWithDistance = await googleMapsService.calculateDistances(
         { lat: currentLocation.lat, lng: currentLocation.lng },
-        uniqueResults.slice(0, 5) // TOP 5만
+        uniqueResults.slice(0, 3) // TOP 3만
       );
 
       setNearbyPlaces(resultsWithDistance);
@@ -112,7 +154,15 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
   };
 
   const getFacilityLabel = () => {
-    return FACILITY_TYPES.find(f => f.value === selectedFacilityType)?.label || "시설";
+    const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
+    if (!facilityType) return "시설";
+    
+    if (selectedSubType) {
+      const subType = facilityType.subTypes.find(st => st.value === selectedSubType);
+      return subType ? subType.label : facilityType.label;
+    }
+    
+    return facilityType.label;
   };
 
   return (
@@ -183,26 +233,60 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex gap-2">
-              <Select value={selectedFacilityType} onValueChange={setSelectedFacilityType}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {FACILITY_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button 
-                onClick={handleFacilitySearch} 
-                disabled={isLoadingPlaces}
-                className="min-w-[80px]"
-              >
-                {isLoadingPlaces ? <Loader2 className="h-4 w-4 animate-spin" /> : "찾기"}
-              </Button>
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Select 
+                  value={selectedFacilityType} 
+                  onValueChange={(value) => {
+                    setSelectedFacilityType(value);
+                    setSelectedSubType(""); // 상위 카테고리 변경 시 하위 선택 초기화
+                    setNearbyPlaces([]); // 이전 검색 결과 초기화
+                  }}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FACILITY_TYPES.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button 
+                  onClick={handleFacilitySearch} 
+                  disabled={isLoadingPlaces}
+                  className="min-w-[80px]"
+                >
+                  {isLoadingPlaces ? <Loader2 className="h-4 w-4 animate-spin" /> : "찾기"}
+                </Button>
+              </div>
+
+              {/* 하위 브랜드 선택 (편의점의 경우에만) */}
+              {(() => {
+                const currentFacility = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
+                return currentFacility && currentFacility.subTypes.length > 0 ? (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">
+                      브랜드 선택 (선택사항)
+                    </label>
+                    <Select value={selectedSubType} onValueChange={setSelectedSubType}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="모든 브랜드" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">모든 브랜드</SelectItem>
+                        {currentFacility.subTypes.map((subType) => (
+                          <SelectItem key={subType.value} value={subType.value}>
+                            {subType.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null;
+              })()}
             </div>
 
             {nearbyPlaces.length > 0 && (
