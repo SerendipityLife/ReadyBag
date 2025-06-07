@@ -150,8 +150,44 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       console.log('중복 제거 후 결과:', uniqueResults.length, '개');
 
-      // 직선 거리 기준으로 사전 정렬하여 가장 가까운 10개 선택
-      const sortedByDistance = uniqueResults
+      // 편의점만 필터링 (약국 등 제외)
+      const convenienceStoreKeywords = [
+        'familymart', 'family mart', '패밀리마트', 'ファミリーマート',
+        'lawson', '로손', 'ローソン',
+        '7-eleven', 'seven eleven', '세븐일레븐', 'セブンイレブン',
+        'ministop', '미니스톱', 'ミニストップ',
+        'convenience store', 'コンビニ'
+      ];
+      
+      const excludeKeywords = [
+        'pharmacy', '약국', '薬局', 'drug', 'ドラッグ',
+        'hospital', '병원', '医院', 'clinic', 'クリニック'
+      ];
+      
+      const filteredConvenienceStores = uniqueResults.filter(place => {
+        const name = place.name.toLowerCase();
+        const address = place.address.toLowerCase();
+        
+        // 제외할 키워드가 포함된 경우 제외
+        const shouldExclude = excludeKeywords.some(keyword => 
+          name.includes(keyword.toLowerCase()) || address.includes(keyword.toLowerCase())
+        );
+        
+        if (shouldExclude) return false;
+        
+        // 편의점 키워드가 포함된 경우 포함
+        return convenienceStoreKeywords.some(keyword => 
+          name.includes(keyword.toLowerCase()) || address.includes(keyword.toLowerCase())
+        );
+      });
+      
+      console.log('편의점 필터링 결과:', filteredConvenienceStores.length, '개');
+      console.log('편의점 목록:', filteredConvenienceStores.map(p => ({ name: p.name, address: p.address })));
+      
+      // 편의점이 충분하지 않으면 모든 결과에서 거리순으로 선택
+      const finalResults = filteredConvenienceStores.length >= 3 ? filteredConvenienceStores : uniqueResults;
+      
+      const sortedByDistance = finalResults
         .map(place => ({
           ...place,
           straightDistance: googleMapsService.calculateDistance(

@@ -145,7 +145,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 500, // 500m 반경으로 확장하여 도톤보리 편의점 포함
+        radius: 300, // 300m 반경
         keyword: keyword,
         type: type as any
       };
@@ -188,35 +188,95 @@ class GoogleMapsService {
       await this.initialize();
     }
 
-    // 모든 편의점을 찾기 위한 통합 검색 - 1km 반경으로 통일
-    return new Promise((resolve) => {
-      const request: google.maps.places.PlaceSearchRequest = {
-        location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 500, // 500m 반경으로 확장하여 도톤보리 편의점 포함
-        type: 'convenience_store' as any
+    // 다중 검색 전략으로 도톤보리 편의점까지 포함
+    return new Promise(async (resolve) => {
+      const allResults: any[] = [];
+      const seenPlaceIds = new Set();
+      
+      // 검색 함수
+      const performSearch = (request: google.maps.places.PlaceSearchRequest): Promise<any[]> => {
+        return new Promise((searchResolve) => {
+          this.service!.nearbySearch(request, (results, status) => {
+            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
+              searchResolve(results);
+            } else {
+              searchResolve([]);
+            }
+          });
+        });
       };
 
-      this.service!.nearbySearch(request, (results, status) => {
-        if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          // 모든 편의점 결과를 PlaceResult 형태로 변환 (거리 계산은 나중에 Distance Matrix API로)
-          const allConvenienceStores = results
-            .filter(place => place.geometry?.location && place.name)
-            .slice(0, 15) // 더 많은 결과에서 선택
-            .map(place => ({
-              name: place.name || '이름 없음',
-              address: place.vicinity || place.formatted_address || '주소 정보 없음',
-              distance: '',
-              duration: '',
-              lat: place.geometry!.location!.lat(),
-              lng: place.geometry!.location!.lng(),
-              placeId: place.place_id
-            }));
+      try {
+        // 1차: 기본 편의점 검색 (300m)
+        const basicResults = await performSearch({
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 300,
+          type: 'convenience_store' as any
+        });
 
-          resolve(allConvenienceStores);
-        } else {
-          resolve([]);
-        }
-      });
+        // 2차: 확장된 반경 검색 (500m)
+        const extendedResults = await performSearch({
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 500,
+          type: 'convenience_store' as any
+        });
+
+        // 3차: 로손 브랜드 검색
+        const lawsonResults = await performSearch({
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 500,
+          keyword: 'lawson',
+          type: 'convenience_store' as any
+        });
+
+        // 4차: 패밀리마트 브랜드 검색
+        const familymartResults = await performSearch({
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 500,
+          keyword: 'familymart',
+          type: 'convenience_store' as any
+        });
+
+        // 5차: 세븐일레븐 브랜드 검색
+        const sevenResults = await performSearch({
+          location: new google.maps.LatLng(location.lat, location.lng),
+          radius: 500,
+          keyword: '7-eleven',
+          type: 'convenience_store' as any
+        });
+
+        // 6차: 도톤보리 지역 편의점 검색
+        const dotonboriResults = await performSearch({
+          location: new google.maps.LatLng(34.6684, 135.5044), // 도톤보리 중심 좌표
+          radius: 200,
+          type: 'convenience_store' as any
+        });
+
+        // 모든 결과 통합 및 중복 제거
+        [...basicResults, ...extendedResults, ...lawsonResults, ...familymartResults, ...sevenResults, ...dotonboriResults]
+          .forEach(place => {
+            if (place.place_id && place.geometry?.location && place.name && !seenPlaceIds.has(place.place_id)) {
+              seenPlaceIds.add(place.place_id);
+              allResults.push({
+                name: place.name,
+                address: place.vicinity || place.formatted_address || '주소 정보 없음',
+                distance: '',
+                duration: '',
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng(),
+                placeId: place.place_id
+              });
+            }
+          });
+
+        console.log('다중 검색으로 발견된 편의점:', allResults.length, '개');
+        console.log('편의점 목록:', allResults.map(p => ({ name: p.name, address: p.address })));
+        
+        resolve(allResults);
+      } catch (error) {
+        console.error('편의점 검색 오류:', error);
+        resolve([]);
+      }
     });
   }
 
