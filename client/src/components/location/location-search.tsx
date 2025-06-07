@@ -39,7 +39,7 @@ const FACILITY_TYPES = [
 export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
   const [locationAddress, setLocationAddress] = useState("");
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
-  const [selectedSubType, setSelectedSubType] = useState<string>(""); // 하위 브랜드 선택
+  const [selectedSubType, setSelectedSubType] = useState<string>("all_brands"); // 하위 브랜드 선택
   const [currentLocation, setCurrentLocation] = useState<HotelLocation | null>(null);
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -88,8 +88,8 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       let searchKeywords: string[] = [];
       
-      // 하위 브랜드가 선택된 경우 해당 브랜드만 검색
-      if (selectedSubType) {
+      // 하위 브랜드가 선택된 경우 해당 브랜드만 검색 ("all_brands"가 아닌 경우)
+      if (selectedSubType && selectedSubType !== "all_brands") {
         const subType = facilityType.subTypes.find(st => st.value === selectedSubType);
         if (subType) {
           searchKeywords = subType.keywords;
@@ -157,7 +157,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
     const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
     if (!facilityType) return "시설";
     
-    if (selectedSubType) {
+    if (selectedSubType && selectedSubType !== "all_brands") {
       const subType = facilityType.subTypes.find(st => st.value === selectedSubType);
       return subType ? subType.label : facilityType.label;
     }
@@ -239,7 +239,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
                   value={selectedFacilityType} 
                   onValueChange={(value) => {
                     setSelectedFacilityType(value);
-                    setSelectedSubType(""); // 상위 카테고리 변경 시 하위 선택 초기화
+                    setSelectedSubType("all_brands"); // 상위 카테고리 변경 시 하위 선택 초기화
                     setNearbyPlaces([]); // 이전 검색 결과 초기화
                   }}
                 >
@@ -276,7 +276,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
                         <SelectValue placeholder="모든 브랜드" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">모든 브랜드</SelectItem>
+                        <SelectItem value="all_brands">모든 브랜드</SelectItem>
                         {currentFacility.subTypes.map((subType) => (
                           <SelectItem key={subType.value} value={subType.value}>
                             {subType.label}
