@@ -81,12 +81,48 @@ class GoogleMapsService {
 
     return new Promise((resolve) => {
       const geocoder = new google.maps.Geocoder();
-      geocoder.geocode({ address }, (results, status) => {
-        if (status === 'OK' && results && results[0]) {
-          const location = results[0].geometry.location;
+      
+      // 일본 지역으로 제한하고 정확한 주소를 우선시
+      const geocodeRequest: google.maps.GeocoderRequest = {
+        address: address,
+        componentRestrictions: {
+          country: 'JP' // 일본으로 제한
+        },
+        region: 'jp' // 일본 지역 우선
+      };
+      
+      geocoder.geocode(geocodeRequest, (results, status) => {
+        if (status === 'OK' && results && results.length > 0) {
+          // 가장 구체적인 주소 결과를 찾기 위해 정렬
+          const sortedResults = results.sort((a, b) => {
+            // 더 많은 주소 구성요소를 가진 것을 우선시
+            const aComponents = a.address_components.length;
+            const bComponents = b.address_components.length;
+            
+            // premise, street_number, route가 있는 것을 우선시
+            const aHasSpecific = a.address_components.some(comp => 
+              comp.types.includes('premise') || 
+              comp.types.includes('street_number') ||
+              comp.types.includes('establishment')
+            );
+            const bHasSpecific = b.address_components.some(comp => 
+              comp.types.includes('premise') || 
+              comp.types.includes('street_number') ||
+              comp.types.includes('establishment')
+            );
+            
+            if (aHasSpecific && !bHasSpecific) return -1;
+            if (!aHasSpecific && bHasSpecific) return 1;
+            
+            return bComponents - aComponents;
+          });
+          
+          const bestResult = sortedResults[0];
+          const location = bestResult.geometry.location;
+          
           resolve({
             name: address,
-            address: results[0].formatted_address,
+            address: bestResult.formatted_address,
             lat: location.lat(),
             lng: location.lng()
           });

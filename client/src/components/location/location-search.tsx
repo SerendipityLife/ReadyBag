@@ -128,7 +128,7 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         <CardContent className="space-y-4">
           <div className="flex gap-2">
             <Input
-              placeholder="숙박지 주소를 입력하세요 (호텔, 에어비앤비, 게스트하우스 등)"
+              placeholder="상세한 주소를 영어로 입력하세요"
               value={locationAddress}
               onChange={(e) => setLocationAddress(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleLocationSearch()}
@@ -143,8 +143,14 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
             </Button>
           </div>
 
-          <div className="text-sm text-gray-500">
-            예시: "오사카 난바 스테이션 호텔", "도쿄 시부야구 2-1-1", "Kyoto Station"
+          <div className="text-sm text-gray-500 space-y-2">
+            <p className="font-medium">영어 주소 예시 (더 정확한 결과를 위해):</p>
+            <div className="space-y-1 text-xs">
+              <p>• "2-1-1 Shibuya, Shibuya City, Tokyo, Japan"</p>
+              <p>• "1-1-1 Namba, Chuo Ward, Osaka, Japan"</p>
+              <p>• "Shibuya Sky Building, Tokyo"</p>
+              <p>• "Tokyo Station Hotel, Marunouchi"</p>
+            </div>
           </div>
 
           {currentLocation && (
