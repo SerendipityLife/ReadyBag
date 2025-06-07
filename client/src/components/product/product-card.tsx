@@ -29,10 +29,14 @@ export function ProductCard({
     size: 0
   });
   
+  // 버튼 트리거 여부를 추적하는 ref
+  const isButtonTriggered = useRef(false);
+
   // 액션 트리거 함수를 외부에서 사용할 수 있도록 설정
   // @ts-ignore
   window.triggerCardAction = (direction: SwipeDirection, productId: number) => {
     if ((productId === 0 || productId === product.id) && index === 0) {
+      isButtonTriggered.current = true; // 버튼에서 트리거됨을 표시
       triggerAction(direction);
     }
   };
@@ -356,8 +360,11 @@ export function ProductCard({
           boxShadow: `0 0 35px 15px ${shadowColor}`,
           config: { tension: 180, friction: 20 },
           onRest: () => {
-            // 슬라이드 완료 후 스와이프 처리
-            onSwipe(direction, product.id);
+            // 버튼에서 트리거된 경우 스와이프 처리하지 않음 (중복 방지)
+            if (!isButtonTriggered.current) {
+              onSwipe(direction, product.id);
+            }
+            isButtonTriggered.current = false; // 리셋
           },
         });
       } else if (direction === SwipeDirection.RIGHT) {
@@ -371,8 +378,11 @@ export function ProductCard({
           boxShadow: `0 0 35px 15px ${shadowColor}`,
           config: { tension: 180, friction: 20 },
           onRest: () => {
-            // 슬라이드 완료 후 스와이프 처리
-            onSwipe(direction, product.id);
+            // 버튼에서 트리거된 경우 스와이프 처리하지 않음 (중복 방지)
+            if (!isButtonTriggered.current) {
+              onSwipe(direction, product.id);
+            }
+            isButtonTriggered.current = false; // 리셋
           },
         });
       } else if (direction === SwipeDirection.UP) {
@@ -385,8 +395,11 @@ export function ProductCard({
           boxShadow: `0 0 35px 15px ${shadowColor}`,
           config: { tension: 180, friction: 20 },
           onRest: () => {
-            // 슬라이드 완료 후 스와이프 처리
-            onSwipe(direction, product.id);
+            // 버튼에서 트리거된 경우 스와이프 처리하지 않음 (중복 방지)
+            if (!isButtonTriggered.current) {
+              onSwipe(direction, product.id);
+            }
+            isButtonTriggered.current = false; // 리셋
           },
         });
       }
