@@ -150,9 +150,25 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
 
       console.log('중복 제거 후 결과:', uniqueResults.length, '개');
 
-      // Distance Matrix API 한도를 고려하여 최대 10개까지만 계산
-      const limitedResults = uniqueResults.slice(0, 10);
-      console.log('Distance Matrix API 계산 대상:', limitedResults.length, '개');
+      // 직선 거리 기준으로 사전 정렬하여 가장 가까운 10개 선택
+      const sortedByDistance = uniqueResults
+        .map(place => ({
+          ...place,
+          straightDistance: googleMapsService.calculateDistance(
+            currentLocation.lat, currentLocation.lng,
+            place.lat, place.lng
+          )
+        }))
+        .sort((a, b) => a.straightDistance - b.straightDistance)
+        .slice(0, 10);
+      
+      console.log('직선거리 기준 가장 가까운 10개:', sortedByDistance.map(p => ({
+        name: p.name,
+        distance: `${(p.straightDistance * 1000).toFixed(0)}m`,
+        address: p.address
+      })));
+      
+      const limitedResults = sortedByDistance;
       
       // Distance Matrix API로 실제 도보 거리 계산
       const resultsWithDistance = await googleMapsService.calculateDistances(

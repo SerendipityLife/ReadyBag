@@ -145,7 +145,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 200, // 200m 반경
+        radius: 500, // 500m 반경으로 확장하여 도톤보리 편의점 포함
         keyword: keyword,
         type: type as any
       };
@@ -192,7 +192,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 200, // 200m 반경
+        radius: 500, // 500m 반경으로 확장하여 도톤보리 편의점 포함
         type: 'convenience_store' as any
       };
 
