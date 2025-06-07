@@ -87,9 +87,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
+      let cleanMessage = error.message;
+      
+      // "401: {"message":"..."}" 형태에서 메시지만 추출
+      const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
+      if (jsonMatch) {
+        cleanMessage = jsonMatch[1];
+      }
+      
+      // 기본적인 상태 코드 제거 (예: "401: 메시지")
+      cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
+      
       toast({
         title: "로그인 실패",
-        description: error.message,
+        description: cleanMessage,
         variant: "destructive",
       });
     },
@@ -113,9 +125,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
+      let cleanMessage = error.message;
+      
+      // "401: {"message":"..."}" 형태에서 메시지만 추출
+      const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
+      if (jsonMatch) {
+        cleanMessage = jsonMatch[1];
+      }
+      
+      // 기본적인 상태 코드 제거 (예: "401: 메시지")
+      cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
+      
       toast({
         title: "회원가입 실패",
-        description: error.message,
+        description: cleanMessage,
         variant: "destructive",
       });
     },
@@ -187,9 +211,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
     onError: (error: Error) => {
+      // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
+      let cleanMessage = error.message;
+      
+      // "401: {"message":"..."}" 형태에서 메시지만 추출
+      const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
+      if (jsonMatch) {
+        cleanMessage = jsonMatch[1];
+      }
+      
+      // 기본적인 상태 코드 제거 (예: "401: 메시지")
+      cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
+      
       toast({
         title: "비밀번호 재설정 실패",
-        description: error.message,
+        description: cleanMessage,
         variant: "destructive",
       });
     },
@@ -198,7 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user,
+        user: user ?? null,
         isLoading,
         error,
         loginMutation,
