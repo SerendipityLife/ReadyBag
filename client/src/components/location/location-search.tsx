@@ -253,11 +253,13 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         console.log(`${selectedSubType} 매장 목록:`, finalResults.map(p => ({ name: p.name, address: p.address })));
       }
       
+      // 항상 글로벌 숙박지 위치를 기준으로 거리 계산
+      const originLocation = accommodationLocation || currentLocation;
       const sortedByDistance = finalResults
         .map(place => ({
           ...place,
           straightDistance: googleMapsService.calculateDistance(
-            currentLocation.lat, currentLocation.lng,
+            originLocation.lat, originLocation.lng,
             place.lat, place.lng
           )
         }))
@@ -272,17 +274,17 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       
       const limitedResults = sortedByDistance;
       
-      // Distance Matrix API로 실제 도보 거리 계산
+      // Distance Matrix API로 실제 도보 거리 계산 - 항상 글로벌 숙박지 위치 사용
       const resultsWithDistance = await googleMapsService.calculateDistances(
-        { lat: currentLocation.lat, lng: currentLocation.lng },
+        { lat: originLocation.lat, lng: originLocation.lng },
         limitedResults
       );
 
-      // Distance Matrix API 실패 시 직선 거리로 대체 계산
+      // Distance Matrix API 실패 시 직선 거리로 대체 계산 - 항상 글로벌 숙박지 위치 사용
       const resultsWithFallbackDistance = resultsWithDistance.map(place => {
         if (!place.distance || place.distance === '거리 정보 없음' || place.distance === '계산 실패' || place.distance === '정보 없음') {
           const straightLineDistance = googleMapsService.calculateDistance(
-            currentLocation.lat, currentLocation.lng,
+            originLocation.lat, originLocation.lng,
             place.lat, place.lng
           );
           return {

@@ -4,9 +4,8 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X, Navigation } from "lucide-react";
+import { Instagram, Trash2, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-import { googleMapsService } from "@/lib/google-maps";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
@@ -19,7 +18,7 @@ interface ProductListItemProps {
 export function ProductListItem(props: ProductListItemProps) {
   const { product, userProduct, readOnly = false, onSuccessfulAction } = props;
   const queryClient = useQueryClient();
-  const { selectedCountry, exchangeRate, accommodationLocation } = useAppContext();
+  const { selectedCountry, exchangeRate } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user;
   
@@ -118,46 +117,7 @@ export function ProductListItem(props: ProductListItemProps) {
     window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(hashtag)}`, "_blank");
   };
 
-  // 상품 판매 위치로 길찾기 (숙박지 주소에서 출발)
-  const handleNavigateToStore = () => {
-    if (!accommodationLocation || !productLocation) {
-      console.error('숙박지 주소 또는 상품 판매 위치가 설정되지 않았습니다.');
-      return;
-    }
 
-    // 상품의 location 필드를 파싱하여 위치 정보 추출
-    // location은 "상점명, 주소" 형태로 저장되어 있음
-    const locationParts = productLocation.split(',');
-    const storeName = locationParts[0]?.trim() || '상점';
-    const storeAddress = locationParts.slice(1).join(',').trim() || productLocation;
-
-    // 구글 지오코딩을 통해 주소를 좌표로 변환
-    googleMapsService.geocodeAddress(storeAddress).then(location => {
-      if (location) {
-        googleMapsService.navigateFromAccommodation(
-          accommodationLocation.address,
-          {
-            lat: location.lat,
-            lng: location.lng,
-            name: storeName
-          }
-        );
-      } else {
-        // 지오코딩 실패 시 텍스트 주소로 길찾기
-        const encodedOrigin = encodeURIComponent(accommodationLocation.address);
-        const encodedDestination = encodeURIComponent(storeAddress);
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${encodedDestination}&travelmode=walking`;
-        window.open(mapsUrl, '_blank');
-      }
-    }).catch(error => {
-      console.error('지오코딩 오류:', error);
-      // 오류 시 텍스트 주소로 길찾기
-      const encodedOrigin = encodeURIComponent(accommodationLocation.address);
-      const encodedDestination = encodeURIComponent(storeAddress);
-      const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${encodedDestination}&travelmode=walking`;
-      window.open(mapsUrl, '_blank');
-    });
-  };
 
   // 상품 에러일 경우 에러 UI 표시
   if (hasProductError) {
@@ -213,18 +173,7 @@ export function ProductListItem(props: ProductListItemProps) {
                 인스타
               </Button>
 
-              {/* 길찾기 버튼 - 숙박지 주소와 상품 위치가 모두 있을 때만 표시 */}
-              {accommodationLocation && productLocation && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-blue-300 text-blue-500 hover:bg-blue-500 hover:text-white"
-                  onClick={handleNavigateToStore}
-                >
-                  <Navigation className="h-3 w-3 mr-1" />
-                  길찾기
-                </Button>
-              )}
+
             
               <Button
                 variant="outline"
