@@ -156,9 +156,10 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       console.log('출발지 (숙박지):', currentLocation);
       console.log('목적지 (편의점):', place);
       
-      const mapsUrl = googleMapsService.generateMapsUrl(
-        { lat: currentLocation.lat, lng: currentLocation.lng },
-        { lat: place.lat, lng: place.lng }
+      // 숙박지 주소를 명시적으로 사용하여 URL 생성
+      const mapsUrl = googleMapsService.generateMapsUrlWithAddress(
+        currentLocation.address, // 숙박지 주소 사용
+        { lat: place.lat, lng: place.lng, name: place.name }
       );
       
       console.log('생성된 길찾기 URL:', mapsUrl);

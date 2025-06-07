@@ -295,6 +295,15 @@ class GoogleMapsService {
     // Google Maps 길찾기 URL with explicit direction mode (walking)
     return `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=${destinationParam}&travelmode=walking`;
   }
+
+  generateMapsUrlWithAddress(originAddress: string, destination: { lat: number; lng: number; name: string }): string {
+    // 출발지는 주소 텍스트로, 목적지는 좌표와 이름으로 설정
+    const encodedOrigin = encodeURIComponent(originAddress);
+    const destinationParam = `${destination.lat},${destination.lng}`;
+    
+    // Google Maps 길찾기 URL - 출발지를 주소로 명시하여 GPS 위치 오버라이드 방지
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
+  }
 }
 
 export const googleMapsService = new GoogleMapsService();
