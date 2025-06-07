@@ -100,13 +100,15 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
         if (facilityType.subTypes.length > 0) {
           searchKeywords = [
             // 일반 편의점 키워드
-            '편의점', 'convenience store',
+            '편의점', 'convenience store', 'コンビニ', 'konbini',
             // 세븐일레븐
-            '세븐일레븐', '7-Eleven', 'Seven Eleven',
+            '세븐일레븐', '7-Eleven', 'Seven Eleven', 'セブンイレブン',
             // 패밀리마트  
             '패밀리마트', 'FamilyMart', 'ファミリーマート',
             // 로손
-            '로손', 'Lawson', 'ローソン'
+            '로손', 'Lawson', 'ローソン',
+            // 기타 편의점
+            'Poplar', 'ポプラ', 'MiniStop', 'ミニストップ'
           ];
         } else {
           searchKeywords = facilityType.keywords;
@@ -130,6 +132,13 @@ export function LocationSearch({ onLocationSelect }: LocationSearchProps) {
       }
 
       console.log('키워드 검색 결과:', allResults.length, '개');
+      console.log('검색된 모든 편의점 상세:', allResults.map(store => ({
+        name: store.name,
+        address: store.address,
+        lat: store.lat,
+        lng: store.lng,
+        placeId: store.placeId
+      })));
 
       // 중복 제거 (같은 placeId나 매우 가까운 위치)
       const uniqueResults = allResults.filter((result, index, arr) => {

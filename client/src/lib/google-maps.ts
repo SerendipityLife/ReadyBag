@@ -145,7 +145,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 300, // 300m 반경
+        radius: 500, // 500m 반경으로 확장하여 더 많은 편의점 검색
         keyword: keyword,
         type: type as any
       };
@@ -192,7 +192,7 @@ class GoogleMapsService {
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 300, // 300m 반경
+        radius: 500, // 500m 반경으로 확장하여 더 많은 편의점 검색
         type: 'convenience_store' as any
       };
 
@@ -238,8 +238,8 @@ class GoogleMapsService {
         destinations: destinationLatLngs,
         travelMode: google.maps.TravelMode.WALKING,
         unitSystem: google.maps.UnitSystem.METRIC,
-        avoidHighways: false,
-        avoidTolls: false
+        avoidHighways: true,
+        avoidTolls: true
       }, (response, status) => {
         if (status === 'OK' && response && response.rows[0]) {
           const elements = response.rows[0].elements;
