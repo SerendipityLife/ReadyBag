@@ -1,4 +1,0 @@
-name,name_japanese,description,price,image_url,country_id,category,hashtags,location,featured
-"SK-II 페이셜 트리트먼트 에센스","SK-II フェイシャル トリートメント エッセンス","SK-II의 베스트셀러 제품으로 피부 결을 개선하고 맑고 투명한 피부로 가꿔줍니다.",29500,"https://example.com/images/skii.jpg","japan","BEAUTY","[""#SKII"", ""#에센스"", ""#스킨케어""]","도쿄 / 긴자 / 신주쿠",TRUE
-"도쿄 바나나 (Tokyo Banana)","東京ばな奈","도쿄 명물 바나나 크림이 들어간 부드러운 카스텔라 디저트입니다.",1300,"https://example.com/images/tokyo-banana.jpg","japan","FOOD","[""#도쿄바나나"", ""#일본과자"", ""#도쿄""]","도쿄역 / 하네다공항 / 나리타공항",FALSE
-"유니클로 히트텍 이너웨어","ユニクロ ヒートテック","유니클로의 대표적인 보온 이너웨어로 가볍고 따뜻한 착용감을 제공합니다.",2900,"https://example.com/images/heattech.jpg","japan","FASHION","[""#유니클로"", ""#히트텍"", ""#이너웨어""]","전국 유니클로 매장",FALSE
