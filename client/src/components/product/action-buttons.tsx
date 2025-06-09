@@ -47,8 +47,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       }
     }
     
-    // 애니메이션 지연 시간 (ms) - 아이콘 애니메이션이 완전히 보이도록 충분한 시간 제공
-    const animationDelay = 900;
+    // 애니메이션 지연 시간 단축 - 더 빠른 반응성을 위해
+    const animationDelay = 200;
     
     // 짧은 지연 후 실제 액션 실행 (스와이프 처리)
     setTimeout(() => {

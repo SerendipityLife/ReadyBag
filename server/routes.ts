@@ -193,8 +193,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const userProducts = await storage.getUserProducts(countryId, userId, sessionId);
       
-      // 캐시에 데이터 저장 (15초 유효 - 사용자 제품은 자주 변경됨)
-      cache.set(cacheKey, userProducts, 15 * 1000);
+      // 캐시에 데이터 저장 (60초 유효 - 사용자 제품 캐시 시간 연장)
+      cache.set(cacheKey, userProducts, 60 * 1000);
       
       return res.json(userProducts);
     } catch (error) {
@@ -289,23 +289,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Log detailed information for debugging
       console.log("Delete request: ID=", id);
       
-      // 간단하게 직접 삭제 - 모든 권한 확인 생략
+      // 최적화된 직접 삭제 - 존재 확인 없이 바로 삭제
       try {
-        // First check if this user product exists
-        const existingProduct = await db.query.userProducts.findFirst({
-          where: eq(userProducts.id, id)
-        });
-        
-        if (!existingProduct) {
-          console.log("Product with ID", id, "does not exist");
-          return res.status(200).json({ message: "Product already deleted" });
-        }
-        
-        // Delete the user product directly
         const [deleted] = await db
           .delete(userProducts)
           .where(eq(userProducts.id, id))
           .returning();
+        
+        if (!deleted) {
+          console.log("Product with ID", id, "does not exist");
+          return res.status(200).json({ message: "Product already deleted" });
+        }
         
         // 사용자 제품 관련 캐시 무효화
         cache.deleteByPrefix("user-products:");

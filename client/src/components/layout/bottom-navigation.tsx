@@ -62,9 +62,9 @@ export function BottomNavigation() {
       return data;
     },
     enabled: !!selectedCountry?.id, // 국가 ID가 있을 때 조회 (비회원도 로컬스토리지 사용)
-    refetchInterval: user ? 2000 : false, // 로그인한 경우에만 2초마다 자동으로 업데이트
-    refetchOnWindowFocus: true, // 윈도우 포커스 시 업데이트
-    staleTime: 1000 // 1초 후 데이터가 stale 상태가 됨
+    refetchInterval: user ? 30000 : false, // 로그인한 경우 30초마다 업데이트로 변경
+    refetchOnWindowFocus: false, // 윈도우 포커스 시 업데이트 비활성화
+    staleTime: 15000 // 15초 후 데이터가 stale 상태가 됨
   });
   
   // 로컬 스토리지 변경 감지 (비회원용)
