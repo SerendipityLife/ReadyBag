@@ -12,7 +12,7 @@ class MemoryCache {
   private cache: Map<string, CacheItem<any>>;
   private defaultTTL: number;
 
-  constructor(defaultTTL = 5 * 60 * 1000) { // 기본 5분 캐시
+  constructor(defaultTTL = 30 * 1000) { // 기본 30초 캐시로 단축
     this.cache = new Map();
     this.defaultTTL = defaultTTL;
   }

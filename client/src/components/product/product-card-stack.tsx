@@ -239,14 +239,6 @@ export function ProductCardStack() {
   
   // Filter products by selected filters AND exclude already categorized products
   const filteredProducts = useMemo(() => {
-    // 디버깅용 로그
-    console.log("Selected Store Types:", selectedStoreTypes);
-    console.log("Selected Purpose Categories:", selectedPurposeCategories);
-    console.log("isAllStoreTypesSelected:", isAllStoreTypesSelected);
-    console.log("isAllPurposeCategoriesSelected:", isAllPurposeCategoriesSelected);
-    console.log("Some products:", allProducts.slice(0, 3).map(p => ({id: p.id, name: p.name, storeType: p.storeType, purposeCategory: p.purposeCategory})));
-    console.log("[BottomNavigation] Interested count:", userProducts.filter(p => p.status === "interested").length);
-    
     let filtered = allProducts;
     
     // 강제 리셋 상태가 아닐 때만 이미 분류된 상품 필터링
@@ -269,20 +261,15 @@ export function ProductCardStack() {
     return filtered;
   }, [allProducts, categorizedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected, forceReset, userProducts]);
 
-  // 필터링된 상품이 변경되면 visible 상품과 카운트 초기화
+  // totalCategoryCount 변경 처리
   useEffect(() => {
-    // totalCategoryCount가 변경됐을 때만 originalTotalProducts 업데이트
     if (totalCategoryCount !== originalTotalProducts) {
       setOriginalTotalProducts(totalCategoryCount);
     }
-    
-    // 필터링된 상품이 비어있지 않고 visible 상품이 비어있을 때만 업데이트
-    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
-      setVisibleProducts([]);
-      // setCurrentProductIndex는 AppContext에서 가져온 함수이므로 직접 호출하지 않음
-    }
-    
-    // 필터링된 상품이 있으면 강제 리셋 모드 비활성화
+  }, [totalCategoryCount, originalTotalProducts]);
+
+  // 강제 리셋 모드 관리
+  useEffect(() => {
     if (filteredProducts.length > 0 && forceReset) {
       const timer = setTimeout(() => {
         setForceReset(false);
@@ -290,11 +277,11 @@ export function ProductCardStack() {
       
       return () => clearTimeout(timer);
     }
-  }, [filteredProducts, totalCategoryCount, originalTotalProducts, visibleProducts.length, forceReset]);
+  }, [filteredProducts.length, forceReset]);
   
   const isLoading = productsLoading || userProductsLoading;
   
-  // Update user product status mutation
+  // Update user product status mutation with optimistic updates
   const updateProductStatus = useMutation({
     mutationFn: async ({ productId, status }: { productId: number, status: ProductStatus }) => {
       const response = await apiRequest(
@@ -304,16 +291,38 @@ export function ProductCardStack() {
       );
       return response.json();
     },
-    onSuccess: () => {
-      // 여러 쿼리를 동시에 무효화
-      console.log("상품 상태 업데이트 성공, 쿼리 무효화 중...");
-      
-      // 일반 문자열 형식 쿼리키 무효화
-      queryClient.invalidateQueries({ 
-        queryKey: [API_ROUTES.USER_PRODUCTS] 
+    onMutate: async ({ productId, status }) => {
+      // 낙관적 업데이트를 위해 이전 데이터 저장
+      const queryKey = [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id];
+      const previousData = queryClient.getQueryData(queryKey);
+
+      // 즉시 UI 업데이트
+      queryClient.setQueryData(queryKey, (old: UserProduct[] | undefined) => {
+        if (!old) return old;
+        
+        const existingIndex = old.findIndex(item => item.productId === productId);
+        if (existingIndex >= 0) {
+          // 기존 항목 업데이트
+          const updated = [...old];
+          updated[existingIndex] = { ...updated[existingIndex], status };
+          return updated;
+        } else {
+          // 새 항목 추가 - 간소화된 낙관적 업데이트
+          return old; // 새 항목은 서버 응답 후 추가
+        }
       });
-      
-      // countryId가 포함된 상세 쿼리키 무효화
+
+      return { previousData };
+    },
+    onError: (err, variables, context) => {
+      // 에러 시 이전 데이터로 롤백
+      const queryKey = [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id];
+      if (context?.previousData) {
+        queryClient.setQueryData(queryKey, context.previousData);
+      }
+    },
+    onSettled: () => {
+      // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
