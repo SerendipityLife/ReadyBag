@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const [location, navigate] = useLocation();
@@ -119,31 +120,36 @@ export function Header() {
         </div>
         
         {/* Action buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {!isAuthPage && (
             <>
               <button 
-                className="p-1.5 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 onClick={() => setIsFilterModalOpen(true)}
                 title="필터"
               >
-                <SlidersHorizontal size={16} className="text-gray-600" />
+                <SlidersHorizontal size={18} className="text-gray-600" />
               </button>
               
               <button 
-                className="p-1.5 rounded-full hover:bg-gray-100"
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  currentView === View.INFO 
+                    ? "bg-primary/10 text-primary" 
+                    : "hover:bg-gray-100 text-gray-600"
+                )}
                 onClick={handleInfoClick}
                 title="정보"
               >
-                <Info size={16} className="text-gray-600" />
+                <Info size={18} />
               </button>
               
               <button 
-                className="p-1.5 rounded-full hover:bg-gray-100"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 onClick={handleShareClick}
                 title="공유하기"
               >
-                <Share2 size={16} className="text-gray-600" />
+                <Share2 size={18} className="text-gray-600" />
               </button>
               
               {user ? (
@@ -180,11 +186,11 @@ export function Header() {
                 </DropdownMenu>
               ) : (
                 <button 
-                  className="p-1.5 rounded-full hover:bg-gray-100"
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   onClick={handleLoginClick}
                   title="로그인"
                 >
-                  <LogIn size={16} className="text-gray-600" />
+                  <LogIn size={18} className="text-gray-600" />
                 </button>
               )}
             </>
