@@ -292,35 +292,18 @@ export function ProductCardStack() {
       return response.json();
     },
     onMutate: async ({ productId, status }) => {
-      // 낙관적 업데이트를 위해 이전 데이터 저장
-      const queryKey = [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id];
-      const previousData = queryClient.getQueryData(queryKey);
-
-      // 즉시 UI 업데이트 - 새 항목도 추가
-      queryClient.setQueryData(queryKey, (old: UserProduct[] | undefined) => {
-        if (!old) return [];
-        
-        const existingIndex = old.findIndex(item => item.productId === productId);
-        if (existingIndex >= 0) {
-          // 기존 항목 업데이트
-          const updated = [...old];
-          updated[existingIndex] = { ...updated[existingIndex], status };
-          return updated;
-        } else {
-          // 새 항목 추가를 위한 간단한 접근법 - 즉시 카운트만 반영
-          // 실제 데이터는 서버 응답 후 추가됨
-          return old;
-        }
+      // 즉시 UI 반영을 위한 캐시 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
-
-      return { previousData };
+      
+      return {};
     },
-    onError: (err, variables, context) => {
-      // 에러 시 이전 데이터로 롤백
-      const queryKey = [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id];
-      if (context?.previousData) {
-        queryClient.setQueryData(queryKey, context.previousData);
-      }
+    onError: () => {
+      // 에러 시 다시 캐시 무효화
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
     },
     onSettled: () => {
       // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
