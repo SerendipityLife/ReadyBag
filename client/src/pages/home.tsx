@@ -50,6 +50,16 @@ export default function Home() {
             {/* Info content will be handled by InfoPanel component */}
           </div>
         )}
+        
+        {currentView === View.HISTORY && (
+          <div className="w-full">
+            {/* Shopping history will be implemented here */}
+            <div className="text-center py-8">
+              <h2 className="text-lg font-semibold mb-2">쇼핑기록</h2>
+              <p className="text-gray-500">여행별 구입 완료된 상품들이 표시됩니다.</p>
+            </div>
+          </div>
+        )}
       </main>
       
       <BottomNavigation />

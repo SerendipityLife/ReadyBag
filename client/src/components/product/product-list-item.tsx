@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X } from "lucide-react";
+import { Instagram, Trash2, X, ShoppingCart, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import type { Product, UserProduct } from "@shared/schema";
 
@@ -34,6 +34,40 @@ export function ProductListItem(props: ProductListItemProps) {
   
   // '분류변경' 기능 제거로 인해 상품 상태 변경 기능도 제거됨
   
+  // Update product status mutation (for purchase tracking)
+  const updateProductStatus = useMutation({
+    mutationFn: async (newStatus: string) => {
+      if (isNonMember) {
+        // 비회원은 로컬 스토리지에서 상태 업데이트
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const updatedData = existingData.map((item: any) => 
+          item.productId === userProduct.productId 
+            ? { ...item, status: newStatus, updatedAt: new Date().toISOString() }
+            : item
+        );
+        localStorage.setItem(storageKey, JSON.stringify(updatedData));
+        return { status: newStatus };
+      } else {
+        // 회원은 API 호출
+        const response = await apiRequest(
+          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
+          "PATCH",
+          { status: newStatus }
+        );
+        return response.json();
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      if (onSuccessfulAction) {
+        onSuccessfulAction();
+      }
+    }
+  });
+
   // Delete user product mutation
   const deleteUserProduct = useMutation({
     mutationFn: async () => {
@@ -161,6 +195,32 @@ export function ProductListItem(props: ProductListItemProps) {
         
         {!readOnly && (
           <div className="mt-3 flex flex-wrap gap-2">
+            {/* 관심 상품에만 구입 완료/미구입 버튼 표시 */}
+            {userProduct.status === ProductStatus.INTERESTED && (
+              <div className="flex gap-2 w-full mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs py-0.5 px-2 h-8 border-green-300 text-green-600 hover:bg-green-500 hover:text-white"
+                  onClick={() => updateProductStatus.mutate(ProductStatus.PURCHASED)}
+                  disabled={updateProductStatus.isPending}
+                >
+                  <ShoppingCart className="h-3 w-3 mr-1" />
+                  구입완료
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 text-xs py-0.5 px-2 h-8 border-orange-300 text-orange-600 hover:bg-orange-500 hover:text-white"
+                  onClick={() => updateProductStatus.mutate(ProductStatus.NOT_PURCHASED)}
+                  disabled={updateProductStatus.isPending}
+                >
+                  <XCircle className="h-3 w-3 mr-1" />
+                  미구입
+                </Button>
+              </div>
+            )}
+            
             <div className="flex gap-2 w-full sm:w-auto">
               <Button
                 variant="outline"
@@ -172,8 +232,6 @@ export function ProductListItem(props: ProductListItemProps) {
                 <Instagram className="h-3 w-3 mr-1" />
                 인스타
               </Button>
-
-
             
               <Button
                 variant="outline"
