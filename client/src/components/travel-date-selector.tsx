@@ -51,11 +51,11 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
-          className="w-full justify-start text-left font-normal"
+          variant="ghost"
+          className="w-full justify-start text-left font-normal text-xs h-6 px-2 hover:bg-gray-50"
         >
-          <CalendarDays className="mr-2 h-4 w-4" />
-          {formatDateRange()}
+          <CalendarDays className="mr-1 h-3 w-3" />
+          <span className="truncate">{formatDateRange()}</span>
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="start">

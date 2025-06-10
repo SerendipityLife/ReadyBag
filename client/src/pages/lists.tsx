@@ -638,26 +638,41 @@ export function Lists() {
     <div className="w-full max-w-3xl mx-auto pb-20">
       {/* 메인 헤더 아래 위치하도록 top 값 조정 (헤더 높이 + 여백) */}
       <div className="sticky top-[60px] md:top-[68px] z-40 bg-gray-50 pt-2 pb-2 border-b border-gray-100 shadow-sm">
-        {/* 환율 정보 표시 - 한 줄로 간결하게 */}
-        {exchangeRate && (
-          <div className="bg-white rounded-lg p-2 mb-2 flex items-center justify-between text-xs text-gray-600 shadow-sm">
-            <div className="flex items-center whitespace-nowrap">
-              <span className="font-medium mr-1">100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} =</span>
-              <span className="font-semibold text-red-500">
-                {(exchangeRate * 100).toFixed(0)}원
-              </span>
-              <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
-              <span className="ml-1 text-gray-500 text-[10px] hidden sm:inline-block">
-                {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
-                  month: 'numeric',
-                  day: 'numeric', 
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }).replace(/\s/g, ' ')}
-              </span>
+        {/* 환율 정보와 여행 날짜 선택 - 나란히 배치 */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-2">
+          {/* 환율 정보 */}
+          {exchangeRate && (
+            <div className="bg-white rounded-lg p-2 flex items-center text-xs text-gray-600 shadow-sm">
+              <div className="flex items-center whitespace-nowrap">
+                <span className="font-medium mr-1">100{selectedCountry.currency === "JPY" ? "엔" : selectedCountry.currency} =</span>
+                <span className="font-semibold text-red-500">
+                  {(exchangeRate * 100).toFixed(0)}원
+                </span>
+                <span className="ml-1 px-1 bg-green-50 text-green-600 rounded text-[10px]">LIVE</span>
+                <span className="ml-1 text-gray-500 text-[10px] hidden lg:inline-block">
+                  {lastUpdated && new Date(lastUpdated).toLocaleString('ko-KR', {
+                    month: 'numeric',
+                    day: 'numeric', 
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }).replace(/\s/g, ' ')}
+                </span>
+              </div>
             </div>
+          )}
+          
+          {/* 여행 날짜 선택 */}
+          <div className="bg-white rounded-lg p-2 shadow-sm">
+            <TravelDateSelector
+              startDate={travelStartDate}
+              endDate={travelEndDate}
+              onDatesChange={(start, end) => {
+                setTravelStartDate(start);
+                setTravelEndDate(end);
+              }}
+            />
           </div>
-        )}
+        </div>
 
         {/* 탭 리스트 영역 - 스크롤해도 고정 */}
         <div className="bg-white rounded-lg shadow-sm w-full">
@@ -687,20 +702,6 @@ export function Lists() {
                 <span className="text-blue-600">위치</span>
               </TabsTrigger>
             </TabsList>
-            
-            {/* 여행 날짜 선택기 - 관심 탭에서만 표시 */}
-            {activeTab === ProductStatus.INTERESTED && (
-              <div className="px-2 pb-2">
-                <TravelDateSelector
-                  startDate={travelStartDate}
-                  endDate={travelEndDate}
-                  onDatesChange={(start, end) => {
-                    setTravelStartDate(start);
-                    setTravelEndDate(end);
-                  }}
-                />
-              </div>
-            )}
           </Tabs>
         </div>
       </div>
