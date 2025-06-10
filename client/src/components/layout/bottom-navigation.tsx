@@ -106,12 +106,12 @@ export function BottomNavigation() {
   const coreNavItems = [
     {
       id: View.EXPLORE,
-      label: "둘러보기",
+      label: "구경하기",
       icon: Search,
     },
     {
       id: View.LISTS,
-      label: interestedCount > 0 ? `내 목록 (${interestedCount})` : "내 목록",
+      label: interestedCount > 0 ? `장바구니 (${interestedCount})` : "장바구니",
       icon: List,
     }
   ];
