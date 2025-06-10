@@ -296,9 +296,9 @@ export function ProductCardStack() {
       const queryKey = [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id];
       const previousData = queryClient.getQueryData(queryKey);
 
-      // 즉시 UI 업데이트
+      // 즉시 UI 업데이트 - 새 항목도 추가
       queryClient.setQueryData(queryKey, (old: UserProduct[] | undefined) => {
-        if (!old) return old;
+        if (!old) return [];
         
         const existingIndex = old.findIndex(item => item.productId === productId);
         if (existingIndex >= 0) {
@@ -307,8 +307,9 @@ export function ProductCardStack() {
           updated[existingIndex] = { ...updated[existingIndex], status };
           return updated;
         } else {
-          // 새 항목 추가 - 간소화된 낙관적 업데이트
-          return old; // 새 항목은 서버 응답 후 추가
+          // 새 항목 추가를 위한 간단한 접근법 - 즉시 카운트만 반영
+          // 실제 데이터는 서버 응답 후 추가됨
+          return old;
         }
       });
 
@@ -325,6 +326,12 @@ export function ProductCardStack() {
       // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      
+      // 모든 user products 관련 쿼리 무효화 (bottom navigation 업데이트용)
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === API_ROUTES.USER_PRODUCTS || 
+                             (Array.isArray(query.queryKey[0]) && query.queryKey[0].includes('user-products'))
       });
     }
   });

@@ -45,7 +45,7 @@ export function BottomNavigation() {
   
   // 로그인한 경우: API 호출로 사용자 상품 목록 가져오기
   const { data: userProducts = [], refetch } = useQuery<any[]>({
-    queryKey: ['/api/user-products', selectedCountry?.id, user?.id],
+    queryKey: [`/api/user-products?countryId=${selectedCountry?.id}`, selectedCountry?.id],
     queryFn: async () => {
       // 비회원일 경우 로컬 저장소에서 가져옴
       if (!user) {
@@ -62,9 +62,9 @@ export function BottomNavigation() {
       return data;
     },
     enabled: !!selectedCountry?.id, // 국가 ID가 있을 때 조회 (비회원도 로컬스토리지 사용)
-    refetchInterval: user ? 30000 : false, // 로그인한 경우 30초마다 업데이트로 변경
+    refetchInterval: user ? 5000 : false, // 로그인한 경우 5초마다 업데이트로 단축
     refetchOnWindowFocus: false, // 윈도우 포커스 시 업데이트 비활성화
-    staleTime: 15000 // 15초 후 데이터가 stale 상태가 됨
+    staleTime: 0 // 즉시 stale 상태로 만들어 실시간 업데이트
   });
   
   // 로컬 스토리지 변경 감지 (비회원용)
