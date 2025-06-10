@@ -14,7 +14,8 @@ import {
   LogIn,
   ChevronDown,
   User,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Info
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -73,6 +74,10 @@ export function Header() {
     });
   };
 
+  const handleInfoClick = () => {
+    setCurrentView(View.INFO);
+  };
+
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!user || !user.email) return "U";
@@ -123,6 +128,14 @@ export function Header() {
                 title="필터"
               >
                 <SlidersHorizontal size={16} className="text-gray-600" />
+              </button>
+              
+              <button 
+                className="p-1.5 rounded-full hover:bg-gray-100"
+                onClick={handleInfoClick}
+                title="정보"
+              >
+                <Info size={16} className="text-gray-600" />
               </button>
               
               <button 

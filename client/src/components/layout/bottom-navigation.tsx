@@ -102,7 +102,8 @@ export function BottomNavigation() {
   
   console.log("[BottomNavigation] Interested count:", interestedCount);
   
-  const navItems = [
+  // 기본 네비게이션 아이템들
+  const coreNavItems = [
     {
       id: View.EXPLORE,
       label: "둘러보기",
@@ -112,29 +113,45 @@ export function BottomNavigation() {
       id: View.LISTS,
       label: interestedCount > 0 ? `내 목록 (${interestedCount})` : "내 목록",
       icon: List,
-    },
-    {
-      id: View.INFO,
-      label: "정보",
-      icon: Info,
-    },
+    }
   ];
+
+  // 추가 기능들을 위한 예약 공간
+  const additionalNavItems: any[] = [
+    // 예시: 
+    // {
+    //   id: View.FAVORITES,
+    //   label: "즐겨찾기",
+    //   icon: Heart,
+    // },
+    // {
+    //   id: View.HISTORY,
+    //   label: "최근 본",
+    //   icon: Clock,
+    // }
+  ];
+
+  const navItems = [...coreNavItems, ...additionalNavItems];
+  const gridCols = navItems.length <= 2 ? 'grid-cols-2' : 
+                   navItems.length === 3 ? 'grid-cols-3' : 'grid-cols-4';
   
   return (
     <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40">
       <div className="container mx-auto px-4">
-        <div className="flex justify-around items-center h-16">
+        <div className={`grid ${gridCols} gap-4 h-16`}>
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setCurrentView(item.id)}
               className={cn(
-                "flex flex-col items-center justify-center w-16 h-full",
-                currentView === item.id ? "text-primary" : "text-neutral"
+                "flex flex-col items-center justify-center h-full rounded-lg transition-colors",
+                currentView === item.id 
+                  ? "text-primary bg-primary/5" 
+                  : "text-neutral hover:bg-gray-50"
               )}
             >
               <item.icon className="w-5 h-5" />
-              <span className="text-xs mt-1">{item.label}</span>
+              <span className="text-xs mt-1 font-medium">{item.label}</span>
             </button>
           ))}
         </div>

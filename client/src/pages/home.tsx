@@ -44,6 +44,12 @@ export default function Home() {
         {currentView === View.LISTS && (
           <Lists />
         )}
+        
+        {currentView === View.INFO && (
+          <div className="w-full">
+            {/* Info content will be handled by InfoPanel component */}
+          </div>
+        )}
       </main>
       
       <BottomNavigation />
