@@ -687,6 +687,20 @@ export function Lists() {
                 <span className="text-blue-600">위치</span>
               </TabsTrigger>
             </TabsList>
+            
+            {/* 여행 날짜 선택기 - 관심 탭에서만 표시 */}
+            {activeTab === ProductStatus.INTERESTED && (
+              <div className="px-2 pb-2">
+                <TravelDateSelector
+                  startDate={travelStartDate}
+                  endDate={travelEndDate}
+                  onDatesChange={(start, end) => {
+                    setTravelStartDate(start);
+                    setTravelEndDate(end);
+                  }}
+                />
+              </div>
+            )}
           </Tabs>
         </div>
       </div>

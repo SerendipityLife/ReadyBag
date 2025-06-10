@@ -168,7 +168,9 @@ export const storage = {
     productId: number,
     status: string,
     userId: string | null,
-    sessionId: string
+    sessionId: string,
+    travelStartDate?: string,
+    travelEndDate?: string
   ) {
     console.log(`UserProduct 요청: productId=${productId}, status=${status}`);
     
@@ -208,12 +210,27 @@ export const storage = {
       // 최신 항목 업데이트
       console.log(`최신 제품 ID: ${latestProduct.id} 상태 업데이트: ${status}`);
       
+      const updateData: any = {
+        status,
+        updatedAt: new Date(),
+      };
+      
+      // Add travel dates if provided
+      if (travelStartDate) {
+        updateData.travelStartDate = new Date(travelStartDate);
+      }
+      if (travelEndDate) {
+        updateData.travelEndDate = new Date(travelEndDate);
+      }
+      
+      // Set purchase date for completed purchases
+      if (status === 'purchased') {
+        updateData.purchaseDate = new Date();
+      }
+      
       const [updated] = await db
         .update(userProducts)
-        .set({
-          status,
-          updatedAt: new Date(),
-        })
+        .set(updateData)
         .where(eq(userProducts.id, latestProduct.id))
         .returning();
       
