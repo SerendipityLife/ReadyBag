@@ -1,6 +1,6 @@
 import { useAppContext } from "@/contexts/AppContext";
 import { View, ProductStatus } from "@/lib/constants";
-import { Search, List, Info } from "lucide-react";
+import { Search, List, Info, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
@@ -132,7 +132,11 @@ export function BottomNavigation() {
   // ============================================================================
   
   const additionalNavItems: any[] = [
-    // 새로운 기능들을 여기에 추가하세요
+    {
+      id: View.HISTORY,
+      label: "쇼핑기록",
+      icon: Clock,
+    }
   ];
 
   const navItems = [...coreNavItems, ...additionalNavItems];

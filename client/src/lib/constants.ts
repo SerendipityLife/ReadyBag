@@ -59,7 +59,9 @@ export enum ProductStatus {
   INTERESTED = "interested",
   MAYBE = "maybe",
   UNSEEN = "unseen",
-  SKIP = "skip"  // 건너뛰기 상태 추가
+  SKIP = "skip",  // 건너뛰기 상태 추가
+  PURCHASED = "purchased",  // 구입완료
+  NOT_PURCHASED = "not_purchased"  // 미구입
 }
 
 // Status Colors
@@ -99,5 +101,6 @@ export const STATUS_TO_SWIPE = {
 export enum View {
   EXPLORE = "explore",
   LISTS = "lists",
-  INFO = "info"
+  INFO = "info",
+  HISTORY = "history"  // 쇼핑기록 뷰 추가
 }

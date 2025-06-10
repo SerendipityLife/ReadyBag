@@ -45,8 +45,11 @@ export const userProducts = pgTable("user_products", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id),  // User ID for authenticated users
   productId: integer("product_id").references(() => products.id).notNull(),
-  status: text("status").notNull(), // 'interested', 'notInterested', 'maybe'
+  status: text("status").notNull(), // 'interested', 'maybe', 'purchased', 'not_purchased'
   sessionId: text("session_id"), // For non-authenticated users
+  travelStartDate: timestamp("travel_start_date"), // 여행 시작 날짜
+  travelEndDate: timestamp("travel_end_date"), // 여행 종료 날짜
+  purchaseDate: timestamp("purchase_date"), // 구입 완료 날짜
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
