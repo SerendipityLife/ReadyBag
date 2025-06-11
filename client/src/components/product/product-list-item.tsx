@@ -6,6 +6,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { Instagram, Trash2, X, ShoppingCart, XCircle } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
 
 interface ProductListItemProps {
@@ -13,13 +14,16 @@ interface ProductListItemProps {
   userProduct: UserProduct;
   readOnly?: boolean;
   onSuccessfulAction?: () => void;
+  travelStartDate?: Date | null;
+  travelEndDate?: Date | null;
 }
 
 export function ProductListItem(props: ProductListItemProps) {
-  const { product, userProduct, readOnly = false, onSuccessfulAction } = props;
+  const { product, userProduct, readOnly = false, onSuccessfulAction, travelStartDate, travelEndDate } = props;
   const queryClient = useQueryClient();
   const { selectedCountry, exchangeRate } = useAppContext();
   const { user } = useAuth();
+  const { toast } = useToast();
   const isNonMember = !user;
   
   // 상태 초기화
@@ -37,13 +41,25 @@ export function ProductListItem(props: ProductListItemProps) {
   // Update product status mutation (for purchase tracking)
   const updateProductStatus = useMutation({
     mutationFn: async (newStatus: string) => {
+      // Check travel dates for purchase completion
+      if ((newStatus === ProductStatus.PURCHASED || newStatus === ProductStatus.NOT_PURCHASED) && (!travelStartDate || !travelEndDate)) {
+        throw new Error("여행 날짜를 먼저 선택해주세요.");
+      }
+
       if (isNonMember) {
         // 비회원은 로컬 스토리지에서 상태 업데이트
         const storageKey = `userProducts_${selectedCountry.id}`;
         const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
         const updatedData = existingData.map((item: any) => 
           item.productId === userProduct.productId 
-            ? { ...item, status: newStatus, updatedAt: new Date().toISOString() }
+            ? { 
+                ...item, 
+                status: newStatus, 
+                updatedAt: new Date().toISOString(),
+                travelStartDate: travelStartDate?.toISOString(),
+                travelEndDate: travelEndDate?.toISOString(),
+                purchaseDate: newStatus === ProductStatus.PURCHASED ? new Date().toISOString() : item.purchaseDate
+              }
             : item
         );
         localStorage.setItem(storageKey, JSON.stringify(updatedData));
@@ -53,7 +69,11 @@ export function ProductListItem(props: ProductListItemProps) {
         const response = await apiRequest(
           `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
           "PATCH",
-          { status: newStatus }
+          { 
+            status: newStatus,
+            travelStartDate: travelStartDate?.toISOString(),
+            travelEndDate: travelEndDate?.toISOString()
+          }
         );
         return response.json();
       }
@@ -65,6 +85,13 @@ export function ProductListItem(props: ProductListItemProps) {
       if (onSuccessfulAction) {
         onSuccessfulAction();
       }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "오류",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   });
 

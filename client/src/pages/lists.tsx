@@ -625,6 +625,8 @@ export function Lists() {
                   product={userProduct.product}
                   userProduct={userProduct}
                   onSuccessfulAction={refetch}
+                  travelStartDate={travelStartDate}
+                  travelEndDate={travelEndDate}
                 />
               </div>
             </div>
