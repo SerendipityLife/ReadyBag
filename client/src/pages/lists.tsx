@@ -18,7 +18,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
 import { LocationSearch } from "@/components/location/location-search";
 import { TravelDateSelector } from "@/components/travel-date-selector";
-import { ShoppingHistory } from "@/components/shopping-history";
+
 import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
@@ -26,7 +26,7 @@ export function Lists() {
   const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user; // 비회원 여부 확인
-  const [activeTab, setActiveTab] = useState<ProductStatus | "location" | "shopping">(ProductStatus.INTERESTED);
+  const [activeTab, setActiveTab] = useState<ProductStatus | "location">(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
   const [travelStartDate, setTravelStartDate] = useState<Date | null>(null);
@@ -698,13 +698,7 @@ export function Lists() {
                 <MapPin className="h-4 w-4 mr-1" />
                 <span className="text-blue-600">위치</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="shopping"
-                className="flex items-center justify-center"
-              >
-                <Heart className="h-4 w-4 mr-1" />
-                <span className="text-purple-600">쇼핑기록</span>
-              </TabsTrigger>
+
             </TabsList>
           </Tabs>
         </div>
@@ -769,11 +763,7 @@ export function Lists() {
             </div>
           </TabsContent>
 
-          <TabsContent value="shopping">
-            <div className="w-full">
-              <ShoppingHistory />
-            </div>
-          </TabsContent>
+
         </Tabs>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { ProductCardStack } from "@/components/product/product-card-stack";
 import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
+import { ShoppingHistoryPage } from "@/pages/shopping-history";
 import { View } from "@/lib/constants";
 
 export default function Home() {
@@ -52,13 +53,7 @@ export default function Home() {
         )}
         
         {currentView === View.HISTORY && (
-          <div className="w-full">
-            {/* Shopping history will be implemented here */}
-            <div className="text-center py-8">
-              <h2 className="text-lg font-semibold mb-2">쇼핑기록</h2>
-              <p className="text-gray-500">여행별 구입 완료된 상품들이 표시됩니다.</p>
-            </div>
-          </div>
+          <ShoppingHistoryPage />
         )}
       </main>
       
