@@ -143,12 +143,12 @@ export function ProductListItem(props: ProductListItemProps) {
     setConvertedPrice(calculatedPrice);
   }, [product, exchangeRate]);
 
-  // Opens Instagram in a new tab with the hashtag search
+  // Opens Instagram in a new tab with the product name search
   const handleInstagramSearch = () => {
-    if (!productHashtags || productHashtags.length === 0) return;
+    if (!productName) return;
     
-    const hashtag = productHashtags[0].replace("#", "");
-    window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(hashtag)}`, "_blank");
+    // Use product name for Instagram search instead of hashtag
+    window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(productName)}`, "_blank");
   };
 
 
@@ -164,11 +164,24 @@ export function ProductListItem(props: ProductListItemProps) {
 
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden flex flex-col sm:flex-row">
-      <img
-        src={productImageUrl}
-        alt={productName}
-        className="w-full h-40 sm:w-28 sm:h-28 object-cover"
-      />
+      <div className="relative">
+        <img
+          src={productImageUrl}
+          alt={productName}
+          className="w-full h-40 sm:w-28 sm:h-28 object-cover"
+        />
+        {/* Delete button - X icon on top-right corner of image */}
+        {!readOnly && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="absolute top-1 right-1 h-6 w-6 p-0 bg-black/50 hover:bg-black/70 text-white rounded-full"
+            onClick={() => deleteUserProduct.mutate()}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
       
       <div className="p-3 flex-1">
         <div className="flex flex-col sm:flex-row sm:justify-between">
@@ -177,11 +190,23 @@ export function ProductListItem(props: ProductListItemProps) {
             {productNameJapanese && (
               <p className="text-xs text-gray-500 mt-0.5">{productNameJapanese}</p>
             )}
-            
-
           </div>
           
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
+            {/* Instagram button - above price */}
+            {!readOnly && (
+              <div className="flex justify-end mb-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 w-5 p-0 text-neutral hover:bg-neutral hover:text-white rounded"
+                  onClick={handleInstagramSearch}
+                  disabled={!productName}
+                >
+                  <Instagram className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
             <div className="flex items-center justify-between sm:flex-col sm:items-end">
               <div className="text-xs text-gray-500">
                 현지: <span className="font-medium">¥{price.toLocaleString()}</span>
@@ -193,56 +218,29 @@ export function ProductListItem(props: ProductListItemProps) {
           </div>
         </div>
         
-        {!readOnly && (
-          <div className="mt-3 flex flex-wrap gap-2">
+        {!readOnly && userProduct.status === ProductStatus.INTERESTED && (
+          <div className="mt-3 flex gap-2">
             {/* 관심 상품에만 구입 완료/미구입 버튼 표시 */}
-            {userProduct.status === ProductStatus.INTERESTED && (
-              <div className="flex gap-2 w-full mb-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs py-0.5 px-2 h-8 border-green-300 text-green-600 hover:bg-green-500 hover:text-white"
-                  onClick={() => updateProductStatus.mutate(ProductStatus.PURCHASED)}
-                  disabled={updateProductStatus.isPending}
-                >
-                  <ShoppingCart className="h-3 w-3 mr-1" />
-                  구입완료
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1 text-xs py-0.5 px-2 h-8 border-orange-300 text-orange-600 hover:bg-orange-500 hover:text-white"
-                  onClick={() => updateProductStatus.mutate(ProductStatus.NOT_PURCHASED)}
-                  disabled={updateProductStatus.isPending}
-                >
-                  <XCircle className="h-3 w-3 mr-1" />
-                  미구입
-                </Button>
-              </div>
-            )}
-            
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 sm:flex-initial text-xs py-0.5 px-2 h-8 border-neutral text-neutral hover:bg-neutral hover:text-white"
-                onClick={handleInstagramSearch}
-                disabled={!productHashtags || productHashtags.length === 0}
-              >
-                <Instagram className="h-3 w-3 mr-1" />
-                인스타
-              </Button>
-            
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 sm:w-auto text-xs py-0.5 px-2 h-8 border-red-300 text-red-500 hover:bg-red-500 hover:text-white"
-                onClick={() => deleteUserProduct.mutate()}
-              >
-                <Trash2 className="h-3 w-3 mr-1" />
-                삭제
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs py-0.5 px-2 h-8 border-green-300 text-green-600 hover:bg-green-500 hover:text-white"
+              onClick={() => updateProductStatus.mutate(ProductStatus.PURCHASED)}
+              disabled={updateProductStatus.isPending}
+            >
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              구입완료
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs py-0.5 px-2 h-8 border-orange-300 text-orange-600 hover:bg-orange-500 hover:text-white"
+              onClick={() => updateProductStatus.mutate(ProductStatus.NOT_PURCHASED)}
+              disabled={updateProductStatus.isPending}
+            >
+              <XCircle className="h-3 w-3 mr-1" />
+              미구입
+            </Button>
           </div>
         )}
       </div>
