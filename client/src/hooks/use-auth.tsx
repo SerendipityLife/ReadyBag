@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import {
   useQuery,
   useMutation,
@@ -230,6 +230,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
     },
   });
+
+  // Clear localStorage data for non-members on page load/refresh
+  useEffect(() => {
+    if (!isLoading && !user) {
+      // Clear all user-related data from localStorage for non-members
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && (key.startsWith('userProducts_') || key.startsWith('travelDates_'))) {
+          keysToRemove.push(key);
+        }
+      }
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+      
+      // Dispatch event to notify components of data reset
+      if (keysToRemove.length > 0) {
+        window.dispatchEvent(new Event('localStorageChange'));
+      }
+    }
+  }, [user, isLoading]);
 
   return (
     <AuthContext.Provider
