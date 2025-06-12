@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X, ShoppingCart, XCircle } from "lucide-react";
+import { Instagram, Trash2, X, ShoppingCart, XCircle, Heart } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
