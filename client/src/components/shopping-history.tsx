@@ -6,7 +6,7 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, RotateCcw, FolderOpen, X, Trash2 } from "lucide-react";
+import { CalendarDays, Heart, FolderOpen, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -33,45 +33,7 @@ export function ShoppingHistory() {
   const [selectedGroup, setSelectedGroup] = useState<TravelGroup | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Mutation to delete purchased item and return it to explore
-  const returnToExplore = useMutation({
-    mutationFn: async (userProductId: number) => {
-      if (isNonMember) {
-        // For non-members, remove from local storage
-        const storageKey = `userProducts_${selectedCountry.id}`;
-        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        const updatedData = existingData.filter((item: any) => item.id !== userProductId);
-        localStorage.setItem(storageKey, JSON.stringify(updatedData));
-        window.dispatchEvent(new Event('localStorageChange'));
-        return { success: true };
-      } else {
-        // For logged-in users, delete via API
-        const response = await apiRequest(`${API_ROUTES.USER_PRODUCTS}/${userProductId}`, "DELETE");
-        return response.json();
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-      });
-      queryClient.invalidateQueries({ 
-        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-      });
-      refetch();
-      // Update selected group if it exists
-      if (selectedGroup) {
-        const updatedGroup = {
-          ...selectedGroup,
-          items: selectedGroup.items.filter(item => returnToExplore.variables !== item.id)
-        };
-        setSelectedGroup(updatedGroup);
-        if (updatedGroup.items.length === 0) {
-          setIsModalOpen(false);
-          setSelectedGroup(null);
-        }
-      }
-    }
-  });
+
 
   // Mutation to delete entire travel folder
   const deleteTravelFolder = useMutation({
@@ -324,32 +286,20 @@ export function ShoppingHistory() {
                   userProduct={userProduct}
                   readOnly={true}
                 />
-                {/* Purchase status indicator and return button */}
-                <div className="px-4 py-2 bg-gray-50 border-t flex items-center justify-between">
-                  <div>
-                    <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                      userProduct.status === ProductStatus.PURCHASED 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-orange-100 text-orange-800'
-                    }`}>
-                      {userProduct.status === ProductStatus.PURCHASED ? '구입완료' : '미구입'}
+                {/* Purchase status indicator */}
+                <div className="px-4 py-2 bg-gray-50 border-t">
+                  <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
+                    userProduct.status === ProductStatus.PURCHASED 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-orange-100 text-orange-800'
+                  }`}>
+                    {userProduct.status === ProductStatus.PURCHASED ? '구입완료' : '미구입'}
+                  </span>
+                  {userProduct.purchaseDate && (
+                    <span className="ml-2 text-xs text-gray-500">
+                      {format(new Date(userProduct.purchaseDate), "MM/dd HH:mm", { locale: ko })}
                     </span>
-                    {userProduct.purchaseDate && (
-                      <span className="ml-2 text-xs text-gray-500">
-                        {format(new Date(userProduct.purchaseDate), "MM/dd HH:mm", { locale: ko })}
-                      </span>
-                    )}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-xs h-6 px-2 border-blue-200 text-blue-600 hover:bg-blue-50"
-                    onClick={() => returnToExplore.mutate(userProduct.id)}
-                    disabled={returnToExplore.isPending}
-                  >
-                    <RotateCcw className="h-3 w-3 mr-1" />
-                    다시구경
-                  </Button>
+                  )}
                 </div>
               </div>
             ))}
