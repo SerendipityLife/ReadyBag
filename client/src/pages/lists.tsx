@@ -554,6 +554,23 @@ export function Lists() {
           </div>
           
           <div className="flex flex-wrap gap-2">
+            {/* 고민중 탭에서 관심으로 이동하는 전용 버튼 */}
+            {status === ProductStatus.MAYBE && products.length > 0 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-xs h-8 flex-grow sm:flex-grow-0 text-red-500 border-red-200 hover:bg-red-50"
+                onClick={() => batchChangeStatus.mutate({ 
+                  ids: products.map(p => p.id), 
+                  status: ProductStatus.INTERESTED 
+                })}
+                disabled={batchChangeStatus.isPending}
+              >
+                <Heart className="h-3 w-3 mr-1 sm:mr-2" />
+                모두 관심으로
+              </Button>
+            )}
+
             {selectedCount > 0 && (
               <>
                 <DropdownMenu>
