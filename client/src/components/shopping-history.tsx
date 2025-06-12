@@ -27,6 +27,7 @@ export function ShoppingHistory() {
   const { selectedCountry } = useAppContext();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const isNonMember = !user;
   const [purchasedProducts, setPurchasedProducts] = useState<ExtendedUserProduct[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<TravelGroup | null>(null);
@@ -69,6 +70,51 @@ export function ShoppingHistory() {
           setSelectedGroup(null);
         }
       }
+    }
+  });
+
+  // Mutation to delete entire travel folder
+  const deleteTravelFolder = useMutation({
+    mutationFn: async (group: TravelGroup) => {
+      if (isNonMember) {
+        // For non-members, remove all items in the group from local storage
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const itemIds = group.items.map(item => item.id);
+        const updatedData = existingData.filter((item: any) => !itemIds.includes(item.id));
+        localStorage.setItem(storageKey, JSON.stringify(updatedData));
+        window.dispatchEvent(new Event('localStorageChange'));
+        return { success: true };
+      } else {
+        // For logged-in users, delete all items in the group via API
+        const deletePromises = group.items.map(item => 
+          apiRequest(`${API_ROUTES.USER_PRODUCTS}/${item.id}`, "DELETE")
+        );
+        await Promise.all(deletePromises);
+        return { success: true };
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+      });
+      refetch();
+      setIsModalOpen(false);
+      setSelectedGroup(null);
+      toast({
+        title: "폴더 삭제 완료",
+        description: "여행 폴더와 모든 상품이 삭제되었습니다.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "삭제 실패",
+        description: "폴더 삭제 중 오류가 발생했습니다.",
+        variant: "destructive",
+      });
     }
   });
 
@@ -224,19 +270,33 @@ export function ShoppingHistory() {
         {groupedByTravel.map((group, index) => (
           <div 
             key={index} 
-            className="bg-white border rounded-lg shadow-sm p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-            onClick={() => openModal(group)}
+            className="bg-white border rounded-lg shadow-sm p-4 hover:bg-gray-50 transition-colors"
           >
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <div 
+                className="flex items-center space-x-3 flex-1 cursor-pointer"
+                onClick={() => openModal(group)}
+              >
                 <FolderOpen className="h-8 w-8 text-blue-600" />
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{group.country} 여행</h3>
                   <p className="text-sm text-gray-600">{group.dateRange}</p>
                 </div>
               </div>
-              <div className="text-right">
+              <div className="flex items-center space-x-3">
                 <span className="text-sm font-medium text-blue-600">{group.items.length}개 상품</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 w-8 p-0 border-red-200 text-red-600 hover:bg-red-50"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteTravelFolder.mutate(group);
+                  }}
+                  disabled={deleteTravelFolder.isPending}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
