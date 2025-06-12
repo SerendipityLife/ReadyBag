@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Calendar, CalendarDays } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
+import { useAppContext } from "@/contexts/AppContext";
 
 interface TravelDateSelectorProps {
   startDate?: Date | null;
@@ -18,6 +19,7 @@ interface TravelDateSelectorProps {
 }
 
 export function TravelDateSelector({ startDate, endDate, onDatesChange }: TravelDateSelectorProps) {
+  const { shouldActivateCalendar, setShouldActivateCalendar } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<string>(
     startDate ? format(startDate, "yyyy-MM-dd") : ""
@@ -25,6 +27,14 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
   const [tempEndDate, setTempEndDate] = useState<string>(
     endDate ? format(endDate, "yyyy-MM-dd") : ""
   );
+
+  // 캘린더 활성화 상태 감지
+  useEffect(() => {
+    if (shouldActivateCalendar) {
+      setIsOpen(true);
+      setShouldActivateCalendar(false);
+    }
+  }, [shouldActivateCalendar, setShouldActivateCalendar]);
 
   const handleSave = () => {
     const start = tempStartDate ? new Date(tempStartDate) : null;

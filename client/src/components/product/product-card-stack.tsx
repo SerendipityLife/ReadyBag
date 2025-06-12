@@ -27,6 +27,7 @@ export function ProductCardStack() {
   const [originalTotalProducts, setOriginalTotalProducts] = useState(0);
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
   const [forceReset, setForceReset] = useState(false);
+  const [pendingReset, setPendingReset] = useState(false);
   
   // API 요청을 위한 필터 파라미터 구성 (새로운 두단계 시스템)
   const filterParams = useMemo(() => {
@@ -144,22 +145,7 @@ export function ProductCardStack() {
       
       if (isFullReset) {
         console.log("[ProductCardStack] 전체 초기화 감지됨 - 강제 리셋 모드 활성화");
-        
-        // 강제 리셋 모드 활성화
-        setForceReset(true);
-        
-        // 모든 관련 상태 초기화
-        setVisibleProducts([]);
-        setCurrentProductIndex(0);
-        
-        // 데이터 리로드
-        queryClient.invalidateQueries({ 
-          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-        });
-        
-        queryClient.invalidateQueries({ 
-          queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-        });
+        setPendingReset(true);
       } else {
         // 일반 변경일 경우 단순 쿼리 무효화
         queryClient.invalidateQueries({ 
@@ -212,6 +198,29 @@ export function ProductCardStack() {
       window.removeEventListener('localStorageReset', handleLogoutReset);
     };
   }, [queryClient, selectedCountry?.id, setCurrentProductIndex]);
+
+  // 펜딩 리셋 처리
+  useEffect(() => {
+    if (pendingReset) {
+      // 강제 리셋 모드 활성화
+      setForceReset(true);
+      
+      // 모든 관련 상태 초기화
+      setVisibleProducts([]);
+      setCurrentProductIndex(0);
+      
+      // 데이터 리로드
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      
+      queryClient.invalidateQueries({ 
+        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
+      });
+      
+      setPendingReset(false);
+    }
+  }, [pendingReset, selectedCountry.id, queryClient, setCurrentProductIndex]);
   
   // Get product IDs that should be excluded from exploration (only interested/maybe, not purchased)
   const excludedProductIds = useMemo(() => {
