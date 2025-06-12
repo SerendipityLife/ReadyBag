@@ -88,9 +88,9 @@ export function ProductListItem(props: ProductListItemProps) {
     },
     onError: (error: Error) => {
       toast({
-        title: "오류",
         description: error.message,
         variant: "destructive",
+        duration: 2000,
       });
     }
   });
