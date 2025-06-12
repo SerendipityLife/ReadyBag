@@ -32,6 +32,8 @@ export function ShoppingHistory() {
   const [purchasedProducts, setPurchasedProducts] = useState<ExtendedUserProduct[]>([]);
   const [selectedGroup, setSelectedGroup] = useState<TravelGroup | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [groupToDelete, setGroupToDelete] = useState<TravelGroup | null>(null);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
 
 
@@ -67,18 +69,37 @@ export function ShoppingHistory() {
       setIsModalOpen(false);
       setSelectedGroup(null);
       toast({
-        title: "폴더 삭제 완료",
         description: "여행 폴더와 모든 상품이 삭제되었습니다.",
+        duration: 2000,
       });
     },
     onError: () => {
       toast({
-        title: "삭제 실패",
         description: "폴더 삭제 중 오류가 발생했습니다.",
         variant: "destructive",
+        duration: 2000,
       });
     }
   });
+
+  // Functions to handle confirmation dialog
+  const handleDeleteClick = (group: TravelGroup) => {
+    setGroupToDelete(group);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (groupToDelete) {
+      deleteTravelFolder.mutate(groupToDelete);
+      setIsDeleteConfirmOpen(false);
+      setGroupToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setIsDeleteConfirmOpen(false);
+    setGroupToDelete(null);
+  };
 
   // API query for logged-in users
   const { data: apiData, refetch } = useQuery({
@@ -253,7 +274,7 @@ export function ShoppingHistory() {
                   className="h-8 w-8 p-0 border-red-200 text-red-600 hover:bg-red-50"
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteTravelFolder.mutate(group);
+                    handleDeleteClick(group);
                   }}
                   disabled={deleteTravelFolder.isPending}
                 >
@@ -303,6 +324,39 @@ export function ShoppingHistory() {
                 </div>
               </div>
             ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation dialog for folder deletion */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>폴더 삭제 확인</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-gray-600">
+              "{groupToDelete?.country} 여행 - {groupToDelete?.dateRange}" 폴더와 모든 상품({groupToDelete?.items.length}개)을 삭제하시겠습니까?
+            </p>
+            <p className="text-sm text-red-600 mt-2">
+              이 작업은 되돌릴 수 없습니다.
+            </p>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={handleCancelDelete}
+              disabled={deleteTravelFolder.isPending}
+            >
+              취소
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmDelete}
+              disabled={deleteTravelFolder.isPending}
+            >
+              {deleteTravelFolder.isPending ? "삭제 중..." : "삭제"}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
