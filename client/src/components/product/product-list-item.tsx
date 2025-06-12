@@ -21,7 +21,7 @@ interface ProductListItemProps {
 export function ProductListItem(props: ProductListItemProps) {
   const { product, userProduct, readOnly = false, onSuccessfulAction, travelStartDate, travelEndDate } = props;
   const queryClient = useQueryClient();
-  const { selectedCountry, exchangeRate } = useAppContext();
+  const { selectedCountry, exchangeRate, setShouldActivateCalendar } = useAppContext();
   const { user } = useAuth();
   const { toast } = useToast();
   const isNonMember = !user;
@@ -92,6 +92,11 @@ export function ProductListItem(props: ProductListItemProps) {
         variant: "destructive",
         duration: 2000,
       });
+      
+      // 여행 날짜 오류일 때 캘린더 활성화
+      if (error.message.includes("여행 날짜를 먼저 선택해주세요")) {
+        setShouldActivateCalendar(true);
+      }
     }
   });
 

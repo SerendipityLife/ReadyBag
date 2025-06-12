@@ -60,6 +60,10 @@ type AppContextType = {
   tags: string[];
   setTags: (tags: string[]) => void;
   applyFilters: (scope?: View) => void;
+  
+  // 캘린더 활성화 상태 관리
+  shouldActivateCalendar: boolean;
+  setShouldActivateCalendar: (activate: boolean) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -90,6 +94,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 필터 관련 상태
   const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 50000 });
   const [tags, setTags] = useState<string[]>([]);
+  
+  // 캘린더 활성화 상태
+  const [shouldActivateCalendar, setShouldActivateCalendar] = useState(false);
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
@@ -276,7 +283,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setPriceRange,
     tags,
     setTags,
-    applyFilters
+    applyFilters,
+    
+    // 캘린더 활성화 상태 관리
+    shouldActivateCalendar,
+    setShouldActivateCalendar
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
