@@ -6,9 +6,10 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, RotateCcw, FolderOpen, X } from "lucide-react";
+import { CalendarDays, Heart, RotateCcw, FolderOpen, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { UserProduct, Product } from "@shared/schema";
 

@@ -213,19 +213,22 @@ export function ProductCardStack() {
     };
   }, [queryClient, selectedCountry?.id, setCurrentProductIndex]);
   
-  // Get already categorized product IDs - 간단한 계산으로 변경
-  const categorizedProductIds = useMemo(() => {
+  // Get product IDs that should be excluded from exploration (only interested/maybe, not purchased)
+  const excludedProductIds = useMemo(() => {
     if (forceReset) return []; // 강제 리셋 모드면 빈 배열 반환
-    return userProducts.map(up => up.productId);
+    // Only exclude products that are in interested or maybe status, not purchased
+    return userProducts
+      .filter(up => up.status === ProductStatus.INTERESTED || up.status === ProductStatus.MAYBE)
+      .map(up => up.productId);
   }, [userProducts, forceReset]);
   
   // Calculate total number of products in the selected filters
   const totalCategoryCount = useMemo(() => {
     if (isAllStoreTypesSelected && isAllPurposeCategoriesSelected) {
-      return allProducts.filter(p => !categorizedProductIds.includes(p.id)).length;
+      return allProducts.filter(p => !excludedProductIds.includes(p.id)).length;
     } else {
       return allProducts.filter(p => {
-        if (categorizedProductIds.includes(p.id)) return false;
+        if (excludedProductIds.includes(p.id)) return false;
         
         // 판매처 필터 확인
         const storeTypeMatch = isAllStoreTypesSelected || selectedStoreTypes.includes(p.storeType);
@@ -235,15 +238,15 @@ export function ProductCardStack() {
         return storeTypeMatch && purposeCategoryMatch;
       }).length;
     }
-  }, [allProducts, categorizedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected]);
+  }, [allProducts, excludedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected]);
   
   // Filter products by selected filters AND exclude already categorized products
   const filteredProducts = useMemo(() => {
     let filtered = allProducts;
     
-    // 강제 리셋 상태가 아닐 때만 이미 분류된 상품 필터링
+    // 강제 리셋 상태가 아닐 때만 관심상품/고민중 상품 제외 (구매완료는 다시 노출)
     if (!forceReset) {
-      filtered = filtered.filter(product => !categorizedProductIds.includes(product.id));
+      filtered = filtered.filter(product => !excludedProductIds.includes(product.id));
     }
     
     // 필터가 전체 선택이 아닌 경우에만 필터링 적용
@@ -259,7 +262,7 @@ export function ProductCardStack() {
     }
     
     return filtered;
-  }, [allProducts, categorizedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected, forceReset, userProducts]);
+  }, [allProducts, excludedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected, forceReset, userProducts]);
 
   // totalCategoryCount 변경 처리
   useEffect(() => {
@@ -525,7 +528,7 @@ export function ProductCardStack() {
   if (filteredProducts.length === 0) {
     // 두 가지 경우를 구분: 전체 상품이 없는 경우 vs 모든 상품을 이미 분류한 경우
     const noProductsInCategory = allProducts.filter(p => {
-        if (categorizedProductIds.includes(p.id)) return false;
+        if (excludedProductIds.includes(p.id)) return false;
         
         // 판매처 필터 확인
         const storeTypeMatch = isAllStoreTypesSelected || selectedStoreTypes.includes(p.storeType);
@@ -535,7 +538,7 @@ export function ProductCardStack() {
         return storeTypeMatch && purposeCategoryMatch;
       }).length === 0;
 
-    if (noProductsInCategory && categorizedProductIds.length === 0) {
+    if (noProductsInCategory && excludedProductIds.length === 0) {
       // 이 카테고리에 상품이 없는 경우
       return (
         <div className="w-full max-w-md mx-auto flex items-center justify-center h-[500px]">
