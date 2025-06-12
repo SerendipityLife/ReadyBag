@@ -252,15 +252,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Log detailed information for debugging
       console.log("Update request: ID=", id, "Status=", validatedData.status);
+      console.log("Travel dates:", validatedData.travelStartDate, validatedData.travelEndDate);
       
       // 간단하게 직접 업데이트 - 모든 권한 확인 생략
       try {
+        const updateData: any = {
+          status: validatedData.status,
+          updatedAt: new Date(),
+        };
+        
+        // Add travel dates if provided
+        if (validatedData.travelStartDate) {
+          updateData.travelStartDate = new Date(validatedData.travelStartDate);
+        }
+        if (validatedData.travelEndDate) {
+          updateData.travelEndDate = new Date(validatedData.travelEndDate);
+        }
+        
+        // Set purchase date for completed purchases
+        if (validatedData.status === 'purchased') {
+          updateData.purchaseDate = new Date();
+        }
+        
         const [updated] = await db
           .update(userProducts)
-          .set({
-            status: validatedData.status,
-            updatedAt: new Date(),
-          })
+          .set(updateData)
           .where(eq(userProducts.id, id))
           .returning();
         
