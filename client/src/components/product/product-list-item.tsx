@@ -275,6 +275,22 @@ export function ProductListItem(props: ProductListItemProps) {
             </Button>
           </div>
         )}
+
+        {!readOnly && userProduct.status === ProductStatus.MAYBE && (
+          <div className="mt-3 flex gap-2">
+            {/* 고민중 상품에만 관심으로 이동 버튼 표시 */}
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs py-0.5 px-2 h-8 border-red-200 text-red-600 hover:bg-red-50"
+              onClick={() => updateProductStatus.mutate(ProductStatus.INTERESTED)}
+              disabled={updateProductStatus.isPending}
+            >
+              <Heart className="h-3 w-3 mr-1" />
+              관심으로
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
