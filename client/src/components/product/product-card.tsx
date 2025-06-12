@@ -4,6 +4,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { Card } from "@/components/ui/card";
 import { SwipeDirection } from "@/lib/constants";
 import { Loader2, Heart, X, HelpCircle } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 
 interface ProductCardProps {
@@ -21,6 +22,9 @@ export function ProductCard({
   isProcessing = false,
   onSwipe,
 }: ProductCardProps) {
+  const { travelStartDate, travelEndDate, setShouldActivateCalendar } = useAppContext();
+  const { toast } = useToast();
+  
   // 아이콘 애니메이션을 위한 상태 추가
   const [animatingIcon, setAnimatingIcon] = useState(false);
   const [iconAnimation, setIconAnimation] = useState({
@@ -290,6 +294,17 @@ export function ProductCard({
   // 외부에서 액션 트리거 함수 (버튼 클릭에 사용)
   const triggerAction = (direction: SwipeDirection) => {
     if (isProcessing || !isTopCard) return;
+    
+    // 여행 날짜가 설정되지 않은 경우 토스트 메시지와 캘린더 활성화
+    if (!travelStartDate || !travelEndDate) {
+      toast({
+        title: "여행 날짜를 선택해주세요",
+        description: "상품을 선택하기 전에 여행 날짜를 먼저 설정해주세요.",
+        variant: "destructive",
+      });
+      setShouldActivateCalendar(true);
+      return;
+    }
   
     // 액션 방향 설정
     setActiveDirection(direction);
@@ -408,6 +423,32 @@ export function ProductCard({
 
   const handleTouchEnd = () => {
     if (!isDragging.current || !isTopCard || isProcessing) return;
+    
+    // 여행 날짜가 설정되지 않은 경우 토스트 메시지와 캘린더 활성화
+    if (!travelStartDate || !travelEndDate) {
+      isDragging.current = false;
+      setSwiping(false);
+      
+      // 카드를 원래 위치로 복원
+      api.start({ 
+        x: 0, 
+        y: 0, 
+        rotate: 0, 
+        filter: 'blur(0px)',
+        borderColor: 'rgba(255,255,255,0)',
+        borderWidth: '0px',
+        boxShadow: '0 0 0 0 rgba(0,0,0,0)'
+      });
+      
+      toast({
+        title: "여행 날짜를 선택해주세요",
+        description: "상품을 선택하기 전에 여행 날짜를 먼저 설정해주세요.",
+        variant: "destructive",
+      });
+      setShouldActivateCalendar(true);
+      return;
+    }
+    
     isDragging.current = false;
     setSwiping(false);
     
