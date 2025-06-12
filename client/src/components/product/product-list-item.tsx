@@ -67,8 +67,8 @@ export function ProductListItem(props: ProductListItemProps) {
       } else {
         // 회원은 API 호출
         const response = await apiRequest(
-          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
           "PATCH",
+          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
           { 
             status: newStatus,
             travelStartDate: travelStartDate?.toISOString(),
