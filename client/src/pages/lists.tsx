@@ -674,17 +674,7 @@ export function Lists() {
               </div>
             )}
             
-            {/* 여행 날짜 선택 */}
-            <div className="flex items-center">
-              <TravelDateSelector
-                startDate={travelStartDate}
-                endDate={travelEndDate}
-                onDatesChange={(start, end) => {
-                  setTravelStartDate(start);
-                  setTravelEndDate(end);
-                }}
-              />
-            </div>
+
           </div>
         </div>
 

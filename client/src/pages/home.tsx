@@ -7,6 +7,7 @@ import { Lists } from "@/pages/lists";
 import { InfoPanel } from "@/components/info-panel";
 import { ShareModal } from "@/components/share-modal";
 import { ShoppingHistoryPage } from "@/pages/shopping-history";
+import { TravelDateSelector } from "@/components/travel-date-selector";
 import { View } from "@/lib/constants";
 
 export default function Home() {

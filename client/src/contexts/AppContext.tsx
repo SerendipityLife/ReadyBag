@@ -64,6 +64,12 @@ type AppContextType = {
   // 캘린더 활성화 상태 관리
   shouldActivateCalendar: boolean;
   setShouldActivateCalendar: (activate: boolean) => void;
+  
+  // 여행 날짜 관리
+  travelStartDate: Date | null;
+  travelEndDate: Date | null;
+  setTravelStartDate: (date: Date | null) => void;
+  setTravelEndDate: (date: Date | null) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -97,6 +103,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   // 캘린더 활성화 상태
   const [shouldActivateCalendar, setShouldActivateCalendar] = useState(false);
+  
+  // 여행 날짜 상태
+  const [travelStartDate, setTravelStartDate] = useState<Date | null>(null);
+  const [travelEndDate, setTravelEndDate] = useState<Date | null>(null);
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
@@ -287,7 +297,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     
     // 캘린더 활성화 상태 관리
     shouldActivateCalendar,
-    setShouldActivateCalendar
+    setShouldActivateCalendar,
+    
+    // 여행 날짜 관리
+    travelStartDate,
+    travelEndDate,
+    setTravelStartDate,
+    setTravelEndDate
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
