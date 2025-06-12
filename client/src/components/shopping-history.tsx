@@ -52,7 +52,7 @@ export function ShoppingHistory() {
       } else {
         // For logged-in users, delete all items in the group via API
         const deletePromises = group.items.map(item => 
-          apiRequest(`${API_ROUTES.USER_PRODUCTS}/${item.id}`, "DELETE")
+          apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${item.id}`)
         );
         await Promise.all(deletePromises);
         return { success: true };
