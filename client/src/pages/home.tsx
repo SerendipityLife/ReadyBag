@@ -11,7 +11,7 @@ import { TravelDateSelector } from "@/components/travel-date-selector";
 import { View } from "@/lib/constants";
 
 export default function Home() {
-  const { currentView, setCurrentView } = useAppContext();
+  const { currentView, setCurrentView, travelStartDate, travelEndDate, setTravelStartDate, setTravelEndDate } = useAppContext();
   
   // Add no-scroll class to HTML element when in EXPLORE view for mobile devices
   useEffect(() => {
@@ -36,6 +36,18 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
+            {/* 여행 날짜 선택 */}
+            <div className="w-full mb-4 flex justify-center">
+              <TravelDateSelector
+                startDate={travelStartDate}
+                endDate={travelEndDate}
+                onDatesChange={(start, end) => {
+                  setTravelStartDate(start);
+                  setTravelEndDate(end);
+                }}
+              />
+            </div>
+            
             {/* 상품 컨텐츠 */}
             <div className="w-full flex flex-col items-center">
               <ProductCardStack />

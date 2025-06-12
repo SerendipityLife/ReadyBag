@@ -17,20 +17,18 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
 import { LocationSearch } from "@/components/location/location-search";
-import { TravelDateSelector } from "@/components/travel-date-selector";
+
 
 import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
   const queryClient = useQueryClient();
-  const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated } = useAppContext();
+  const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated, travelStartDate, travelEndDate } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user; // 비회원 여부 확인
   const [activeTab, setActiveTab] = useState<ProductStatus | "location">(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
-  const [travelStartDate, setTravelStartDate] = useState<Date | null>(null);
-  const [travelEndDate, setTravelEndDate] = useState<Date | null>(null);
   
   // 비회원 사용자의 로컬 스토리지 데이터 가져오기
   const getLocalUserProducts = async () => {
