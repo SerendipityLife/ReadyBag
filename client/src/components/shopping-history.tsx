@@ -6,8 +6,9 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, RotateCcw } from "lucide-react";
+import { CalendarDays, Heart, RotateCcw, FolderOpen, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import type { UserProduct, Product } from "@shared/schema";
 
@@ -27,6 +28,8 @@ export function ShoppingHistory() {
   const queryClient = useQueryClient();
   const isNonMember = !user;
   const [purchasedProducts, setPurchasedProducts] = useState<ExtendedUserProduct[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<TravelGroup | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Mutation to delete purchased item and return it to explore
   const returnToExplore = useMutation({
@@ -53,6 +56,18 @@ export function ShoppingHistory() {
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
       refetch();
+      // Update selected group if it exists
+      if (selectedGroup) {
+        const updatedGroup = {
+          ...selectedGroup,
+          items: selectedGroup.items.filter(item => returnToExplore.variables !== item.id)
+        };
+        setSelectedGroup(updatedGroup);
+        if (updatedGroup.items.length === 0) {
+          setIsModalOpen(false);
+          setSelectedGroup(null);
+        }
+      }
     }
   });
 
@@ -192,27 +207,56 @@ export function ShoppingHistory() {
     );
   }
 
+  const openModal = (group: TravelGroup) => {
+    setSelectedGroup(group);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedGroup(null);
+  };
+
   return (
-    <div className="space-y-6">
-      {groupedByTravel.map((group, index) => (
-        <div key={index} className="bg-white rounded-lg shadow-sm overflow-hidden">
-          {/* Travel header */}
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 px-4 py-3 border-b">
-            <div className="flex items-center">
-              <CalendarDays className="h-5 w-5 text-blue-600 mr-2" />
-              <div>
-                <h3 className="font-medium text-gray-900">{group.country} 여행</h3>
-                <p className="text-sm text-gray-600">{group.dateRange}</p>
+    <>
+      <div className="space-y-4">
+        {groupedByTravel.map((group, index) => (
+          <div 
+            key={index} 
+            className="bg-white border rounded-lg shadow-sm p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+            onClick={() => openModal(group)}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <FolderOpen className="h-8 w-8 text-blue-600" />
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-900">{group.country} 여행</h3>
+                  <p className="text-sm text-gray-600">{group.dateRange}</p>
+                </div>
               </div>
-              <div className="ml-auto text-sm text-gray-500">
-                {group.items.length}개 상품
+              <div className="text-right">
+                <span className="text-sm font-medium text-blue-600">{group.items.length}개 상품</span>
               </div>
             </div>
           </div>
+        ))}
+      </div>
+
+      {/* Modal for showing products */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <CalendarDays className="h-5 w-5 text-blue-600" />
+              <span>{selectedGroup?.country} 여행 - {selectedGroup?.dateRange}</span>
+              <span className="text-sm font-normal text-gray-500">
+                ({selectedGroup?.items.length}개 상품)
+              </span>
+            </DialogTitle>
+          </DialogHeader>
           
-          {/* Products in this travel */}
-          <div className="p-4 space-y-4">
-            {group.items.map((userProduct) => (
+          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+            {selectedGroup?.items.map((userProduct) => (
               <div key={userProduct.id} className="border rounded-lg overflow-hidden">
                 <ProductListItem
                   product={userProduct.product}
@@ -249,8 +293,8 @@ export function ShoppingHistory() {
               </div>
             ))}
           </div>
-        </div>
-      ))}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
