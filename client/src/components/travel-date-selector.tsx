@@ -95,47 +95,78 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-left font-normal text-xs h-6 px-2 hover:bg-gray-50"
-        >
-          <CalendarDays className="mr-1 h-3 w-3" />
-          <span className="truncate">{formatDateRange()}</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80" align="start">
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="start-date">여행 시작일</Label>
-            <Input
-              id="start-date"
-              type="date"
-              value={tempStartDate}
-              onChange={(e) => setTempStartDate(e.target.value)}
-            />
+    <div className="flex items-center gap-2">
+      {/* 저장된 여행 날짜 선택 드롭다운 */}
+      {savedTravelDates.length > 0 && (
+        <Select value={selectedTravelDateId || ""} onValueChange={handleSelectSavedDate}>
+          <SelectTrigger className="w-auto min-w-[140px] h-8 text-xs">
+            <SelectValue placeholder="저장된 날짜 선택" />
+          </SelectTrigger>
+          <SelectContent>
+            {savedTravelDates.map((travelDate) => (
+              <SelectItem key={travelDate.id} value={travelDate.id}>
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs">{travelDate.label}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-4 w-4 p-0 ml-2 hover:bg-red-100"
+                    onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
+                  >
+                    <Trash2 className="h-3 w-3 text-red-500" />
+                  </Button>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+
+      {/* 새 여행 날짜 추가/설정 */}
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            className="justify-start text-left font-normal text-xs h-8 px-2 hover:bg-gray-50"
+          >
+            <Plus className="mr-1 h-3 w-3" />
+            <span className="truncate">
+              {savedTravelDates.length > 0 ? "새 날짜 추가" : formatDateRange()}
+            </span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-80" align="start">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="start-date">여행 시작일</Label>
+              <Input
+                id="start-date"
+                type="date"
+                value={tempStartDate}
+                onChange={(e) => setTempStartDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="end-date">여행 종료일</Label>
+              <Input
+                id="end-date"
+                type="date"
+                value={tempEndDate}
+                onChange={(e) => setTempEndDate(e.target.value)}
+                min={tempStartDate}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={handleSave} className="flex-1">
+                저장
+              </Button>
+              <Button variant="outline" onClick={handleClear} className="flex-1">
+                초기화
+              </Button>
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="end-date">여행 종료일</Label>
-            <Input
-              id="end-date"
-              type="date"
-              value={tempEndDate}
-              onChange={(e) => setTempEndDate(e.target.value)}
-              min={tempStartDate}
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={handleSave} className="flex-1">
-              저장
-            </Button>
-            <Button variant="outline" onClick={handleClear} className="flex-1">
-              초기화
-            </Button>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 }

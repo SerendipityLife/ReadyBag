@@ -18,7 +18,10 @@ export function ProductCardStack() {
     isAllPurposeCategoriesSelected,
     setCurrentProductIndex,
     priceRange,
-    tags
+    tags,
+    selectedTravelDateId,
+    travelStartDate,
+    travelEndDate
   } = useAppContext();
   const { user } = useAuth();
   
@@ -296,10 +299,18 @@ export function ProductCardStack() {
   // Update user product status mutation with optimistic updates
   const updateProductStatus = useMutation({
     mutationFn: async ({ productId, status }: { productId: number, status: ProductStatus }) => {
+      const requestBody: any = { 
+        productId, 
+        status,
+        travelDateId: selectedTravelDateId,
+        travelStartDate: travelStartDate,
+        travelEndDate: travelEndDate
+      };
+      
       const response = await apiRequest(
         "POST",
         `${API_ROUTES.USER_PRODUCTS}`,
-        { productId, status }
+        requestBody
       );
       return response.json();
     },

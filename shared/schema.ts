@@ -47,6 +47,7 @@ export const userProducts = pgTable("user_products", {
   productId: integer("product_id").references(() => products.id).notNull(),
   status: text("status").notNull(), // 'interested', 'maybe', 'purchased', 'not_purchased'
   sessionId: text("session_id"), // For non-authenticated users
+  travelDateId: text("travel_date_id"), // 선택된 여행 날짜 폴더 ID
   travelStartDate: timestamp("travel_start_date"), // 여행 시작 날짜
   travelEndDate: timestamp("travel_end_date"), // 여행 종료 날짜
   purchaseDate: timestamp("purchase_date"), // 구입 완료 날짜
