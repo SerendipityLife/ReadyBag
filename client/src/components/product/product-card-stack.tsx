@@ -318,10 +318,15 @@ export function ProductCardStack() {
   // Update user product status mutation with optimistic updates
   const updateProductStatus = useMutation({
     mutationFn: async ({ productId, status }: { productId: number, status: ProductStatus }) => {
+      // Get current travel date ID from localStorage to ensure we have the latest value
+      const currentTravelDateId = typeof window !== 'undefined' 
+        ? localStorage.getItem('selectedTravelDateId') 
+        : selectedTravelDateId;
+      
       const requestBody: any = { 
         productId, 
         status,
-        travelDateId: selectedTravelDateId,
+        travelDateId: currentTravelDateId || selectedTravelDateId,
         travelStartDate: travelStartDate,
         travelEndDate: travelEndDate
       };
@@ -334,23 +339,38 @@ export function ProductCardStack() {
       return response.json();
     },
     onMutate: async ({ productId, status }) => {
+      // Get current travel date ID from localStorage to ensure cache invalidation uses the correct key
+      const currentTravelDateId = typeof window !== 'undefined' 
+        ? localStorage.getItem('selectedTravelDateId') 
+        : selectedTravelDateId;
+      
       // 즉시 UI 반영을 위한 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
       });
       
       return {};
     },
     onError: () => {
+      // Get current travel date ID from localStorage for error handling
+      const currentTravelDateId = typeof window !== 'undefined' 
+        ? localStorage.getItem('selectedTravelDateId') 
+        : selectedTravelDateId;
+      
       // 에러 시 다시 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
       });
     },
     onSettled: () => {
+      // Get current travel date ID from localStorage for final synchronization
+      const currentTravelDateId = typeof window !== 'undefined' 
+        ? localStorage.getItem('selectedTravelDateId') 
+        : selectedTravelDateId;
+      
       // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
       });
       
       // 모든 user products 관련 쿼리 무효화 (bottom navigation 업데이트용)
