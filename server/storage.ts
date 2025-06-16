@@ -170,7 +170,8 @@ export const storage = {
     userId: string | null,
     sessionId: string,
     travelStartDate?: string,
-    travelEndDate?: string
+    travelEndDate?: string,
+    travelDateId?: string
   ) {
     console.log(`UserProduct 요청: productId=${productId}, status=${status}`);
     
@@ -222,6 +223,9 @@ export const storage = {
       if (travelEndDate) {
         updateData.travelEndDate = new Date(travelEndDate);
       }
+      if (travelDateId !== undefined) {
+        updateData.travelDateId = travelDateId;
+      }
       
       // Set purchase date for completed purchases
       if (status === 'purchased') {
@@ -239,14 +243,27 @@ export const storage = {
       // 새 사용자 제품 생성
       console.log(`새 UserProduct 생성: productId=${productId}, status=${status}`);
       
+      const insertData: any = {
+        productId,
+        status,
+        userId: userId ? parseInt(userId) : null,
+        sessionId,
+      };
+      
+      // Add travel date information if provided
+      if (travelDateId !== undefined) {
+        insertData.travelDateId = travelDateId;
+      }
+      if (travelStartDate) {
+        insertData.travelStartDate = new Date(travelStartDate);
+      }
+      if (travelEndDate) {
+        insertData.travelEndDate = new Date(travelEndDate);
+      }
+      
       const [newUserProduct] = await db
         .insert(userProducts)
-        .values({
-          productId,
-          status,
-          userId,
-          sessionId,
-        })
+        .values(insertData)
         .returning();
       
       return newUserProduct;

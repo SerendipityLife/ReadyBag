@@ -23,7 +23,17 @@ import type { UserProduct } from "@shared/schema";
 
 export function Lists() {
   const queryClient = useQueryClient();
-  const { selectedCountry, selectedCategories, generateShareUrl, exchangeRate, lastUpdated, travelStartDate, travelEndDate } = useAppContext();
+  const { 
+    selectedCountry, 
+    selectedCategories, 
+    generateShareUrl, 
+    exchangeRate, 
+    lastUpdated, 
+    travelStartDate, 
+    travelEndDate,
+    selectedTravelDateId,
+    savedTravelDates 
+  } = useAppContext();
   const { user } = useAuth();
   const isNonMember = !user; // 비회원 여부 확인
   const [activeTab, setActiveTab] = useState<ProductStatus | "location">(ProductStatus.INTERESTED);
@@ -45,6 +55,11 @@ export function Lists() {
       console.log("로컬 스토리지에서 로드된 상품 데이터:", localData);
       
       if (!Array.isArray(localData) || localData.length === 0) return [];
+      
+      // 선택된 여행 날짜 ID로 필터링
+      const filteredData = selectedTravelDateId 
+        ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
+        : localData.filter((item: any) => !item.travelDateId); // 날짜 ID가 없는 기존 데이터
       
       // allProducts가 있으면 먼저 사용 (API 호출 최소화)
       if (allProducts && allProducts.length > 0) {

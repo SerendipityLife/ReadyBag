@@ -209,6 +209,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const schema = z.object({
         productId: z.number(),
         status: z.string(),
+        travelDateId: z.string().optional(),
         travelStartDate: z.string().optional(),
         travelEndDate: z.string().optional(),
       });
@@ -221,7 +222,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.productId,
         validatedData.status,
         userId,
-        sessionId
+        sessionId,
+        validatedData.travelStartDate,
+        validatedData.travelEndDate,
+        validatedData.travelDateId
       );
       
       // 사용자 제품 관련 캐시 무효화
