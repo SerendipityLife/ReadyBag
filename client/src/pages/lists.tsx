@@ -708,6 +708,7 @@ export function Lists() {
                 onDatesChange={(start, end) => {
                   // 날짜 변경 시 AppContext 업데이트는 TravelDateSelector 내부에서 처리됨
                 }}
+                mode="select"
               />
             </div>
 
