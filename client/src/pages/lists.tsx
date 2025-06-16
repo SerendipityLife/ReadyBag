@@ -17,6 +17,7 @@ import {
 import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
 import { LocationSearch } from "@/components/location/location-search";
+import { TravelDateSelector } from "@/components/travel-date-selector";
 
 
 import type { UserProduct } from "@shared/schema";
@@ -247,7 +248,16 @@ export function Lists() {
           
           if (storedData) {
             const products = JSON.parse(storedData);
-            const updatedProducts = products.filter((item: any) => !ids.includes(item.id));
+            // 선택된 여행 날짜에 해당하는 상품만 삭제
+            const updatedProducts = products.filter((item: any) => {
+              // 삭제 대상이 아니면 유지
+              if (!ids.includes(item.id)) return true;
+              
+              // 삭제 대상이지만 다른 여행 날짜의 상품이면 유지
+              const itemTravelDateId = item.travelDateId || null;
+              const currentTravelDateId = selectedTravelDateId || null;
+              return itemTravelDateId !== currentTravelDateId;
+            });
             
             localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
             console.log(`로컬 스토리지에서 ${ids.length}개 상품 삭제 완료`);
@@ -688,6 +698,16 @@ export function Lists() {
               </div>
             )}
             
+            {/* 여행 날짜 선택 */}
+            <div className="flex items-center">
+              <TravelDateSelector
+                startDate={travelStartDate}
+                endDate={travelEndDate}
+                onDatesChange={(start, end) => {
+                  // 날짜 변경 시 AppContext 업데이트는 TravelDateSelector 내부에서 처리됨
+                }}
+              />
+            </div>
 
           </div>
         </div>
@@ -699,7 +719,7 @@ export function Lists() {
             onValueChange={(value) => setActiveTab(value as ProductStatus | "location")}
             className="w-full"
           >
-            <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
+            <TabsList className="w-full grid grid-cols-4 bg-white rounded-lg mb-2">
               <TabsTrigger
                 value={ProductStatus.INTERESTED}
                 className="flex items-center justify-center"
@@ -711,6 +731,12 @@ export function Lists() {
                 className="flex items-center justify-center"
               >
                 <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
+              </TabsTrigger>
+              <TabsTrigger
+                value={ProductStatus.PURCHASED}
+                className="flex items-center justify-center"
+              >
+                <span className="text-green-600">구매완료</span> {getCountBadge(userProducts.filter(up => up.status === ProductStatus.PURCHASED).length)}
               </TabsTrigger>
               <TabsTrigger
                 value="location"
@@ -774,6 +800,15 @@ export function Lists() {
               {/* 메인 컨텐츠 */}
               <div className="w-full">
                 {renderTabContent(maybeProducts, ProductStatus.MAYBE)}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value={ProductStatus.PURCHASED}>
+            <div>
+              {/* 메인 컨텐츠 */}
+              <div className="w-full">
+                {renderTabContent(userProducts.filter(up => up.status === ProductStatus.PURCHASED), ProductStatus.PURCHASED)}
               </div>
             </div>
           </TabsContent>

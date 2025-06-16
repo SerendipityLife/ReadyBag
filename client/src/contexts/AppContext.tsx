@@ -138,6 +138,32 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // Non-member data reset functionality
+  const resetNonMemberData = () => {
+    if (typeof window !== 'undefined') {
+      // Clear all localStorage related to user data
+      const keysToRemove = [
+        'userProducts',
+        'savedTravelDates',
+        'selectedTravelDateId',
+        'selectedCountry',
+        'travelStartDate',
+        'travelEndDate',
+        'filters'
+      ];
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      // Reset state
+      setSavedTravelDates([]);
+      setSelectedTravelDateId(null);
+      setTravelStartDate(null);
+      setTravelEndDate(null);
+    }
+  };
+
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
   const isAllStoreTypesSelected = selectedStoreTypes.includes("ALL") || selectedStoreTypes.length === 0;
