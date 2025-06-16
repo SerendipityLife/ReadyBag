@@ -81,11 +81,13 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
       setTempStartDate(format(selectedDate.startDate, "yyyy-MM-dd"));
       setTempEndDate(format(selectedDate.endDate, "yyyy-MM-dd"));
       
-      console.log(`여행 날짜 선택됨: ${travelDateId} (${selectedDate.label})`);
+      console.log(`[TravelDateSelector] 여행 날짜 선택됨: ${travelDateId} (${selectedDate.label})`);
+      console.log(`[TravelDateSelector] Context 업데이트 전 selectedTravelDateId:`, selectedTravelDateId);
       
       // localStorage에 선택된 날짜 ID 저장
       if (typeof window !== 'undefined') {
         localStorage.setItem('selectedTravelDateId', travelDateId);
+        console.log(`[TravelDateSelector] localStorage에 저장됨:`, travelDateId);
       }
     }
   };

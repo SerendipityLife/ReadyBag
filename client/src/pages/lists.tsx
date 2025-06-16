@@ -248,6 +248,23 @@ export function Lists() {
       refetch();
     }
   }, [selectedTravelDateId, selectedCountry?.id, refetch]);
+
+  // 커스텀 이벤트 리스너 추가 (여행 날짜 변경 감지)
+  useEffect(() => {
+    const handleTravelDateChange = (event: CustomEvent) => {
+      console.log(`[Lists] 커스텀 이벤트로 여행 날짜 변경 감지:`, event.detail.selectedTravelDateId);
+      if (selectedCountry?.id) {
+        refetch();
+      }
+    };
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('travelDateChanged', handleTravelDateChange as EventListener);
+      return () => {
+        window.removeEventListener('travelDateChanged', handleTravelDateChange as EventListener);
+      };
+    }
+  }, [selectedCountry?.id, refetch]);
   
   // 대량 삭제 mutation
   const batchDelete = useMutation({

@@ -120,6 +120,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [savedTravelDates, setSavedTravelDates] = useState<Array<{id: string; startDate: Date; endDate: Date; label: string}>>([]);
   const [selectedTravelDateId, setSelectedTravelDateId] = useState<string | null>(null);
 
+  // selectedTravelDateId 변경 시 localStorage 동기화 및 다른 컴포넌트들에게 알림
+  useEffect(() => {
+    console.log(`[AppContext] selectedTravelDateId 변경됨:`, selectedTravelDateId);
+    if (typeof window !== 'undefined') {
+      if (selectedTravelDateId) {
+        localStorage.setItem('selectedTravelDateId', selectedTravelDateId);
+      } else {
+        localStorage.removeItem('selectedTravelDateId');
+      }
+      
+      // 커스텀 이벤트 발생으로 다른 컴포넌트들에게 알림
+      window.dispatchEvent(new CustomEvent('travelDateChanged', { 
+        detail: { selectedTravelDateId } 
+      }));
+    }
+  }, [selectedTravelDateId]);
+
   // Load saved travel dates from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
