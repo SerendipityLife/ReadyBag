@@ -70,6 +70,14 @@ type AppContextType = {
   travelEndDate: Date | null;
   setTravelStartDate: (date: Date | null) => void;
   setTravelEndDate: (date: Date | null) => void;
+  
+  // 저장된 여행 날짜 폴더 관리
+  savedTravelDates: Array<{id: string; startDate: Date; endDate: Date; label: string}>;
+  setSavedTravelDates: (dates: Array<{id: string; startDate: Date; endDate: Date; label: string}>) => void;
+  selectedTravelDateId: string | null;
+  setSelectedTravelDateId: (id: string | null) => void;
+  addTravelDate: (startDate: Date, endDate: Date) => string;
+  removeTravelDate: (id: string) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -107,6 +115,28 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 여행 날짜 상태
   const [travelStartDate, setTravelStartDate] = useState<Date | null>(null);
   const [travelEndDate, setTravelEndDate] = useState<Date | null>(null);
+  
+  // 저장된 여행 날짜 폴더 상태
+  const [savedTravelDates, setSavedTravelDates] = useState<Array<{id: string; startDate: Date; endDate: Date; label: string}>>([]);
+  const [selectedTravelDateId, setSelectedTravelDateId] = useState<string | null>(null);
+
+  // 여행 날짜 관리 함수
+  const addTravelDate = (startDate: Date, endDate: Date): string => {
+    const id = `travel_${Date.now()}`;
+    const label = `${startDate.getMonth() + 1}월 ${startDate.getDate()}일 - ${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
+    const newTravelDate = { id, startDate, endDate, label };
+    
+    setSavedTravelDates(prev => [...prev, newTravelDate]);
+    setSelectedTravelDateId(id);
+    return id;
+  };
+
+  const removeTravelDate = (id: string) => {
+    setSavedTravelDates(prev => prev.filter(date => date.id !== id));
+    if (selectedTravelDateId === id) {
+      setSelectedTravelDateId(null);
+    }
+  };
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
@@ -303,7 +333,15 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     travelStartDate,
     travelEndDate,
     setTravelStartDate,
-    setTravelEndDate
+    setTravelEndDate,
+    
+    // 저장된 여행 날짜 폴더 관리
+    savedTravelDates,
+    setSavedTravelDates,
+    selectedTravelDateId,
+    setSelectedTravelDateId,
+    addTravelDate,
+    removeTravelDate
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Calendar, CalendarDays } from "lucide-react";
+import { Calendar, CalendarDays, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,6 +8,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useAppContext } from "@/contexts/AppContext";
@@ -19,7 +26,16 @@ interface TravelDateSelectorProps {
 }
 
 export function TravelDateSelector({ startDate, endDate, onDatesChange }: TravelDateSelectorProps) {
-  const { shouldActivateCalendar, setShouldActivateCalendar } = useAppContext();
+  const { 
+    shouldActivateCalendar, 
+    setShouldActivateCalendar,
+    savedTravelDates,
+    selectedTravelDateId,
+    setSelectedTravelDateId,
+    addTravelDate,
+    removeTravelDate
+  } = useAppContext();
+  
   const [isOpen, setIsOpen] = useState(false);
   const [tempStartDate, setTempStartDate] = useState<string>(
     startDate ? format(startDate, "yyyy-MM-dd") : ""
@@ -39,7 +55,13 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
   const handleSave = () => {
     const start = tempStartDate ? new Date(tempStartDate) : null;
     const end = tempEndDate ? new Date(tempEndDate) : null;
-    onDatesChange(start, end);
+    
+    if (start && end) {
+      // 새 여행 날짜 저장
+      const travelDateId = addTravelDate(start, end);
+      onDatesChange(start, end);
+    }
+    
     setIsOpen(false);
   };
 
@@ -48,6 +70,21 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
     setTempEndDate("");
     onDatesChange(null, null);
     setIsOpen(false);
+  };
+
+  const handleSelectSavedDate = (travelDateId: string) => {
+    const selectedDate = savedTravelDates.find(date => date.id === travelDateId);
+    if (selectedDate) {
+      setSelectedTravelDateId(travelDateId);
+      onDatesChange(selectedDate.startDate, selectedDate.endDate);
+      setTempStartDate(format(selectedDate.startDate, "yyyy-MM-dd"));
+      setTempEndDate(format(selectedDate.endDate, "yyyy-MM-dd"));
+    }
+  };
+
+  const handleDeleteSavedDate = (travelDateId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    removeTravelDate(travelDateId);
   };
 
   const formatDateRange = () => {
