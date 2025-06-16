@@ -23,9 +23,10 @@ interface TravelDateSelectorProps {
   startDate?: Date | null;
   endDate?: Date | null;
   onDatesChange: (startDate: Date | null, endDate: Date | null) => void;
+  mode?: 'browse' | 'select'; // browse mode allows creating new dates, select mode only allows selecting existing ones
 }
 
-export function TravelDateSelector({ startDate, endDate, onDatesChange }: TravelDateSelectorProps) {
+export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = 'browse' }: TravelDateSelectorProps) {
   const { 
     shouldActivateCalendar, 
     setShouldActivateCalendar,
@@ -133,14 +134,16 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
                   >
                     {travelDate.label}
                   </button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
-                    onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
-                  >
-                    <Trash2 className="h-3 w-3 text-red-500" />
-                  </Button>
+                  {mode === 'browse' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
+                      onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
+                    >
+                      <Trash2 className="h-3 w-3 text-red-500" />
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>
@@ -148,9 +151,10 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
         </Popover>
       )}
 
-      {/* 새 여행 날짜 추가/설정 */}
-      <Popover open={isOpen} onOpenChange={setIsOpen}>
-        <PopoverTrigger asChild>
+      {/* 새 여행 날짜 추가/설정 - browse 모드에서만 표시 */}
+      {mode === 'browse' && (
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
           <Button
             variant="ghost"
             className="justify-start text-left font-normal text-xs h-8 px-2 hover:bg-gray-50"
@@ -192,7 +196,8 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
             </div>
           </div>
         </PopoverContent>
-      </Popover>
+        </Popover>
+      )}
     </div>
   );
 }
