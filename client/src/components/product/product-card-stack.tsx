@@ -496,20 +496,20 @@ export function ProductCardStack() {
         localProducts = JSON.parse(storedData);
       }
       
-      // 기존 상품이 있는지 확인
-      const existingIndex = localProducts.findIndex((item: any) => item.productId === productId);
+      // 동일한 상품이 같은 여행 날짜에 이미 있는지 확인 (중복 방지)
+      const existingIndex = localProducts.findIndex((item: any) => 
+        item.productId === productId && item.travelDateId === finalTravelDateId
+      );
       
       if (existingIndex >= 0) {
-        // 이미 있는 상품이면 상태 업데이트
+        // 같은 상품이 같은 여행 날짜에 이미 있으면 상태만 업데이트
         localProducts[existingIndex].status = status;
-        localProducts[existingIndex].travelDateId = finalTravelDateId;
-        localProducts[existingIndex].travelStartDate = finalStartDate?.toISOString();
-        localProducts[existingIndex].travelEndDate = finalEndDate?.toISOString();
         localProducts[existingIndex].updatedAt = new Date().toISOString();
+        console.log(`[SaveToLocalStorage] 기존 상품 상태 업데이트: ${productId} (${finalTravelDateId})`);
       } else {
-        // 없는 상품이면 새로 추가
+        // 같은 상품이라도 다른 여행 날짜면 새로 추가 (중복 허용)
         localProducts.push({
-          id: Date.now(), // 임시 id 생성
+          id: Date.now() + Math.random(), // 고유 id 생성
           productId,
           status,
           travelDateId: finalTravelDateId,
@@ -518,6 +518,7 @@ export function ProductCardStack() {
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
+        console.log(`[SaveToLocalStorage] 새 상품 추가: ${productId} (${finalTravelDateId})`);
       }
       
       // 로컬 스토리지에 저장
