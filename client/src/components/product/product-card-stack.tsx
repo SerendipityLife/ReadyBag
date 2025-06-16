@@ -84,7 +84,7 @@ export function ProductCardStack() {
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
   
-  // 로컬 스토리지에서 사용자 상품 데이터 가져오기
+  // 로컬 스토리지에서 사용자 상품 데이터 가져오기 (여행 날짜로 필터링)
   const getLocalUserProducts = () => {
     // 강제 리셋 모드면 빈 배열 반환
     if (forceReset) return [];
@@ -106,7 +106,14 @@ export function ProductCardStack() {
           return [];
         }
         
-        return parsedData;
+        // 선택된 여행 날짜 ID로 필터링
+        const filteredData = selectedTravelDateId 
+          ? parsedData.filter((item: any) => item.travelDateId === selectedTravelDateId)
+          : parsedData.filter((item: any) => !item.travelDateId); // 날짜 ID가 없는 기존 데이터
+        
+        console.log(`[ProductCardStack] 여행 날짜 ${selectedTravelDateId}로 필터링: ${parsedData.length} → ${filteredData.length}`);
+        
+        return filteredData;
       } catch (e) {
         console.error("로컬 스토리지 데이터 파싱 오류:", e);
         localStorage.removeItem(storageKey);
@@ -120,7 +127,7 @@ export function ProductCardStack() {
   
   // 로그인 상태에 따라 사용자 상품 데이터 가져오기
   const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
-    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
       if (!user) {
@@ -130,7 +137,8 @@ export function ProductCardStack() {
       // 로그인한 사용자는 API 호출
       if (!selectedCountry?.id) return [];
       
-      const response = await fetch(`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`);
+      const url = `${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}${selectedTravelDateId ? `&travelDateId=${selectedTravelDateId}` : ''}`;
+      const response = await fetch(url);
       if (!response.ok) return [];
       return await response.json();
     },
@@ -150,9 +158,9 @@ export function ProductCardStack() {
         console.log("[ProductCardStack] 전체 초기화 감지됨 - 강제 리셋 모드 활성화");
         setPendingReset(true);
       } else {
-        // 일반 변경일 경우 단순 쿼리 무효화
+        // 일반 변경일 경우 단순 쿼리 무효화 (여행 날짜 포함)
         queryClient.invalidateQueries({ 
-          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId] 
         });
       }
     };

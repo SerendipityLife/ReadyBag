@@ -44,7 +44,10 @@ export default function Home() {
                 onDatesChange={(start, end) => {
                   setTravelStartDate(start);
                   setTravelEndDate(end);
+                  // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
+                  window.dispatchEvent(new Event('localStorageChange'));
                 }}
+                mode="browse"
               />
             </div>
             
