@@ -475,7 +475,9 @@ export function Lists() {
   
   // Handle share button click
   const handleShare = () => {
-    generateShareUrl(activeTab);
+    if (activeTab !== "location" && Object.values(ProductStatus).includes(activeTab as ProductStatus)) {
+      generateShareUrl(activeTab as ProductStatus);
+    }
   };
   
   // 체크박스 변경 처리
@@ -664,17 +666,7 @@ export function Lists() {
               </div>
               <div className="flex-1">
                 <ProductListItem
-                  product={{
-                    ...userProduct.product,
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    nameJapanese: null,
-                    location: userProduct.product.location || null,
-                    storeType: userProduct.product.category || '',
-                    purposeCategory: userProduct.product.category || '',
-                    hashtags: userProduct.product.hashtags || null,
-                    featured: false
-                  }}
+                  product={userProduct.product as any}
                   userProduct={userProduct}
                   onSuccessfulAction={refetch}
                   travelStartDate={travelStartDate}
