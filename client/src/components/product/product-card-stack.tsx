@@ -318,17 +318,41 @@ export function ProductCardStack() {
   // Update user product status mutation with optimistic updates
   const updateProductStatus = useMutation({
     mutationFn: async ({ productId, status }: { productId: number, status: ProductStatus }) => {
-      // Get current travel date ID from localStorage to ensure we have the latest value
-      const currentTravelDateId = typeof window !== 'undefined' 
-        ? localStorage.getItem('selectedTravelDateId') 
-        : selectedTravelDateId;
+      // Always get the most current travel date ID from localStorage
+      let currentTravelDateId = selectedTravelDateId;
+      let currentStartDate = travelStartDate;
+      let currentEndDate = travelEndDate;
+      
+      if (typeof window !== 'undefined') {
+        const storedTravelDateId = localStorage.getItem('selectedTravelDateId');
+        if (storedTravelDateId) {
+          currentTravelDateId = storedTravelDateId;
+          
+          // Find corresponding travel dates from localStorage
+          const savedDates = localStorage.getItem('savedTravelDates');
+          if (savedDates) {
+            try {
+              const dates = JSON.parse(savedDates);
+              const selectedDate = dates.find((date: any) => date.id === storedTravelDateId);
+              if (selectedDate) {
+                currentStartDate = new Date(selectedDate.startDate);
+                currentEndDate = new Date(selectedDate.endDate);
+              }
+            } catch (error) {
+              console.error('Error parsing saved dates:', error);
+            }
+          }
+        }
+      }
+      
+      console.log(`[ProductSave] 저장 시점 여행 날짜 ID: ${currentTravelDateId}`);
       
       const requestBody: any = { 
         productId, 
         status,
-        travelDateId: currentTravelDateId || selectedTravelDateId,
-        travelStartDate: travelStartDate,
-        travelEndDate: travelEndDate
+        travelDateId: currentTravelDateId,
+        travelStartDate: currentStartDate,
+        travelEndDate: currentEndDate
       };
       
       const response = await apiRequest(
@@ -339,38 +363,36 @@ export function ProductCardStack() {
       return response.json();
     },
     onMutate: async ({ productId, status }) => {
-      // Get current travel date ID from localStorage to ensure cache invalidation uses the correct key
+      // 뮤테이션 실행 전에 현재 여행 날짜 ID 가져오기
       const currentTravelDateId = typeof window !== 'undefined' 
         ? localStorage.getItem('selectedTravelDateId') 
         : selectedTravelDateId;
+      
+      console.log(`[ProductSave] 캐시 무효화 대상 여행 날짜: ${currentTravelDateId}`);
       
       // 즉시 UI 반영을 위한 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || 'no-date'] 
       });
       
-      return {};
+      return { currentTravelDateId };
     },
-    onError: () => {
-      // Get current travel date ID from localStorage for error handling
-      const currentTravelDateId = typeof window !== 'undefined' 
-        ? localStorage.getItem('selectedTravelDateId') 
-        : selectedTravelDateId;
+    onError: (error, variables, context) => {
+      // 에러 시 컨텍스트에서 여행 날짜 ID 가져오기
+      const travelDateId = context?.currentTravelDateId || selectedTravelDateId;
       
       // 에러 시 다시 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, travelDateId || 'no-date'] 
       });
     },
-    onSettled: () => {
-      // Get current travel date ID from localStorage for final synchronization
-      const currentTravelDateId = typeof window !== 'undefined' 
-        ? localStorage.getItem('selectedTravelDateId') 
-        : selectedTravelDateId;
+    onSettled: (data, error, variables, context) => {
+      // 최종 동기화 시 올바른 여행 날짜 ID 사용
+      const travelDateId = context?.currentTravelDateId || selectedTravelDateId;
       
       // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
       queryClient.invalidateQueries({ 
-        queryKey: ['user-products', selectedCountry.id, currentTravelDateId || selectedTravelDateId || 'no-date'] 
+        queryKey: ['user-products', selectedCountry.id, travelDateId || 'no-date'] 
       });
       
       // 모든 user products 관련 쿼리 무효화 (bottom navigation 업데이트용)
