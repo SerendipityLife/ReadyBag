@@ -184,7 +184,7 @@ export function Lists() {
             console.log(`로컬 스토리지에서 ${parsedData.length}개 항목 검증 중`);
             
             // 유효한 productId만 남기기
-            const validProductIds = allProducts.map((p: any) => p.id);
+            const validProductIds = Array.isArray(allProducts) ? allProducts.map((p: any) => p.id) : [];
             let validItems = parsedData.filter((item: any) => 
               item.productId && validProductIds.includes(item.productId)
             );
@@ -664,7 +664,17 @@ export function Lists() {
               </div>
               <div className="flex-1">
                 <ProductListItem
-                  product={userProduct.product}
+                  product={{
+                    ...userProduct.product,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    nameJapanese: null,
+                    location: userProduct.product.location || null,
+                    storeType: userProduct.product.category || '',
+                    purposeCategory: userProduct.product.category || '',
+                    hashtags: userProduct.product.hashtags || null,
+                    featured: false
+                  }}
                   userProduct={userProduct}
                   onSuccessfulAction={refetch}
                   travelStartDate={travelStartDate}
@@ -716,7 +726,11 @@ export function Lists() {
         <div className="bg-white rounded-lg shadow-sm w-full">
           <Tabs
             defaultValue={ProductStatus.INTERESTED}
-            onValueChange={(value) => setActiveTab(value as ProductStatus | "location")}
+            onValueChange={(value) => {
+              if (value === "location" || Object.values(ProductStatus).includes(value as ProductStatus)) {
+                setActiveTab(value as ProductStatus | "location");
+              }
+            }}
             className="w-full"
           >
             <TabsList className="w-full grid grid-cols-4 bg-white rounded-lg mb-2">

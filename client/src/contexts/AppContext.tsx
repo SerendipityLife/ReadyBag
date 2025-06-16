@@ -367,7 +367,8 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     selectedTravelDateId,
     setSelectedTravelDateId,
     addTravelDate,
-    removeTravelDate
+    removeTravelDate,
+    resetNonMemberData
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
