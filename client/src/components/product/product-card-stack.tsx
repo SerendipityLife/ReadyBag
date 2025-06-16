@@ -127,7 +127,7 @@ export function ProductCardStack() {
   
   // 로그인 상태에 따라 사용자 상품 데이터 가져오기
   const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
-    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId],
+    queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
       if (!user) {
@@ -233,14 +233,25 @@ export function ProductCardStack() {
     }
   }, [pendingReset, selectedCountry.id, queryClient, setCurrentProductIndex]);
   
-  // Get product IDs that should be excluded from exploration (only interested/maybe, not purchased)
+  // Get product IDs that should be excluded from exploration (only interested/maybe for current travel date)
   const excludedProductIds = useMemo(() => {
     if (forceReset) return []; // 강제 리셋 모드면 빈 배열 반환
-    // Only exclude products that are in interested or maybe status, not purchased
+    
+    // Only exclude products that are saved for the CURRENT selected travel date
     return userProducts
-      .filter(up => up.status === ProductStatus.INTERESTED || up.status === ProductStatus.MAYBE)
+      .filter(up => {
+        const isInterestedOrMaybe = up.status === ProductStatus.INTERESTED || up.status === ProductStatus.MAYBE;
+        
+        // If no travel date is selected, exclude products without travel date
+        if (!selectedTravelDateId) {
+          return isInterestedOrMaybe && !up.travelDateId;
+        }
+        
+        // If travel date is selected, only exclude products for this specific travel date
+        return isInterestedOrMaybe && up.travelDateId === selectedTravelDateId;
+      })
       .map(up => up.productId);
-  }, [userProducts, forceReset]);
+  }, [userProducts, forceReset, selectedTravelDateId]);
   
   // Calculate total number of products in the selected filters
   const totalCategoryCount = useMemo(() => {
