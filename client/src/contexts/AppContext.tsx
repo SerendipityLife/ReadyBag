@@ -78,6 +78,7 @@ type AppContextType = {
   setSelectedTravelDateId: (id: string | null) => void;
   addTravelDate: (startDate: Date, endDate: Date) => string;
   removeTravelDate: (id: string) => void;
+  clearNonMemberData: () => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -136,6 +137,35 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       }));
     }
   }, [selectedTravelDateId]);
+
+  // 비회원 데이터 초기화 함수
+  const clearNonMemberData = () => {
+    if (typeof window !== 'undefined') {
+      // 모든 사용자 데이터 관련 localStorage 항목 삭제
+      const keysToRemove = [
+        'savedTravelDates',
+        'selectedTravelDateId',
+        'userProducts_japan', // 일본 상품 데이터
+        'userProducts_korea', // 한국 상품 데이터 (미래 확장용)
+        'userProducts_china'  // 중국 상품 데이터 (미래 확장용)
+      ];
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      // 상태 초기화
+      setSavedTravelDates([]);
+      setSelectedTravelDateId(null);
+      setTravelStartDate(null);
+      setTravelEndDate(null);
+      
+      console.log('비회원 데이터가 초기화되었습니다');
+      
+      // 로컬 스토리지 변경 이벤트 발생
+      window.dispatchEvent(new Event('localStorageChange'));
+    }
+  };
 
   // Load saved travel dates from localStorage on mount
   useEffect(() => {
@@ -504,7 +534,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setSelectedTravelDateId,
     addTravelDate,
     removeTravelDate,
-    resetNonMemberData
+    clearNonMemberData
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

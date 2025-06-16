@@ -181,29 +181,31 @@ export const storage = {
     travelEndDate?: string,
     travelDateId?: string
   ) {
-    console.log(`UserProduct 요청: productId=${productId}, status=${status}`);
+    console.log(`UserProduct 요청: productId=${productId}, status=${status}, travelDateId=${travelDateId}`);
     
-    // 이 사용자/세션에 대해 해당 제품의 모든 레코드 찾기
-    // Query existing products with proper typing and correct filtering
+    // 동일한 상품이 같은 여행 날짜에 이미 있는지 확인 (중복 방지)
     const allProducts = await db.select().from(userProducts)
       .where(eq(userProducts.productId, productId))
       .orderBy(desc(userProducts.createdAt));
     
     let existingProducts = allProducts.filter(p => {
-      if (userId) {
-        const userIdNum = parseInt(userId);
-        return p.userId === userIdNum;
-      } else if (sessionId) {
-        return p.sessionId === sessionId;
-      }
-      return false;
+      const userMatch = userId 
+        ? p.userId === parseInt(userId)
+        : p.sessionId === sessionId;
+      
+      // 같은 사용자이면서 같은 여행 날짜인 경우만 중복으로 간주
+      const travelDateMatch = travelDateId 
+        ? p.travelDateId === travelDateId 
+        : !p.travelDateId;
+      
+      return userMatch && travelDateMatch;
     });
     
-    console.log(`기존 제품 수: ${existingProducts.length}`);
+    console.log(`기존 제품 수 (같은 여행 날짜): ${existingProducts.length}`);
     
     if (existingProducts.length > 0) {
-      // 가장 최근의 항목만 유지하고 나머지는 삭제
-      const latestProduct = existingProducts[0]; // 이미 createdAt 내림차순으로 정렬됨
+      // 같은 상품이 같은 여행 날짜에 이미 있으면 상태만 업데이트
+      const latestProduct = existingProducts[0];
       
       // 중복 항목이 있으면 삭제 (첫 번째 항목 제외)
       if (existingProducts.length > 1) {
@@ -220,8 +222,7 @@ export const storage = {
         }
       }
       
-      // 최신 항목 업데이트
-      console.log(`최신 제품 ID: ${latestProduct.id} 상태 업데이트: ${status}`);
+      console.log(`기존 상품 상태 업데이트: ${productId} (${travelDateId})`);
       
       const updateData: any = {
         status,
@@ -252,8 +253,8 @@ export const storage = {
       
       return updated;
     } else {
-      // 새 사용자 제품 생성
-      console.log(`새 UserProduct 생성: productId=${productId}, status=${status}`);
+      // 같은 상품이라도 다른 여행 날짜면 새로 추가 (중복 허용)
+      console.log(`새 상품 추가: ${productId} (${travelDateId})`);
       
       const insertData: any = {
         productId,
