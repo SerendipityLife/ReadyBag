@@ -58,9 +58,13 @@ export function Lists() {
       if (!Array.isArray(localData) || localData.length === 0) return [];
       
       // 선택된 여행 날짜 ID로 필터링
+      console.log(`[Lists] 필터링 중 - 선택된 날짜: ${selectedTravelDateId}`);
       const filteredData = selectedTravelDateId 
         ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
         : localData.filter((item: any) => !item.travelDateId); // 날짜 ID가 없는 기존 데이터
+      
+      console.log(`[Lists] 필터링 결과: ${filteredData.length}개 상품`);
+      console.log(`[Lists] 필터링된 데이터:`, filteredData);
       
       // allProducts가 있으면 먼저 사용 (API 호출 최소화)
       if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
@@ -218,7 +222,7 @@ export function Lists() {
   const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
-    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId],
+    queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
       if (!user) {

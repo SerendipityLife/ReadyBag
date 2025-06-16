@@ -160,7 +160,7 @@ export function ProductCardStack() {
       } else {
         // 일반 변경일 경우 단순 쿼리 무효화 (여행 날짜 포함)
         queryClient.invalidateQueries({ 
-          queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId] 
+          queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
         });
       }
     };
