@@ -147,13 +147,60 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (savedDates) {
           const parsed = JSON.parse(savedDates);
           if (Array.isArray(parsed)) {
-            // Convert date strings back to Date objects
-            const datesWithParsedDates = parsed.map((date: any) => ({
-              ...date,
-              startDate: new Date(date.startDate),
-              endDate: new Date(date.endDate)
-            }));
+            // Convert date strings back to Date objects and migrate to new ID format
+            const datesWithParsedDates = parsed.map((date: any) => {
+              const startDate = new Date(date.startDate);
+              const endDate = new Date(date.endDate);
+              
+              // Generate new consistent ID based on date range
+              const startStr = startDate.toISOString().split('T')[0];
+              const endStr = endDate.toISOString().split('T')[0];
+              const newId = `travel_${startStr}_${endStr}`;
+              
+              return {
+                ...date,
+                id: newId, // Use new consistent ID
+                startDate,
+                endDate
+              };
+            });
             setSavedTravelDates(datesWithParsedDates);
+            
+            // Update localStorage with new ID format
+            localStorage.setItem('savedTravelDates', JSON.stringify(datesWithParsedDates));
+          }
+        }
+        
+        // 기존 저장된 상품 데이터를 새로운 ID 형식으로 마이그레이션
+        const savedProducts = localStorage.getItem('userProducts');
+        if (savedProducts && savedDates) {
+          try {
+            const products = JSON.parse(savedProducts);
+            const dates = JSON.parse(savedDates);
+            
+            if (Array.isArray(products) && Array.isArray(dates)) {
+              const migratedProducts = products.map((product: any) => {
+                // 기존 상품의 여행 날짜 정보로 새로운 ID 생성
+                if (product.travelStartDate && product.travelEndDate) {
+                  const startDate = new Date(product.travelStartDate);
+                  const endDate = new Date(product.travelEndDate);
+                  const startStr = startDate.toISOString().split('T')[0];
+                  const endStr = endDate.toISOString().split('T')[0];
+                  const newTravelDateId = `travel_${startStr}_${endStr}`;
+                  
+                  return {
+                    ...product,
+                    travelDateId: newTravelDateId
+                  };
+                }
+                return product;
+              });
+              
+              // 마이그레이션된 상품 데이터를 localStorage에 저장
+              localStorage.setItem('userProducts', JSON.stringify(migratedProducts));
+            }
+          } catch (error) {
+            console.error('Error migrating product data:', error);
           }
         }
         
@@ -168,8 +215,23 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
 
   // 여행 날짜 관리 함수
   const addTravelDate = (startDate: Date, endDate: Date): string => {
-    const id = `travel_${Date.now()}`;
+    // 날짜 범위를 기준으로 일관된 ID 생성 (YYYY-MM-DD 형식 사용하여 고유성 보장)
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+    const id = `travel_${startStr}_${endStr}`;
     const label = `${startDate.getMonth() + 1}월 ${startDate.getDate()}일 - ${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
+    
+    // 이미 같은 날짜 범위가 있는지 확인
+    const existingDate = savedTravelDates.find(date => date.id === id);
+    if (existingDate) {
+      // 이미 존재하는 날짜면 해당 ID로 선택만 변경
+      setSelectedTravelDateId(id);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedTravelDateId', id);
+      }
+      return id;
+    }
+    
     const newTravelDate = { id, startDate, endDate, label };
     
     setSavedTravelDates(prev => {
