@@ -332,41 +332,46 @@ export function ProductCardStack() {
   // Update user product status mutation with optimistic updates
   const updateProductStatus = useMutation({
     mutationFn: async ({ productId, status }: { productId: number, status: ProductStatus }) => {
-      // Always get the most current travel date ID from localStorage
-      let currentTravelDateId = selectedTravelDateId;
-      let currentStartDate = travelStartDate;
-      let currentEndDate = travelEndDate;
+      // 상품 저장 시점에서 localStorage에서 직접 최신 여행 날짜 정보 가져오기
+      let finalTravelDateId = null;
+      let finalStartDate = null;
+      let finalEndDate = null;
       
       if (typeof window !== 'undefined') {
-        const storedTravelDateId = localStorage.getItem('selectedTravelDateId');
-        if (storedTravelDateId) {
-          currentTravelDateId = storedTravelDateId;
+        // localStorage에서 현재 선택된 여행 날짜 ID 가져오기
+        const currentTravelDateId = localStorage.getItem('selectedTravelDateId');
+        
+        if (currentTravelDateId) {
+          finalTravelDateId = currentTravelDateId;
           
-          // Find corresponding travel dates from localStorage
-          const savedDates = localStorage.getItem('savedTravelDates');
-          if (savedDates) {
+          // 저장된 여행 날짜 목록에서 해당 날짜 정보 찾기
+          const savedDatesStr = localStorage.getItem('savedTravelDates');
+          if (savedDatesStr) {
             try {
-              const dates = JSON.parse(savedDates);
-              const selectedDate = dates.find((date: any) => date.id === storedTravelDateId);
-              if (selectedDate) {
-                currentStartDate = new Date(selectedDate.startDate);
-                currentEndDate = new Date(selectedDate.endDate);
+              const savedDates = JSON.parse(savedDatesStr);
+              const matchingDate = savedDates.find((date: any) => date.id === currentTravelDateId);
+              
+              if (matchingDate) {
+                finalStartDate = new Date(matchingDate.startDate);
+                finalEndDate = new Date(matchingDate.endDate);
+                console.log(`[ProductSave] localStorage 여행 날짜 정보 찾음: ${matchingDate.label}`);
               }
             } catch (error) {
-              console.error('Error parsing saved dates:', error);
+              console.error('[ProductSave] 저장된 날짜 파싱 오류:', error);
             }
           }
         }
       }
       
-      console.log(`[ProductSave] 저장 시점 여행 날짜 ID: ${currentTravelDateId}`);
+      console.log(`[ProductSave] 최종 저장 여행 날짜 ID: ${finalTravelDateId}`);
+      console.log(`[ProductSave] 최종 저장 날짜 범위: ${finalStartDate} ~ ${finalEndDate}`);
       
       const requestBody: any = { 
         productId, 
         status,
-        travelDateId: currentTravelDateId,
-        travelStartDate: currentStartDate,
-        travelEndDate: currentEndDate
+        travelDateId: finalTravelDateId,
+        travelStartDate: finalStartDate,
+        travelEndDate: finalEndDate
       };
       
       const response = await apiRequest(
@@ -377,10 +382,10 @@ export function ProductCardStack() {
       return response.json();
     },
     onMutate: async ({ productId, status }) => {
-      // 뮤테이션 실행 전에 현재 여행 날짜 ID 가져오기
+      // localStorage에서 현재 여행 날짜 ID 가져오기
       const currentTravelDateId = typeof window !== 'undefined' 
         ? localStorage.getItem('selectedTravelDateId') 
-        : selectedTravelDateId;
+        : null;
       
       console.log(`[ProductSave] 캐시 무효화 대상 여행 날짜: ${currentTravelDateId}`);
       
