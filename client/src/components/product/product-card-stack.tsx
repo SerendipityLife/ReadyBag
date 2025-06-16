@@ -336,7 +336,7 @@ export function ProductCardStack() {
     onMutate: async ({ productId, status }) => {
       // 즉시 UI 반영을 위한 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
       });
       
       return {};
@@ -344,13 +344,13 @@ export function ProductCardStack() {
     onError: () => {
       // 에러 시 다시 캐시 무효화
       queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
       });
     },
     onSettled: () => {
       // 성공/실패와 관계없이 최종적으로 서버 데이터와 동기화
       queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'] 
       });
       
       // 모든 user products 관련 쿼리 무효화 (bottom navigation 업데이트용)
