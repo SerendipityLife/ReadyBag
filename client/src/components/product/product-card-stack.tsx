@@ -237,20 +237,34 @@ export function ProductCardStack() {
   const excludedProductIds = useMemo(() => {
     if (forceReset) return []; // 강제 리셋 모드면 빈 배열 반환
     
+    console.log(`[ProductCardStack] 제외 상품 계산 - 선택된 날짜: ${selectedTravelDateId}`);
+    console.log(`[ProductCardStack] 전체 사용자 상품 수: ${userProducts.length}`);
+    
     // Only exclude products that are saved for the CURRENT selected travel date
-    return userProducts
+    const excluded = userProducts
       .filter(up => {
         const isInterestedOrMaybe = up.status === ProductStatus.INTERESTED || up.status === ProductStatus.MAYBE;
         
         // If no travel date is selected, exclude products without travel date
         if (!selectedTravelDateId) {
-          return isInterestedOrMaybe && !up.travelDateId;
+          const shouldExclude = isInterestedOrMaybe && !up.travelDateId;
+          if (shouldExclude) {
+            console.log(`[ProductCardStack] 날짜 없음 - 제외: 상품 ${up.productId}`);
+          }
+          return shouldExclude;
         }
         
         // If travel date is selected, only exclude products for this specific travel date
-        return isInterestedOrMaybe && up.travelDateId === selectedTravelDateId;
+        const shouldExclude = isInterestedOrMaybe && up.travelDateId === selectedTravelDateId;
+        if (shouldExclude) {
+          console.log(`[ProductCardStack] 현재 날짜 일치 - 제외: 상품 ${up.productId} (날짜: ${up.travelDateId})`);
+        }
+        return shouldExclude;
       })
       .map(up => up.productId);
+    
+    console.log(`[ProductCardStack] 최종 제외 상품 ID들:`, excluded);
+    return excluded;
   }, [userProducts, forceReset, selectedTravelDateId]);
   
   // Calculate total number of products in the selected filters
