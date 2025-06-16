@@ -706,7 +706,11 @@ export function Lists() {
                 startDate={travelStartDate}
                 endDate={travelEndDate}
                 onDatesChange={(start, end) => {
-                  // 날짜 변경 시 AppContext 업데이트는 TravelDateSelector 내부에서 처리됨
+                  // 날짜 변경 시 쿼리 무효화하여 새로운 데이터 로드
+                  queryClient.invalidateQueries({ 
+                    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId] 
+                  });
+                  refetch();
                 }}
                 mode="select"
               />
@@ -726,7 +730,7 @@ export function Lists() {
             }}
             className="w-full"
           >
-            <TabsList className="w-full grid grid-cols-4 bg-white rounded-lg mb-2">
+            <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
               <TabsTrigger
                 value={ProductStatus.INTERESTED}
                 className="flex items-center justify-center"
@@ -738,12 +742,6 @@ export function Lists() {
                 className="flex items-center justify-center"
               >
                 <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
-              </TabsTrigger>
-              <TabsTrigger
-                value={ProductStatus.PURCHASED}
-                className="flex items-center justify-center"
-              >
-                <span className="text-green-600">구매완료</span> {getCountBadge(userProducts.filter(up => up.status === ProductStatus.PURCHASED).length)}
               </TabsTrigger>
               <TabsTrigger
                 value="location"
@@ -811,14 +809,7 @@ export function Lists() {
             </div>
           </TabsContent>
 
-          <TabsContent value={ProductStatus.PURCHASED}>
-            <div>
-              {/* 메인 컨텐츠 */}
-              <div className="w-full">
-                {renderTabContent(userProducts.filter(up => up.status === ProductStatus.PURCHASED), ProductStatus.PURCHASED)}
-              </div>
-            </div>
-          </TabsContent>
+
 
           <TabsContent value="location">
             <div className="w-full">

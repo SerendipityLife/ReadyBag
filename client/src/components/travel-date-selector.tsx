@@ -80,6 +80,13 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
       onDatesChange(selectedDate.startDate, selectedDate.endDate);
       setTempStartDate(format(selectedDate.startDate, "yyyy-MM-dd"));
       setTempEndDate(format(selectedDate.endDate, "yyyy-MM-dd"));
+      
+      console.log(`여행 날짜 선택됨: ${travelDateId} (${selectedDate.label})`);
+      
+      // localStorage에 선택된 날짜 ID 저장
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedTravelDateId', travelDateId);
+      }
     }
   };
 
@@ -112,8 +119,12 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
         <Popover>
           <PopoverTrigger asChild>
             <Button
-              variant="outline"
-              className="w-auto min-w-[140px] h-8 text-xs justify-between"
+              variant={selectedTravelDateId ? "default" : "outline"}
+              className={`w-auto min-w-[140px] h-8 text-xs justify-between ${
+                selectedTravelDateId 
+                  ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500" 
+                  : ""
+              }`}
             >
               <CalendarDays className="h-3 w-3 mr-1" />
               <span className="truncate">
