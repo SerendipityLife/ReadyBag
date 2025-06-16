@@ -495,12 +495,7 @@ export function Lists() {
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED) || [];
   const maybeProducts = getProductsByStatus(ProductStatus.MAYBE) || [];
   
-  // Get count badge for each tab
-  const getCountBadge = (count: number) => (
-    <span className="ml-1 bg-primary text-white rounded-full text-xs px-2 py-0.5">
-      {count}
-    </span>
-  );
+
   
   // Handle share button click
   const handleShare = () => {
@@ -764,13 +759,13 @@ export function Lists() {
                 value={ProductStatus.INTERESTED}
                 className="flex items-center justify-center"
               >
-                <span className="text-red-500">관심</span> {getCountBadge(interestedProducts.length)}
+                <span className="text-red-500">관심</span>
               </TabsTrigger>
               <TabsTrigger
                 value={ProductStatus.MAYBE}
                 className="flex items-center justify-center"
               >
-                <span className="text-gray-600">고민중</span> {getCountBadge(maybeProducts.length)}
+                <span className="text-gray-600">고민중</span>
               </TabsTrigger>
               <TabsTrigger
                 value="location"
