@@ -187,10 +187,7 @@ export const storage = {
     const existingProducts = await db.query.userProducts.findMany({
       where: and(
         eq(userProducts.productId, productId),
-        or(
-          userId ? eq(userProducts.userId, userId) : undefined,
-          sessionId ? eq(userProducts.sessionId, sessionId) : undefined
-        )
+        userId ? eq(userProducts.userId, userId) : eq(userProducts.sessionId, sessionId!)
       ),
       orderBy: desc(userProducts.createdAt),
     });
@@ -347,8 +344,8 @@ export const storage = {
         shareId,
         countryId,
         status,
-        userId,
-        sessionId,
+        userId: userId || null,
+        sessionId: sessionId || null,
         expiresAt,
       })
       .returning();
@@ -384,9 +381,7 @@ export const storage = {
         sharedList.status ? eq(userProducts.status, sharedList.status) : undefined
       ),
       with: {
-        product: {
-          where: eq(products.countryId, sharedList.countryId),
-        },
+        product: true,
       },
       orderBy: desc(userProducts.updatedAt),
     });
@@ -395,7 +390,7 @@ export const storage = {
     
     // Filter out products that don't match the country
     const filteredUserProducts = userProductsList.filter(
-      up => up.product.countryId === sharedList.countryId
+      up => up.product && up.product.countryId === sharedList.countryId
     );
     
     return {
