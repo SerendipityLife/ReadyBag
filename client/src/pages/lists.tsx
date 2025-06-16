@@ -63,7 +63,7 @@ export function Lists() {
       
       // allProducts가 있으면 먼저 사용 (API 호출 최소화)
       if (allProducts && allProducts.length > 0) {
-        return localData.map((item: any) => {
+        return filteredData.map((item: any) => {
           const productData = allProducts.find(p => p.id === item.productId);
           if (!productData) {
             console.log(`상품을 찾을 수 없음: ${item.productId}`);
@@ -217,7 +217,7 @@ export function Lists() {
   const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
-    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
+    queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}&travelDateId=${selectedTravelDateId || ''}`, selectedCountry.id, selectedTravelDateId],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
       if (!user) {
@@ -226,7 +226,8 @@ export function Lists() {
       }
       
       // 로그인한 사용자는 API 호출
-      const response = await fetch(`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`);
+      const url = `${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}${selectedTravelDateId ? `&travelDateId=${selectedTravelDateId}` : ''}`;
+      const response = await fetch(url);
       if (!response.ok) return [];
       return await response.json();
     },

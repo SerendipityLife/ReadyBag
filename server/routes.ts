@@ -191,7 +191,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cachedData);
       }
       
-      const userProducts = await storage.getUserProducts(countryId, userId, sessionId);
+      const travelDateId = req.query.travelDateId as string | undefined;
+      const userProducts = await storage.getUserProducts(countryId, userId, sessionId, travelDateId);
       
       // 캐시에 데이터 저장 (60초 유효 - 사용자 제품 캐시 시간 연장)
       cache.set(cacheKey, userProducts, 60 * 1000);

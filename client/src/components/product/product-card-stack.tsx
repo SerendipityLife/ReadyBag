@@ -399,6 +399,9 @@ export function ProductCardStack() {
           id: Date.now(), // 임시 id 생성
           productId,
           status,
+          travelDateId: selectedTravelDateId,
+          travelStartDate: travelStartDate?.toISOString(),
+          travelEndDate: travelEndDate?.toISOString(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });

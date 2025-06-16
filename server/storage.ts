@@ -85,18 +85,26 @@ export const storage = {
     });
   },
   
-  async getUserProducts(countryId: string, userId: string | null, sessionId: string | null) {
+  async getUserProducts(countryId: string, userId: string | null, sessionId: string | null, travelDateId?: string) {
     // Get products from the specified country
     const countryProducts = await this.getProductsByCountry(countryId);
     
+    // Build conditions for the query
+    const conditions = [
+      or(
+        userId ? eq(userProducts.userId, parseInt(userId)) : undefined,
+        sessionId ? eq(userProducts.sessionId, sessionId) : undefined
+      )
+    ];
+    
+    // Add travel date ID filter if provided
+    if (travelDateId) {
+      conditions.push(eq(userProducts.travelDateId, travelDateId));
+    }
+    
     // Get the user's categorized products
     let query = db.query.userProducts.findMany({
-      where: and(
-        or(
-          userId ? eq(userProducts.userId, userId) : undefined,
-          sessionId ? eq(userProducts.sessionId, sessionId) : undefined
-        )
-      ),
+      where: and(...conditions),
       with: {
         product: true,
       },
