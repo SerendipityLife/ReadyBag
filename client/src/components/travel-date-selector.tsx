@@ -83,8 +83,18 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
   };
 
   const handleDeleteSavedDate = (travelDateId: string, e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
+    console.log('Deleting travel date:', travelDateId);
     removeTravelDate(travelDateId);
+    
+    // If the deleted date was selected, clear the selection
+    if (selectedTravelDateId === travelDateId) {
+      setSelectedTravelDateId(null);
+      onDatesChange(null, null);
+      setTempStartDate("");
+      setTempEndDate("");
+    }
   };
 
   const formatDateRange = () => {
@@ -98,28 +108,44 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange }: Travel
     <div className="flex items-center gap-2">
       {/* 저장된 여행 날짜 선택 드롭다운 */}
       {savedTravelDates.length > 0 && (
-        <Select value={selectedTravelDateId || ""} onValueChange={handleSelectSavedDate}>
-          <SelectTrigger className="w-auto min-w-[140px] h-8 text-xs">
-            <SelectValue placeholder="저장된 날짜 선택" />
-          </SelectTrigger>
-          <SelectContent>
-            {savedTravelDates.map((travelDate) => (
-              <SelectItem key={travelDate.id} value={travelDate.id}>
-                <div className="flex items-center justify-between w-full">
-                  <span className="text-xs">{travelDate.label}</span>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-auto min-w-[140px] h-8 text-xs justify-between"
+            >
+              <CalendarDays className="h-3 w-3 mr-1" />
+              <span className="truncate">
+                {selectedTravelDateId 
+                  ? savedTravelDates.find(d => d.id === selectedTravelDateId)?.label || "저장된 날짜 선택"
+                  : "저장된 날짜 선택"
+                }
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-2" align="start">
+            <div className="space-y-1">
+              {savedTravelDates.map((travelDate) => (
+                <div key={travelDate.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
+                  <button
+                    className="flex-1 text-left text-xs"
+                    onClick={() => handleSelectSavedDate(travelDate.id)}
+                  >
+                    {travelDate.label}
+                  </button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="h-4 w-4 p-0 ml-2 hover:bg-red-100"
+                    className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
                     onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
                   >
                     <Trash2 className="h-3 w-3 text-red-500" />
                   </Button>
                 </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       )}
 
       {/* 새 여행 날짜 추가/설정 */}

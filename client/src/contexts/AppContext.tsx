@@ -120,21 +120,78 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [savedTravelDates, setSavedTravelDates] = useState<Array<{id: string; startDate: Date; endDate: Date; label: string}>>([]);
   const [selectedTravelDateId, setSelectedTravelDateId] = useState<string | null>(null);
 
+  // Load saved travel dates from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const savedDates = localStorage.getItem('savedTravelDates');
+        const savedSelectedId = localStorage.getItem('selectedTravelDateId');
+        
+        if (savedDates) {
+          const parsed = JSON.parse(savedDates);
+          if (Array.isArray(parsed)) {
+            // Convert date strings back to Date objects
+            const datesWithParsedDates = parsed.map((date: any) => ({
+              ...date,
+              startDate: new Date(date.startDate),
+              endDate: new Date(date.endDate)
+            }));
+            setSavedTravelDates(datesWithParsedDates);
+          }
+        }
+        
+        if (savedSelectedId) {
+          setSelectedTravelDateId(savedSelectedId);
+        }
+      } catch (error) {
+        console.error('Error loading saved travel dates:', error);
+      }
+    }
+  }, []);
+
   // 여행 날짜 관리 함수
   const addTravelDate = (startDate: Date, endDate: Date): string => {
     const id = `travel_${Date.now()}`;
     const label = `${startDate.getMonth() + 1}월 ${startDate.getDate()}일 - ${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
     const newTravelDate = { id, startDate, endDate, label };
     
-    setSavedTravelDates(prev => [...prev, newTravelDate]);
+    setSavedTravelDates(prev => {
+      const updated = [...prev, newTravelDate];
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedTravelDates', JSON.stringify(updated));
+      }
+      return updated;
+    });
     setSelectedTravelDateId(id);
+    
+    // Update localStorage for selected ID
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('selectedTravelDateId', id);
+    }
+    
     return id;
   };
 
   const removeTravelDate = (id: string) => {
-    setSavedTravelDates(prev => prev.filter(date => date.id !== id));
+    console.log('Removing travel date:', id);
+    setSavedTravelDates(prev => {
+      const updated = prev.filter(date => date.id !== id);
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedTravelDates', JSON.stringify(updated));
+      }
+      return updated;
+    });
+    
     if (selectedTravelDateId === id) {
       setSelectedTravelDateId(null);
+      setTravelStartDate(null);
+      setTravelEndDate(null);
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('selectedTravelDateId');
+      }
     }
   };
 
