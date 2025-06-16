@@ -184,22 +184,20 @@ export const storage = {
     console.log(`UserProduct 요청: productId=${productId}, status=${status}`);
     
     // 이 사용자/세션에 대해 해당 제품의 모든 레코드 찾기
-    // Query existing products with simplified approach
-    let existingProducts = [];
+    // Query existing products with proper typing and correct filtering
+    const allProducts = await db.select().from(userProducts)
+      .where(eq(userProducts.productId, productId))
+      .orderBy(desc(userProducts.createdAt));
     
-    if (userId) {
-      existingProducts = await db.select().from(userProducts)
-        .where(eq(userProducts.productId, productId))
-        .orderBy(desc(userProducts.createdAt));
-      // Filter by userId in memory to avoid type issues
-      existingProducts = existingProducts.filter(p => p.userId === userId);
-    } else if (sessionId) {
-      existingProducts = await db.select().from(userProducts)
-        .where(eq(userProducts.productId, productId))
-        .orderBy(desc(userProducts.createdAt));
-      // Filter by sessionId in memory to avoid type issues
-      existingProducts = existingProducts.filter(p => p.sessionId === sessionId);
-    }
+    let existingProducts = allProducts.filter(p => {
+      if (userId) {
+        const userIdNum = parseInt(userId);
+        return p.userId === userIdNum;
+      } else if (sessionId) {
+        return p.sessionId === sessionId;
+      }
+      return false;
+    });
     
     console.log(`기존 제품 수: ${existingProducts.length}`);
     

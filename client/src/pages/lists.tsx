@@ -63,9 +63,9 @@ export function Lists() {
         : localData.filter((item: any) => !item.travelDateId); // 날짜 ID가 없는 기존 데이터
       
       // allProducts가 있으면 먼저 사용 (API 호출 최소화)
-      if (allProducts && allProducts.length > 0) {
+      if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
         return filteredData.map((item: any) => {
-          const productData = allProducts.find(p => p.id === item.productId);
+          const productData = allProducts.find((p: any) => p.id === item.productId);
           if (!productData) {
             console.log(`상품을 찾을 수 없음: ${item.productId}`);
             return {
@@ -172,7 +172,7 @@ export function Lists() {
   
   // 상품 데이터가 변경되면 로컬 스토리지 데이터 검증
   useEffect(() => {
-    if (!user && allProducts && allProducts.length > 0 && selectedCountry?.id) {
+    if (!user && allProducts && Array.isArray(allProducts) && allProducts.length > 0 && selectedCountry?.id) {
       try {
         const storageKey = `userProducts_${selectedCountry.id}`;
         const storedData = localStorage.getItem(storageKey);
@@ -463,8 +463,8 @@ export function Lists() {
     return result;
   };
   
-  const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED);
-  const maybeProducts = getProductsByStatus(ProductStatus.MAYBE);
+  const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED) || [];
+  const maybeProducts = getProductsByStatus(ProductStatus.MAYBE) || [];
   
   // Get count badge for each tab
   const getCountBadge = (count: number) => (
