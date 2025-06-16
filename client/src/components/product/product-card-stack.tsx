@@ -458,6 +458,35 @@ export function ProductCardStack() {
   // 비회원일 경우 로컬 스토리지에 상품 상태 저장
   const saveToLocalStorage = (productId: number, status: ProductStatus) => {
     try {
+      // localStorage에서 현재 여행 날짜 정보 직접 가져오기
+      let finalTravelDateId = null;
+      let finalStartDate = null;
+      let finalEndDate = null;
+      
+      const currentTravelDateId = localStorage.getItem('selectedTravelDateId');
+      if (currentTravelDateId) {
+        finalTravelDateId = currentTravelDateId;
+        
+        // 저장된 여행 날짜 목록에서 해당 날짜 정보 찾기
+        const savedDatesStr = localStorage.getItem('savedTravelDates');
+        if (savedDatesStr) {
+          try {
+            const savedDates = JSON.parse(savedDatesStr);
+            const matchingDate = savedDates.find((date: any) => date.id === currentTravelDateId);
+            
+            if (matchingDate) {
+              finalStartDate = new Date(matchingDate.startDate);
+              finalEndDate = new Date(matchingDate.endDate);
+              console.log(`[SaveToLocalStorage] 여행 날짜 정보 찾음: ${matchingDate.label}`);
+            }
+          } catch (error) {
+            console.error('[SaveToLocalStorage] 저장된 날짜 파싱 오류:', error);
+          }
+        }
+      }
+      
+      console.log(`[SaveToLocalStorage] 최종 저장 여행 날짜 ID: ${finalTravelDateId}`);
+      
       const storageKey = `userProducts_${selectedCountry.id}`;
       let localProducts = [];
       
@@ -473,15 +502,19 @@ export function ProductCardStack() {
       if (existingIndex >= 0) {
         // 이미 있는 상품이면 상태 업데이트
         localProducts[existingIndex].status = status;
+        localProducts[existingIndex].travelDateId = finalTravelDateId;
+        localProducts[existingIndex].travelStartDate = finalStartDate?.toISOString();
+        localProducts[existingIndex].travelEndDate = finalEndDate?.toISOString();
+        localProducts[existingIndex].updatedAt = new Date().toISOString();
       } else {
         // 없는 상품이면 새로 추가
         localProducts.push({
           id: Date.now(), // 임시 id 생성
           productId,
           status,
-          travelDateId: selectedTravelDateId,
-          travelStartDate: travelStartDate?.toISOString(),
-          travelEndDate: travelEndDate?.toISOString(),
+          travelDateId: finalTravelDateId,
+          travelStartDate: finalStartDate?.toISOString(),
+          travelEndDate: finalEndDate?.toISOString(),
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
         });
