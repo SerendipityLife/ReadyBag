@@ -237,6 +237,14 @@ export function Lists() {
     refetchOnWindowFocus: true
   });
   
+  // 여행 날짜 변경 시 데이터 리페치
+  useEffect(() => {
+    if (selectedCountry?.id) {
+      console.log(`[Lists] 여행 날짜 변경됨: ${selectedTravelDateId}, 데이터 리페치 중...`);
+      refetch();
+    }
+  }, [selectedTravelDateId, selectedCountry?.id, refetch]);
+  
   // 대량 삭제 mutation
   const batchDelete = useMutation({
     mutationFn: async (ids: number[]) => {
