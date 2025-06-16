@@ -111,7 +111,7 @@ export function BottomNavigation() {
     },
     {
       id: View.LISTS,
-      label: interestedCount > 0 ? `장바구니 (${interestedCount})` : "장바구니",
+      label: "장바구니",
       icon: List,
     }
   ];
