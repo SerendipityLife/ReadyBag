@@ -14,6 +14,38 @@ import {
   ResetPasswordInput
 } from "@shared/schema";
 
+// 비회원 데이터 초기화 함수
+const clearNonMemberData = () => {
+  if (typeof window !== 'undefined') {
+    // 세션별 접속 여부 확인
+    const sessionKey = 'hasVisitedBefore';
+    const hasVisited = sessionStorage.getItem(sessionKey);
+    
+    if (!hasVisited) {
+      // 첫 방문이면 모든 사용자 데이터 관련 localStorage 항목 삭제
+      const keysToRemove = [
+        'savedTravelDates',
+        'selectedTravelDateId',
+        'userProducts_japan',
+        'userProducts_korea',
+        'userProducts_china'
+      ];
+      
+      keysToRemove.forEach(key => {
+        localStorage.removeItem(key);
+      });
+      
+      console.log('비회원 데이터가 초기화되었습니다');
+      
+      // 세션에 방문 기록 저장 (새로고침이나 탭 변경은 허용하되, 브라우저 종료 후 재접속 시에는 다시 초기화)
+      sessionStorage.setItem(sessionKey, 'true');
+      
+      // 로컬 스토리지 변경 이벤트 발생
+      window.dispatchEvent(new Event('localStorageChange'));
+    }
+  }
+};
+
 // 사용자 타입 정의
 export type AuthUser = {
   id: number;
@@ -68,6 +100,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     },
     retry: false,
   });
+
+  // 비회원일 경우 자동으로 데이터 초기화
+  useEffect(() => {
+    if (!isLoading && !user) {
+      clearNonMemberData();
+    }
+  }, [user, isLoading]);
 
   // 로그인 mutation
   const loginMutation = useMutation({
