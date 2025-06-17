@@ -396,6 +396,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Batch delete user products
+  app.delete(`${apiPrefix}/user-products/batch`, async (req, res) => {
+    try {
+      const schema = z.object({
+        ids: z.array(z.number()),
+      });
+      
+      const validatedData = schema.parse(req.body);
+      const { ids } = validatedData;
+      
+      if (ids.length === 0) {
+        return res.status(400).json({ message: "No IDs provided for deletion" });
+      }
+      
+      console.log(`Batch delete request: IDs=${ids.join(', ')}`);
+      
+      try {
+        // Delete each product individually and collect results
+        const deletePromises = ids.map(id => 
+          db.delete(userProducts)
+            .where(eq(userProducts.id, id))
+            .returning()
+        );
+        
+        const deleteResults = await Promise.all(deletePromises);
+        const deletedProducts = deleteResults.filter(result => result.length > 0).flat();
+        
+        console.log(`Successfully batch deleted ${deletedProducts.length} products`);
+        
+        // 사용자 제품 관련 캐시 무효화
+        cache.deleteByPrefix("user-products:");
+        
+        return res.json({ 
+          message: `Deleted ${deletedProducts.length} products`,
+          deletedProducts 
+        });
+      } catch (dbError) {
+        console.error("Database error:", dbError);
+        return res.status(500).json({ message: "Database error" });
+      }
+    } catch (error) {
+      console.error("Error batch deleting user products:", error);
+      return res.status(500).json({ message: "Failed to batch delete user products" });
+    }
+  });
+
   // Create a shared list
   app.post(`${apiPrefix}/shared-list`, async (req, res) => {
     try {

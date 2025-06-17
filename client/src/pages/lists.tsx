@@ -277,15 +277,22 @@ export function Lists() {
           
           if (storedData) {
             const products = JSON.parse(storedData);
-            // 선택된 여행 날짜에 해당하는 상품만 삭제
+            // 지정된 ID의 상품들을 삭제 (여행 날짜 필터링 적용)
             const updatedProducts = products.filter((item: any) => {
               // 삭제 대상이 아니면 유지
               if (!ids.includes(item.id)) return true;
               
-              // 삭제 대상이지만 다른 여행 날짜의 상품이면 유지
+              // 삭제 대상인 경우, 현재 선택된 여행 날짜와 일치하는지 확인
               const itemTravelDateId = item.travelDateId || null;
               const currentTravelDateId = selectedTravelDateId || null;
-              return itemTravelDateId !== currentTravelDateId;
+              
+              // 여행 날짜가 일치하지 않으면 유지 (다른 날짜의 상품)
+              if (itemTravelDateId !== currentTravelDateId) {
+                return true;
+              }
+              
+              // 여행 날짜가 일치하면 삭제 (false 반환)
+              return false;
             });
             
             localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
