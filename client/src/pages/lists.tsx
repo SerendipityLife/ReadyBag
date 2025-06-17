@@ -313,6 +313,9 @@ export function Lists() {
       
       // 회원인 경우 API 호출 (배치 삭제 엔드포인트 사용)
       try {
+        console.log(`회원 배치 삭제 요청: IDs = [${ids.join(', ')}]`);
+        console.log(`전송할 데이터:`, { ids: ids });
+        
         const result = await apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/batch`, {
           ids: ids
         });

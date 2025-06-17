@@ -399,11 +399,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Batch delete user products
   app.delete(`${apiPrefix}/user-products/batch`, async (req, res) => {
     try {
+      console.log("Batch delete request body:", req.body);
+      console.log("Request body type:", typeof req.body);
+      console.log("Request headers:", req.headers);
+      
+      if (!req.body || typeof req.body !== 'object') {
+        console.log("Invalid request body format");
+        return res.status(400).json({ message: "Invalid request body format" });
+      }
+      
       const schema = z.object({
         ids: z.array(z.number()),
       });
       
-      const validatedData = schema.parse(req.body);
+      let validatedData;
+      try {
+        validatedData = schema.parse(req.body);
+      } catch (parseError) {
+        console.log("Schema validation error:", parseError);
+        return res.status(400).json({ message: "Invalid data format", details: parseError });
+      }
+      
       const { ids } = validatedData;
       
       if (ids.length === 0) {
