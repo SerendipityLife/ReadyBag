@@ -303,6 +303,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to update user product" });
     }
   });
+
+  // Batch delete user products (must come before /:id route)
+  app.delete(`${apiPrefix}/user-products/batch`, async (req, res) => {
+    try {
+      console.log("Batch delete request body:", req.body);
+      console.log("Request body type:", typeof req.body);
+      console.log("Request headers:", req.headers);
+      
+      if (!req.body || typeof req.body !== 'object') {
+        console.log("Invalid request body format");
+        return res.status(400).json({ message: "Invalid request body format" });
+      }
+      
+      const schema = z.object({
+        ids: z.array(z.number()),
+      });
+      
+      let validatedData;
+      try {
+        validatedData = schema.parse(req.body);
+      } catch (parseError) {
+        console.log("Schema validation error:", parseError);
+        return res.status(400).json({ message: "Invalid data format", details: parseError });
+      }
+      
+      const { ids } = validatedData;
+      
+      if (ids.length === 0) {
+        return res.status(400).json({ message: "No IDs provided for deletion" });
+      }
+      
+      console.log(`Batch delete request: IDs=${ids.join(', ')}`);
+      
+      try {
+        // Delete each product individually and collect results
+        const deletePromises = ids.map(id => 
+          db.delete(userProducts)
+            .where(eq(userProducts.id, id))
+            .returning()
+        );
+        
+        const deleteResults = await Promise.all(deletePromises);
+        const deletedProducts = deleteResults.filter(result => result.length > 0).flat();
+        
+        console.log(`Successfully batch deleted ${deletedProducts.length} products`);
+        
+        // 사용자 제품 관련 캐시 무효화
+        cache.deleteByPrefix("user-products:");
+        
+        return res.json({ 
+          message: `Deleted ${deletedProducts.length} products`,
+          deletedProducts 
+        });
+      } catch (dbError) {
+        console.error("Database error:", dbError);
+        return res.status(500).json({ message: "Database error" });
+      }
+    } catch (error) {
+      console.error("Error batch deleting user products:", error);
+      return res.status(500).json({ message: "Failed to batch delete user products" });
+    }
+  });
   
   // Delete user product
   app.delete(`${apiPrefix}/user-products/:id`, async (req, res) => {
@@ -393,68 +455,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting products by travel date:", error);
       return res.status(500).json({ message: "Failed to delete products by travel date" });
-    }
-  });
-
-  // Batch delete user products
-  app.delete(`${apiPrefix}/user-products/batch`, async (req, res) => {
-    try {
-      console.log("Batch delete request body:", req.body);
-      console.log("Request body type:", typeof req.body);
-      console.log("Request headers:", req.headers);
-      
-      if (!req.body || typeof req.body !== 'object') {
-        console.log("Invalid request body format");
-        return res.status(400).json({ message: "Invalid request body format" });
-      }
-      
-      const schema = z.object({
-        ids: z.array(z.number()),
-      });
-      
-      let validatedData;
-      try {
-        validatedData = schema.parse(req.body);
-      } catch (parseError) {
-        console.log("Schema validation error:", parseError);
-        return res.status(400).json({ message: "Invalid data format", details: parseError });
-      }
-      
-      const { ids } = validatedData;
-      
-      if (ids.length === 0) {
-        return res.status(400).json({ message: "No IDs provided for deletion" });
-      }
-      
-      console.log(`Batch delete request: IDs=${ids.join(', ')}`);
-      
-      try {
-        // Delete each product individually and collect results
-        const deletePromises = ids.map(id => 
-          db.delete(userProducts)
-            .where(eq(userProducts.id, id))
-            .returning()
-        );
-        
-        const deleteResults = await Promise.all(deletePromises);
-        const deletedProducts = deleteResults.filter(result => result.length > 0).flat();
-        
-        console.log(`Successfully batch deleted ${deletedProducts.length} products`);
-        
-        // 사용자 제품 관련 캐시 무효화
-        cache.deleteByPrefix("user-products:");
-        
-        return res.json({ 
-          message: `Deleted ${deletedProducts.length} products`,
-          deletedProducts 
-        });
-      } catch (dbError) {
-        console.error("Database error:", dbError);
-        return res.status(500).json({ message: "Database error" });
-      }
-    } catch (error) {
-      console.error("Error batch deleting user products:", error);
-      return res.status(500).json({ message: "Failed to batch delete user products" });
     }
   });
 
