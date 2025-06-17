@@ -342,6 +342,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Delete all products by travel date ID
+  app.delete(`${apiPrefix}/user-products/by-travel-date/:travelDateId`, async (req, res) => {
+    try {
+      const travelDateId = req.params.travelDateId;
+      const userId = req.user?.id ? String(req.user.id) : null;
+      const sessionId = req.session?.id || req.sessionID || null;
+      
+      if (!travelDateId) {
+        return res.status(400).json({ message: "Travel date ID is required" });
+      }
+      
+      console.log(`Delete products by travel date: ${travelDateId} for user ${userId || sessionId}`);
+      
+      // Build where conditions based on user authentication
+      let whereConditions;
+      if (userId) {
+        whereConditions = and(
+          eq(userProducts.userId, parseInt(userId)),
+          eq(userProducts.travelDateId, travelDateId)
+        );
+      } else if (sessionId) {
+        whereConditions = and(
+          eq(userProducts.sessionId, sessionId),
+          eq(userProducts.travelDateId, travelDateId)
+        );
+      } else {
+        return res.status(400).json({ message: "User authentication required" });
+      }
+      
+      try {
+        const deletedProducts = await db
+          .delete(userProducts)
+          .where(whereConditions)
+          .returning();
+        
+        console.log(`Successfully deleted ${deletedProducts.length} products for travel date ${travelDateId}`);
+        
+        // 사용자 제품 관련 캐시 무효화
+        cache.deleteByPrefix("user-products:");
+        
+        return res.json({ 
+          message: `Deleted ${deletedProducts.length} products for travel date ${travelDateId}`,
+          deletedProducts 
+        });
+      } catch (dbError) {
+        console.error("Database error:", dbError);
+        return res.status(500).json({ message: "Database error" });
+      }
+    } catch (error) {
+      console.error("Error deleting products by travel date:", error);
+      return res.status(500).json({ message: "Failed to delete products by travel date" });
+    }
+  });
+
   // Create a shared list
   app.post(`${apiPrefix}/shared-list`, async (req, res) => {
     try {

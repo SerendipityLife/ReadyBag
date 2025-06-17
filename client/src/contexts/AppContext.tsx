@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProductStatus, DEFAULT_COUNTRY, API_ROUTES, View } from "@/lib/constants";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import type { Country, Product, UserProduct } from "@shared/schema";
 
 // 가격 범위 타입 정의
@@ -85,6 +87,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider = ({ children }: { children: ReactNode }) => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   // App state
   const [currentView, setCurrentView] = useState<View>(View.EXPLORE);
@@ -282,8 +285,49 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return id;
   };
 
-  const removeTravelDate = (id: string) => {
+  const removeTravelDate = async (id: string) => {
     console.log('Removing travel date:', id);
+    
+    try {
+      // Delete associated products first
+      if (user) {
+        // For logged-in users: Delete from server
+        const response = await apiRequest("DELETE", `/api/user-products/by-travel-date/${id}`);
+        if (response.ok) {
+          console.log('서버에서 여행 날짜 관련 상품들이 삭제되었습니다:', id);
+        }
+      } else {
+        // For non-members: Delete from localStorage
+        if (typeof window !== 'undefined') {
+          const storageKey = `userProducts_${selectedCountry.id}`;
+          const storedData = localStorage.getItem(storageKey);
+          
+          if (storedData) {
+            try {
+              const parsedData = JSON.parse(storedData);
+              if (Array.isArray(parsedData)) {
+                // Remove products with matching travelDateId
+                const filteredData = parsedData.filter((item: any) => item.travelDateId !== id);
+                localStorage.setItem(storageKey, JSON.stringify(filteredData));
+                console.log('로컬 스토리지에서 여행 날짜 관련 상품들이 삭제되었습니다:', id);
+              }
+            } catch (e) {
+              console.error('로컬 스토리지 데이터 파싱 오류:', e);
+            }
+          }
+        }
+      }
+      
+      // Invalidate cache to refresh data
+      queryClient.invalidateQueries({ 
+        queryKey: ['user-products'] 
+      });
+      
+    } catch (error) {
+      console.error('여행 날짜 관련 상품 삭제 중 오류:', error);
+    }
+    
+    // Remove the travel date itself
     setSavedTravelDates(prev => {
       const updated = prev.filter(date => date.id !== id);
       // Update localStorage
@@ -301,6 +345,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('selectedTravelDateId');
       }
+    }
+    
+    // Trigger localStorage change event to notify other components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('localStorageChange'));
     }
   };
 
