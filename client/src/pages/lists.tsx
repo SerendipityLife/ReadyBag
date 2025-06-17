@@ -311,15 +311,14 @@ export function Lists() {
         }
       }
       
-      // 회원인 경우 API 호출
+      // 회원인 경우 API 호출 (배치 삭제 엔드포인트 사용)
       try {
-        // 일괄 삭제를 위해 각 ID마다 개별 요청을 보냄
-        const deletePromises = ids.map(id => 
-          apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${id}`)
-        );
+        const result = await apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/batch`, {
+          ids: ids
+        });
         
-        const results = await Promise.all(deletePromises);
-        return results;
+        console.log(`회원 배치 삭제 완료: ${ids.length}개 상품`);
+        return result;
       } catch (error) {
         console.error("일괄 삭제 API 오류:", error);
         throw error;
