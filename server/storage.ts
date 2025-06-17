@@ -89,22 +89,31 @@ export const storage = {
     // Get products from the specified country
     const countryProducts = await this.getProductsByCountry(countryId);
     
-    // Build conditions for the query
-    const conditions = [
-      or(
-        userId ? eq(userProducts.userId, parseInt(userId)) : undefined,
-        sessionId ? eq(userProducts.sessionId, sessionId) : undefined
-      )
-    ];
+    // Build base conditions for user identification
+    const userConditions = [];
+    if (userId) {
+      userConditions.push(eq(userProducts.userId, parseInt(userId)));
+    }
+    if (sessionId) {
+      userConditions.push(eq(userProducts.sessionId, sessionId));
+    }
+    
+    // Build final where conditions
+    const conditions = [];
+    if (userConditions.length > 0) {
+      conditions.push(or(...userConditions));
+    }
     
     // Add travel date ID filter if provided
     if (travelDateId) {
       conditions.push(eq(userProducts.travelDateId, travelDateId));
     }
     
+    console.log(`[DB] getUserProducts - countryId: ${countryId}, userId: ${userId}, sessionId: ${sessionId}, travelDateId: ${travelDateId}`);
+    
     // Get the user's categorized products
     let query = db.query.userProducts.findMany({
-      where: and(...conditions),
+      where: conditions.length > 0 ? and(...conditions) : undefined,
       with: {
         product: true,
       },
@@ -112,6 +121,7 @@ export const storage = {
     });
     
     const userProductsList = await query;
+    console.log(`[DB] Found ${userProductsList.length} user products before filtering`);
     
     // Filter for products from the selected country
     const filteredUserProducts = userProductsList.filter(
