@@ -180,9 +180,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Country ID is required" });
       }
       
-      // 캐시 키 생성 - 사용자 ID 또는 세션 ID로 구별
+      const travelDateId = req.query.travelDateId as string | undefined;
+      
+      // 캐시 키 생성 - 사용자 ID 또는 세션 ID와 여행 날짜 ID로 구별
       const userIdentifier = userId || sessionId || 'anonymous';
-      const cacheKey = `user-products:${countryId}:${userIdentifier}`;
+      const cacheKey = `user-products:${countryId}:${userIdentifier}:${travelDateId || 'no-date'}`;
       
       // 캐시에서 데이터 확인
       const cachedData = cache.get(cacheKey);
@@ -191,7 +193,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json(cachedData);
       }
       
-      const travelDateId = req.query.travelDateId as string | undefined;
       const userProducts = await storage.getUserProducts(countryId, userId, sessionId, travelDateId);
       
       // 캐시에 데이터 저장 (60초 유효 - 사용자 제품 캐시 시간 연장)
