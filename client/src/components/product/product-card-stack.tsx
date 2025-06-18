@@ -33,6 +33,13 @@ export function ProductCardStack() {
   const [pendingReset, setPendingReset] = useState(false);
   const [currentProductPosition, setCurrentProductPosition] = useState(1);
   
+  // 여행 날짜 선택 모달 상태
+  const [showTravelDateModal, setShowTravelDateModal] = useState(false);
+  const [pendingProductAction, setPendingProductAction] = useState<{
+    productId: number;
+    status: ProductStatus;
+  } | null>(null);
+  
   // API 요청을 위한 필터 파라미터 구성 (새로운 두단계 시스템)
   const filterParams = useMemo(() => {
     const params: Record<string, string> = { countryId: selectedCountry.id };
@@ -555,14 +562,27 @@ export function ProductCardStack() {
       return;
     }
     
+    const status = SWIPE_TO_STATUS[direction];
+    
+    // 건너뛰기가 아닌 경우 여행 날짜 선택 모달을 먼저 표시
+    if (status !== ProductStatus.SKIP) {
+      setPendingProductAction({ productId, status });
+      setShowTravelDateModal(true);
+      return;
+    }
+    
+    // 건너뛰기의 경우 바로 처리
+    executeProductAction(productId, status);
+  };
+
+  // 실제 상품 액션 실행 함수
+  const executeProductAction = (productId: number, status: ProductStatus) => {
     // 처리 중인 제품으로 표시
     setProcessingProductIds(prev => {
       const newSet = new Set(prev);
       newSet.add(productId);
       return newSet;
     });
-    
-    const status = SWIPE_TO_STATUS[direction];
     
     // 즉시 카드 제거 및 다음 카드 표시 (UI 반응성 향상)
     setVisibleProducts(prev => {
@@ -630,6 +650,21 @@ export function ProductCardStack() {
         });
       }, 100);
     }
+  };
+
+  // 여행 날짜 선택 완료 후 상품 액션 실행
+  const handleTravelDateSelected = () => {
+    if (pendingProductAction) {
+      executeProductAction(pendingProductAction.productId, pendingProductAction.status);
+      setPendingProductAction(null);
+      setShowTravelDateModal(false);
+    }
+  };
+
+  // 여행 날짜 선택 취소
+  const handleTravelDateCancel = () => {
+    setPendingProductAction(null);
+    setShowTravelDateModal(false);
   };
   
   // Handle action button clicks
@@ -743,6 +778,66 @@ export function ProductCardStack() {
         <div className="w-full max-w-md mx-auto text-center mt-4 text-gray-500 text-sm">
           <p>비회원으로 이용 중입니다. 목록이 브라우저에 임시 저장됩니다.</p>
           <p>로그인 후 이용하시면 데이터가 안전하게 보관됩니다.</p>
+        </div>
+      )}
+
+      {/* 여행 날짜 선택 모달 */}
+      {showTravelDateModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold mb-4">여행 날짜를 선택해주세요</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              이 상품을 어떤 여행에 추가하시겠어요?
+            </p>
+            
+            {/* 여행 날짜 선택 컴포넌트 */}
+            <div className="mb-6">
+              {/* 기본 날짜 선택 옵션 */}
+              <button
+                onClick={() => {
+                  // 기본 날짜로 설정 (날짜 없음)
+                  handleTravelDateSelected();
+                }}
+                className="w-full p-3 mb-2 text-left border rounded-lg hover:bg-gray-50"
+              >
+                <div className="font-medium">일반 위시리스트</div>
+                <div className="text-sm text-gray-500">특정 여행과 연결하지 않고 저장</div>
+              </button>
+              
+              {/* 기존 여행 날짜가 있으면 표시 */}
+              {selectedTravelDateId && (
+                <button
+                  onClick={handleTravelDateSelected}
+                  className="w-full p-3 mb-2 text-left border rounded-lg hover:bg-gray-50 border-blue-500 bg-blue-50"
+                >
+                  <div className="font-medium text-blue-700">현재 선택된 여행</div>
+                  <div className="text-sm text-blue-600">
+                    {travelStartDate && travelEndDate ? 
+                      `${travelStartDate} ~ ${travelEndDate}` : 
+                      '여행 날짜'}
+                  </div>
+                </button>
+              )}
+            </div>
+            
+            <div className="flex gap-2">
+              <button
+                onClick={handleTravelDateCancel}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                취소
+              </button>
+              <button
+                onClick={() => {
+                  // 새 여행 날짜 설정을 위한 달력 모달 열기 로직 추가 가능
+                  handleTravelDateSelected();
+                }}
+                className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                새 여행 추가
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
