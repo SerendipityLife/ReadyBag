@@ -224,7 +224,7 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-80 overflow-hidden rounded-t-lg">
+        <div className="relative h-64 overflow-hidden rounded-t-lg">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -233,24 +233,26 @@ export function ProductCard({
           />
         </div>
 
-        {/* 상품 정보 */}
-        <div className="p-6 space-y-4">
-          <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-              {product.name}
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              {product.nameJapanese}
+        {/* 상품 정보 - 고정 높이 */}
+        <div className="p-5 h-48 flex flex-col justify-between">
+          <div className="space-y-3">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                {product.name}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                {product.nameJapanese}
+              </p>
+            </div>
+
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+              {product.description}
             </p>
           </div>
 
-          <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
-            {product.description}
-          </p>
-
           {/* 가격 정보 */}
-          <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+          <div className="flex items-baseline space-x-2 mt-auto">
+            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
               ¥{product.price.toLocaleString()}
             </span>
             {exchangeRate && (
@@ -259,8 +261,6 @@ export function ProductCard({
               </span>
             )}
           </div>
-
-
         </div>
 
         {/* 애니메이션 아이콘 오버레이 */}
