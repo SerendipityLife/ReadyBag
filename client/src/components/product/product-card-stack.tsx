@@ -31,6 +31,7 @@ export function ProductCardStack() {
   const [processingProductIds, setProcessingProductIds] = useState<Set<number>>(new Set());
   const [forceReset, setForceReset] = useState(false);
   const [pendingReset, setPendingReset] = useState(false);
+  const [currentProductPosition, setCurrentProductPosition] = useState(1);
   
   // API 요청을 위한 필터 파라미터 구성 (새로운 두단계 시스템)
   const filterParams = useMemo(() => {
@@ -180,6 +181,7 @@ export function ProductCardStack() {
       setForceReset(true);
       setVisibleProducts([]);
       setCurrentProductIndex(0);
+      setCurrentProductPosition(1);
       
       // 데이터 리로드
       queryClient.invalidateQueries({ 
@@ -561,16 +563,37 @@ export function ProductCardStack() {
     
     const status = SWIPE_TO_STATUS[direction];
     
+    // 즉시 카드 제거 및 다음 카드 표시 (UI 반응성 향상)
+    setVisibleProducts(prev => {
+      const remaining = prev.filter(p => p.id !== productId);
+      const currentIndex = filteredProducts.findIndex(p => p.id === productId);
+      const nextIndex = currentIndex + 3;
+      
+      // Update the current product index
+      setCurrentProductIndex(currentIndex + 1);
+      
+      // Update progress position
+      setCurrentProductPosition(prev => prev + 1);
+      
+      if (nextIndex < filteredProducts.length) {
+        return [...remaining, filteredProducts[nextIndex]];
+      }
+      
+      return remaining;
+    });
+
     // 왼쪽 스와이프 (건너뛰기)는 DB에 저장하지 않고 스킵처리
     if (status === ProductStatus.SKIP) {
       console.log(`[Swipe] 건너뛰기 처리: 제품 ID ${productId}`);
       
       // 처리 완료 후 처리 중인 제품 목록에서 제거
-      setProcessingProductIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(productId);
-        return newSet;
-      });
+      setTimeout(() => {
+        setProcessingProductIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      }, 300);
     }
     // 관심 또는 고민중은 저장
     else if (user) {
@@ -598,28 +621,14 @@ export function ProductCardStack() {
       saveToLocalStorage(productId, status);
       
       // 처리 완료 후 처리 중인 제품 목록에서 제거
-      setProcessingProductIds(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(productId);
-        return newSet;
-      });
+      setTimeout(() => {
+        setProcessingProductIds(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(productId);
+          return newSet;
+        });
+      }, 100);
     }
-    
-    // Remove the swiped card and add the next one in queue
-    setVisibleProducts(prev => {
-      const remaining = prev.filter(p => p.id !== productId);
-      const currentIndex = filteredProducts.findIndex(p => p.id === productId);
-      const nextIndex = currentIndex + 3;
-      
-      // Update the current product index
-      setCurrentProductIndex(currentIndex + 1);
-      
-      if (nextIndex < filteredProducts.length) {
-        return [...remaining, filteredProducts[nextIndex]];
-      }
-      
-      return remaining;
-    });
   };
   
   // Handle action button clicks
@@ -635,17 +644,9 @@ export function ProductCardStack() {
     // 강제 리셋 모드일 경우 처음부터 시작
     if (forceReset) return 1;
     
-    // 필터링된 상품이 없거나 모든 상품이 초기화된 상태면 처음부터 시작
-    if (filteredProducts.length === allProducts.length && allProducts.length > 0) {
-      return 1; // 모든 제품이 다시 보이는 상태 (초기화 후)
-    }
-    
-    if (originalTotalProducts > 0) {
-      return Math.max(1, originalTotalProducts - filteredProducts.length + 1);
-    }
-    
-    return 0;
-  }, [filteredProducts.length, originalTotalProducts, allProducts.length, forceReset]);
+    // 현재 진행 위치 사용
+    return currentProductPosition;
+  }, [currentProductPosition, forceReset]);
   
   // Calculate progress percentage
   const progressPercentage = useMemo(() => {
