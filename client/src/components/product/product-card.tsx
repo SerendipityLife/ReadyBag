@@ -260,19 +260,7 @@ export function ProductCard({
             )}
           </div>
 
-          {/* 해시태그 */}
-          {product.hashtags && product.hashtags.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {product.hashtags.slice(0, 3).map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="inline-block bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded-full font-medium"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
+
         </div>
 
         {/* 애니메이션 아이콘 오버레이 */}

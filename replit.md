@@ -115,6 +115,8 @@ The application follows a modern full-stack architecture with clear separation o
 - ✅ Added forceRefresh mechanism to resolve persistent UI caching issues
 - ✅ Verified travel date filtering works identically for logged-in users and guests
 - ✅ Removed swipe functionality from product photos in browse tab - users can only interact via action buttons
+- ✅ Fixed layout overlap between product cards and action buttons
+- ✅ Removed hashtags from product cards for cleaner design
 
 **Technical Implementation**:
 - Server: Added `/api/user-products/batch` endpoint with individual delete operations

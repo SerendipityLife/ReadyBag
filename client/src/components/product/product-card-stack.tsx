@@ -703,8 +703,8 @@ export function ProductCardStack() {
   }
   
   return (
-    <div className="w-full max-w-md mx-auto">
-      <div className="card-stack relative h-[540px] md:h-[580px] w-full mx-auto">
+    <div className="w-full max-w-md mx-auto flex flex-col h-full">
+      <div className="card-stack relative h-[520px] w-full mx-auto mb-4">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -718,8 +718,8 @@ export function ProductCardStack() {
 
         {/* 진행상황 표시 */}
         {filteredProducts.length > 0 && (
-          <div className="mt-4 flex flex-col items-center gap-1">
-            <div className="w-64 h-1 bg-gray-200 rounded-full">
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-1">
+            <div className="w-48 h-1 bg-gray-200 rounded-full">
               <div 
                 className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
                 style={{ width: `${progressPercentage}%` }}
@@ -732,11 +732,13 @@ export function ProductCardStack() {
         )}
       </div>
       
-      <ActionButtons onActionClick={handleActionClick} />
+      <div className="mt-auto">
+        <ActionButtons onActionClick={handleActionClick} />
+      </div>
       
       {/* 비회원 사용자일 경우 안내 메시지 */}
       {!user && (
-        <div className="w-full max-w-md mx-auto text-center mt-6 text-gray-500 text-sm">
+        <div className="w-full max-w-md mx-auto text-center mt-4 text-gray-500 text-sm">
           <p>비회원으로 이용 중입니다. 목록이 브라우저에 임시 저장됩니다.</p>
           <p>로그인 후 이용하시면 데이터가 안전하게 보관됩니다.</p>
         </div>
