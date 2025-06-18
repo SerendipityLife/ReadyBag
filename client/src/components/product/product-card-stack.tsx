@@ -839,7 +839,7 @@ export function ProductCardStack() {
                     <div>
                       <div className="font-medium text-blue-700 dark:text-blue-300">현재 선택된 여행</div>
                       <div className="text-sm text-blue-600 dark:text-blue-400">
-                        {travelStartDate?.toLocaleDateString()} ~ {travelEndDate?.toLocaleDateString()}
+                        {typeof travelStartDate === 'string' ? travelStartDate : travelStartDate?.toLocaleDateString()} ~ {typeof travelEndDate === 'string' ? travelEndDate : travelEndDate?.toLocaleDateString()}
                       </div>
                     </div>
                     <div className="w-4 h-4 bg-blue-500 border-2 border-blue-500 rounded-full"></div>
