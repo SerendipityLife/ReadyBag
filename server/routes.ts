@@ -225,9 +225,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.status,
         userId,
         sessionId,
-        validatedData.travelStartDate,
-        validatedData.travelEndDate,
-        validatedData.travelDateId
+        validatedData.travelStartDate === null ? undefined : validatedData.travelStartDate,
+        validatedData.travelEndDate === null ? undefined : validatedData.travelEndDate,
+        validatedData.travelDateId === null ? undefined : validatedData.travelDateId
       );
       
       // 사용자 제품 관련 캐시 무효화

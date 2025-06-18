@@ -320,6 +320,7 @@ export function ProductCardStack() {
   useEffect(() => {
     if (totalCategoryCount !== originalTotalProducts) {
       setOriginalTotalProducts(totalCategoryCount);
+      setCurrentProductPosition(1); // 필터 변경 시 진행 위치 리셋
     }
   }, [totalCategoryCount, originalTotalProducts]);
 
