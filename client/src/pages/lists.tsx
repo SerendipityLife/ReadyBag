@@ -40,6 +40,7 @@ export function Lists() {
   const [activeTab, setActiveTab] = useState<ProductStatus | "location">(ProductStatus.INTERESTED);
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
+  const [forceRefresh, setForceRefresh] = useState(0);
   
   // 비회원 사용자의 로컬 스토리지 데이터 가져오기
   const getLocalUserProducts = async () => {
@@ -237,6 +238,7 @@ export function Lists() {
       return await response.json();
     },
     staleTime: 0, // Always get fresh data
+    gcTime: 0, // Don't cache at all
     refetchOnMount: true,
     refetchOnWindowFocus: true
   });
@@ -330,32 +332,31 @@ export function Lists() {
     onSuccess: () => {
       console.log("일괄 삭제 성공, 쿼리 무효화 중...");
       
-      // 특정 쿼리 무효화
-      queryClient.invalidateQueries({ 
-        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
-      });
+      console.log("삭제 성공 - 캐시 무효화 시작");
       
-      // 상품 쿼리 무효화
-      queryClient.invalidateQueries({ 
-        queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
-      });
-      
-      // 모든 사용자 상품 관련 쿼리 무효화
-      queryClient.invalidateQueries({
-        queryKey: [API_ROUTES.USER_PRODUCTS]
-      });
-      
-      // 패턴 기반 쿼리 무효화
-      queryClient.invalidateQueries({
+      // 모든 user-products 관련 쿼리 완전 제거
+      queryClient.removeQueries({
         predicate: (query) => {
-          const queryKey = Array.isArray(query.queryKey) ? query.queryKey[0] : query.queryKey;
-          return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
+          return query.queryKey && 
+                 Array.isArray(query.queryKey) && 
+                 query.queryKey[0] === 'user-products';
         }
+      });
+      
+      // 새로운 데이터로 쿼리 강제 리페치
+      queryClient.refetchQueries({
+        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
+        type: 'active'
       });
       
       // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
+      
+      // ProductCardStack 리프레시
+      window.dispatchEvent(new Event('localStorageChange'));
+      
+      console.log("캐시 무효화 완료");
     }
   });
   
