@@ -223,7 +223,7 @@ export function Lists() {
   const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
   >({
-    queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
+    queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date', forceRefresh],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
       if (!user) {
@@ -332,31 +332,19 @@ export function Lists() {
     onSuccess: () => {
       console.log("일괄 삭제 성공, 쿼리 무효화 중...");
       
-      console.log("삭제 성공 - 캐시 무효화 시작");
-      
-      // 모든 user-products 관련 쿼리 완전 제거
-      queryClient.removeQueries({
-        predicate: (query) => {
-          return query.queryKey && 
-                 Array.isArray(query.queryKey) && 
-                 query.queryKey[0] === 'user-products';
-        }
-      });
-      
-      // 새로운 데이터로 쿼리 강제 리페치
-      queryClient.refetchQueries({
-        queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
-        type: 'active'
-      });
+      console.log("삭제 성공 - UI 강제 새로고침");
       
       // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
       
+      // forceRefresh를 변경하여 쿼리 키 강제 변경
+      setForceRefresh(prev => prev + 1);
+      
       // ProductCardStack 리프레시
       window.dispatchEvent(new Event('localStorageChange'));
       
-      console.log("캐시 무효화 완료");
+      console.log("UI 강제 새로고침 완료");
     }
   });
   
