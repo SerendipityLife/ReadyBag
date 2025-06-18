@@ -114,6 +114,7 @@ The application follows a modern full-stack architecture with clear separation o
 - ✅ Enhanced cache invalidation to ensure deleted products reappear in browse tab
 - ✅ Added forceRefresh mechanism to resolve persistent UI caching issues
 - ✅ Verified travel date filtering works identically for logged-in users and guests
+- ✅ Removed swipe functionality from product photos in browse tab - users can only interact via action buttons
 
 **Technical Implementation**:
 - Server: Added `/api/user-products/batch` endpoint with individual delete operations
