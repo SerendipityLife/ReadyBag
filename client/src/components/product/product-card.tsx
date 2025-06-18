@@ -75,16 +75,8 @@ export function ProductCard({
     }
   };
   const { exchangeRate } = useAppContext();
-  const [startX, setStartX] = useState(0);
-  const [startY, setStartY] = useState(0);
-  const [currentX, setCurrentX] = useState(0);
-  const [currentY, setCurrentY] = useState(0);
-  const [swiping, setSwiping] = useState(false);
-  const [activeDirection, setActiveDirection] = useState<SwipeDirection | null>(null);
   const [showFeedbackIcon, setShowFeedbackIcon] = useState(false);
   const [buttonShake, setButtonShake] = useState(false);
-  const isDragging = useRef(false);
-  const swipeThreshold = 120; // 의도적 스와이프를 위해 임계값 증가 (100 -> 120)
   
   // Calculate styles based on position in the stack
   const styles = {
@@ -128,21 +120,7 @@ export function ProductCard({
     }
   }, [buttonShake]);
   
-  const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
-    if (isProcessing) return;
-    
-    if ("touches" in e) {
-      setStartX(e.touches[0].clientX);
-      setStartY(e.touches[0].clientY);
-    } else {
-      setStartX(e.clientX);
-      setStartY(e.clientY);
-    }
-    setCurrentX(0);
-    setCurrentY(0);
-    isDragging.current = true;
-    setSwiping(true);
-  };
+
   
   const handleTouchMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging.current || !isTopCard || isProcessing) return;

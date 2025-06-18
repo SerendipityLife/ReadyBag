@@ -126,7 +126,7 @@ export function ProductCardStack() {
   };
   
   // 로그인 상태에 따라 사용자 상품 데이터 가져오기
-  const { data: userProducts = [], isLoading: userProductsLoading } = useQuery<UserProduct[]>({
+  const { data: userProducts = [], isLoading: userProductsLoading, refetch: refetchUserProducts } = useQuery<UserProduct[]>({
     queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
     queryFn: async () => {
       // 비회원일 경우 로컬 스토리지에서 가져옴
@@ -143,6 +143,8 @@ export function ProductCardStack() {
       return await response.json();
     },
     enabled: !!selectedCountry && !!selectedCountry.id,
+    staleTime: 0, // Always get fresh data
+    gcTime: 0, // Don't cache
   });
   
   // 로컬 스토리지 및 로그아웃 이벤트 감지
@@ -228,6 +230,9 @@ export function ProductCardStack() {
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
+      
+      // 사용자 상품 데이터 강제 리페치
+      refetchUserProducts();
       
       setPendingReset(false);
     }
