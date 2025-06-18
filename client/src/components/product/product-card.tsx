@@ -194,8 +194,8 @@ export function ProductCard({
     }, 100);
   };
 
-  // 환율을 고려한 가격 표시
-  const priceInKRW = Math.round(product.price * exchangeRate);
+  // 환율을 고려한 가격 표시 (null 체크 추가)
+  const priceInKRW = exchangeRate ? Math.round(product.price * exchangeRate) : 0;
 
   return (
     <animated.div
@@ -213,7 +213,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-sm mx-auto bg-white dark:bg-gray-800 shadow-xl relative overflow-hidden">
+      <Card className="w-full h-full max-w-sm mx-auto bg-white dark:bg-gray-800 shadow-lg relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -224,54 +224,49 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative h-80 overflow-hidden rounded-t-lg">
           <img
             src={product.imageUrl}
             alt={product.name}
             className="w-full h-full object-cover"
             loading="lazy"
           />
-          
-          {/* 상품 번호 표시 */}
-          <div className="absolute top-4 left-4 bg-black/70 text-white px-2 py-1 rounded-full text-sm font-medium">
-            {index + 1} / {total}
-          </div>
         </div>
 
         {/* 상품 정보 */}
-        <div className="p-4 space-y-3">
+        <div className="p-6 space-y-4">
           <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
               {product.name}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               {product.nameJapanese}
             </p>
           </div>
 
-          <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-3">
+          <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
             {product.description}
           </p>
 
           {/* 가격 정보 */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                ¥{product.price.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex items-baseline space-x-2">
+            <span className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+              ¥{product.price.toLocaleString()}
+            </span>
+            {exchangeRate && (
+              <span className="text-sm text-gray-500 dark:text-gray-400">
                 ≈ ₩{priceInKRW.toLocaleString()}
-              </div>
-            </div>
+              </span>
+            )}
           </div>
 
           {/* 해시태그 */}
           {product.hashtags && product.hashtags.length > 0 && (
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-2">
               {product.hashtags.slice(0, 3).map((tag, idx) => (
                 <span
                   key={idx}
-                  className="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded-full"
+                  className="inline-block bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs px-3 py-1 rounded-full font-medium"
                 >
                   {tag}
                 </span>
