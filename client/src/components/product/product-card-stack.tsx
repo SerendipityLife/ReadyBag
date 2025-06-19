@@ -621,9 +621,9 @@ export function ProductCardStack() {
         });
       }, 300);
     }
-    // 관심 또는 고민중은 저장
-    else if (user) {
-      // 여행 날짜가 선택되지 않은 경우 여행 날짜 선택 UI 표시
+    // 관심 또는 고민중은 저장 - 여행 날짜 선택 필수
+    else {
+      // 여행 날짜가 선택되지 않은 경우 저장하지 않고 날짜 선택 UI만 표시
       if (!selectedTravelDateId) {
         setShowTravelDateSelector(true);
         toast({
@@ -632,7 +632,7 @@ export function ProductCardStack() {
           duration: 3000,
         });
         
-        // 처리 중인 제품 목록에서 제거
+        // 처리 중인 제품 목록에서 제거 (상품은 저장되지 않음)
         setProcessingProductIds(prev => {
           const newSet = new Set(prev);
           newSet.delete(productId);
@@ -641,59 +641,40 @@ export function ProductCardStack() {
         return;
       }
 
-      // 로그인한 사용자: API 호출로 상태 저장
-      updateProductStatus.mutate({ productId, status }, {
-        onSuccess: () => {
-          // 성공 후 처리 중인 제품 목록에서 제거
-          setProcessingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(productId);
-            return newSet;
-          });
-          
-
-        },
-        onError: () => {
-          // 에러 발생 시에도 처리 중인 제품 목록에서 제거
-          setProcessingProductIds(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(productId);
-            return newSet;
-          });
-        }
-      });
-    } else {
-      // 비회원의 경우도 여행 날짜 선택 확인
-      if (!selectedTravelDateId) {
-        setShowTravelDateSelector(true);
-        toast({
-          title: "여행 날짜를 선택해주세요",
-          description: "상품을 저장하기 위해 여행 날짜를 먼저 선택해주세요.",
-          duration: 3000,
+      // 여행 날짜가 선택된 경우에만 저장 진행
+      if (user) {
+        // 로그인한 사용자: API 호출로 상태 저장
+        updateProductStatus.mutate({ productId, status }, {
+          onSuccess: () => {
+            // 성공 후 처리 중인 제품 목록에서 제거
+            setProcessingProductIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(productId);
+              return newSet;
+            });
+          },
+          onError: () => {
+            // 에러 발생 시에도 처리 중인 제품 목록에서 제거
+            setProcessingProductIds(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(productId);
+              return newSet;
+            });
+          }
         });
+      } else {
+        // 비회원: 로컬 스토리지에 저장
+        saveToLocalStorage(productId, status);
         
-        // 처리 중인 제품 목록에서 제거
-        setProcessingProductIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(productId);
-          return newSet;
-        });
-        return;
+        // 처리 완료 후 처리 중인 제품 목록에서 제거
+        setTimeout(() => {
+          setProcessingProductIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(productId);
+            return newSet;
+          });
+        }, 100);
       }
-
-      // 비회원: 로컬 스토리지에 저장
-      saveToLocalStorage(productId, status);
-      
-
-      
-      // 처리 완료 후 처리 중인 제품 목록에서 제거
-      setTimeout(() => {
-        setProcessingProductIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(productId);
-          return newSet;
-        });
-      }, 100);
     }
   };
 
