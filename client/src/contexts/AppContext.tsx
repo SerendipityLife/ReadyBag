@@ -67,6 +67,10 @@ type AppContextType = {
   shouldActivateCalendar: boolean;
   setShouldActivateCalendar: (activate: boolean) => void;
   
+  // 여행 날짜 선택 UI 표시 상태
+  showTravelDateSelector: boolean;
+  setShowTravelDateSelector: (show: boolean) => void;
+  
   // 여행 날짜 관리
   travelStartDate: Date | null;
   travelEndDate: Date | null;
@@ -115,6 +119,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   // 캘린더 활성화 상태
   const [shouldActivateCalendar, setShouldActivateCalendar] = useState(false);
+  
+  // 여행 날짜 선택 UI 표시 상태
+  const [showTravelDateSelector, setShowTravelDateSelector] = useState(false);
   
   // 여행 날짜 상태
   const [travelStartDate, setTravelStartDate] = useState<Date | null>(null);

@@ -36,12 +36,7 @@ export function ProductCardStack() {
   const [pendingReset, setPendingReset] = useState(false);
   const [currentProductPosition, setCurrentProductPosition] = useState(1);
   
-  // 여행 날짜 선택 모달 상태
-  const [showTravelDateModal, setShowTravelDateModal] = useState(false);
-  const [pendingProductAction, setPendingProductAction] = useState<{
-    productId: number;
-    status: ProductStatus;
-  } | null>(null);
+
   
   // API 요청을 위한 필터 파라미터 구성 (새로운 두단계 시스템)
   const filterParams = useMemo(() => {
@@ -567,14 +562,7 @@ export function ProductCardStack() {
     
     const status = SWIPE_TO_STATUS[direction];
     
-    // 건너뛰기가 아닌 경우 여행 날짜 선택 모달을 먼저 표시
-    if (status !== ProductStatus.SKIP) {
-      setPendingProductAction({ productId, status });
-      setShowTravelDateModal(true);
-      return;
-    }
-    
-    // 건너뛰기의 경우 바로 처리
+    // 모든 액션을 바로 처리
     executeProductAction(productId, status);
   };
 
@@ -655,30 +643,7 @@ export function ProductCardStack() {
     }
   };
 
-  // 여행 날짜 선택 완료 후 상품 액션 실행
-  const handleTravelDateSelected = (useCurrentDate: boolean = true) => {
-    if (pendingProductAction) {
-      executeProductAction(pendingProductAction.productId, pendingProductAction.status);
-      setPendingProductAction(null);
-      setShowTravelDateModal(false);
-      
-      // 성공 메시지 표시
-      const statusText = pendingProductAction.status === ProductStatus.INTERESTED ? '관심상품' : '고민중';
-      const dateText = useCurrentDate && selectedTravelDateId ? '현재 여행' : '일반 위시리스트';
-      
-      toast({
-        title: "상품이 추가되었습니다",
-        description: `${statusText}에 저장되었습니다 (${dateText})`,
-        duration: 2000,
-      });
-    }
-  };
 
-  // 여행 날짜 선택 취소
-  const handleTravelDateCancel = () => {
-    setPendingProductAction(null);
-    setShowTravelDateModal(false);
-  };
   
   // Handle action button clicks
   const handleActionClick = (direction: SwipeDirection) => {
@@ -794,77 +759,7 @@ export function ProductCardStack() {
         </div>
       )}
 
-      {/* 여행 날짜 선택 모달 */}
-      {showTravelDateModal && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 animate-in fade-in-0 duration-200">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl animate-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                여행 날짜 선택
-              </h3>
-              <button
-                onClick={handleTravelDateCancel}
-                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-            
-            <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-              이 상품을 어떤 여행에 추가하시겠어요?
-            </p>
-            
-            <div className="space-y-3 mb-6">
-              {/* 일반 위시리스트 옵션 */}
-              <button
-                onClick={() => handleTravelDateSelected(false)}
-                className="w-full p-4 text-left border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white">일반 위시리스트</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">특정 여행과 연결하지 않고 저장</div>
-                  </div>
-                  <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-500 rounded-full group-hover:border-blue-500 transition-colors"></div>
-                </div>
-              </button>
-              
-              {/* 현재 선택된 여행 날짜가 있으면 표시 */}
-              {selectedTravelDateId && travelStartDate && travelEndDate && (
-                <button
-                  onClick={() => handleTravelDateSelected(true)}
-                  className="w-full p-4 text-left border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-blue-700 dark:text-blue-300">현재 선택된 여행</div>
-                      <div className="text-sm text-blue-600 dark:text-blue-400">
-                        {typeof travelStartDate === 'string' ? travelStartDate : travelStartDate?.toLocaleDateString()} ~ {typeof travelEndDate === 'string' ? travelEndDate : travelEndDate?.toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-500 rounded-full"></div>
-                  </div>
-                </button>
-              )}
-            </div>
-            
-            <div className="flex gap-3">
-              <button
-                onClick={handleTravelDateCancel}
-                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
-              >
-                취소
-              </button>
-              <button
-                onClick={() => handleTravelDateSelected(false)}
-                className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors font-medium"
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
