@@ -322,13 +322,26 @@ export function ProductCardStack() {
     return filtered;
   }, [allProducts, excludedProductIds, selectedStoreTypes, selectedPurposeCategories, isAllStoreTypesSelected, isAllPurposeCategoriesSelected, forceReset, userProducts]);
 
-  // totalCategoryCount 변경 처리
+  // totalCategoryCount 변경 처리 - 필터 변경 시에만 위치 리셋
   useEffect(() => {
     if (totalCategoryCount !== originalTotalProducts) {
+      // 현재 상품이 제외된 경우인지 확인 (excludedProductIds 변경으로 인한 것)
+      const currentProduct = visibleProducts[0];
+      const isCurrentProductExcluded = currentProduct && excludedProductIds.includes(currentProduct.id);
+      
       setOriginalTotalProducts(totalCategoryCount);
-      setCurrentProductPosition(1); // 필터 변경 시 진행 위치 리셋
+      
+      // 현재 상품이 제외되지 않았다면 위치 유지, 제외되었다면 다음 상품으로 이동
+      if (!isCurrentProductExcluded) {
+        // 위치 유지 - 총 개수만 업데이트
+        const currentPosition = Math.min(currentProductPosition, totalCategoryCount);
+        setCurrentProductPosition(currentPosition);
+      } else {
+        // 현재 상품이 제외된 경우, 다음 상품으로 자연스럽게 이동
+        // 위치는 그대로 유지하되 총 개수만 줄어듦
+      }
     }
-  }, [totalCategoryCount, originalTotalProducts]);
+  }, [totalCategoryCount, originalTotalProducts, excludedProductIds, visibleProducts, currentProductPosition]);
 
   // 강제 리셋 모드 관리
   useEffect(() => {
