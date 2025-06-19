@@ -30,6 +30,8 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
   const { 
     shouldActivateCalendar, 
     setShouldActivateCalendar,
+    showTravelDateSelector,
+    setShowTravelDateSelector,
     savedTravelDates,
     selectedTravelDateId,
     setSelectedTravelDateId,
@@ -52,6 +54,14 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
       setShouldActivateCalendar(false);
     }
   }, [shouldActivateCalendar, setShouldActivateCalendar]);
+
+  // 여행 날짜 선택 UI 표시 상태 감지
+  useEffect(() => {
+    if (showTravelDateSelector) {
+      setIsOpen(true);
+      setShowTravelDateSelector(false);
+    }
+  }, [showTravelDateSelector, setShowTravelDateSelector]);
 
   const handleSave = () => {
     const start = tempStartDate ? new Date(tempStartDate) : null;

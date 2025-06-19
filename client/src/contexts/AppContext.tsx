@@ -551,6 +551,10 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     shouldActivateCalendar,
     setShouldActivateCalendar,
     
+    // 여행 날짜 선택 UI 표시 상태
+    showTravelDateSelector,
+    setShowTravelDateSelector,
+    
     // 여행 날짜 관리
     travelStartDate,
     travelEndDate,
