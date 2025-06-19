@@ -7,7 +7,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
-import { X } from "lucide-react";
+import { X, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import type { Product, UserProduct } from "@shared/schema";
 
 export function ProductCardStack() {
@@ -23,7 +26,9 @@ export function ProductCardStack() {
     tags,
     selectedTravelDateId,
     travelStartDate,
-    travelEndDate
+    travelEndDate,
+    addTravelDate,
+    setSelectedTravelDateId
   } = useAppContext();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -42,6 +47,9 @@ export function ProductCardStack() {
     productId: number;
     status: ProductStatus;
   } | null>(null);
+  const [tempStartDate, setTempStartDate] = useState("");
+  const [tempEndDate, setTempEndDate] = useState("");
+  const [isCreatingTravelDate, setIsCreatingTravelDate] = useState(false);
   
   // API 요청을 위한 필터 파라미터 구성 (새로운 두단계 시스템)
   const filterParams = useMemo(() => {
@@ -655,29 +663,65 @@ export function ProductCardStack() {
     }
   };
 
-  // 여행 날짜 선택 완료 후 상품 액션 실행
-  const handleTravelDateSelected = (useCurrentDate: boolean = true) => {
-    if (pendingProductAction) {
-      executeProductAction(pendingProductAction.productId, pendingProductAction.status);
-      setPendingProductAction(null);
-      setShowTravelDateModal(false);
-      
-      // 성공 메시지 표시
-      const statusText = pendingProductAction.status === ProductStatus.INTERESTED ? '관심상품' : '고민중';
-      const dateText = useCurrentDate && selectedTravelDateId ? '현재 여행' : '일반 위시리스트';
-      
+  // 여행 날짜 생성 및 상품 저장
+  const handleCreateTravelDateAndSave = () => {
+    if (!tempStartDate || !tempEndDate || !pendingProductAction) {
       toast({
-        title: "상품이 추가되었습니다",
-        description: `${statusText}에 저장되었습니다 (${dateText})`,
+        title: "오류",
+        description: "여행 시작일과 종료일을 모두 선택해주세요.",
+        variant: "destructive",
         duration: 2000,
       });
+      return;
     }
+
+    const startDate = new Date(tempStartDate);
+    const endDate = new Date(tempEndDate);
+
+    if (startDate > endDate) {
+      toast({
+        title: "오류", 
+        description: "시작일이 종료일보다 늦을 수 없습니다.",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+
+    setIsCreatingTravelDate(true);
+
+    // AppContext에 새 여행 날짜 추가
+    const newTravelDateId = addTravelDate(startDate, endDate);
+    
+    // 새 여행 날짜를 현재 선택된 날짜로 설정 (addTravelDate 함수가 이미 설정함)
+
+    // 상품 저장 실행
+    executeProductAction(pendingProductAction.productId, pendingProductAction.status);
+    
+    // 모달 닫기 및 상태 초기화
+    setShowTravelDateModal(false);
+    setPendingProductAction(null);
+    setTempStartDate("");
+    setTempEndDate("");
+    setIsCreatingTravelDate(false);
+
+    // 성공 메시지 표시
+    const statusText = pendingProductAction.status === ProductStatus.INTERESTED ? '관심상품' : '고민중';
+    
+    toast({
+      title: "여행 날짜가 생성되었습니다",
+      description: `${statusText}에 저장되었습니다 (${startDate.toLocaleDateString()} ~ ${endDate.toLocaleDateString()})`,
+      duration: 3000,
+    });
   };
 
   // 여행 날짜 선택 취소
   const handleTravelDateCancel = () => {
     setPendingProductAction(null);
     setShowTravelDateModal(false);
+    setTempStartDate("");
+    setTempEndDate("");
+    setIsCreatingTravelDate(false);
   };
   
   // Handle action button clicks
@@ -794,13 +838,13 @@ export function ProductCardStack() {
         </div>
       )}
 
-      {/* 여행 날짜 선택 모달 */}
+      {/* 여행 날짜 생성 모달 */}
       {showTravelDateModal && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 animate-in fade-in-0 duration-200">
           <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl animate-in slide-in-from-bottom-4 duration-300">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                여행 날짜 선택
+                여행 날짜 생성
               </h3>
               <button
                 onClick={handleTravelDateCancel}
@@ -811,56 +855,66 @@ export function ProductCardStack() {
             </div>
             
             <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">
-              이 상품을 어떤 여행에 추가하시겠어요?
+              상품을 저장하기 위해 먼저 여행 날짜를 생성해주세요.
             </p>
             
-            <div className="space-y-3 mb-6">
-              {/* 일반 위시리스트 옵션 */}
-              <button
-                onClick={() => handleTravelDateSelected(false)}
-                className="w-full p-4 text-left border border-gray-200 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-gray-900 dark:text-white">일반 위시리스트</div>
-                    <div className="text-sm text-gray-500 dark:text-gray-400">특정 여행과 연결하지 않고 저장</div>
-                  </div>
-                  <div className="w-4 h-4 border-2 border-gray-300 dark:border-gray-500 rounded-full group-hover:border-blue-500 transition-colors"></div>
-                </div>
-              </button>
+            <div className="space-y-4 mb-6">
+              <div>
+                <Label htmlFor="start-date" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  여행 시작일
+                </Label>
+                <Input
+                  id="start-date"
+                  type="date"
+                  value={tempStartDate}
+                  onChange={(e) => setTempStartDate(e.target.value)}
+                  min={new Date().toISOString().split('T')[0]}
+                  className="mt-1"
+                />
+              </div>
               
-              {/* 현재 선택된 여행 날짜가 있으면 표시 */}
-              {selectedTravelDateId && travelStartDate && travelEndDate && (
-                <button
-                  onClick={() => handleTravelDateSelected(true)}
-                  className="w-full p-4 text-left border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors group"
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-blue-700 dark:text-blue-300">현재 선택된 여행</div>
-                      <div className="text-sm text-blue-600 dark:text-blue-400">
-                        {typeof travelStartDate === 'string' ? travelStartDate : travelStartDate?.toLocaleDateString()} ~ {typeof travelEndDate === 'string' ? travelEndDate : travelEndDate?.toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="w-4 h-4 bg-blue-500 border-2 border-blue-500 rounded-full"></div>
+              <div>
+                <Label htmlFor="end-date" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  여행 종료일
+                </Label>
+                <Input
+                  id="end-date"
+                  type="date"
+                  value={tempEndDate}
+                  onChange={(e) => setTempEndDate(e.target.value)}
+                  min={tempStartDate || new Date().toISOString().split('T')[0]}
+                  className="mt-1"
+                />
+              </div>
+              
+              {tempStartDate && tempEndDate && (
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm text-blue-800 dark:text-blue-300">
+                      {new Date(tempStartDate).toLocaleDateString()} ~ {new Date(tempEndDate).toLocaleDateString()}
+                    </span>
                   </div>
-                </button>
+                </div>
               )}
             </div>
             
             <div className="flex gap-3">
-              <button
+              <Button
+                variant="outline"
                 onClick={handleTravelDateCancel}
-                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors font-medium"
+                className="flex-1"
+                disabled={isCreatingTravelDate}
               >
                 취소
-              </button>
-              <button
-                onClick={() => handleTravelDateSelected(false)}
-                className="flex-1 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors font-medium"
+              </Button>
+              <Button
+                onClick={handleCreateTravelDateAndSave}
+                className="flex-1"
+                disabled={!tempStartDate || !tempEndDate || isCreatingTravelDate}
               >
-                확인
-              </button>
+                {isCreatingTravelDate ? "생성 중..." : "여행 날짜 생성"}
+              </Button>
             </div>
           </div>
         </div>
