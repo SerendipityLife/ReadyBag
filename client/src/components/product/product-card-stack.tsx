@@ -575,10 +575,17 @@ export function ProductCardStack() {
     
     const status = SWIPE_TO_STATUS[direction];
     
-    // 건너뛰기가 아닌 경우 여행 날짜 선택 모달을 먼저 표시
+    // 건너뛰기가 아닌 경우 여행 날짜 체크
     if (status !== ProductStatus.SKIP) {
-      setPendingProductAction({ productId, status });
-      setShowTravelDateModal(true);
+      // 여행 날짜가 없으면 생성 모달 표시
+      if (savedTravelDates.length === 0) {
+        setPendingProductAction({ productId, status });
+        setShowTravelDateModal(true);
+        return;
+      }
+      
+      // 여행 날짜가 있으면 바로 처리
+      executeProductAction(productId, status);
       return;
     }
     
