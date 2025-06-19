@@ -638,13 +638,7 @@ export function ProductCardStack() {
             return newSet;
           });
           
-          // 성공 메시지 표시
-          const statusText = status === ProductStatus.INTERESTED ? '관심상품' : '고민중';
-          toast({
-            title: "상품이 추가되었습니다",
-            description: `${statusText}에 저장되었습니다`,
-            duration: 2000,
-          });
+
         },
         onError: () => {
           // 에러 발생 시에도 처리 중인 제품 목록에서 제거
@@ -677,13 +671,7 @@ export function ProductCardStack() {
       // 비회원: 로컬 스토리지에 저장
       saveToLocalStorage(productId, status);
       
-      // 성공 메시지 표시
-      const statusText = status === ProductStatus.INTERESTED ? '관심상품' : '고민중';
-      toast({
-        title: "상품이 추가되었습니다",
-        description: `${statusText}에 저장되었습니다`,
-        duration: 2000,
-      });
+
       
       // 처리 완료 후 처리 중인 제품 목록에서 제거
       setTimeout(() => {
