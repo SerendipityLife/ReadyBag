@@ -789,33 +789,30 @@ export function ProductCardStack() {
 
         {/* 진행상황 표시 - 개선된 디자인 */}
         {filteredProducts.length > 0 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-3">
-            {/* 진행 바 컨테이너 */}
-            <div className="bg-white/90 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-lg border border-gray-100">
-              <div className="flex flex-col items-center gap-2">
-                {/* 숫자 표시 */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-semibold text-gray-700">
-                    {currentPosition}
-                  </span>
-                  <span className="text-xs text-gray-400">/</span>
-                  <span className="text-sm text-gray-500">
-                    {Math.max(originalTotalProducts, filteredProducts.length)}
-                  </span>
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl px-6 py-3 shadow-lg">
+            <div className="flex flex-col items-center gap-3">
+              {/* 숫자 표시 */}
+              <div className="flex items-center gap-2">
+                <div className="text-lg font-bold text-gray-900">
+                  {currentPosition}
                 </div>
-                
-                {/* 진행 바 */}
-                <div className="w-40 h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-700 ease-out shadow-sm"
-                    style={{ width: `${progressPercentage}%` }}
-                  />
+                <div className="text-sm text-gray-400 font-medium">/</div>
+                <div className="text-sm text-gray-600 font-medium">
+                  {Math.max(originalTotalProducts, filteredProducts.length)}
                 </div>
-                
-                {/* 퍼센트 표시 */}
-                <span className="text-xs text-gray-400 font-medium">
-                  {Math.round(progressPercentage)}%
-                </span>
+              </div>
+              
+              {/* 프로그레스 바 */}
+              <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-700 ease-out shadow-sm"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              
+              {/* 진행률 퍼센트 */}
+              <div className="text-xs font-medium text-gray-500">
+                {Math.round(progressPercentage)}% 완료
               </div>
             </div>
           </div>
