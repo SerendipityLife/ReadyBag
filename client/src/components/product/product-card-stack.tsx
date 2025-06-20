@@ -789,30 +789,39 @@ export function ProductCardStack() {
 
         {/* 진행상황 표시 - 개선된 디자인 */}
         {filteredProducts.length > 0 && (
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-white/90 backdrop-blur-sm border border-gray-200/60 rounded-2xl px-6 py-3 shadow-lg">
-            <div className="flex flex-col items-center gap-3">
-              {/* 숫자 표시 */}
-              <div className="flex items-center gap-2">
-                <div className="text-lg font-bold text-gray-900">
-                  {currentPosition}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+            <div className="bg-white/95 backdrop-blur-md border border-gray-200/50 rounded-3xl px-5 py-4 shadow-xl shadow-black/5">
+              <div className="flex flex-col items-center gap-3.5">
+                {/* 메인 카운터 */}
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-2xl font-bold text-gray-900 tabular-nums">
+                    {currentPosition}
+                  </span>
+                  <span className="text-lg text-gray-400 font-light">/</span>
+                  <span className="text-lg text-gray-600 font-medium tabular-nums">
+                    {Math.max(originalTotalProducts, filteredProducts.length)}
+                  </span>
                 </div>
-                <div className="text-sm text-gray-400 font-medium">/</div>
-                <div className="text-sm text-gray-600 font-medium">
-                  {Math.max(originalTotalProducts, filteredProducts.length)}
+                
+                {/* 프로그레스 바 */}
+                <div className="relative">
+                  <div className="w-40 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-full transition-all duration-1000 ease-out"
+                      style={{ width: `${progressPercentage}%` }}
+                    />
+                  </div>
+                  {/* 프로그레스 바 끝에 작은 원형 인디케이터 */}
+                  <div 
+                    className="absolute top-1/2 -translate-y-1/2 w-2 h-2 bg-white border-2 border-indigo-500 rounded-full shadow-sm transition-all duration-1000 ease-out"
+                    style={{ left: `calc(${progressPercentage}% - 4px)` }}
+                  />
                 </div>
-              </div>
-              
-              {/* 프로그레스 바 */}
-              <div className="w-32 h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 rounded-full transition-all duration-700 ease-out shadow-sm"
-                  style={{ width: `${progressPercentage}%` }}
-                />
-              </div>
-              
-              {/* 진행률 퍼센트 */}
-              <div className="text-xs font-medium text-gray-500">
-                {Math.round(progressPercentage)}% 완료
+                
+                {/* 퍼센트 표시 */}
+                <div className="text-xs font-semibold text-gray-500 tracking-wide">
+                  {Math.round(progressPercentage)}% 완료
+                </div>
               </div>
             </div>
           </div>
