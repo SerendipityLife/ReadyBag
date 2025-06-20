@@ -693,9 +693,30 @@ export function ProductCardStack() {
     // 강제 리셋 모드일 경우 처음부터 시작
     if (forceReset) return 1;
     
-    // 현재 진행 위치 사용
+    // 현재 보이는 상품이 있다면 전체 상품 목록에서의 실제 위치 계산
+    if (visibleProducts.length > 0 && allProducts.length > 0) {
+      const currentProduct = visibleProducts[0];
+      const actualIndex = allProducts.findIndex(p => p.id === currentProduct.id);
+      
+      if (actualIndex >= 0) {
+        // 실제 인덱스를 기반으로 제외된 상품들을 고려한 위치 계산
+        let adjustedPosition = actualIndex + 1;
+        
+        // 현재 상품 이전에 있는 제외된 상품들의 개수만큼 빼기
+        const excludedBeforeCurrent = excludedProductIds.filter(excludedId => {
+          const excludedIndex = allProducts.findIndex(p => p.id === excludedId);
+          return excludedIndex >= 0 && excludedIndex < actualIndex;
+        }).length;
+        
+        adjustedPosition -= excludedBeforeCurrent;
+        
+        return Math.max(1, adjustedPosition);
+      }
+    }
+    
+    // 기본값으로 현재 위치 사용
     return currentProductPosition;
-  }, [currentProductPosition, forceReset]);
+  }, [currentProductPosition, forceReset, visibleProducts, allProducts, excludedProductIds]);
   
   // Calculate progress percentage
   const progressPercentage = useMemo(() => {
