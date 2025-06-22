@@ -132,10 +132,10 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
           <PopoverTrigger asChild>
             <Button
               variant="default"
-              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 h-8 text-xs px-2 min-w-[160px]"
+              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 h-8 text-[10px] px-2 min-w-[180px] max-w-[200px]"
             >
-              <CalendarDays className="h-3 w-3 mr-1" />
-              <span className="truncate max-w-[130px]">
+              <CalendarDays className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="truncate whitespace-nowrap overflow-hidden text-ellipsis">
                 {selectedTravelDateId 
                   ? savedTravelDates.find(d => d.id === selectedTravelDateId)?.label || "날짜선택"
                   : "날짜선택"
@@ -143,7 +143,7 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 p-2" align="start">
+          <PopoverContent className="w-72 p-2" align="start">
             <div className="space-y-1">
               {/* 저장된 날짜 목록 */}
               {savedTravelDates.map((travelDate) => (
