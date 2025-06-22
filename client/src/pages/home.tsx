@@ -39,7 +39,7 @@ export default function Home() {
           <div className="flex flex-col items-center">
             {/* 여행 날짜 선택과 숙박지 주소 - 한줄 레이아웃 */}
             <div className="w-full mb-3">
-              <div className="flex items-center justify-center gap-3 flex-wrap">
+              <div className="flex items-center justify-center gap-2 px-2">
                 <TravelDateSelector
                   startDate={travelStartDate}
                   endDate={travelEndDate}
@@ -51,9 +51,7 @@ export default function Home() {
                   }}
                   mode="browse"
                 />
-                <div className="flex-shrink-0">
-                  <AccommodationSearch />
-                </div>
+                <AccommodationSearch />
               </div>
             </div>
             
