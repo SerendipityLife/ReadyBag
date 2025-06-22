@@ -41,7 +41,6 @@ export function ProductListItem(props: ProductListItemProps) {
   // 실제 구입 가격 관련 상태
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [actualPriceInput, setActualPriceInput] = useState("");
-  const [actualPriceKrwInput, setActualPriceKrwInput] = useState("");
 
   // Update product status mutation (for purchase tracking)
   const updateProductStatus = useMutation({
@@ -162,7 +161,10 @@ export function ProductListItem(props: ProductListItemProps) {
 
   // Update actual purchase price mutation
   const updateActualPrice = useMutation({
-    mutationFn: async (priceData: { actualPrice?: number; actualPriceKrw?: number }) => {
+    mutationFn: async (actualPrice: number) => {
+      // 실시간 환율로 원화 가격 계산
+      const actualPriceKrw = Math.round(actualPrice * (exchangeRate || 9.57));
+      
       if (isNonMember) {
         // 비회원은 로컬 스토리지에서 업데이트
         const storageKey = `userProducts_${selectedCountry.id}`;
@@ -171,8 +173,8 @@ export function ProductListItem(props: ProductListItemProps) {
           item.productId === userProduct.productId 
             ? { 
                 ...item, 
-                actualPurchasePrice: priceData.actualPrice,
-                actualPurchasePriceKrw: priceData.actualPriceKrw,
+                actualPurchasePrice: actualPrice,
+                actualPurchasePriceKrw: actualPriceKrw,
                 updatedAt: new Date().toISOString()
               }
             : item
@@ -189,8 +191,8 @@ export function ProductListItem(props: ProductListItemProps) {
           "PATCH",
           `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
           { 
-            actualPurchasePrice: priceData.actualPrice,
-            actualPurchasePriceKrw: priceData.actualPriceKrw
+            actualPurchasePrice: actualPrice,
+            actualPurchasePriceKrw: actualPriceKrw
           }
         );
         return response.json();
@@ -202,7 +204,6 @@ export function ProductListItem(props: ProductListItemProps) {
       });
       setIsEditingPrice(false);
       setActualPriceInput("");
-      setActualPriceKrwInput("");
       toast({
         description: "실제 구입 가격이 저장되었습니다.",
         duration: 2000,
@@ -224,18 +225,17 @@ export function ProductListItem(props: ProductListItemProps) {
 
   const handleSaveActualPrice = () => {
     const actualPrice = actualPriceInput ? parseInt(actualPriceInput) : undefined;
-    const actualPriceKrw = actualPriceKrwInput ? parseInt(actualPriceKrwInput) : undefined;
     
-    if (!actualPrice && !actualPriceKrw) {
+    if (!actualPrice) {
       toast({
-        description: "최소 하나의 가격을 입력해주세요.",
+        description: "실제 가격을 입력해주세요.",
         variant: "destructive",
         duration: 2000,
       });
       return;
     }
     
-    updateActualPrice.mutate({ actualPrice, actualPriceKrw });
+    updateActualPrice.mutate(actualPrice);
   };
 
   // 상품 데이터 유효성 검사 및 상태 설정
@@ -329,7 +329,6 @@ export function ProductListItem(props: ProductListItemProps) {
                       onClick={() => {
                         // 다이얼로그 열 때 기존 값 설정
                         setActualPriceInput(userProduct.actualPurchasePrice?.toString() || "");
-                        setActualPriceKrwInput(userProduct.actualPurchasePriceKrw?.toString() || "");
                         setIsEditingPrice(true);
                       }}
                     >
@@ -342,22 +341,18 @@ export function ProductListItem(props: ProductListItemProps) {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium">현지 가격 (¥)</label>
+                        <label className="text-sm font-medium">실제 구입 가격 (¥)</label>
                         <Input
                           type="number"
                           placeholder={userProduct.actualPurchasePrice ? userProduct.actualPurchasePrice.toString() : "예: 3500"}
                           value={actualPriceInput}
                           onChange={(e) => setActualPriceInput(e.target.value)}
                         />
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">원화 가격 (₩)</label>
-                        <Input
-                          type="number"
-                          placeholder={userProduct.actualPurchasePriceKrw ? userProduct.actualPurchasePriceKrw.toString() : "예: 33000"}
-                          value={actualPriceKrwInput}
-                          onChange={(e) => setActualPriceKrwInput(e.target.value)}
-                        />
+                        {actualPriceInput && (
+                          <div className="mt-2 text-sm text-gray-600">
+                            한국 원화: {Math.round(parseInt(actualPriceInput) * (exchangeRate || 9.57)).toLocaleString()}원
+                          </div>
+                        )}
                       </div>
                       <div className="flex gap-2">
                         <Button 
@@ -372,7 +367,6 @@ export function ProductListItem(props: ProductListItemProps) {
                           onClick={() => {
                             setIsEditingPrice(false);
                             setActualPriceInput("");
-                            setActualPriceKrwInput("");
                           }}
                           className="flex-1"
                         >
@@ -400,15 +394,15 @@ export function ProductListItem(props: ProductListItemProps) {
               </div>
               
               {/* 실제 구입 가격 */}
-              {(userProduct.actualPurchasePrice || userProduct.actualPurchasePriceKrw) && (
+              {userProduct.actualPurchasePrice && (
                 <div className="text-xs font-medium text-green-700">
                   <div className="flex justify-between">
                     <span>실제:</span>
-                    <span>{userProduct.actualPurchasePrice ? `¥${userProduct.actualPurchasePrice.toLocaleString()}` : '-'}</span>
+                    <span>¥{userProduct.actualPurchasePrice.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between">
                     <span></span>
-                    <span>{userProduct.actualPurchasePriceKrw ? `${userProduct.actualPurchasePriceKrw.toLocaleString()}원` : '-'}</span>
+                    <span>{Math.round(userProduct.actualPurchasePrice * (exchangeRate || 9.57)).toLocaleString()}원</span>
                   </div>
                 </div>
               )}

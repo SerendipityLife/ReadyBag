@@ -53,7 +53,7 @@ export const userProducts = pgTable("user_products", {
   purchaseDate: timestamp("purchase_date"), // 구입 완료 날짜
   accommodationAddress: text("accommodation_address"), // 숙박지 주소
   actualPurchasePrice: integer("actual_purchase_price"), // 실제 구입 가격 (현지 화폐 기준)
-  actualPurchasePriceKrw: integer("actual_purchase_price_krw"), // 실제 구입 가격 (원화 기준)
+  actualPurchasePriceKrw: integer("actual_purchase_price_krw"), // 실제 구입 가격 (원화 기준, 실시간 환율로 계산)
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
