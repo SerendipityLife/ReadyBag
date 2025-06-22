@@ -176,6 +176,59 @@ export const resetPasswordSchema = z.object({
   path: ["confirmPassword"]
 });
 
+// Product Reviews table - for user reviews on products
+export const productReviews = pgTable("product_reviews", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  productId: integer("product_id").references(() => products.id).notNull(),
+  sessionId: text("session_id"), // For non-authenticated users
+  rating: integer("rating").notNull(), // 1-5 star rating
+  reviewText: text("review_text"),
+  reviewerName: text("reviewer_name"), // Display name for the review
+  isAnonymous: boolean("is_anonymous").default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const productReviewsInsertSchema = createInsertSchema(productReviews, {
+  rating: (schema) => schema.min(1, "Rating must be at least 1").max(5, "Rating must be at most 5"),
+  reviewText: (schema) => schema.min(1, "Review text is required").max(1000, "Review text must be less than 1000 characters"),
+  reviewerName: (schema) => schema.min(1, "Reviewer name is required").max(50, "Reviewer name must be less than 50 characters"),
+});
+export type ProductReviewInsert = z.infer<typeof productReviewsInsertSchema>;
+export type ProductReview = typeof productReviews.$inferSelect;
+
+// Relations - Updated to include reviews
+export const countriesRelations = relations(countries, ({ many }) => ({
+  products: many(products),
+}));
+
+export const productsRelations = relations(products, ({ one, many }) => ({
+  country: one(countries, { fields: [products.countryId], references: [countries.id] }),
+  userProducts: many(userProducts),
+  reviews: many(productReviews),
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  userProducts: many(userProducts),
+  shoppingFolders: many(shoppingFolders),
+  reviews: many(productReviews),
+}));
+
+export const userProductsRelations = relations(userProducts, ({ one }) => ({
+  user: one(users, { fields: [userProducts.userId], references: [users.id] }),
+  product: one(products, { fields: [userProducts.productId], references: [products.id] }),
+}));
+
+export const shoppingFoldersRelations = relations(shoppingFolders, ({ one }) => ({
+  user: one(users, { fields: [shoppingFolders.userId], references: [users.id] }),
+}));
+
+export const productReviewsRelations = relations(productReviews, ({ one }) => ({
+  user: one(users, { fields: [productReviews.userId], references: [users.id] }),
+  product: one(products, { fields: [productReviews.productId], references: [products.id] }),
+}));
+
 export const insertUserSchema = createInsertSchema(users);
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;

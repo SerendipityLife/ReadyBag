@@ -3,7 +3,8 @@ import { useSpring, animated } from "@react-spring/web";
 import { useAppContext } from "@/contexts/AppContext";
 import { Card } from "@/components/ui/card";
 import { SwipeDirection } from "@/lib/constants";
-import { Loader2, Heart, X, HelpCircle } from "lucide-react";
+import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
+import { ReviewButton } from "./review-button";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 

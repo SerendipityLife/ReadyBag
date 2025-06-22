@@ -6,7 +6,7 @@ import { z } from "zod";
 import { getCurrencyRate } from "./services/currency";
 import { getInstagramHashtags } from "./services/instagram";
 import { db } from "../db";
-import { userProducts } from "../shared/schema";
+import { userProducts, productReviews } from "../shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { setupAuth } from "./auth";
 import cache from "./cache";
@@ -636,6 +636,173 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.json({ 
       apiKey: process.env.GOOGLE_MAPS_API_KEY || '' 
     });
+  });
+
+  // Product Reviews API endpoints
+  
+  // Get reviews for a specific product
+  app.get(`${apiPrefix}/product-reviews/:productId`, async (req, res) => {
+    try {
+      const productId = parseInt(req.params.productId);
+      if (isNaN(productId)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const reviews = await db.query.productReviews.findMany({
+        where: eq(productReviews.productId, productId),
+        orderBy: desc(productReviews.createdAt),
+        with: {
+          user: {
+            columns: {
+              id: true,
+              nickname: true,
+            }
+          }
+        }
+      });
+
+      return res.json(reviews);
+    } catch (error) {
+      console.error("Error fetching product reviews:", error);
+      return res.status(500).json({ message: "Failed to fetch reviews" });
+    }
+  });
+
+  // Create a new review
+  app.post(`${apiPrefix}/product-reviews`, async (req, res) => {
+    try {
+      const schema = z.object({
+        productId: z.number(),
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().min(1).max(1000),
+        reviewerName: z.string().min(1).max(50),
+        isAnonymous: z.boolean().optional().default(false),
+      });
+
+      const validatedData = schema.parse(req.body);
+      
+      // Check if user is authenticated
+      const userId = req.user?.id || null;
+      const sessionId = !userId ? req.session.id || nanoid() : null;
+
+      // Check if user already reviewed this product
+      const existingReview = await db.query.productReviews.findFirst({
+        where: and(
+          eq(productReviews.productId, validatedData.productId),
+          userId 
+            ? eq(productReviews.userId, userId)
+            : eq(productReviews.sessionId, sessionId!)
+        )
+      });
+
+      if (existingReview) {
+        return res.status(400).json({ message: "You have already reviewed this product" });
+      }
+
+      const [newReview] = await db.insert(productReviews).values({
+        userId,
+        sessionId,
+        productId: validatedData.productId,
+        rating: validatedData.rating,
+        reviewText: validatedData.reviewText,
+        reviewerName: validatedData.reviewerName,
+        isAnonymous: validatedData.isAnonymous,
+      }).returning();
+
+      return res.status(201).json(newReview);
+    } catch (error) {
+      console.error("Error creating review:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      return res.status(500).json({ message: "Failed to create review" });
+    }
+  });
+
+  // Update a review
+  app.put(`${apiPrefix}/product-reviews/:id`, async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ message: "Invalid review ID" });
+      }
+
+      const schema = z.object({
+        rating: z.number().min(1).max(5),
+        reviewText: z.string().min(1).max(1000),
+        reviewerName: z.string().min(1).max(50),
+        isAnonymous: z.boolean().optional(),
+      });
+
+      const validatedData = schema.parse(req.body);
+      
+      // Check if user owns this review
+      const userId = req.user?.id || null;
+      const sessionId = !userId ? req.session.id : null;
+
+      const existingReview = await db.query.productReviews.findFirst({
+        where: and(
+          eq(productReviews.id, reviewId),
+          userId 
+            ? eq(productReviews.userId, userId)
+            : eq(productReviews.sessionId, sessionId!)
+        )
+      });
+
+      if (!existingReview) {
+        return res.status(404).json({ message: "Review not found or you don't have permission to edit it" });
+      }
+
+      const [updatedReview] = await db.update(productReviews)
+        .set({
+          ...validatedData,
+          updatedAt: new Date(),
+        })
+        .where(eq(productReviews.id, reviewId))
+        .returning();
+
+      return res.json(updatedReview);
+    } catch (error) {
+      console.error("Error updating review:", error);
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Validation error", errors: error.errors });
+      }
+      return res.status(500).json({ message: "Failed to update review" });
+    }
+  });
+
+  // Delete a review
+  app.delete(`${apiPrefix}/product-reviews/:id`, async (req, res) => {
+    try {
+      const reviewId = parseInt(req.params.id);
+      if (isNaN(reviewId)) {
+        return res.status(400).json({ message: "Invalid review ID" });
+      }
+
+      // Check if user owns this review
+      const userId = req.user?.id || null;
+      const sessionId = !userId ? req.session.id : null;
+
+      const existingReview = await db.query.productReviews.findFirst({
+        where: and(
+          eq(productReviews.id, reviewId),
+          userId 
+            ? eq(productReviews.userId, userId)
+            : eq(productReviews.sessionId, sessionId!)
+        )
+      });
+
+      if (!existingReview) {
+        return res.status(404).json({ message: "Review not found or you don't have permission to delete it" });
+      }
+
+      await db.delete(productReviews).where(eq(productReviews.id, reviewId));
+
+      return res.json({ message: "Review deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting review:", error);
+      return res.status(500).json({ message: "Failed to delete review" });
+    }
   });
 
   const httpServer = createServer(app);

@@ -48,6 +48,7 @@ export const CATEGORY_MAPPING = {
 // API Routes
 export const API_ROUTES = {
   PRODUCTS: "/api/products",
+  PRODUCT_REVIEWS: "/api/product-reviews",
   COUNTRIES: "/api/countries",
   USER_PRODUCTS: "/api/user-products",
   SHARED_LIST: "/api/shared-list",
