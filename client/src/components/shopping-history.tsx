@@ -399,49 +399,82 @@ export function ShoppingHistory() {
 
       {/* Modal for showing products */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <CalendarDays className="h-5 w-5 text-blue-600" />
-                <span>{selectedGroup?.customTitle || `${selectedGroup?.country} 여행`} - {selectedGroup?.dateRange}</span>
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl">
+          <DialogHeader className="pb-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 -mx-6 -mt-6 px-6 pt-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg">
+                  <CalendarDays className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <DialogTitle className="text-2xl font-bold text-gray-900 mb-2">
+                    {selectedGroup?.customTitle || `${selectedGroup?.country} 여행`}
+                  </DialogTitle>
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-white px-3 py-1 rounded-full shadow-sm border">
+                      <p className="text-sm font-medium text-gray-700">
+                        {selectedGroup?.dateRange}
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm font-normal text-gray-500">
+              <div className="text-right space-y-2">
+                <div className="inline-flex items-center px-4 py-2 bg-white text-blue-700 text-sm font-semibold rounded-full shadow-sm border border-blue-100">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
                   {selectedGroup?.items.length}개 상품
                 </div>
-                <div className="text-sm font-medium text-green-700">
-                  총 ¥{selectedGroup?.totalAmount.toLocaleString()} ({selectedGroup?.totalAmountKrw.toLocaleString()}원)
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-3 rounded-xl shadow-lg text-white">
+                  <div className="text-xl font-bold">
+                    ¥{selectedGroup?.totalAmount.toLocaleString()}
+                  </div>
+                  <div className="text-xs text-green-100 opacity-90">
+                    약 {selectedGroup?.totalAmountKrw.toLocaleString()}원
+                  </div>
                 </div>
               </div>
-            </DialogTitle>
+            </div>
           </DialogHeader>
           
-          <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+          <div className="flex-1 overflow-y-auto space-y-3 pr-2">
             {selectedGroup?.items.map((userProduct) => (
-              <div key={userProduct.id} className="border rounded-lg overflow-hidden">
+              <div key={userProduct.id} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
                 <ProductListItem
                   product={userProduct.product}
                   userProduct={userProduct}
                   readOnly={true}
                 />
-                {/* Purchase status indicator */}
-                <div className="px-4 py-2 bg-gray-50 border-t">
-                  <span className={`inline-flex items-center px-2 py-1 text-xs font-medium rounded-full ${
-                    userProduct.status === ProductStatus.PURCHASED 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-orange-100 text-orange-800'
-                  }`}>
-                    {userProduct.status === ProductStatus.PURCHASED ? '구입완료' : '미구입'}
-                  </span>
-                  {userProduct.purchaseDate && (
-                    <span className="ml-2 text-xs text-gray-500">
-                      {format(new Date(userProduct.purchaseDate), "MM/dd HH:mm", { locale: ko })}
-                    </span>
-                  )}
+                {/* Enhanced status and info section */}
+                <div className="px-4 py-3 bg-gradient-to-r from-gray-50 to-white border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
+                        userProduct.status === ProductStatus.PURCHASED 
+                          ? 'bg-green-100 text-green-700 border border-green-200' 
+                          : 'bg-orange-100 text-orange-700 border border-orange-200'
+                      }`}>
+                        {userProduct.status === ProductStatus.PURCHASED ? '✓ 구입완료' : '⏳ 미구입'}
+                      </span>
+                      {userProduct.purchaseDate && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-md">
+                          {format(new Date(userProduct.purchaseDate), "MM/dd HH:mm", { locale: ko })}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                   {userProduct.accommodationAddress && (
-                    <div className="mt-1 text-xs text-gray-600">
-                      <span className="font-medium">숙박지:</span> {userProduct.accommodationAddress}
+                    <div className="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        </div>
+                        <div>
+                          <span className="text-xs font-medium text-blue-800">숙박지</span>
+                          <p className="text-xs text-blue-700 mt-0.5 leading-relaxed">
+                            {userProduct.accommodationAddress}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
