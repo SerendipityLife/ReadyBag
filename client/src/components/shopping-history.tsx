@@ -21,6 +21,8 @@ interface TravelGroup {
   dateRange: string;
   country: string;
   items: ExtendedUserProduct[];
+  totalAmount: number;
+  totalAmountKrw: number;
 }
 
 export function ShoppingHistory() {
@@ -34,6 +36,31 @@ export function ShoppingHistory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<TravelGroup | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  // Helper function to calculate total amounts for a group
+  const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
+    let totalJpy = 0;
+    let totalKrw = 0;
+    
+    items.forEach(item => {
+      // 사용자가 입력한 실제 가격이 있으면 우선 사용
+      if (item.actualPurchasePrice) {
+        totalJpy += item.actualPurchasePrice;
+        // 실제 가격의 원화 환산값 사용 (저장된 값이 있으면 사용, 없으면 9.57로 계산)
+        if (item.actualPurchasePriceKrw) {
+          totalKrw += item.actualPurchasePriceKrw;
+        } else {
+          totalKrw += Math.round(item.actualPurchasePrice * 9.57);
+        }
+      } else if (item.product?.price) {
+        // 실제 가격이 없으면 예상 가격 사용
+        totalJpy += item.product.price;
+        totalKrw += Math.round(item.product.price * 9.57);
+      }
+    });
+    
+    return { totalJpy, totalKrw };
+  };
 
 
 
@@ -190,9 +217,9 @@ export function ShoppingHistory() {
     
     let dateRange = "날짜 미설정";
     if (startDate && endDate) {
-      dateRange = `${format(startDate, "MM/dd", { locale: ko })} - ${format(endDate, "MM/dd", { locale: ko })}`;
+      dateRange = `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
     } else if (startDate) {
-      dateRange = format(startDate, "MM/dd", { locale: ko });
+      dateRange = format(startDate, "yyyy.MM.dd", { locale: ko });
     }
     
     const existingGroup = groups.find(g => g.dateRange === dateRange);
@@ -203,12 +230,21 @@ export function ShoppingHistory() {
       groups.push({
         dateRange,
         country: selectedCountry.name,
-        items: [product]
+        items: [product],
+        totalAmount: 0,
+        totalAmountKrw: 0
       });
     }
     
     return groups;
   }, []);
+
+  // Calculate totals for each group
+  groupedByTravel.forEach(group => {
+    const { totalJpy, totalKrw } = calculateGroupTotal(group.items);
+    group.totalAmount = totalJpy;
+    group.totalAmountKrw = totalKrw;
+  });
 
   // Sort groups by date (most recent first)
   groupedByTravel.sort((a, b) => {
@@ -258,6 +294,14 @@ export function ShoppingHistory() {
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">{group.country} 여행</h3>
                   <p className="text-sm text-gray-600">{group.dateRange}</p>
+                  <div className="flex items-center space-x-2 mt-1">
+                    <span className="text-xs font-medium text-green-700">
+                      총 ¥{group.totalAmount.toLocaleString()}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      ({group.totalAmountKrw.toLocaleString()}원)
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex items-center space-x-3">
@@ -284,12 +328,19 @@ export function ShoppingHistory() {
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
           <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <CalendarDays className="h-5 w-5 text-blue-600" />
-              <span>{selectedGroup?.country} 여행 - {selectedGroup?.dateRange}</span>
-              <span className="text-sm font-normal text-gray-500">
-                ({selectedGroup?.items.length}개 상품)
-              </span>
+            <DialogTitle className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <CalendarDays className="h-5 w-5 text-blue-600" />
+                <span>{selectedGroup?.country} 여행 - {selectedGroup?.dateRange}</span>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-normal text-gray-500">
+                  {selectedGroup?.items.length}개 상품
+                </div>
+                <div className="text-sm font-medium text-green-700">
+                  총 ¥{selectedGroup?.totalAmount.toLocaleString()} ({selectedGroup?.totalAmountKrw.toLocaleString()}원)
+                </div>
+              </div>
             </DialogTitle>
           </DialogHeader>
           
