@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
 import { AdBanner } from "@/components/ads/ad-banner";
-import { LocationSearch } from "@/components/location/location-search";
+import { NearbyFacilities } from "@/components/location/nearby-facilities";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 
 
