@@ -29,7 +29,7 @@ export function InfoPanel() {
     >
       <div className="h-screen overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-heading font-bold">About ReadyBag</h2>
+          <h2 className="text-2xl font-heading font-bold">About Serendipity</h2>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -41,18 +41,20 @@ export function InfoPanel() {
         </div>
         
         <p className="text-neutral mb-4">
-          ReadyBag은 여행자들이 방문 국가에서의 쇼핑을 미리 계획할 수 있도록 도와주는 앱입니다. 
+          Serendipity는 여행자들이 방문 국가에서의 쇼핑을 미리 계획할 수 있도록 도와주는 앱입니다. 
           해당 국가에서 인기있는 상품들을 쉽게 탐색하고 관리하세요.
         </p>
         
         <h3 className="text-lg font-heading font-semibold mb-2 mt-6">사용 방법</h3>
         <ul className="list-disc pl-5 text-neutral space-y-2 mb-6">
-          <li>방문할 국가를 선택하세요.</li>
+          <li>여행 날짜를 설정하세요.</li>
+          <li>숙박지 주소를 등록하여 주변 시설을 찾아보세요.</li>
           <li>카드를 스와이프하여 상품을 분류하세요.</li>
           <li>오른쪽으로 스와이프: 관심 있는 상품</li>
           <li>왼쪽으로 스와이프: 건너뛰기 (저장 안 함)</li>
           <li>위로 스와이프: 고민중인 상품</li>
-          <li>분류한 상품 목록은 '내 목록'에서 확인하고 관리할 수 있습니다.</li>
+          <li>분류한 상품 목록은 '장바구니'에서 확인하고 관리할 수 있습니다.</li>
+          <li>구매 완료한 상품은 '쇼핑기록'에서 관리됩니다.</li>
           <li>카테고리와 가격 범위로 상품을 필터링할 수 있습니다.</li>
         </ul>
         
@@ -97,8 +99,8 @@ export function InfoPanel() {
         </div>
         
         <div className="mt-8 text-center text-sm text-neutral">
-          <p>ReadyBag v1.0.0</p>
-          <p className="mt-1">© 2025 ReadyBag. All rights reserved.</p>
+          <p>Serendipity v1.0.0</p>
+          <p className="mt-1">© 2025 Serendipity. All rights reserved.</p>
         </div>
       </div>
     </div>

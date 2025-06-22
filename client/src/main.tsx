@@ -9,10 +9,10 @@ fontStyles.href = "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500
 document.head.appendChild(fontStyles);
 
 // Set title and meta tags
-document.title = "ReadyBag - 여행 쇼핑 아이템 추천";
+document.title = "Serendipity - 여행 쇼핑 추천 플랫폼";
 const metaDescription = document.createElement("meta");
 metaDescription.name = "description";
-metaDescription.content = "ReadyBag은 당신이 여행하는 국가에서 인기 있는 쇼핑 아이템을 추천해주는 앱입니다. 타인더 스타일로 당신의 쇼핑 목록을 쉽게 관리하세요.";
+metaDescription.content = "Serendipity는 여행 날짜별로 상품을 관리하고 숙박지 기반 주변 시설을 찾을 수 있는 스마트 여행 쇼핑 플랫폼입니다. Tinder 스타일로 쇼핑 목록을 쉽게 관리하세요.";
 document.head.appendChild(metaDescription);
 
 createRoot(document.getElementById("root")!).render(<App />);

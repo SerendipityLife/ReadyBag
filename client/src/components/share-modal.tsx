@@ -36,7 +36,7 @@ export function ShareModal() {
         shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`;
         break;
       case 'twitter':
-        shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('ReadyBag에서 공유한 쇼핑 목록을 확인해보세요!')}`;
+        shareLink = `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent('Serendipity에서 공유한 쇼핑 목록을 확인해보세요!')}`;
         break;
       case 'kakao':
         // In a real app, this would use the Kakao SDK
