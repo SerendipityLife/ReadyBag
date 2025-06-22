@@ -237,13 +237,21 @@ export function ProductCard({
         {/* 상품 정보 - 고정 높이 */}
         <div className="p-5 h-48 flex flex-col justify-between">
           <div className="space-y-3">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
-                {product.name}
-              </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {product.nameJapanese}
-              </p>
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+                  {product.name}
+                </h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {product.nameJapanese}
+                </p>
+              </div>
+              <ReviewButton 
+                productId={product.id} 
+                productName={product.name}
+                variant="icon"
+                size="sm"
+              />
             </div>
 
             <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">

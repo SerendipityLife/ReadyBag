@@ -126,23 +126,7 @@ export const users = pgTable("users", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Relations between users and user products
-export const usersRelations = relations(users, ({ many }) => ({
-  userProducts: many(userProducts),
-  sharedLists: many(sharedLists),
-}));
 
-// Update userProductsRelations to include user relation
-export const userProductsRelationsWithUser = relations(userProducts, ({ one }) => ({
-  product: one(products, {
-    fields: [userProducts.productId],
-    references: [products.id],
-  }),
-  user: one(users, {
-    fields: [userProducts.userId],
-    references: [users.id],
-  }),
-}));
 
 // Define validation schema for user registration
 export const registerUserSchema = z.object({
@@ -203,25 +187,20 @@ export const countriesRelations = relations(countries, ({ many }) => ({
   products: many(products),
 }));
 
-export const productsRelations = relations(products, ({ one, many }) => ({
+export const productsRelationsUpdated = relations(products, ({ one, many }) => ({
   country: one(countries, { fields: [products.countryId], references: [countries.id] }),
   userProducts: many(userProducts),
   reviews: many(productReviews),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelationsUpdated = relations(users, ({ many }) => ({
   userProducts: many(userProducts),
-  shoppingFolders: many(shoppingFolders),
   reviews: many(productReviews),
 }));
 
-export const userProductsRelations = relations(userProducts, ({ one }) => ({
+export const userProductsRelationsUpdated = relations(userProducts, ({ one }) => ({
   user: one(users, { fields: [userProducts.userId], references: [users.id] }),
   product: one(products, { fields: [userProducts.productId], references: [products.id] }),
-}));
-
-export const shoppingFoldersRelations = relations(shoppingFolders, ({ one }) => ({
-  user: one(users, { fields: [shoppingFolders.userId], references: [users.id] }),
 }));
 
 export const productReviewsRelations = relations(productReviews, ({ one }) => ({

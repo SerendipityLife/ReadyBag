@@ -7,6 +7,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { Instagram, X, ShoppingCart, XCircle, Heart, Edit } from "lucide-react";
+import { ReviewButton } from "./review-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
@@ -436,6 +437,12 @@ export function ProductListItem(props: ProductListItemProps) {
               <XCircle className="h-3 w-3 mr-1" />
               미구입
             </Button>
+            <ReviewButton 
+              productId={productId} 
+              productName={productName}
+              variant="icon"
+              size="sm"
+            />
           </div>
         )}
 
