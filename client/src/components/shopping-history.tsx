@@ -6,9 +6,10 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, FolderOpen, X, Trash2 } from "lucide-react";
+import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import type { UserProduct, Product } from "@shared/schema";
@@ -23,6 +24,8 @@ interface TravelGroup {
   items: ExtendedUserProduct[];
   totalAmount: number;
   totalAmountKrw: number;
+  travelDateId: string;
+  customTitle?: string;
 }
 
 export function ShoppingHistory() {
@@ -36,6 +39,8 @@ export function ShoppingHistory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<TravelGroup | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
 
   // Helper function to calculate total amounts for a group
   const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
@@ -60,6 +65,54 @@ export function ShoppingHistory() {
     });
     
     return { totalJpy, totalKrw };
+  };
+
+  // Helper function to get/set custom titles from localStorage
+  const getCustomTitle = (travelDateId: string): string | undefined => {
+    if (typeof window === 'undefined') return undefined;
+    try {
+      const customTitles = JSON.parse(localStorage.getItem('travelFolderTitles') || '{}');
+      return customTitles[travelDateId];
+    } catch {
+      return undefined;
+    }
+  };
+
+  const saveCustomTitle = (travelDateId: string, title: string) => {
+    if (typeof window === 'undefined') return;
+    try {
+      const customTitles = JSON.parse(localStorage.getItem('travelFolderTitles') || '{}');
+      if (title.trim()) {
+        customTitles[travelDateId] = title.trim();
+      } else {
+        delete customTitles[travelDateId];
+      }
+      localStorage.setItem('travelFolderTitles', JSON.stringify(customTitles));
+    } catch (error) {
+      console.error('Error saving custom title:', error);
+    }
+  };
+
+  // Functions to handle title editing
+  const startEditingTitle = (group: TravelGroup, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingGroupId(group.travelDateId);
+    setEditTitle(group.customTitle || `${group.country} 여행`);
+  };
+
+  const saveTitle = () => {
+    if (editingGroupId) {
+      saveCustomTitle(editingGroupId, editTitle);
+      setEditingGroupId(null);
+      setEditTitle("");
+      // Trigger a re-render by updating the component state
+      setPurchasedProducts(prev => [...prev]);
+    }
+  };
+
+  const cancelEditTitle = () => {
+    setEditingGroupId(null);
+    setEditTitle("");
   };
 
 
@@ -214,6 +267,7 @@ export function ShoppingHistory() {
   const groupedByTravel: TravelGroup[] = purchasedProducts.reduce((groups: TravelGroup[], product) => {
     const startDate = product.travelStartDate ? new Date(product.travelStartDate) : null;
     const endDate = product.travelEndDate ? new Date(product.travelEndDate) : null;
+    const travelDateId = product.travelDateId || 'no-date';
     
     let dateRange = "날짜 미설정";
     if (startDate && endDate) {
@@ -222,17 +276,20 @@ export function ShoppingHistory() {
       dateRange = format(startDate, "yyyy.MM.dd", { locale: ko });
     }
     
-    const existingGroup = groups.find(g => g.dateRange === dateRange);
+    const existingGroup = groups.find(g => g.travelDateId === travelDateId);
     
     if (existingGroup) {
       existingGroup.items.push(product);
     } else {
+      const customTitle = getCustomTitle(travelDateId);
       groups.push({
         dateRange,
         country: selectedCountry.name,
         items: [product],
         totalAmount: 0,
-        totalAmountKrw: 0
+        totalAmountKrw: 0,
+        travelDateId,
+        customTitle
       });
     }
     
@@ -291,8 +348,51 @@ export function ShoppingHistory() {
                 onClick={() => openModal(group)}
               >
                 <FolderOpen className="h-8 w-8 text-blue-600" />
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{group.country} 여행</h3>
+                <div className="flex-1">
+                  {editingGroupId === group.travelDateId ? (
+                    <div className="flex items-center space-x-2">
+                      <Input
+                        value={editTitle}
+                        onChange={(e) => setEditTitle(e.target.value)}
+                        className="text-lg font-semibold h-8"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') saveTitle();
+                          if (e.key === 'Escape') cancelEditTitle();
+                        }}
+                        autoFocus
+                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-green-600 hover:bg-green-100"
+                        onClick={saveTitle}
+                      >
+                        <Check className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-red-600 hover:bg-red-100"
+                        onClick={cancelEditTitle}
+                      >
+                        <XIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2">
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {group.customTitle || `${group.country} 여행`}
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                        onClick={(e) => startEditingTitle(group, e)}
+                      >
+                        <Edit2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
                   <p className="text-sm text-gray-600">{group.dateRange}</p>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className="text-xs font-medium text-green-700">
@@ -331,7 +431,7 @@ export function ShoppingHistory() {
             <DialogTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <CalendarDays className="h-5 w-5 text-blue-600" />
-                <span>{selectedGroup?.country} 여행 - {selectedGroup?.dateRange}</span>
+                <span>{selectedGroup?.customTitle || `${selectedGroup?.country} 여행`} - {selectedGroup?.dateRange}</span>
               </div>
               <div className="text-right">
                 <div className="text-sm font-normal text-gray-500">
