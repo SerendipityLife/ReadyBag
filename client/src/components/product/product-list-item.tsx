@@ -301,25 +301,29 @@ export function ProductListItem(props: ProductListItemProps) {
       <div className="p-3 flex-1">
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <div className="flex flex-col mb-2 sm:mb-0">
-            <h3 className="font-medium text-sm">{productName}</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="font-medium text-sm">{productName}</h3>
+              {!readOnly && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-5 w-5 p-0 text-neutral hover:bg-neutral hover:text-white rounded ml-2"
+                  onClick={handleInstagramSearch}
+                  disabled={!productName}
+                >
+                  <Instagram className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
             {productNameJapanese && (
               <p className="text-xs text-gray-500 mt-0.5">{productNameJapanese}</p>
             )}
           </div>
           
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
-            {/* Instagram button and price edit button */}
+            {/* Price edit button */}
             {!readOnly && (
-              <div className="flex justify-end mb-1 gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-5 w-5 p-0 text-neutral hover:bg-neutral hover:text-white rounded"
-                  onClick={handleInstagramSearch}
-                  disabled={!productName}
-                >
-                  <Instagram className="h-3 w-3" />
-                </Button>
+              <div className="flex justify-end mb-1">
                 <Dialog open={isEditingPrice} onOpenChange={setIsEditingPrice}>
                   <DialogTrigger asChild>
                     <Button
