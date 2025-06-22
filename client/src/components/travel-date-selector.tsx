@@ -132,10 +132,10 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
           <PopoverTrigger asChild>
             <Button
               variant="default"
-              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 h-8 text-xs px-3"
+              className="bg-blue-500 hover:bg-blue-600 text-white border-blue-500 h-8 text-xs px-2 min-w-[160px]"
             >
               <CalendarDays className="h-3 w-3 mr-1" />
-              <span className="truncate max-w-[100px]">
+              <span className="truncate max-w-[130px]">
                 {selectedTravelDateId 
                   ? savedTravelDates.find(d => d.id === selectedTravelDateId)?.label || "날짜선택"
                   : "날짜선택"

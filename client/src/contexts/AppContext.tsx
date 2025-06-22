@@ -198,9 +198,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
               const endStr = endDate.toISOString().split('T')[0];
               const newId = `travel_${startStr}_${endStr}`;
               
+              // Generate new label with year format
+              const newLabel = `${startDate.getFullYear()}.${(startDate.getMonth() + 1).toString().padStart(2, '0')}.${startDate.getDate().toString().padStart(2, '0')} - ${endDate.getFullYear()}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getDate().toString().padStart(2, '0')}`;
+              
               return {
                 ...date,
                 id: newId, // Use new consistent ID
+                label: newLabel, // Update to new label format with year
                 startDate,
                 endDate
               };
