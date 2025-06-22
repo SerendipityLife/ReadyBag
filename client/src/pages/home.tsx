@@ -37,8 +37,8 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
-            {/* 여행 날짜 선택과 숙박지 주소 */}
-            <div className="w-full mb-4 space-y-3">
+            {/* 여행 날짜 선택과 숙박지 주소 - 컴팩트한 레이아웃 */}
+            <div className="w-full mb-3 space-y-2">
               <div className="flex justify-center">
                 <TravelDateSelector
                   startDate={travelStartDate}
@@ -52,7 +52,7 @@ export default function Home() {
                   mode="browse"
                 />
               </div>
-              <div className="max-w-md mx-auto">
+              <div className="max-w-sm mx-auto">
                 <AccommodationSearch />
               </div>
             </div>

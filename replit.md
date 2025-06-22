@@ -127,6 +127,15 @@ The application follows a modern full-stack architecture with clear separation o
 - ✅ Fixed progress indicator resetting issue when switching between tabs
 - ✅ Modified product saving to prevent storage without travel date selection
 
+**June 22, 2025** - Accommodation Address Integration & UI Optimization
+- ✅ Added accommodation address storage feature to shopping records
+- ✅ Moved accommodation search from cart tab to browse tab alongside travel date selector
+- ✅ Created compact accommodation search component for better UX
+- ✅ Modified cart tab to only show nearby facility search based on saved accommodation
+- ✅ Implemented accommodation address saving when marking items as "구입완료"
+- ✅ Enhanced shopping history to display accommodation information
+- ✅ Optimized browse tab layout to prioritize product interaction
+
 **Technical Implementation**:
 - Server: Added `/api/user-products/batch` endpoint with individual delete operations
 - Frontend: Enhanced cache invalidation using `forceRefresh` state variable in query keys

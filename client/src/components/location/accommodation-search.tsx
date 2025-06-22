@@ -45,49 +45,60 @@ export function AccommodationSearch() {
   };
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <Home className="h-4 w-4" /> 숙박지 주소
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex gap-2">
-          <Input
-            placeholder="영문 숙소 주소 입력"
-            value={locationAddress}
-            onChange={(e) => setLocationAddress(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
-            className="flex-1"
-          />
-          <Button 
-            onClick={handleLocationSearch}
-            disabled={isSearching}
-            size="sm"
-          >
-            {isSearching ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "검색"
-            )}
-          </Button>
-        </div>
-        
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
-        
-        {accommodationLocation && (
-          <div className="p-2 bg-green-50 rounded-md">
-            <p className="text-sm text-green-800">
-              ✓ 숙박지가 설정되었습니다
-            </p>
-            <p className="text-xs text-green-600 mt-1">
+    <div className="w-full bg-blue-50 rounded-md p-2 border border-blue-200">
+      {accommodationLocation ? (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <Home className="h-3 w-3 text-blue-600 flex-shrink-0" />
+            <p className="text-xs text-blue-700 truncate">
               {accommodationLocation.address}
             </p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <Button 
+            onClick={() => {
+              setLocationAddress("");
+              setAccommodationLocation(null);
+            }}
+            variant="ghost"
+            size="sm"
+            className="h-5 px-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-100"
+          >
+            변경
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <div className="flex items-center gap-1 mb-1">
+            <Home className="h-3 w-3 text-gray-600" />
+            <span className="text-xs font-medium text-gray-700">숙박지 주소 설정</span>
+          </div>
+          <div className="flex gap-1">
+            <Input
+              placeholder="영문 숙소 주소"
+              value={locationAddress}
+              onChange={(e) => setLocationAddress(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
+              className="flex-1 h-7 text-xs"
+            />
+            <Button 
+              onClick={handleLocationSearch}
+              disabled={isSearching}
+              size="sm"
+              className="h-7 px-2 text-xs"
+            >
+              {isSearching ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : (
+                "검색"
+              )}
+            </Button>
+          </div>
+          
+          {error && (
+            <p className="text-xs text-red-500 mt-1">{error}</p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
