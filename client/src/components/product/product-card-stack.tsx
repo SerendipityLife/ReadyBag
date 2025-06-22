@@ -628,40 +628,19 @@ export function ProductCardStack() {
         });
       }, 300);
     }
-    // 관심 또는 고민중은 저장 - 여행 날짜 선택 필수
+    // 관심 또는 고민중은 저장
     else {
-      // 여행 날짜가 선택되지 않은 경우 저장하지 않고 날짜 선택 UI만 표시
+      // 여행 날짜가 선택되지 않은 경우에도 일단 저장하고 날짜 선택 UI 표시
       if (!selectedTravelDateId) {
         setShowTravelDateSelector(true);
-        toast({
-          title: "여행 날짜를 선택해주세요",
-          description: "상품을 저장하기 위해 여행 날짜를 먼저 선택해주세요.",
-          duration: 3000,
-        });
-        
-        // 처리 중인 제품 목록에서 제거 (상품은 저장되지 않음)
-        setProcessingProductIds(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(productId);
-          return newSet;
-        });
-        return;
       }
-
-      // 여행 날짜가 선택된 경우에만 저장 진행
+      
+      // 로그인 상태에 따라 저장 방식 결정
       if (user) {
-        // 로그인한 사용자: API 호출로 상태 저장
+        // 로그인한 사용자는 서버 API 호출
         updateProductStatus.mutate({ productId, status }, {
-          onSuccess: () => {
-            // 성공 후 처리 중인 제품 목록에서 제거
-            setProcessingProductIds(prev => {
-              const newSet = new Set(prev);
-              newSet.delete(productId);
-              return newSet;
-            });
-          },
           onError: () => {
-            // 에러 발생 시에도 처리 중인 제품 목록에서 제거
+            // 에러 시에도 처리 중인 제품 목록에서 제거
             setProcessingProductIds(prev => {
               const newSet = new Set(prev);
               newSet.delete(productId);
