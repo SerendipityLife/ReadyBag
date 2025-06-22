@@ -102,11 +102,11 @@ export function AccommodationSearch() {
               <div className="space-y-1.5">
                 <div className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-blue-700">여행 기간 머무르는 주소 입력</p>
+                  <p className="text-sm text-blue-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-blue-700">입력한 숙소 주변에서 가장 가까운 쇼핑 장소 추천</p>
+                  <p className="text-sm text-blue-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
                 </div>
               </div>
             </div>
