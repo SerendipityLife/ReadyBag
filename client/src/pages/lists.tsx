@@ -770,7 +770,7 @@ export function Lists() {
                 className="flex items-center justify-center"
               >
                 <MapPin className="h-4 w-4 mr-1" />
-                <span className="text-blue-600">위치</span>
+                <span className="text-blue-600">사러가기</span>
               </TabsTrigger>
 
             </TabsList>
