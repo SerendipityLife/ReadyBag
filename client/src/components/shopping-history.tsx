@@ -39,7 +39,8 @@ export function ShoppingHistory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<TravelGroup | null>(null);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
-  const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
+  const [groupToEdit, setGroupToEdit] = useState<TravelGroup | null>(null);
+  const [isEditTitleOpen, setIsEditTitleOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
 
   // Helper function to calculate total amounts for a group
@@ -96,14 +97,16 @@ export function ShoppingHistory() {
   // Functions to handle title editing
   const startEditingTitle = (group: TravelGroup, e: React.MouseEvent) => {
     e.stopPropagation();
-    setEditingGroupId(group.travelDateId);
+    setGroupToEdit(group);
     setEditTitle(group.customTitle || `${group.country} 여행`);
+    setIsEditTitleOpen(true);
   };
 
   const saveTitle = () => {
-    if (editingGroupId) {
-      saveCustomTitle(editingGroupId, editTitle);
-      setEditingGroupId(null);
+    if (groupToEdit) {
+      saveCustomTitle(groupToEdit.travelDateId, editTitle);
+      setIsEditTitleOpen(false);
+      setGroupToEdit(null);
       setEditTitle("");
       // Trigger a re-render by updating the component state
       setPurchasedProducts(prev => [...prev]);
@@ -111,7 +114,8 @@ export function ShoppingHistory() {
   };
 
   const cancelEditTitle = () => {
-    setEditingGroupId(null);
+    setIsEditTitleOpen(false);
+    setGroupToEdit(null);
     setEditTitle("");
   };
 
@@ -349,50 +353,19 @@ export function ShoppingHistory() {
               >
                 <FolderOpen className="h-8 w-8 text-blue-600" />
                 <div className="flex-1">
-                  {editingGroupId === group.travelDateId ? (
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        value={editTitle}
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        className="text-lg font-semibold h-8"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') saveTitle();
-                          if (e.key === 'Escape') cancelEditTitle();
-                        }}
-                        autoFocus
-                      />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-green-600 hover:bg-green-100"
-                        onClick={saveTitle}
-                      >
-                        <Check className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-red-600 hover:bg-red-100"
-                        onClick={cancelEditTitle}
-                      >
-                        <XIcon className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {group.customTitle || `${group.country} 여행`}
-                      </h3>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-                        onClick={(e) => startEditingTitle(group, e)}
-                      >
-                        <Edit2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {group.customTitle || `${group.country} 여행`}
+                    </h3>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+                      onClick={(e) => startEditingTitle(group, e)}
+                    >
+                      <Edit2 className="h-3 w-3" />
+                    </Button>
+                  </div>
                   <p className="text-sm text-gray-600">{group.dateRange}</p>
                   <div className="flex items-center space-x-2 mt-1">
                     <span className="text-xs font-medium text-green-700">
@@ -478,6 +451,46 @@ export function ShoppingHistory() {
         </DialogContent>
       </Dialog>
 
+      {/* Dialog for editing folder title */}
+      <Dialog open={isEditTitleOpen} onOpenChange={setIsEditTitleOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>폴더 이름 수정</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                폴더 이름
+              </label>
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder="폴더 이름을 입력하세요"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveTitle();
+                  if (e.key === 'Escape') cancelEditTitle();
+                }}
+                autoFocus
+              />
+            </div>
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              onClick={cancelEditTitle}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={saveTitle}
+              disabled={!editTitle.trim()}
+            >
+              저장
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Confirmation dialog for folder deletion */}
       <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
         <DialogContent className="max-w-md">
@@ -486,7 +499,7 @@ export function ShoppingHistory() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-gray-600">
-              "{groupToDelete?.country} 여행 - {groupToDelete?.dateRange}" 폴더와 모든 상품({groupToDelete?.items.length}개)을 삭제하시겠습니까?
+              "{groupToDelete?.customTitle || `${groupToDelete?.country} 여행`} - {groupToDelete?.dateRange}" 폴더와 모든 상품({groupToDelete?.items.length}개)을 삭제하시겠습니까?
             </p>
             <p className="text-sm text-red-600 mt-2">
               이 작업은 되돌릴 수 없습니다.
