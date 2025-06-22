@@ -576,6 +576,13 @@ export function ProductCardStack() {
     
     const status = SWIPE_TO_STATUS[direction];
     
+    // 관심/나중에 액션일 때 여행 날짜 확인
+    if ((status === ProductStatus.INTERESTED || status === ProductStatus.MAYBE) && !selectedTravelDateId) {
+      console.log("여행 날짜가 선택되지 않음, 여행 날짜 선택기 표시");
+      setShowTravelDateSelector(true);
+      return;
+    }
+    
     // 모든 액션을 바로 처리
     executeProductAction(productId, status);
   };
