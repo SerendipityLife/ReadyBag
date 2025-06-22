@@ -108,7 +108,7 @@ export function Header() {
             className="text-lg font-bold text-primary cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <span>Serendipity</span>
+            <span>Ready</span><span className="font-bold">Bag</span>
           </h1>
           
           {/* Country selector */}

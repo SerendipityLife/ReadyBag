@@ -29,7 +29,7 @@ export function InfoPanel() {
     >
       <div className="h-screen overflow-y-auto p-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-heading font-bold">About Serendipity</h2>
+          <h2 className="text-2xl font-heading font-bold">About ReadyBag</h2>
           <Button 
             variant="ghost" 
             size="icon" 
@@ -41,7 +41,7 @@ export function InfoPanel() {
         </div>
         
         <p className="text-neutral mb-4">
-          Serendipity는 여행자들이 방문 국가에서의 쇼핑을 미리 계획할 수 있도록 도와주는 앱입니다. 
+          ReadyBag은 여행자들이 방문 국가에서의 쇼핑을 미리 계획할 수 있도록 도와주는 앱입니다. 
           해당 국가에서 인기있는 상품들을 쉽게 탐색하고 관리하세요.
         </p>
         
@@ -100,8 +100,8 @@ export function InfoPanel() {
         </div>
         
         <div className="mt-8 text-center text-sm text-neutral">
-          <p>Serendipity v1.0.0</p>
-          <p className="mt-1">© 2025 Serendipity. All rights reserved.</p>
+          <p>ReadyBag v1.0.0</p>
+          <p className="mt-1">© 2025 ReadyBag. All rights reserved.</p>
         </div>
       </div>
     </div>
