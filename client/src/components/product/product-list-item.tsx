@@ -317,6 +317,12 @@ export function ProductListItem(props: ProductListItemProps) {
                       variant="ghost"
                       size="sm"
                       className="h-5 w-5 p-0 text-blue-600 hover:bg-blue-100 rounded"
+                      onClick={() => {
+                        // 다이얼로그 열 때 기존 값 설정
+                        setActualPriceInput(userProduct.actualPurchasePrice?.toString() || "");
+                        setActualPriceKrwInput(userProduct.actualPurchasePriceKrw?.toString() || "");
+                        setIsEditingPrice(true);
+                      }}
                     >
                       <Edit className="h-3 w-3" />
                     </Button>
@@ -330,7 +336,7 @@ export function ProductListItem(props: ProductListItemProps) {
                         <label className="text-sm font-medium">현지 가격 (¥)</label>
                         <Input
                           type="number"
-                          placeholder="예: 3500"
+                          placeholder={userProduct.actualPurchasePrice ? userProduct.actualPurchasePrice.toString() : "예: 3500"}
                           value={actualPriceInput}
                           onChange={(e) => setActualPriceInput(e.target.value)}
                         />
@@ -339,7 +345,7 @@ export function ProductListItem(props: ProductListItemProps) {
                         <label className="text-sm font-medium">원화 가격 (₩)</label>
                         <Input
                           type="number"
-                          placeholder="예: 33000"
+                          placeholder={userProduct.actualPurchasePriceKrw ? userProduct.actualPurchasePriceKrw.toString() : "예: 33000"}
                           value={actualPriceKrwInput}
                           onChange={(e) => setActualPriceKrwInput(e.target.value)}
                         />
@@ -354,7 +360,11 @@ export function ProductListItem(props: ProductListItemProps) {
                         </Button>
                         <Button 
                           variant="outline" 
-                          onClick={() => setIsEditingPrice(false)}
+                          onClick={() => {
+                            setIsEditingPrice(false);
+                            setActualPriceInput("");
+                            setActualPriceKrwInput("");
+                          }}
                           className="flex-1"
                         >
                           취소
