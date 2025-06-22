@@ -71,83 +71,84 @@ export function AccommodationSearch() {
         </Button>
       )}
 
-      {/* 확장된 검색 창 */}
+      {/* 확장된 검색 창 - 고정 위치 모달 */}
       {isExpanded && (
-        <div className="absolute top-10 left-0 z-50 w-80 bg-white border border-gray-200 rounded-lg shadow-lg p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Home className="h-4 w-4 text-blue-600" />
-              <span className="text-sm font-medium text-gray-700">숙박지 주소 설정</span>
-            </div>
-            <Button
-              onClick={() => setIsExpanded(false)}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 text-gray-400 hover:text-gray-600"
-            >
-              ×
-            </Button>
-          </div>
-
-          {accommodationLocation && (
-            <div className="mb-3 p-2 bg-green-50 rounded border border-green-200">
-              <p className="text-xs text-green-700 font-medium">현재 설정된 숙박지:</p>
-              <p className="text-xs text-green-600 mt-1">{accommodationLocation.address}</p>
-            </div>
-          )}
-
-          <div className="space-y-2">
-            <div className="flex gap-2">
-              <Input
-                placeholder="영문 숙소 주소 입력"
-                value={locationAddress}
-                onChange={(e) => setLocationAddress(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
-                className="flex-1 h-8 text-sm"
-                autoFocus
-              />
-              <Button 
-                onClick={handleLocationSearch}
-                disabled={isSearching}
+        <>
+          {/* 배경 오버레이 */}
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-25 z-40" 
+            onClick={() => setIsExpanded(false)}
+          />
+          
+          {/* 모달 컨텐츠 */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw] bg-white border border-gray-200 rounded-lg shadow-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Home className="h-5 w-5 text-blue-600" />
+                <span className="text-base font-medium text-gray-700">숙박지 주소 설정</span>
+              </div>
+              <Button
+                onClick={() => setIsExpanded(false)}
+                variant="ghost"
                 size="sm"
-                className="h-8 px-3"
+                className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
               >
-                {isSearching ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  "검색"
-                )}
+                ×
               </Button>
             </div>
-            
-            {error && (
-              <p className="text-xs text-red-500">{error}</p>
-            )}
 
             {accommodationLocation && (
-              <Button
-                onClick={() => {
-                  setLocationAddress("");
-                  setAccommodationLocation(null);
-                  setIsExpanded(false);
-                }}
-                variant="outline"
-                size="sm"
-                className="w-full h-7 text-xs text-red-600 border-red-200 hover:bg-red-50"
-              >
-                숙박지 설정 해제
-              </Button>
+              <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-sm text-green-700 font-medium">현재 설정된 숙박지:</p>
+                <p className="text-sm text-green-600 mt-1 break-all">{accommodationLocation.address}</p>
+              </div>
             )}
-          </div>
-        </div>
-      )}
 
-      {/* 배경 클릭시 닫기 */}
-      {isExpanded && (
-        <div 
-          className="fixed inset-0 z-40" 
-          onClick={() => setIsExpanded(false)}
-        />
+            <div className="space-y-3">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="영문 숙소 주소 입력"
+                  value={locationAddress}
+                  onChange={(e) => setLocationAddress(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
+                  className="flex-1 h-10"
+                  autoFocus
+                />
+                <Button 
+                  onClick={handleLocationSearch}
+                  disabled={isSearching}
+                  size="sm"
+                  className="h-10 px-4"
+                >
+                  {isSearching ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "검색"
+                  )}
+                </Button>
+              </div>
+              
+              {error && (
+                <p className="text-sm text-red-500">{error}</p>
+              )}
+
+              {accommodationLocation && (
+                <Button
+                  onClick={() => {
+                    setLocationAddress("");
+                    setAccommodationLocation(null);
+                    setIsExpanded(false);
+                  }}
+                  variant="outline"
+                  size="sm"
+                  className="w-full h-10 text-sm text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  숙박지 설정 해제
+                </Button>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
