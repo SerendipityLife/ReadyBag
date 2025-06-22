@@ -289,6 +289,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (validatedData.accommodationAddress !== undefined) {
           updateData.accommodationAddress = validatedData.accommodationAddress;
         }
+        if (validatedData.actualPurchasePrice !== undefined) {
+          updateData.actualPurchasePrice = validatedData.actualPurchasePrice;
+        }
+        if (validatedData.actualPurchasePriceKrw !== undefined) {
+          updateData.actualPurchasePriceKrw = validatedData.actualPurchasePriceKrw;
+        }
         
         const [updated] = await db
           .update(userProducts)
