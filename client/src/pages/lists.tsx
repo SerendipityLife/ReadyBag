@@ -835,7 +835,7 @@ export function Lists() {
 
           <TabsContent value="location">
             <div className="w-full">
-              <LocationSearch />
+              <NearbyFacilities />
             </div>
           </TabsContent>
 
