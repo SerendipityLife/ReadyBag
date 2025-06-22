@@ -400,28 +400,28 @@ export function ShoppingHistory() {
       {/* Modal for showing products */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col bg-gradient-to-br from-white to-gray-50 border-0 shadow-2xl">
-          <DialogHeader className="pb-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 -mx-6 -mt-6 px-6 pt-4">
+          <DialogHeader className="pb-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 -mx-6 -mt-6 px-6 pt-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
-                  <CalendarDays className="h-5 w-5 text-white" />
+                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
+                  <CalendarDays className="h-4 w-4 text-white" />
                 </div>
                 <div>
-                  <DialogTitle className="text-xl font-bold text-gray-900 leading-tight">
+                  <DialogTitle className="text-lg font-bold text-gray-900 leading-tight">
                     {selectedGroup?.customTitle || `${selectedGroup?.country} 여행`}
                   </DialogTitle>
-                  <p className="text-sm text-gray-600 mt-0.5">
+                  <p className="text-xs text-gray-600 mt-0.5">
                     {selectedGroup?.dateRange}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-3">
-                <div className="inline-flex items-center px-3 py-1.5 bg-white text-blue-700 text-sm font-medium rounded-full shadow-sm border border-blue-100">
-                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
+              <div className="flex items-center space-x-2">
+                <div className="inline-flex items-center px-2.5 py-1 bg-white text-blue-700 text-xs font-medium rounded-full shadow-sm border border-blue-100">
+                  <span className="w-1 h-1 bg-blue-500 rounded-full mr-1.5"></span>
                   {selectedGroup?.items.length}개 상품
                 </div>
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-4 py-2 rounded-lg shadow-md text-white">
-                  <div className="text-lg font-bold leading-tight">
+                <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-1.5 rounded-lg shadow-md text-white">
+                  <div className="text-sm font-bold leading-tight">
                     ¥{selectedGroup?.totalAmount.toLocaleString()}
                   </div>
                   <div className="text-xs text-green-100 opacity-90 leading-tight">
