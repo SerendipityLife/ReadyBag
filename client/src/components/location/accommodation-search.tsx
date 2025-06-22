@@ -97,6 +97,20 @@ export function AccommodationSearch() {
               </Button>
             </div>
 
+            {/* 안내 문구 추가 */}
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="space-y-1.5">
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm text-blue-700">여행 기간 머무르는 주소 입력</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm text-blue-700">입력한 숙소 주변에서 가장 가까운 쇼핑 장소 추천</p>
+                </div>
+              </div>
+            </div>
+
             {accommodationLocation && (
               <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
                 <p className="text-sm text-green-700 font-medium">현재 설정된 숙박지:</p>
