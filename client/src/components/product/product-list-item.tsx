@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X, ShoppingCart, XCircle, Heart, Edit } from "lucide-react";
+import { Instagram, X, ShoppingCart, XCircle, Heart, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
@@ -42,9 +42,7 @@ export function ProductListItem(props: ProductListItemProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [actualPriceInput, setActualPriceInput] = useState("");
   const [actualPriceKrwInput, setActualPriceKrwInput] = useState("");
-  
-  // '분류변경' 기능 제거로 인해 상품 상태 변경 기능도 제거됨
-  
+
   // Update product status mutation (for purchase tracking)
   const updateProductStatus = useMutation({
     mutationFn: async (newStatus: string) => {
@@ -162,36 +160,6 @@ export function ProductListItem(props: ProductListItemProps) {
     }
   });
 
-  // 상품 데이터 유효성 검사 및 상태 설정
-  useEffect(() => {
-    if (!product) {
-      setHasProductError(true);
-      return;
-    }
-    
-    setHasProductError(false);
-    setProductImageUrl(product.imageUrl || "");
-    setProductName(product.name || "");
-    setProductNameJapanese(product.nameJapanese || null);
-    setProductLocation(product.location || null);
-    setProductHashtags(product.hashtags || null);
-    
-    // 가격 계산
-    const roundedPrice = Math.round(product.price);
-    const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
-    
-    setPrice(roundedPrice);
-    setConvertedPrice(calculatedPrice);
-  }, [product, exchangeRate]);
-
-  // Opens Instagram in a new tab with the product name search
-  const handleInstagramSearch = () => {
-    if (!productName) return;
-    
-    // Use product name for Instagram search instead of hashtag
-    window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(productName)}`, "_blank");
-  };
-
   // Update actual purchase price mutation
   const updateActualPrice = useMutation({
     mutationFn: async (priceData: { actualPrice?: number; actualPriceKrw?: number }) => {
@@ -261,7 +229,35 @@ export function ProductListItem(props: ProductListItemProps) {
     updateActualPrice.mutate({ actualPrice, actualPriceKrw });
   };
 
+  // 상품 데이터 유효성 검사 및 상태 설정
+  useEffect(() => {
+    if (!product) {
+      setHasProductError(true);
+      return;
+    }
+    
+    setHasProductError(false);
+    setProductImageUrl(product.imageUrl || "");
+    setProductName(product.name || "");
+    setProductNameJapanese(product.nameJapanese || null);
+    setProductLocation(product.location || null);
+    setProductHashtags(product.hashtags || null);
+    
+    // 가격 계산
+    const roundedPrice = Math.round(product.price);
+    const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
+    
+    setPrice(roundedPrice);
+    setConvertedPrice(calculatedPrice);
+  }, [product, exchangeRate]);
 
+  // Opens Instagram in a new tab with the product name search
+  const handleInstagramSearch = () => {
+    if (!productName) return;
+    
+    // Use product name for Instagram search instead of hashtag
+    window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(productName)}`, "_blank");
+  };
 
   // 상품 에러일 경우 에러 UI 표시
   if (hasProductError) {
@@ -400,23 +396,9 @@ export function ProductListItem(props: ProductListItemProps) {
             </div>
           </div>
         </div>
-                  <div className="flex justify-between">
-                    <span>실제:</span>
-                    <span>{userProduct.actualPurchasePrice ? `¥${userProduct.actualPurchasePrice.toLocaleString()}` : '-'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span></span>
-                    <span>{userProduct.actualPurchasePriceKrw ? `${userProduct.actualPurchasePriceKrw.toLocaleString()}원` : '-'}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
         
         {!readOnly && userProduct.status === ProductStatus.INTERESTED && (
           <div className="mt-3 flex gap-2">
-            {/* 관심 상품에만 구입 완료/미구입 버튼 표시 */}
             <Button
               variant="outline"
               size="sm"
@@ -442,7 +424,6 @@ export function ProductListItem(props: ProductListItemProps) {
 
         {!readOnly && userProduct.status === ProductStatus.MAYBE && (
           <div className="mt-3 flex gap-2">
-            {/* 고민중 상품에만 관심으로 이동 버튼 표시 */}
             <Button
               variant="outline"
               size="sm"

@@ -255,6 +255,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         travelStartDate: z.string().optional(),
         travelEndDate: z.string().optional(),
         accommodationAddress: z.string().optional(),
+        actualPurchasePrice: z.number().optional(),
+        actualPurchasePriceKrw: z.number().optional(),
       });
       
       const validatedData = schema.parse(req.body);
