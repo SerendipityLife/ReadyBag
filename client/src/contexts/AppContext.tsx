@@ -260,7 +260,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const startStr = startDate.toISOString().split('T')[0];
     const endStr = endDate.toISOString().split('T')[0];
     const id = `travel_${startStr}_${endStr}`;
-    const label = `${startDate.getMonth() + 1}월 ${startDate.getDate()}일 - ${endDate.getMonth() + 1}월 ${endDate.getDate()}일`;
+    const label = `${startDate.getFullYear()}.${(startDate.getMonth() + 1).toString().padStart(2, '0')}.${startDate.getDate().toString().padStart(2, '0')} - ${endDate.getFullYear()}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getDate().toString().padStart(2, '0')}`;
     
     // 이미 같은 날짜 범위가 있는지 확인
     const existingDate = savedTravelDates.find(date => date.id === id);

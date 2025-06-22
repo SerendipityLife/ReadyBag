@@ -120,8 +120,8 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
   const formatDateRange = () => {
     if (!startDate && !endDate) return "여행 날짜 선택";
     if (!startDate) return "시작일 미설정";
-    if (!endDate) return format(startDate, "MM/dd", { locale: ko });
-    return `${format(startDate, "MM/dd", { locale: ko })} - ${format(endDate, "MM/dd", { locale: ko })}`;
+    if (!endDate) return format(startDate, "yyyy.MM.dd", { locale: ko });
+    return `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
   };
 
   return (
