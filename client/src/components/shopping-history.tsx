@@ -315,6 +315,11 @@ export function ShoppingHistory() {
                       {format(new Date(userProduct.purchaseDate), "MM/dd HH:mm", { locale: ko })}
                     </span>
                   )}
+                  {userProduct.accommodationAddress && (
+                    <div className="mt-1 text-xs text-gray-600">
+                      <span className="font-medium">숙박지:</span> {userProduct.accommodationAddress}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

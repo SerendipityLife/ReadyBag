@@ -214,6 +214,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         travelDateId: z.string().nullable().optional(),
         travelStartDate: z.string().nullable().optional(),
         travelEndDate: z.string().nullable().optional(),
+        accommodationAddress: z.string().optional(),
       });
       
       const validatedData = schema.parse(req.body);
@@ -227,7 +228,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sessionId,
         validatedData.travelStartDate === null ? undefined : validatedData.travelStartDate,
         validatedData.travelEndDate === null ? undefined : validatedData.travelEndDate,
-        validatedData.travelDateId === null ? undefined : validatedData.travelDateId
+        validatedData.travelDateId === null ? undefined : validatedData.travelDateId,
+        validatedData.accommodationAddress
       );
       
       // 사용자 제품 관련 캐시 무효화
@@ -252,6 +254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: z.string(),
         travelStartDate: z.string().optional(),
         travelEndDate: z.string().optional(),
+        accommodationAddress: z.string().optional(),
       });
       
       const validatedData = schema.parse(req.body);
@@ -278,6 +281,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Set purchase date for completed purchases
         if (validatedData.status === 'purchased') {
           updateData.purchaseDate = new Date();
+        }
+        
+        // Add accommodation address for purchased items
+        if (validatedData.accommodationAddress !== undefined) {
+          updateData.accommodationAddress = validatedData.accommodationAddress;
         }
         
         const [updated] = await db

@@ -21,7 +21,7 @@ interface ProductListItemProps {
 export function ProductListItem(props: ProductListItemProps) {
   const { product, userProduct, readOnly = false, onSuccessfulAction, travelStartDate, travelEndDate } = props;
   const queryClient = useQueryClient();
-  const { selectedCountry, exchangeRate, setShouldActivateCalendar } = useAppContext();
+  const { selectedCountry, exchangeRate, setShouldActivateCalendar, accommodationLocation } = useAppContext();
   const { user } = useAuth();
   const { toast } = useToast();
   const isNonMember = !user;
@@ -58,7 +58,8 @@ export function ProductListItem(props: ProductListItemProps) {
                 updatedAt: new Date().toISOString(),
                 travelStartDate: travelStartDate?.toISOString(),
                 travelEndDate: travelEndDate?.toISOString(),
-                purchaseDate: newStatus === ProductStatus.PURCHASED ? new Date().toISOString() : item.purchaseDate
+                purchaseDate: newStatus === ProductStatus.PURCHASED ? new Date().toISOString() : item.purchaseDate,
+                accommodationAddress: newStatus === ProductStatus.PURCHASED ? accommodationLocation?.address : item.accommodationAddress
               }
             : item
         );
@@ -72,7 +73,8 @@ export function ProductListItem(props: ProductListItemProps) {
           { 
             status: newStatus,
             travelStartDate: travelStartDate?.toISOString(),
-            travelEndDate: travelEndDate?.toISOString()
+            travelEndDate: travelEndDate?.toISOString(),
+            accommodationAddress: newStatus === ProductStatus.PURCHASED ? accommodationLocation?.address : undefined
           }
         );
         return response.json();
