@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { apiRequest } from "@/lib/queryClient";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { Instagram, Trash2, X, ShoppingCart, XCircle, Heart } from "lucide-react";
+import { Instagram, Trash2, X, ShoppingCart, XCircle, Heart, Edit } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
@@ -35,6 +37,11 @@ export function ProductListItem(props: ProductListItemProps) {
   const [productLocation, setProductLocation] = useState<string | null>(null);
   const [productHashtags, setProductHashtags] = useState<string[] | null>(null);
   const [hasProductError, setHasProductError] = useState(false);
+  
+  // 실제 구입 가격 관련 상태
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [actualPriceInput, setActualPriceInput] = useState("");
+  const [actualPriceKrwInput, setActualPriceKrwInput] = useState("");
   
   // '분류변경' 기능 제거로 인해 상품 상태 변경 기능도 제거됨
   
@@ -185,6 +192,75 @@ export function ProductListItem(props: ProductListItemProps) {
     window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(productName)}`, "_blank");
   };
 
+  // Update actual purchase price mutation
+  const updateActualPrice = useMutation({
+    mutationFn: async (priceData: { actualPrice?: number; actualPriceKrw?: number }) => {
+      if (isNonMember) {
+        // 비회원은 로컬 스토리지에서 업데이트
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
+        const updatedData = existingData.map((item: any) => 
+          item.productId === userProduct.productId 
+            ? { 
+                ...item, 
+                actualPurchasePrice: priceData.actualPrice,
+                actualPurchasePriceKrw: priceData.actualPriceKrw,
+                updatedAt: new Date().toISOString()
+              }
+            : item
+        );
+        localStorage.setItem(storageKey, JSON.stringify(updatedData));
+        return { success: true };
+      } else {
+        // 회원은 API 호출
+        const response = await apiRequest(
+          "PATCH",
+          `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`,
+          { 
+            actualPurchasePrice: priceData.actualPrice,
+            actualPurchasePriceKrw: priceData.actualPriceKrw
+          }
+        );
+        return response.json();
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ 
+        queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
+      });
+      setIsEditingPrice(false);
+      setActualPriceInput("");
+      setActualPriceKrwInput("");
+      toast({
+        description: "실제 구입 가격이 저장되었습니다.",
+        duration: 2000,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        description: error.message,
+        variant: "destructive",
+        duration: 2000,
+      });
+    }
+  });
+
+  const handleSaveActualPrice = () => {
+    const actualPrice = actualPriceInput ? parseInt(actualPriceInput) : undefined;
+    const actualPriceKrw = actualPriceKrwInput ? parseInt(actualPriceKrwInput) : undefined;
+    
+    if (!actualPrice && !actualPriceKrw) {
+      toast({
+        description: "최소 하나의 가격을 입력해주세요.",
+        variant: "destructive",
+        duration: 2000,
+      });
+      return;
+    }
+    
+    updateActualPrice.mutate({ actualPrice, actualPriceKrw });
+  };
+
 
 
   // 상품 에러일 경우 에러 UI 표시
@@ -227,9 +303,9 @@ export function ProductListItem(props: ProductListItemProps) {
           </div>
           
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
-            {/* Instagram button - above price */}
+            {/* Instagram button and price edit button */}
             {!readOnly && (
-              <div className="flex justify-end mb-1">
+              <div className="flex justify-end mb-1 gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -239,15 +315,101 @@ export function ProductListItem(props: ProductListItemProps) {
                 >
                   <Instagram className="h-3 w-3" />
                 </Button>
+                <Dialog open={isEditingPrice} onOpenChange={setIsEditingPrice}>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-5 w-5 p-0 text-blue-600 hover:bg-blue-100 rounded"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>실제 구입 가격 입력</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium">현지 가격 (¥)</label>
+                        <Input
+                          type="number"
+                          placeholder="예: 3500"
+                          value={actualPriceInput}
+                          onChange={(e) => setActualPriceInput(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">원화 가격 (₩)</label>
+                        <Input
+                          type="number"
+                          placeholder="예: 33000"
+                          value={actualPriceKrwInput}
+                          onChange={(e) => setActualPriceKrwInput(e.target.value)}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={handleSaveActualPrice}
+                          disabled={updateActualPrice.isPending}
+                          className="flex-1"
+                        >
+                          저장
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setIsEditingPrice(false)}
+                          className="flex-1"
+                        >
+                          취소
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
               </div>
             )}
-            <div className="flex items-center justify-between sm:flex-col sm:items-end">
-              <div className="text-xs text-gray-500">
-                현지: <span className="font-medium">¥{price.toLocaleString()}</span>
+            
+            {/* Price display */}
+            <div className="space-y-1">
+              {/* 예상 가격 */}
+              <div className="text-xs text-gray-500 pb-1 border-b border-gray-200">
+                <div className="flex justify-between">
+                  <span>예상:</span>
+                  <span>¥{price.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span></span>
+                  <span className="text-primary">{convertedPrice.toLocaleString()}원</span>
+                </div>
               </div>
-              <div className="text-xs text-gray-500">
-                <span className="font-medium text-primary">{convertedPrice.toLocaleString()}원</span>
-              </div>
+              
+              {/* 실제 구입 가격 */}
+              {(userProduct.actualPurchasePrice || userProduct.actualPurchasePriceKrw) && (
+                <div className="text-xs font-medium text-green-700">
+                  <div className="flex justify-between">
+                    <span>실제:</span>
+                    <span>{userProduct.actualPurchasePrice ? `¥${userProduct.actualPurchasePrice.toLocaleString()}` : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span></span>
+                    <span>{userProduct.actualPurchasePriceKrw ? `${userProduct.actualPurchasePriceKrw.toLocaleString()}원` : '-'}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+                  <div className="flex justify-between">
+                    <span>실제:</span>
+                    <span>{userProduct.actualPurchasePrice ? `¥${userProduct.actualPurchasePrice.toLocaleString()}` : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span></span>
+                    <span>{userProduct.actualPurchasePriceKrw ? `${userProduct.actualPurchasePriceKrw.toLocaleString()}원` : '-'}</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
