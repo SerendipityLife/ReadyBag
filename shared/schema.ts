@@ -51,6 +51,7 @@ export const userProducts = pgTable("user_products", {
   travelStartDate: timestamp("travel_start_date"), // 여행 시작 날짜
   travelEndDate: timestamp("travel_end_date"), // 여행 종료 날짜
   purchaseDate: timestamp("purchase_date"), // 구입 완료 날짜
+  accommodationAddress: text("accommodation_address"), // 숙박지 주소
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

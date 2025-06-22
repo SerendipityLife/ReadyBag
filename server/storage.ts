@@ -189,7 +189,8 @@ export const storage = {
     sessionId: string,
     travelStartDate?: string,
     travelEndDate?: string,
-    travelDateId?: string
+    travelDateId?: string,
+    accommodationAddress?: string
   ) {
     console.log(`UserProduct 요청: productId=${productId}, status=${status}, travelDateId=${travelDateId}`);
     
@@ -255,6 +256,11 @@ export const storage = {
         updateData.purchaseDate = new Date();
       }
       
+      // Add accommodation address for purchased items
+      if (accommodationAddress !== undefined) {
+        updateData.accommodationAddress = accommodationAddress;
+      }
+      
       const [updated] = await db
         .update(userProducts)
         .set(updateData)
@@ -282,6 +288,16 @@ export const storage = {
       }
       if (travelEndDate) {
         insertData.travelEndDate = new Date(travelEndDate);
+      }
+      
+      // Set purchase date for new purchases
+      if (status === 'purchased') {
+        insertData.purchaseDate = new Date();
+      }
+      
+      // Add accommodation address for purchased items
+      if (accommodationAddress !== undefined) {
+        insertData.accommodationAddress = accommodationAddress;
       }
       
       const [newUserProduct] = await db
