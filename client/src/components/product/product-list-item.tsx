@@ -43,6 +43,9 @@ export function ProductListItem(props: ProductListItemProps) {
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [actualPriceInput, setActualPriceInput] = useState("");
 
+  // Extract productId from userProduct
+  const productId = userProduct.productId;
+
   // Update product status mutation (for purchase tracking)
   const updateProductStatus = useMutation({
     mutationFn: async (newStatus: string) => {
