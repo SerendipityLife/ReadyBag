@@ -761,7 +761,7 @@ export function ProductCardStack() {
   
   return (
     <div className="w-full max-w-md mx-auto flex flex-col h-full">
-      <div className="card-stack relative h-[520px] w-full mx-auto mb-4">
+      <div className="card-stack relative h-[520px] w-full mx-auto">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -772,26 +772,26 @@ export function ProductCardStack() {
             isProcessing={processingProductIds.has(product.id)}
           />
         ))}
+      </div>
 
-        {/* 진행상황 표시 - 간단한 디자인 */}
-        {filteredProducts.length > 0 && (
-          <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2">
-            <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-gray-200/50">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-700 tabular-nums">
-                  {currentPosition}
-                </span>
-                <span className="text-sm text-gray-400">/</span>
-                <span className="text-sm font-medium text-gray-600 tabular-nums">
-                  {Math.max(originalTotalProducts, filteredProducts.length)}
-                </span>
-              </div>
+      {/* 진행상황 표시 - 카드와 버튼 사이에 배치 */}
+      {filteredProducts.length > 0 && (
+        <div className="flex justify-center my-3">
+          <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-gray-200/50">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-700 tabular-nums">
+                {currentPosition}
+              </span>
+              <span className="text-sm text-gray-400">/</span>
+              <span className="text-sm font-medium text-gray-600 tabular-nums">
+                {Math.max(originalTotalProducts, filteredProducts.length)}
+              </span>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
       
-      <div className="mt-auto">
+      <div className="mt-2">
         <ActionButtons onActionClick={handleActionClick} />
       </div>
       
