@@ -24,7 +24,7 @@ interface TravelGroup {
 }
 
 export function ShoppingHistory() {
-  const { selectedCountry } = useAppContext();
+  const { selectedCountry, removeTravelDateWithProducts } = useAppContext();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -40,23 +40,17 @@ export function ShoppingHistory() {
   // Mutation to delete entire travel folder
   const deleteTravelFolder = useMutation({
     mutationFn: async (group: TravelGroup) => {
-      if (isNonMember) {
-        // For non-members, remove all items in the group from local storage
-        const storageKey = `userProducts_${selectedCountry.id}`;
-        const existingData = JSON.parse(localStorage.getItem(storageKey) || '[]');
-        const itemIds = group.items.map(item => item.id);
-        const updatedData = existingData.filter((item: any) => !itemIds.includes(item.id));
-        localStorage.setItem(storageKey, JSON.stringify(updatedData));
-        window.dispatchEvent(new Event('localStorageChange'));
-        return { success: true };
-      } else {
-        // For logged-in users, delete all items in the group via API
-        const deletePromises = group.items.map(item => 
-          apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/${item.id}`)
-        );
-        await Promise.all(deletePromises);
-        return { success: true };
+      // Extract travel date ID from the first item in the group
+      const travelDateId = group.items[0]?.travelDateId;
+      
+      if (!travelDateId) {
+        throw new Error('Travel date ID not found');
       }
+      
+      // Use the context function to delete travel date with all its products
+      await removeTravelDateWithProducts(travelDateId);
+      
+      return { success: true };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ 

@@ -84,6 +84,7 @@ type AppContextType = {
   setSelectedTravelDateId: (id: string | null) => void;
   addTravelDate: (startDate: Date, endDate: Date) => string;
   removeTravelDate: (id: string) => void;
+  removeTravelDateWithProducts: (id: string) => Promise<void>;
   clearNonMemberData: () => void;
 };
 
@@ -292,8 +293,39 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     return id;
   };
 
-  const removeTravelDate = async (id: string) => {
-    console.log('Removing travel date:', id);
+  // Remove travel date only (for browse tab) - preserves shopping records
+  const removeTravelDateOnly = (id: string) => {
+    console.log('Removing travel date only (preserving shopping records):', id);
+    
+    // Remove the travel date itself
+    setSavedTravelDates(prev => {
+      const updated = prev.filter(date => date.id !== id);
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('savedTravelDates', JSON.stringify(updated));
+      }
+      return updated;
+    });
+    
+    if (selectedTravelDateId === id) {
+      setSelectedTravelDateId(null);
+      setTravelStartDate(null);
+      setTravelEndDate(null);
+      // Update localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('selectedTravelDateId');
+      }
+    }
+    
+    // Trigger localStorage change event to notify other components
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('localStorageChange'));
+    }
+  };
+
+  // Remove travel date and all associated products (for shopping records tab)
+  const removeTravelDateWithProducts = async (id: string) => {
+    console.log('Deleting travel date:', id);
     
     try {
       // Delete associated products first
@@ -359,6 +391,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       window.dispatchEvent(new Event('localStorageChange'));
     }
   };
+
+  // Legacy function for backward compatibility - now only removes travel date
+  const removeTravelDate = removeTravelDateOnly;
 
   // Derived state
   const isAllCategoriesSelected = selectedCategories.includes("ALL");
@@ -568,6 +603,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     setSelectedTravelDateId,
     addTravelDate,
     removeTravelDate,
+    removeTravelDateWithProducts,
     clearNonMemberData
   };
 
