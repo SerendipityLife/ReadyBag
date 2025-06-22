@@ -590,8 +590,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const storeTypes = [
         { id: 'donkihote', name: '돈키호테', nameJapanese: 'ドン・キホーテ' },
-        { id: 'convenience', name: '편의점', nameJapanese: 'コンビニ' },
-        { id: 'drugstore', name: '드럭스토어', nameJapanese: 'ドラッグストア' }
+        { id: 'convenience', name: '편의점', nameJapanese: 'コンビニ' }
       ];
       res.json(storeTypes);
     } catch (error) {

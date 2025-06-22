@@ -78,8 +78,6 @@ export function CategoryFilter({
         return <ShoppingCart className="w-4 h-4" />;
       case 'convenience':
         return <Store className="w-4 h-4" />;
-      case 'drugstore':
-        return <Package className="w-4 h-4" />;
       default:
         return <Store className="w-4 h-4" />;
     }
