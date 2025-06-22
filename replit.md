@@ -135,6 +135,10 @@ The application follows a modern full-stack architecture with clear separation o
 - ✅ Implemented accommodation address saving when marking items as "구입완료"
 - ✅ Enhanced shopping history to display accommodation information
 - ✅ Optimized browse tab layout to prioritize product interaction
+- ✅ Restructured travel date selector to prevent layout breaking
+- ✅ Moved "새 날짜 추가" button inside dropdown for cleaner interface
+- ✅ Created modal-based accommodation search to prevent layout disruption
+- ✅ Updated README.md with comprehensive current feature documentation
 
 **Technical Implementation**:
 - Server: Added `/api/user-products/batch` endpoint with individual delete operations
