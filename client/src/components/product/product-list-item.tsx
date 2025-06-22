@@ -178,6 +178,10 @@ export function ProductListItem(props: ProductListItemProps) {
             : item
         );
         localStorage.setItem(storageKey, JSON.stringify(updatedData));
+        
+        // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
+        window.dispatchEvent(new Event('localStorageChange'));
+        
         return { success: true };
       } else {
         // 회원은 API 호출
@@ -203,6 +207,11 @@ export function ProductListItem(props: ProductListItemProps) {
         description: "실제 구입 가격이 저장되었습니다.",
         duration: 2000,
       });
+      
+      // 즉시 UI 업데이트를 위해 onSuccessfulAction 호출
+      if (onSuccessfulAction) {
+        onSuccessfulAction();
+      }
     },
     onError: (error: Error) => {
       toast({
