@@ -6,9 +6,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ["Inter", "sans-serif"],
-        heading: ["DM Sans", "sans-serif"],
-        display: ["Poppins", "sans-serif"],
+        sans: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
+        body: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
+        heading: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
+        display: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

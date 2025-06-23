@@ -3,6 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  * {
+    font-family: 'Nunito Sans', 'Noto Sans KR', sans-serif;
+  }
+}
+
+@layer base {
   /* Prevent scrolling on mobile devices in browse view */
   html.no-scroll-mobile, 
   html.no-scroll-mobile body {
