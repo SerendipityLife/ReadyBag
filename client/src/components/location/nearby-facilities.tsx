@@ -43,7 +43,11 @@ export function NearbyFacilities() {
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleFacilitySearch = async () => {
+  const handleFacilitySearch = () => {
+    handleFacilitySearchWithOverrideTravelMode();
+  };
+
+  const handleFacilitySearchWithOverrideTravelMode = async (overrideMode?: 'walking' | 'driving' | 'transit') => {
     if (!accommodationLocation) {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
@@ -89,10 +93,16 @@ export function NearbyFacilities() {
         );
       }
 
+      const travelModeToUse = selectedFacilityType === "store"
+        ? overrideMode ?? selectedTravelMode
+        : "walking";
+
+      console.log('이동수단으로 거리 계산:', travelModeToUse);
+      
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         unique.map(p => ({ ...p, name: normalizeBrandName(p.name) })),
-        selectedFacilityType === "store" ? selectedTravelMode : "walking"
+        travelModeToUse
       );
 
       setNearbyPlaces(resultsWithDistance.sort((a, b) => {
@@ -142,7 +152,11 @@ export function NearbyFacilities() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-2">
-          <Select value={selectedFacilityType} onValueChange={setSelectedFacilityType}>
+          <Select value={selectedFacilityType} onValueChange={(v) => {
+            setSelectedFacilityType(v);
+            setSelectedSubType("all_brands"); // 시설 타입 변경 시 서브타입 초기화
+            setNearbyPlaces([]); // 기존 검색 결과 초기화
+          }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -155,7 +169,10 @@ export function NearbyFacilities() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedSubType} onValueChange={setSelectedSubType}>
+          <Select value={selectedSubType} onValueChange={(v) => {
+            setSelectedSubType(v);
+            setNearbyPlaces([]); // 기존 검색 결과 초기화
+          }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
@@ -171,7 +188,16 @@ export function NearbyFacilities() {
         </div>
 
         {selectedFacilityType === "store" && (
-          <Select value={selectedTravelMode} onValueChange={(v) => setSelectedTravelMode(v as any)}>
+          <Select value={selectedTravelMode} onValueChange={(v) => {
+            const newMode = v as 'walking' | 'driving' | 'transit';
+            setSelectedTravelMode(newMode);
+            // 이동수단 변경 시 기존 결과가 있다면 즉시 재검색하여 거리/시간 업데이트
+            setTimeout(() => {
+              if (nearbyPlaces.length > 0) {
+                handleFacilitySearchWithOverrideTravelMode(newMode);
+              }
+            }, 100);
+          }}>
             <SelectTrigger>
               <SelectValue />
             </SelectTrigger>
