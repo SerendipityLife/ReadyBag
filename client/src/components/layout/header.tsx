@@ -89,7 +89,7 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-[#A97F5F]/20">
       <div className="flex items-center justify-between h-12 px-2">
         {/* Logo & Country Selector */}
         <div className="flex items-center">
@@ -102,12 +102,19 @@ export function Header() {
               <ArrowLeft size={16} />
             </button>
           )}
-          <h1 
-            className="text-lg font-bold text-primary cursor-pointer"
-            onClick={() => navigate("/")}
-          >
-            <span>Ready</span><span className="font-bold">Bag</span>
-          </h1>
+          <div className="flex items-center gap-2">
+            <img 
+              src="/attached_assets/Redaybag_logo_1750680421375.png" 
+              alt="ReadyBag Logo" 
+              className="w-8 h-8 object-contain"
+            />
+            <h1 
+              className="text-lg font-bold text-[#A97F5F] cursor-pointer"
+              onClick={() => navigate("/")}
+            >
+              ReadyBag
+            </h1>
+          </div>
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (

@@ -39,59 +39,14 @@
     @apply md:overflow-auto overflow-hidden h-full;
   }
   
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 28%;
-    
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 28%;
-    
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 28%;
-    
-    --primary: 358 94% 68%;
-    --primary-foreground: 0 0% 100%;
-    
-    --secondary: 174 100% 33%;
-    --secondary-foreground: 0 0% 100%;
-    
-    --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 46%;
-    
-    --accent: 358 94% 60%;
-    --accent-foreground: 0 0% 100%;
-    
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 0% 82%;
-    
-    --chart-1: 358 94% 68%;
-    --chart-2: 174 100% 33%;
-    --chart-3: 60 100% 58%;
-    --chart-4: 0 0% 46%;
-    --chart-5: 213 94% 68%;
-    
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 28%;
-    --sidebar-primary: 358 94% 68%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 174 100% 33%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 82%;
-    
-    --radius: 0.5rem;
-  }
- 
   * {
     @apply border-border;
   }
   
   body {
-    @apply font-body antialiased bg-neutral-light text-neutral-dark overflow-x-hidden;
+    background-color: #F3E3C6 !important;
+    color: #A97F5F !important;
+    overflow-x: hidden;
   }
   
   /* Card swiping animations */
