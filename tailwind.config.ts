@@ -32,12 +32,8 @@ export default {
           foreground: "hsl(var(--popover-foreground))",
         },
         primary: {
-          DEFAULT: "#A97F5F",
-          foreground: "#F3E3C6",
-        },
-        brand: {
-          brown: "#A97F5F",
-          beige: "#F3E3C6"
+          DEFAULT: "hsl(var(--primary))",
+          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",

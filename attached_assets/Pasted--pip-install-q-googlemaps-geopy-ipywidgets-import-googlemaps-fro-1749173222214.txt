@@ -1,0 +1,127 @@
+# ✅ 필요한 패키지 설치
+!pip install -q googlemaps geopy ipywidgets
+
+# ✅ 라이브러리 임포트
+import googlemaps
+from geopy.geocoders import Nominatim
+from IPython.display import display, HTML
+import ipywidgets as widgets
+
+# ✅ Google Maps API 키 입력
+API_KEY = '여기에_당신의_API_KEY를_입력하세요'
+gmaps = googlemaps.Client(key=API_KEY)
+
+# ✅ 사용자 입력 위젯
+address_input = widgets.Text(
+    value='',
+    placeholder='예: Osaka Namba Station Hotel',
+    description='숙소 주소:',
+    layout=widgets.Layout(width='80%'),
+    style={'description_width': 'initial'}
+)
+
+keyword_dropdown = widgets.Dropdown(
+    options=["돈키호테", "세븐일레븐", "패밀리마트", "로손", "drugstore"],
+    value="돈키호테",
+    description='찾을 장소:',
+    layout=widgets.Layout(width='50%'),
+    style={'description_width': 'initial'}
+)
+
+search_button = widgets.Button(description='장소 검색')
+output = widgets.Output()
+
+# ✅ 검색 버튼 클릭 시 실행되는 함수
+def on_search_click(b):
+    with output:
+        output.clear_output()
+        address = address_input.value.strip()
+        keyword = keyword_dropdown.value.strip()
+
+        if not address:
+            print("❗ 숙소 주소를 입력해주세요.")
+            return
+
+        # 주소 → 위경도
+        geolocator = Nominatim(user_agent="geoapi")
+        location = geolocator.geocode(address)
+
+        if not location:
+            print("❗ 주소를 찾을 수 없습니다.")
+            return
+
+        lat, lng = location.latitude, location.longitude
+        origin = f"{lat},{lng}"
+
+        # 장소 검색
+        try:
+            places_result = gmaps.places_nearby(
+                location=(lat, lng),
+                radius=1000,
+                keyword=keyword
+            )
+        except Exception as e:
+            print(f"❗ API 오류: {e}")
+            return
+
+        # 장소 이름 필터링
+        keyword_lower = keyword.lower()
+        filtered_places = []
+
+        for place in places_result['results']:
+            name = place['name'].lower()
+            if keyword_lower == "돈키호테" and ("don quijote" in name or "돈키호테" in name):
+                filtered_places.append(place)
+            elif keyword_lower == "세븐일레븐" and ("7-eleven" in name or "セブンイレブン" in name):
+                filtered_places.append(place)
+            elif keyword_lower == "패밀리마트" and ("familymart" in name or "ファミリーマート" in name or "family mart" in name):
+                filtered_places.append(place)
+            elif keyword_lower == "로손" and ("lawson" in name or "ローソン" in name):
+                filtered_places.append(place)
+            elif keyword_lower == "drugstore" and ("drugstore" in name or "ドラッグストア" in name):
+                filtered_places.append(place)
+
+        if not filtered_places:
+            print(f"❗ 주변에 '{keyword}' 관련 장소가 없습니다.")
+            return
+
+        print(f"📍 숙소 주변 '{keyword}' 관련 장소:\n")
+
+        # 목적지 리스트 구성
+        destinations = [
+            f"{p['geometry']['location']['lat']},{p['geometry']['location']['lng']}"
+            for p in filtered_places
+        ]
+
+        try:
+            distance_results = gmaps.distance_matrix(
+                origins=[origin],
+                destinations=destinations,
+                mode="walking",
+                language="ko"
+            )
+        except Exception as e:
+            print(f"❗ 거리 계산 오류: {e}")
+            return
+
+        # 결과 출력
+        for i, (place, dist_info) in enumerate(zip(filtered_places, distance_results['rows'][0]['elements']), start=1):
+            name = place['name']
+            place_lat = place['geometry']['location']['lat']
+            place_lng = place['geometry']['location']['lng']
+            maps_url = f"https://www.google.com/maps/dir/{lat},{lng}/{place_lat},{place_lng}/"
+
+            distance_text = dist_info['distance']['text']
+            duration_text = dist_info['duration']['text']
+
+            display(HTML(f"""
+                <b>{i}. {name}</b><br>
+                🚶 거리: {distance_text}, 소요 시간: {duration_text}<br>
+                <a href="{maps_url}" target="_blank">🗺 경로 보기</a><br><br>
+            """))
+
+# ✅ 버튼 연결
+search_button.on_click(on_search_click)
+
+# ✅ UI 출력
+display(address_input, keyword_dropdown, search_button, output)

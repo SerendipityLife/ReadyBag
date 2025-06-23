@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -75,7 +75,9 @@ export function Header() {
     });
   };
 
-
+  const handleInfoClick = () => {
+    setCurrentView(View.INFO);
+  };
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -89,7 +91,7 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm border-b border-[#A97F5F]/20">
+    <header className="sticky top-0 z-50 bg-white shadow-sm">
       <div className="flex items-center justify-between h-12 px-2">
         {/* Logo & Country Selector */}
         <div className="flex items-center">
@@ -102,19 +104,12 @@ export function Header() {
               <ArrowLeft size={16} />
             </button>
           )}
-          <div className="flex items-center gap-2">
-            <img 
-              src="/attached_assets/Redaybag_logo_1750680421375.png" 
-              alt="ReadyBag Logo" 
-              className="w-8 h-8 object-contain"
-            />
-            <h1 
-              className="text-lg font-bold text-[#A97F5F] cursor-pointer"
-              onClick={() => navigate("/")}
-            >
-              ReadyBag
-            </h1>
-          </div>
+          <h1 
+            className="text-lg font-bold text-primary cursor-pointer"
+            onClick={() => navigate("/")}
+          >
+            <span>Ready</span><span className="font-bold">Bag</span>
+          </h1>
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
@@ -133,17 +128,28 @@ export function Header() {
                 onClick={() => setIsFilterModalOpen(true)}
                 title="필터"
               >
-                <SlidersHorizontal size={18} className="text-[#A97F5F]" />
+                <SlidersHorizontal size={18} className="text-gray-600" />
               </button>
               
-
+              <button 
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  currentView === View.INFO 
+                    ? "bg-primary/10 text-primary" 
+                    : "hover:bg-gray-100 text-gray-600"
+                )}
+                onClick={handleInfoClick}
+                title="정보"
+              >
+                <Info size={18} />
+              </button>
               
               <button 
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 onClick={handleShareClick}
                 title="공유하기"
               >
-                <Share2 size={18} className="text-[#A97F5F]" />
+                <Share2 size={18} className="text-gray-600" />
               </button>
               
               {user ? (

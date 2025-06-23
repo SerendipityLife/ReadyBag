@@ -51,7 +51,7 @@ export const API_ROUTES = {
   PRODUCT_REVIEWS: "/api/product-reviews",
   COUNTRIES: "/api/countries",
   USER_PRODUCTS: "/api/user-products",
-
+  SHARED_LIST: "/api/shared-list",
   CURRENCY: "/api/currency"
 };
 
@@ -102,6 +102,6 @@ export const STATUS_TO_SWIPE = {
 export enum View {
   EXPLORE = "explore",
   LISTS = "lists",
-
+  INFO = "info",
   HISTORY = "history"  // 쇼핑기록 뷰 추가
 }

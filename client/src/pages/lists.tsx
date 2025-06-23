@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
-
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -16,7 +15,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
-
+import { AdBanner } from "@/components/ads/ad-banner";
 import { NearbyFacilities } from "@/components/location/nearby-facilities";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 

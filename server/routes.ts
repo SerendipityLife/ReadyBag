@@ -8,12 +8,19 @@ import { getInstagramHashtags } from "./services/instagram";
 import { db } from "../db";
 import { userProducts, productReviews } from "../shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
-
+import { setupAuth } from "./auth";
 import cache from "./cache";
 
-
+// Extend Express Request type to have session properties
+declare module 'express-session' {
+  interface SessionData {
+    id: string;
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup authentication (Passport.js)
+  setupAuth(app);
   // API prefix
   const apiPrefix = "/api";
 
