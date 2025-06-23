@@ -61,7 +61,7 @@ export function CountrySelector() {
         <img
           src={selectedCountry.flagUrl}
           alt={`${selectedCountry.name} 국기`}
-          className="w-5 h-5 rounded-full object-cover"
+          className="w-5 h-5 rounded-sm object-cover"
         />
         <span className="text-xs md:text-sm font-medium">{selectedCountry.name}</span>
         <ChevronDown className="w-3 h-3 text-gray-500" />

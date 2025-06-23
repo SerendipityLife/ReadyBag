@@ -83,7 +83,7 @@ export function CategorySelector() {
           <img
             src={selectedCountry.flagUrl}
             alt={`${selectedCountry.name} 국기`}
-            className="w-5 h-5 rounded-full object-cover"
+            className="w-5 h-5 rounded-sm object-cover"
           />
           <span className="text-sm font-medium">{selectedCountry.name} 상품</span>
         </div>
