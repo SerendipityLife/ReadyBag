@@ -59,14 +59,13 @@ export function CountrySelector() {
         className="flex items-center space-x-1 p-1 rounded-full hover:bg-gray-50"
       >
         <img
-          src={selectedCountry.flagUrl}
+          src="https://flagcdn.com/w20/jp.png"
           alt={`${selectedCountry.name} 국기`}
           className="w-5 h-5 rounded-sm object-cover"
         />
         <span className="text-xs md:text-sm font-medium">{selectedCountry.name}</span>
         <ChevronDown className="w-3 h-3 text-gray-500" />
       </button>
-      
       {isOpen && (
         <div className="absolute left-0 mt-1 w-36 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-50">
           <div className="py-1 px-2">
