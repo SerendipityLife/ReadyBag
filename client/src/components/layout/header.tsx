@@ -129,18 +129,7 @@ export function Header() {
                 <SlidersHorizontal size={18} className="text-gray-600" />
               </button>
               
-              <button 
-                className={cn(
-                  "p-2 rounded-lg transition-colors",
-                  currentView === View.INFO 
-                    ? "bg-primary/10 text-primary" 
-                    : "hover:bg-gray-100 text-gray-600"
-                )}
-                onClick={handleInfoClick}
-                title="정보"
-              >
-                <Info size={18} />
-              </button>
+
               
               <button 
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"

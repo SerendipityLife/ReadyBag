@@ -77,8 +77,8 @@ export default function Home() {
       </main>
       
       <BottomNavigation />
-      <InfoPanel />
-      <ShareModal />
+
+
     </div>
   );
 }

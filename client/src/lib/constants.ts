@@ -102,6 +102,6 @@ export const STATUS_TO_SWIPE = {
 export enum View {
   EXPLORE = "explore",
   LISTS = "lists",
-  INFO = "info",
+
   HISTORY = "history"  // 쇼핑기록 뷰 추가
 }
