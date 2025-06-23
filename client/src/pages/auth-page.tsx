@@ -576,7 +576,7 @@ export default function AuthPage() {
           <div className="grid grid-cols-2 gap-6 mt-8">
             <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
               <h3 className="font-semibold text-sand-brown-700 mb-3">날짜별 관리</h3>
-              <p className="text-sm text-sand-brown-600 leading-relaxed">여행 날짜별로 상품을 분류하고<br/>체계적인 쇼핑 계획을 세우세요.</p>
+              <p className="text-sm text-sand-brown-600 leading-relaxed">여행 날짜별로 상품을 분류하고 체계적인 쇼핑 계획을 세우세요.</p>
             </div>
             <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
               <h3 className="font-semibold text-sand-brown-700 mb-3">실시간 환율</h3>
