@@ -4,8 +4,7 @@ import { Header } from "@/components/layout/header";
 import { BottomNavigation } from "@/components/layout/bottom-navigation";
 import { ProductCardStack } from "@/components/product/product-card-stack";
 import { Lists } from "@/pages/lists";
-import { InfoPanel } from "@/components/info-panel";
-import { ShareModal } from "@/components/share-modal";
+
 import { ShoppingHistoryPage } from "@/pages/shopping-history";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 import { AccommodationSearch } from "@/components/location/accommodation-search";

@@ -51,7 +51,7 @@ export const API_ROUTES = {
   PRODUCT_REVIEWS: "/api/product-reviews",
   COUNTRIES: "/api/countries",
   USER_PRODUCTS: "/api/user-products",
-  SHARED_LIST: "/api/shared-list",
+
   CURRENCY: "/api/currency"
 };
 

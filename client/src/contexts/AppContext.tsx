@@ -47,9 +47,7 @@ type AppContextType = {
   
   currentProductIndex: number;
   setCurrentProductIndex: (index: number) => void;
-  isShareModalOpen: boolean;
-  openShareModal: () => void;
-  closeShareModal: () => void;
+
   shareUrl: string | null;
   setShareUrl: (url: string | null) => void;
   generateShareUrl: (status?: ProductStatus) => void;
@@ -109,7 +107,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["ALL"]);
   
   const [currentProductIndex, setCurrentProductIndex] = useState<number>(0);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
   const [shareUrl, setShareUrl] = useState<string | null>(null);
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
@@ -483,8 +481,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   }, [exchangeRateData]);
 
   // Share modal functions
-  const openShareModal = () => setIsShareModalOpen(true);
-  const closeShareModal = () => setIsShareModalOpen(false);
+
 
   // Generate share URL
   const generateShareUrl = async (status?: ProductStatus) => {
@@ -501,7 +498,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
       
       const data = await response.json();
       setShareUrl(data.shareUrl);
-      openShareModal();
+
     } catch (error) {
       console.error('Error generating share URL:', error);
     }
@@ -566,9 +563,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     
     currentProductIndex,
     setCurrentProductIndex,
-    isShareModalOpen,
-    openShareModal,
-    closeShareModal,
+
     shareUrl,
     setShareUrl,
     generateShareUrl,

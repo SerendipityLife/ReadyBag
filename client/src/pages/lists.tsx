@@ -15,7 +15,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { apiRequest } from "@/lib/queryClient";
-import { AdBanner } from "@/components/ads/ad-banner";
+
 import { NearbyFacilities } from "@/components/location/nearby-facilities";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 
