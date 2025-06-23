@@ -97,7 +97,7 @@ export function NearbyFacilities() {
         ? overrideMode ?? selectedTravelMode
         : "walking";
 
-      console.log('이동수단으로 거리 계산:', travelModeToUse);
+      console.log('이동수단으로 거리 계산:', travelModeToUse, '장소 수:', unique.length);
       
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
@@ -105,11 +105,16 @@ export function NearbyFacilities() {
         travelModeToUse
       );
 
-      setNearbyPlaces(resultsWithDistance.sort((a, b) => {
+      console.log('거리 계산 완료, 결과 수:', resultsWithDistance.length);
+      
+      const sortedResults = resultsWithDistance.sort((a, b) => {
         const da = parseFloat(a.distance.replace(/[^\d.]/g, ""));
         const db = parseFloat(b.distance.replace(/[^\d.]/g, ""));
         return da - db;
-      }).slice(0, 3));
+      }).slice(0, 3);
+      
+      console.log('최종 결과:', sortedResults.map(r => `${r.name}: ${r.distance} (${r.duration})`));
+      setNearbyPlaces(sortedResults);
     } catch {
       setError("시설 검색 중 오류가 발생했습니다.");
     } finally {
@@ -191,12 +196,12 @@ export function NearbyFacilities() {
           <Select value={selectedTravelMode} onValueChange={(v) => {
             const newMode = v as 'walking' | 'driving' | 'transit';
             setSelectedTravelMode(newMode);
-            // 이동수단 변경 시 기존 결과가 있다면 즉시 재검색하여 거리/시간 업데이트
+            // 이동수단 변경 시 강제로 재검색 (기존 결과 초기화 후 새로 검색)
+            setNearbyPlaces([]);
+            setIsLoadingPlaces(true);
             setTimeout(() => {
-              if (nearbyPlaces.length > 0) {
-                handleFacilitySearchWithOverrideTravelMode(newMode);
-              }
-            }, 100);
+              handleFacilitySearchWithOverrideTravelMode(newMode);
+            }, 50);
           }}>
             <SelectTrigger>
               <SelectValue />
