@@ -188,11 +188,11 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12 bg-warm-beige">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-warm-beige p-4 rounded-xl mb-4 shadow-sm">
+            <div className="bg-warm-beige p-6 rounded-xl mb-4 shadow-sm">
               <img 
                 src="/logo-readybag.png" 
                 alt="ReadyBag" 
-                className="h-20 w-auto"
+                className="h-32 w-auto"
                 onError={(e) => {
                   console.error('Logo image failed to load');
                   e.currentTarget.style.display = 'none';
