@@ -183,21 +183,23 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row">
+    <div className="flex min-h-screen flex-col md:flex-row bg-warm-beige">
       {/* 로그인/회원가입 양식 섹션 */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
+      <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12 bg-warm-beige">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <img 
-              src="/logo-readybag.png" 
-              alt="ReadyBag" 
-              className="h-20 w-auto mb-2"
-              onError={(e) => {
-                console.error('Logo image failed to load');
-                e.currentTarget.style.display = 'none';
-              }}
-            />
-            <p className="text-sm text-gray-500">여행 쇼핑 계획을 더 쉽게</p>
+            <div className="bg-warm-beige p-4 rounded-xl mb-4 shadow-sm">
+              <img 
+                src="/logo-readybag.png" 
+                alt="ReadyBag" 
+                className="h-20 w-auto"
+                onError={(e) => {
+                  console.error('Logo image failed to load');
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+            </div>
+            <p className="text-sm text-sand-brown-700">여행 쇼핑 계획을 더 쉽게</p>
           </div>
 
           <Tabs 
@@ -206,9 +208,19 @@ export default function AuthPage() {
             onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}
             className="w-full"
           >
-            <TabsList className="grid w-full grid-cols-2 mb-8">
-              <TabsTrigger value="login">로그인</TabsTrigger>
-              <TabsTrigger value="register">회원가입</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/70 border border-sand-brown-200">
+              <TabsTrigger 
+                value="login"
+                className="data-[state=active]:bg-sand-brown-500 data-[state=active]:text-white text-sand-brown-700"
+              >
+                로그인
+              </TabsTrigger>
+              <TabsTrigger 
+                value="register"
+                className="data-[state=active]:bg-sand-brown-500 data-[state=active]:text-white text-sand-brown-700"
+              >
+                회원가입
+              </TabsTrigger>
             </TabsList>
 
             {/* 로그인 탭 */}
@@ -252,7 +264,7 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="********" 
-                              className="pl-10" 
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
                               autoComplete="current-password"
                               {...field} 
                             />
@@ -280,7 +292,7 @@ export default function AuthPage() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full mt-4" 
+                    className="w-full mt-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white" 
                     disabled={loginMutation.isPending || isLoading}
                   >
                     {loginMutation.isPending ? (
@@ -315,14 +327,14 @@ export default function AuthPage() {
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("register")}
-                    className="text-sm text-gray-500 hover:text-primary"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
                     계정이 없으신가요?
                   </Button>
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("forgot")}
-                    className="text-sm text-gray-500 hover:text-primary"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
                     비밀번호를 잊으셨나요?
                   </Button>
@@ -334,7 +346,7 @@ export default function AuthPage() {
             <TabsContent value="forgot">
               {isPasswordResetSent ? (
                 <div className="text-center py-8">
-                  <div className="bg-green-50 p-6 rounded-lg mb-6">
+                  <div className="bg-green-50 border border-green-200 p-6 rounded-lg mb-6">
                     <h3 className="text-lg font-medium text-green-800 mb-2">이메일 전송 완료</h3>
                     <p className="text-green-700">비밀번호 재설정 링크가 이메일로 전송되었습니다.</p>
                     <p className="text-green-700 mt-2">이메일을 확인하고 링크를 클릭하여 비밀번호를 재설정하세요.</p>
@@ -342,7 +354,7 @@ export default function AuthPage() {
                   <Button 
                     variant="outline" 
                     onClick={() => setActiveTab("login")}
-                    className="mt-4"
+                    className="mt-4 border-sand-brown-300 text-sand-brown-700 hover:bg-sand-brown-50"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     로그인으로 돌아가기
@@ -351,8 +363,8 @@ export default function AuthPage() {
               ) : (
                 <>
                   <div className="mb-6">
-                    <h3 className="text-lg font-semibold mb-2">비밀번호 재설정</h3>
-                    <p className="text-sm text-gray-500">
+                    <h3 className="text-lg font-semibold mb-2 text-sand-brown-800">비밀번호 재설정</h3>
+                    <p className="text-sm text-sand-brown-600">
                       가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.
                     </p>
                   </div>
@@ -373,7 +385,7 @@ export default function AuthPage() {
                                 <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                                 <Input 
                                   placeholder="가입한 이메일 주소" 
-                                  className="pl-10" 
+                                  className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
                                   {...field} 
                                 />
                               </div>
@@ -388,6 +400,7 @@ export default function AuthPage() {
                           type="button"
                           variant="outline"
                           onClick={() => setActiveTab("login")}
+                          className="border-sand-brown-300 text-sand-brown-700 hover:bg-sand-brown-50"
                         >
                           <ArrowLeft className="h-4 w-4 mr-2" />
                           돌아가기
@@ -396,6 +409,7 @@ export default function AuthPage() {
                         <Button 
                           type="submit" 
                           disabled={resetPasswordRequestMutation.isPending}
+                          className="bg-sand-brown-600 hover:bg-sand-brown-700 text-white"
                         >
                           {resetPasswordRequestMutation.isPending ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -449,7 +463,7 @@ export default function AuthPage() {
                             <UserCircle className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="닉네임" 
-                              className="pl-10" 
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
                               {...field} 
                             />
                           </div>
@@ -471,7 +485,7 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="최소 8자 이상" 
-                              className="pl-10"
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
                               autoComplete="new-password"
                               {...field} 
                             />
@@ -494,7 +508,7 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="비밀번호 확인" 
-                              className="pl-10"
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
                               autoComplete="new-password" 
                               {...field} 
                             />
@@ -507,7 +521,7 @@ export default function AuthPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full mt-6" 
+                    className="w-full mt-6 bg-sand-brown-600 hover:bg-sand-brown-700 text-white" 
                     disabled={registerMutation.isPending || isLoading}
                   >
                     {registerMutation.isPending ? (
@@ -542,7 +556,7 @@ export default function AuthPage() {
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("login")}
-                    className="text-sm text-gray-500 hover:text-primary"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
                     이미 계정이 있으신가요? 로그인하기
                   </Button>
@@ -554,27 +568,27 @@ export default function AuthPage() {
       </div>
 
       {/* 앱 소개 섹션 */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-primary-50 to-primary-100 flex flex-col justify-center items-center p-8 md:p-12 hidden md:flex">
+      <div className="w-full md:w-1/2 bg-gradient-to-br from-sand-brown-100 to-sand-brown-200 flex flex-col justify-center items-center p-8 md:p-12 hidden md:flex">
         <div className="max-w-lg text-center">
-          <h2 className="text-3xl font-bold text-primary mb-4">여행 쇼핑 계획을 스마트하게</h2>
-          <p className="text-gray-700 mb-8">ReadyBag과 함께 여행지에서 구매할 상품들을 미리 분류하고 관리하세요. 지금 바로 시작해보세요!</p>
+          <h2 className="text-3xl font-bold text-sand-brown-800 mb-4">여행 쇼핑 계획을 스마트하게</h2>
+          <p className="text-sand-brown-700 mb-8">ReadyBag과 함께 여행지에서 구매할 상품들을 미리 분류하고 관리하세요. 지금 바로 시작해보세요!</p>
           
           <div className="grid grid-cols-2 gap-6 mt-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-primary mb-2">쉬운 분류</h3>
-              <p className="text-sm text-gray-600">관심 상품을 쉽게 스와이프하여 분류하고 관리하세요.</p>
+            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">쉬운 분류</h3>
+              <p className="text-sm text-sand-brown-600">관심 상품을 쉽게 스와이프하여 분류하고 관리하세요.</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-primary mb-2">실시간 환율</h3>
-              <p className="text-sm text-gray-600">현지 통화와 한국 원화의 실시간 환율을 확인하세요.</p>
+            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">실시간 환율</h3>
+              <p className="text-sm text-sand-brown-600">현지 통화와 한국 원화의 실시간 환율을 확인하세요.</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-primary mb-2">목록 공유</h3>
-              <p className="text-sm text-gray-600">관심 목록을 친구나 가족과 쉽게 공유할 수 있습니다.</p>
+            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">목록 공유</h3>
+              <p className="text-sm text-sand-brown-600">관심 목록을 친구나 가족과 쉽게 공유할 수 있습니다.</p>
             </div>
-            <div className="bg-white p-6 rounded-lg shadow-sm">
-              <h3 className="font-semibold text-primary mb-2">개인화 경험</h3>
-              <p className="text-sm text-gray-600">회원 가입으로 나만의 쇼핑 목록을 어디서나 관리하세요.</p>
+            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">개인화 경험</h3>
+              <p className="text-sm text-sand-brown-600">회원 가입으로 나만의 쇼핑 목록을 어디서나 관리하세요.</p>
             </div>
           </div>
         </div>
