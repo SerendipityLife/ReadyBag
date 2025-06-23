@@ -120,16 +120,19 @@ class GoogleMapsService {
   async calculateDistances(
     origin: { lat: number; lng: number },
     destinations: PlaceResult[],
-    facilityType: string
+    travelMode: 'walking' | 'driving' | 'transit'
   ): Promise<PlaceResult[]> {
     if (!this.distanceService || destinations.length === 0) {
       return destinations;
     }
 
-    const travelMode =
-      facilityType === 'store'
-        ? google.maps.TravelMode.TRANSIT
-        : google.maps.TravelMode.WALKING;
+    const googleTravelMode = travelMode === 'walking' 
+      ? google.maps.TravelMode.WALKING
+      : travelMode === 'driving'
+      ? google.maps.TravelMode.DRIVING  
+      : google.maps.TravelMode.TRANSIT;
+
+    console.log('Google Maps API 이동수단:', travelMode, '→', googleTravelMode);
 
     return new Promise((resolve) => {
       const destinationLatLngs = destinations.map(dest =>
@@ -139,8 +142,10 @@ class GoogleMapsService {
       this.distanceService!.getDistanceMatrix({
         origins: [new google.maps.LatLng(origin.lat, origin.lng)],
         destinations: destinationLatLngs,
-        travelMode,
-        unitSystem: google.maps.UnitSystem.METRIC
+        travelMode: googleTravelMode,
+        unitSystem: google.maps.UnitSystem.METRIC,
+        avoidHighways: false,
+        avoidTolls: false
       }, (response, status) => {
         if (status === 'OK' && response?.rows[0]) {
           const elements = response.rows[0].elements;
