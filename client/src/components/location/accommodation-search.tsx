@@ -53,7 +53,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 bg-green-50 border-green-200 text-green-700 hover:bg-green-100"
+          className="h-8 px-3 bg-sand-brown-50 border-sand-brown-200 text-sand-brown-700 hover:bg-sand-brown-100"
         >
           <Check className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 설정됨</span>
@@ -112,9 +112,9 @@ export function AccommodationSearch() {
             </div>
 
             {accommodationLocation && (
-              <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
-                <p className="text-sm text-green-700 font-medium">현재 설정된 숙박지:</p>
-                <p className="text-sm text-green-600 mt-1 break-all">{accommodationLocation.address}</p>
+              <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
+                <p className="text-sm text-sand-brown-700 font-medium">현재 설정된 숙박지:</p>
+                <p className="text-sm text-sand-brown-600 mt-1 break-all">{accommodationLocation.address}</p>
               </div>
             )}
 
@@ -132,7 +132,7 @@ export function AccommodationSearch() {
                   onClick={handleLocationSearch}
                   disabled={isSearching}
                   size="sm"
-                  className="h-10 px-4"
+                  className="h-10 px-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white"
                 >
                   {isSearching ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
