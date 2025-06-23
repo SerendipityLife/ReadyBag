@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ProductListItem } from "@/components/product/product-list-item";
+import { ReviewButton } from "@/components/product/review-button";
 import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
@@ -457,6 +458,15 @@ export function ShoppingHistory() {
                         </span>
                       )}
                     </div>
+                    {/* Review button for purchased items only */}
+                    {userProduct.status === ProductStatus.PURCHASED && userProduct.product && (
+                      <ReviewButton 
+                        productId={userProduct.productId} 
+                        productName={userProduct.product.name}
+                        variant="button"
+                        size="sm"
+                      />
+                    )}
                   </div>
                   {userProduct.accommodationAddress && (
                     <div className="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">

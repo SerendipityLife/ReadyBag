@@ -440,12 +440,7 @@ export function ProductListItem(props: ProductListItemProps) {
               <XCircle className="h-3 w-3 mr-1" />
               미구입
             </Button>
-            <ReviewButton 
-              productId={productId} 
-              productName={productName}
-              variant="icon"
-              size="sm"
-            />
+
           </div>
         )}
 
