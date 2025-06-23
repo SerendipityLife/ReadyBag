@@ -188,7 +188,11 @@ export default function AuthPage() {
       <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <h1 className="text-2xl md:text-3xl font-bold text-primary mb-2">Ready<span className="font-extrabold">Bag</span></h1>
+            <img 
+              src="/logo-readybag.png" 
+              alt="ReadyBag" 
+              className="h-20 w-auto mb-2"
+            />
             <p className="text-sm text-gray-500">여행 쇼핑 계획을 더 쉽게</p>
           </div>
 
