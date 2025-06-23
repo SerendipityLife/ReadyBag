@@ -192,6 +192,10 @@ export default function AuthPage() {
               src="/logo-readybag.png" 
               alt="ReadyBag" 
               className="h-20 w-auto mb-2"
+              onError={(e) => {
+                console.error('Logo image failed to load');
+                e.currentTarget.style.display = 'none';
+              }}
             />
             <p className="text-sm text-gray-500">여행 쇼핑 계획을 더 쉽게</p>
           </div>
