@@ -3,6 +3,36 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: 36 45% 87%;
+    --foreground: 30 28% 35%;
+    --card: 0 0% 100%;
+    --card-foreground: 30 28% 35%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 30 28% 35%;
+    --primary: 30 28% 52%;
+    --primary-foreground: 36 45% 87%;
+    --secondary: 36 35% 75%;
+    --secondary-foreground: 30 28% 35%;
+    --muted: 36 35% 75%;
+    --muted-foreground: 30 20% 55%;
+    --accent: 36 35% 75%;
+    --accent-foreground: 30 28% 35%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 36 25% 80%;
+    --input: 36 25% 80%;
+    --ring: 30 28% 52%;
+    --radius: 0.5rem;
+  }
+
+  body {
+    background-color: #F3E3C6;
+    color: #A97F5F;
+  }
+}
+
+@layer base {
   /* Prevent scrolling on mobile devices in browse view */
   html.no-scroll-mobile, 
   html.no-scroll-mobile body {

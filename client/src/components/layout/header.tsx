@@ -126,7 +126,7 @@ export function Header() {
                 onClick={() => setIsFilterModalOpen(true)}
                 title="필터"
               >
-                <SlidersHorizontal size={18} className="text-brand-brown" />
+                <SlidersHorizontal size={18} className="text-[#A97F5F]" />
               </button>
               
 
@@ -136,7 +136,7 @@ export function Header() {
                 onClick={handleShareClick}
                 title="공유하기"
               >
-                <Share2 size={18} className="text-brand-brown" />
+                <Share2 size={18} className="text-[#A97F5F]" />
               </button>
               
               {user ? (
