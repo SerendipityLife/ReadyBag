@@ -24,7 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -75,9 +75,7 @@ export function Header() {
     });
   };
 
-  const handleInfoClick = () => {
-    setCurrentView(View.INFO);
-  };
+
 
   // Get user initials for avatar
   const getUserInitials = () => {
