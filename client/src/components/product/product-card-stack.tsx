@@ -78,15 +78,22 @@ export function ProductCardStack() {
       // URL 파라미터 구성
       const queryParams = new URLSearchParams();
       Object.entries(filterParams).forEach(([key, value]) => {
-        queryParams.append(key, value);
+        if (value) {
+          queryParams.append(key, value);
+        }
       });
       
-      // API 요청
-      const response = await fetch(`${API_ROUTES.PRODUCTS}?${queryParams.toString()}`);
+      const url = `${API_ROUTES.PRODUCTS}?${queryParams.toString()}`;
+      console.log('[ProductCardStack] API 요청 URL:', url);
+      
+      const response = await fetch(url);
       if (!response.ok) {
-        throw new Error('Failed to fetch products');
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      return response.json();
+      
+      const products = await response.json();
+      console.log('[ProductCardStack] 받은 상품 개수:', products.length);
+      return products;
     },
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
@@ -451,25 +458,21 @@ export function ProductCardStack() {
   
   // 필터링된 제품 목록이 변경되었거나 가시적인 제품이 없을 때 초기화
   const visibleProductsToShow = useMemo(() => {
-    // 강제 리셋 상태면 무조건 필터링된 상품 표시
-    if (forceReset && filteredProducts.length > 0) {
-      return filteredProducts.slice(0, 3);
+    console.log('[ProductCardStack] visibleProductsToShow 계산:');
+    console.log('- filteredProducts.length:', filteredProducts.length);
+    console.log('- visibleProducts.length:', visibleProducts.length);
+    console.log('- forceReset:', forceReset);
+    
+    // 필터링된 상품이 있으면 항상 표시
+    if (filteredProducts.length > 0) {
+      const productsToShow = filteredProducts.slice(0, 3);
+      console.log('- 표시할 상품들:', productsToShow.map(p => `${p.id}: ${p.name}`));
+      return productsToShow;
     }
     
-    // 필터링된 상품이 있고, 원래 상품 수와 다르면 새로운 상품으로 갱신
-    if (filteredProducts.length > 0 && 
-        filteredProducts.length !== originalTotalProducts) {
-      return filteredProducts.slice(0, 3);
-    }
-    
-    // 필터링된 상품은 있지만 보여줄 상품이 없으면 새로 설정
-    if (filteredProducts.length > 0 && visibleProducts.length === 0) {
-      return filteredProducts.slice(0, 3); 
-    }
-    
-    // 그 외에는 기존 상품 유지 (상태 변경 최소화)
-    return visibleProducts;
-  }, [filteredProducts, originalTotalProducts, forceReset, visibleProducts.length]);
+    console.log('- 표시할 상품 없음');
+    return [];
+  }, [filteredProducts, forceReset]);
   
   // visibleProductsToShow가 변경될 때만 업데이트
   useEffect(() => {
