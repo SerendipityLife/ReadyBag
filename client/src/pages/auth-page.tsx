@@ -573,22 +573,22 @@ export default function AuthPage() {
           <h2 className="text-3xl font-bold text-sand-brown-800 mb-4">스마트한 여행 쇼핑 플래너</h2>
           <p className="text-sand-brown-700 mb-8 leading-relaxed">ReadyBag과 함께 해외 여행에서 구매할 상품들을<br/>여행 날짜별로 분류하고 관리하세요.</p>
           
-          <div className="grid grid-cols-2 gap-6 mt-8">
-            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-3">날짜별 관리</h3>
-              <p className="text-sm text-sand-brown-600 leading-relaxed">여행 날짜별로 상품을 분류하고 체계적인 쇼핑 계획을 세우세요.</p>
+          <div className="space-y-4 mt-8">
+            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">날짜별 관리</h3>
+              <p className="text-sm text-sand-brown-600">여행 날짜별로 상품을 분류하고 체계적인 쇼핑 계획을 세우세요.</p>
             </div>
-            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-3">실시간 환율</h3>
-              <p className="text-sm text-sand-brown-600 leading-relaxed">현지 통화와 한국 원화의<br/>실시간 환율을 확인하세요.</p>
+            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">실시간 환율</h3>
+              <p className="text-sm text-sand-brown-600">현지 통화와 한국 원화의 실시간 환율을 확인하세요.</p>
             </div>
-            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-3">위치 기반 쇼핑</h3>
-              <p className="text-sm text-sand-brown-600 leading-relaxed">숙소 위치 기반으로<br/>주변 매장을 찾고 쇼핑하세요.</p>
+            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">위치 기반 쇼핑</h3>
+              <p className="text-sm text-sand-brown-600">숙소 위치 기반으로 주변 매장을 찾고 쇼핑하세요.</p>
             </div>
-            <div className="bg-white/90 p-6 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-3">상품 리뷰</h3>
-              <p className="text-sm text-sand-brown-600 leading-relaxed">구매 상품에 리뷰를 남기고<br/>다른 여행자 후기를 확인하세요.</p>
+            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
+              <h3 className="font-semibold text-sand-brown-700 mb-2">상품 리뷰</h3>
+              <p className="text-sm text-sand-brown-600">구매 상품에 리뷰를 남기고 다른 여행자 후기를 확인하세요.</p>
             </div>
           </div>
         </div>
