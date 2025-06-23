@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,6 +38,7 @@ export function NearbyFacilities() {
   const { accommodationLocation } = useAppContext();
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
   const [selectedSubType, setSelectedSubType] = useState("all_brands");
+  const [selectedTravelMode, setSelectedTravelMode] = useState<'walking' | 'driving' | 'transit'>('transit');
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,39 +57,43 @@ export function NearbyFacilities() {
       if (!facilityType) return;
 
       let keywords: string[] = [];
-      if (selectedSubType !== "all_brands") {
+      if (selectedFacilityType === "store") {
+        keywords = facilityType.keywords;
+      } else if (selectedSubType !== "all_brands") {
         const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
         if (sub) keywords = sub.keywords;
       } else {
-        keywords = facilityType.subTypes.length ? facilityType.subTypes.flatMap(st => st.keywords) : facilityType.keywords;
+        keywords = facilityType.subTypes.flatMap(st => st.keywords);
       }
 
-      const radius = selectedFacilityType === "store" ? 20000 : 300;
+      const radius = selectedFacilityType === "store" ? 10000 : 300;
 
       let allResults: PlaceResult[] = [];
       for (const keyword of keywords) {
-        const results = await googleMapsService.findNearbyPlaces({ ...origin }, selectedFacilityType, keyword);
+        const results = await googleMapsService.findNearbyPlacesWithRadius(origin, selectedFacilityType, keyword, radius);
         allResults = [...allResults, ...results];
       }
 
       const seen = new Set();
-      const unique = allResults.filter(p => {
+      let unique = allResults.filter(p => {
         const key = `${p.name}_${p.address}`;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
       });
 
-      let filtered = unique;
       if (selectedFacilityType === "store") {
         const donkiKeywords = ["don quijote", "ドン・キホーテ", "donki", "돈키호테"];
-        filtered = filtered.filter(p => donkiKeywords.some(k => p.name.toLowerCase().includes(k)));
+        unique = unique.filter(p =>
+          donkiKeywords.some(k => p.name.toLowerCase().includes(k))
+        );
       }
 
-      const resultsWithDistance = await googleMapsService.calculateDistances(origin, filtered.map(p => ({
-        ...p,
-        name: normalizeBrandName(p.name)
-      })));
+      const resultsWithDistance = await googleMapsService.calculateDistances(
+        origin,
+        unique.map(p => ({ ...p, name: normalizeBrandName(p.name) })),
+        selectedFacilityType === "store" ? selectedTravelMode : "walking"
+      );
 
       setNearbyPlaces(resultsWithDistance.sort((a, b) => {
         const da = parseFloat(a.distance.replace(/[^\d.]/g, ""));
@@ -107,11 +112,12 @@ export function NearbyFacilities() {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
     }
+    const travelMode = selectedFacilityType === 'store' ? selectedTravelMode : 'walking';
     googleMapsService.navigateFromAccommodation(accommodationLocation.address, {
       lat: place.lat,
       lng: place.lng,
       name: place.name
-    });
+    }, travelMode);
   };
 
   if (!accommodationLocation) {
@@ -163,6 +169,19 @@ export function NearbyFacilities() {
             </SelectContent>
           </Select>
         </div>
+
+        {selectedFacilityType === "store" && (
+          <Select value={selectedTravelMode} onValueChange={(v) => setSelectedTravelMode(v as any)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="walking">도보</SelectItem>
+              <SelectItem value="driving">자동차</SelectItem>
+              <SelectItem value="transit">대중교통</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
 
         <Button 
           onClick={handleFacilitySearch}

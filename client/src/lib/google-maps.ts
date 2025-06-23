@@ -24,17 +24,14 @@ class GoogleMapsService {
   private distanceService: google.maps.DistanceMatrixService | null = null;
 
   constructor() {
-    // Loader는 초기화 시에 생성하지 않고 필요할 때 생성
     this.loader = null as any;
   }
 
   private async getApiKey(): Promise<string> {
-    // 클라이언트 환경변수에서 먼저 확인
     if (import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
       return import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
     }
-    
-    // 서버에서 API 키 가져오기
+
     try {
       const response = await fetch('/api/config/google-maps');
       if (response.ok) {
@@ -42,10 +39,9 @@ class GoogleMapsService {
         return data.apiKey || '';
       }
     } catch (error) {
-      console.error('Failed to fetch Google Maps API key from server:', error);
+      console.error('API 키 로드 실패:', error);
     }
-    
-    console.error('Google Maps API key not found');
+
     return '';
   }
 
@@ -53,106 +49,44 @@ class GoogleMapsService {
     if (!this.loader) {
       const apiKey = await this.getApiKey();
       this.loader = new Loader({
-        apiKey: apiKey,
+        apiKey,
         version: 'weekly',
         libraries: ['places']
       });
     }
     await this.loader.load();
-    
-    // 지도 컨테이너 생성 (화면에 표시되지 않음)
+
     const mapDiv = document.createElement('div');
     mapDiv.style.display = 'none';
     document.body.appendChild(mapDiv);
-    
+
     this.map = new google.maps.Map(mapDiv, {
-      center: { lat: 35.6762, lng: 139.6503 }, // 도쿄 기본 위치
+      center: { lat: 35.6762, lng: 139.6503 },
       zoom: 15
     });
-    
+
     this.service = new google.maps.places.PlacesService(this.map);
     this.distanceService = new google.maps.DistanceMatrixService();
   }
 
-  async geocodeAddress(address: string): Promise<HotelLocation | null> {
-    if (!window.google) {
-      await this.initialize();
-    }
-
-    return new Promise((resolve) => {
-      const geocoder = new google.maps.Geocoder();
-      
-      // 일본 지역으로 제한하고 정확한 주소를 우선시
-      const geocodeRequest: google.maps.GeocoderRequest = {
-        address: address,
-        componentRestrictions: {
-          country: 'JP' // 일본으로 제한
-        },
-        region: 'jp' // 일본 지역 우선
-      };
-      
-      geocoder.geocode(geocodeRequest, (results, status) => {
-        if (status === 'OK' && results && results.length > 0) {
-          // 가장 구체적인 주소 결과를 찾기 위해 정렬
-          const sortedResults = results.sort((a, b) => {
-            // 더 많은 주소 구성요소를 가진 것을 우선시
-            const aComponents = a.address_components.length;
-            const bComponents = b.address_components.length;
-            
-            // premise, street_number, route가 있는 것을 우선시
-            const aHasSpecific = a.address_components.some(comp => 
-              comp.types.includes('premise') || 
-              comp.types.includes('street_number') ||
-              comp.types.includes('establishment')
-            );
-            const bHasSpecific = b.address_components.some(comp => 
-              comp.types.includes('premise') || 
-              comp.types.includes('street_number') ||
-              comp.types.includes('establishment')
-            );
-            
-            if (aHasSpecific && !bHasSpecific) return -1;
-            if (!aHasSpecific && bHasSpecific) return 1;
-            
-            return bComponents - aComponents;
-          });
-          
-          const bestResult = sortedResults[0];
-          const location = bestResult.geometry.location;
-          
-          resolve({
-            name: address,
-            address: address, // 사용자가 입력한 원본 주소를 보존
-            lat: location.lat(),
-            lng: location.lng()
-          });
-        } else {
-          resolve(null);
-        }
-      });
-    });
-  }
-
-  async findNearbyPlaces(
+  async findNearbyPlacesWithRadius(
     location: { lat: number; lng: number },
     type: string,
-    keyword: string
+    keyword: string,
+    radius: number
   ): Promise<PlaceResult[]> {
-    if (!this.service) {
-      await this.initialize();
-    }
+    if (!this.service) await this.initialize();
 
     return new Promise((resolve) => {
       const request: google.maps.places.PlaceSearchRequest = {
         location: new google.maps.LatLng(location.lat, location.lng),
-        radius: 300, // 300m 반경
-        keyword: keyword,
+        radius,
+        keyword,
         type: type as any
       };
 
       this.service!.nearbySearch(request, (results, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-          // 결과를 거리순으로 정렬하기 위해 좌표 계산
           const sortedResults = results
             .filter(place => place.geometry?.location)
             .map(place => {
@@ -164,7 +98,7 @@ class GoogleMapsService {
               return { place, distance };
             })
             .sort((a, b) => a.distance - b.distance)
-            .slice(0, 5) // TOP 5만 선택
+            .slice(0, 5)
             .map(({ place }) => ({
               name: place.name || '이름 없음',
               address: place.vicinity || place.formatted_address || '주소 정보 없음',
@@ -183,132 +117,62 @@ class GoogleMapsService {
     });
   }
 
-  async findAllConvenienceStores(location: { lat: number; lng: number }): Promise<PlaceResult[]> {
-    if (!this.service) {
-      await this.initialize();
-    }
-
-    // 다중 검색 전략으로 도톤보리 편의점까지 포함
-    return new Promise(async (resolve) => {
-      const allResults: any[] = [];
-      const seenPlaceIds = new Set();
-      
-      // 검색 함수
-      const performSearch = (request: google.maps.places.PlaceSearchRequest): Promise<any[]> => {
-        return new Promise((searchResolve) => {
-          this.service!.nearbySearch(request, (results, status) => {
-            if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-              searchResolve(results);
-            } else {
-              searchResolve([]);
-            }
-          });
-        });
-      };
-
-      try {
-        // 기본 편의점 검색 (300m 반경)
-        const basicResults = await performSearch({
-          location: new google.maps.LatLng(location.lat, location.lng),
-          radius: 300,
-          type: 'convenience_store' as any
-        });
-
-        // 모든 결과 통합 및 중복 제거
-        [...basicResults]
-          .forEach(place => {
-            if (place.place_id && place.geometry?.location && place.name && !seenPlaceIds.has(place.place_id)) {
-              seenPlaceIds.add(place.place_id);
-              allResults.push({
-                name: place.name,
-                address: place.vicinity || place.formatted_address || '주소 정보 없음',
-                distance: '',
-                duration: '',
-                lat: place.geometry.location.lat(),
-                lng: place.geometry.location.lng(),
-                placeId: place.place_id
-              });
-            }
-          });
-
-        console.log('다중 검색으로 발견된 편의점:', allResults.length, '개');
-        console.log('편의점 목록:', allResults.map(p => ({ name: p.name, address: p.address })));
-        
-        resolve(allResults);
-      } catch (error) {
-        console.error('편의점 검색 오류:', error);
-        resolve([]);
-      }
-    });
-  }
-
   async calculateDistances(
     origin: { lat: number; lng: number },
-    destinations: PlaceResult[]
+    destinations: PlaceResult[],
+    facilityType: string
   ): Promise<PlaceResult[]> {
     if (!this.distanceService || destinations.length === 0) {
       return destinations;
     }
 
+    const travelMode =
+      facilityType === 'store'
+        ? google.maps.TravelMode.TRANSIT
+        : google.maps.TravelMode.WALKING;
+
     return new Promise((resolve) => {
-      const destinationLatLngs = destinations.map(dest => 
+      const destinationLatLngs = destinations.map(dest =>
         new google.maps.LatLng(dest.lat, dest.lng)
       );
 
       this.distanceService!.getDistanceMatrix({
         origins: [new google.maps.LatLng(origin.lat, origin.lng)],
         destinations: destinationLatLngs,
-        travelMode: google.maps.TravelMode.WALKING,
-        unitSystem: google.maps.UnitSystem.METRIC,
-        avoidHighways: false,
-        avoidTolls: false
+        travelMode,
+        unitSystem: google.maps.UnitSystem.METRIC
       }, (response, status) => {
-        console.log('Distance Matrix API 응답:', { status, response });
-        
-        if (status === 'OK' && response && response.rows[0]) {
+        if (status === 'OK' && response?.rows[0]) {
           const elements = response.rows[0].elements;
-          console.log('Distance Matrix API 엘리먼트:', elements);
-          
-          const updatedDestinations = destinations.map((dest, index) => {
-            const element = elements[index];
-            console.log(`목적지 ${index} (${dest.name}):`, element);
-            
-            if (element && element.status === 'OK') {
-              return {
-                ...dest,
-                distance: element.distance?.text || '거리 정보 없음',
-                duration: element.duration?.text || '시간 정보 없음'
-              };
-            }
+          const updated = destinations.map((dest, i) => {
+            const el = elements[i];
             return {
               ...dest,
-              distance: '계산 실패',
-              duration: '계산 실패'
+              distance: el?.distance?.text || '정보 없음',
+              duration: el?.duration?.text || '정보 없음'
             };
           });
-          resolve(updatedDestinations);
+          resolve(updated);
         } else {
-          console.error('Distance Matrix API 오류:', status, response);
-          // API 실패 시 기본 거리/시간으로 대체
-          const fallbackDestinations = destinations.map(dest => ({
+          const fallback = destinations.map(dest => ({
             ...dest,
             distance: '정보 없음',
             duration: '정보 없음'
           }));
-          resolve(fallbackDestinations);
+          resolve(fallback);
         }
       });
     });
   }
 
   calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
-    const R = 6371; // 지구의 반지름 (km)
+    const R = 6371;
     const dLat = this.deg2rad(lat2 - lat1);
     const dLng = this.deg2rad(lng2 - lng1);
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const a =
+      Math.sin(dLat/2) ** 2 +
+      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+      Math.sin(dLng/2) ** 2;
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }
@@ -317,38 +181,59 @@ class GoogleMapsService {
     return deg * (Math.PI/180);
   }
 
-  generateMapsUrl(origin: { lat: number; lng: number }, destination: { lat: number; lng: number }): string {
-    // 더 명확한 출발지와 목적지 설정을 위해 파라미터 추가
-    const originParam = `${origin.lat},${origin.lng}`;
-    const destinationParam = `${destination.lat},${destination.lng}`;
-    
-    // Google Maps 길찾기 URL with explicit direction mode (walking)
-    return `https://www.google.com/maps/dir/?api=1&origin=${originParam}&destination=${destinationParam}&travelmode=walking`;
+  async geocodeAddress(address: string): Promise<HotelLocation | null> {
+    try {
+      const apiKey = await this.getApiKey();
+      if (!apiKey) {
+        console.error('Google Maps API 키가 없습니다.');
+        return null;
+      }
+
+      const encodedAddress = encodeURIComponent(address);
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
+      );
+      
+      if (!response.ok) {
+        console.error('Geocoding API 요청 실패:', response.status);
+        return null;
+      }
+
+      const data = await response.json();
+      
+      if (data.status !== 'OK' || !data.results?.length) {
+        console.error('Geocoding 결과 없음:', data.status, data.error_message);
+        return null;
+      }
+
+      const result = data.results[0];
+      const location = result.geometry.location;
+      
+      return {
+        name: result.formatted_address,
+        address: address,
+        lat: location.lat,
+        lng: location.lng
+      };
+    } catch (error) {
+      console.error('Geocoding 오류:', error);
+      return null;
+    }
   }
 
-  generateMapsUrlWithAddress(originAddress: string, destination: { lat: number; lng: number; name: string }): string {
-    // 출발지는 주소 텍스트로, 목적지는 좌표와 이름으로 설정
-    const encodedOrigin = encodeURIComponent(originAddress);
-    const encodedDestinationName = encodeURIComponent(destination.name);
-    const destinationParam = `${destination.lat},${destination.lng}`;
+  navigateFromAccommodation(
+    address: string,
+    destination: { lat: number; lng: number; name: string },
+    travelMode: 'walking' | 'driving' | 'transit' = 'walking'
+  ): void {
+    const origin = encodeURIComponent(address.trim());
+    const dest = `${destination.lat},${destination.lng}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${travelMode}`;
     
-    // Google Maps 길찾기 URL - 출발지를 주소로 명시하고 목적지에 이름도 포함
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${encodedDestinationName}/@${destinationParam}&travelmode=walking`;
-  }
-
-  // 범용 길찾기 함수 - 사용자 입력 주소를 정확히 전달
-  navigateFromAccommodation(accommodationAddress: string, destination: { lat: number; lng: number; name: string }): void {
-    const formattedAddress = accommodationAddress.trim();
-    const encodedOrigin = encodeURIComponent(formattedAddress);
-    const destinationParam = `${destination.lat},${destination.lng}`;
-    
-    // 사용자 입력 주소를 Google Maps에 전달하는 URL
-    const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${encodedOrigin}&destination=${destinationParam}&travelmode=walking`;
-    
-    console.log('길찾기: 출발지 -', formattedAddress);
+    console.log('길찾기: 출발지 -', address);
     console.log('길찾기: 목적지 -', destination.name);
     
-    window.open(mapsUrl, '_blank');
+    window.open(url, '_blank');
   }
 }
 

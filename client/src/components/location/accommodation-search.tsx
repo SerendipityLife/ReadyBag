@@ -38,8 +38,9 @@ export function AccommodationSearch() {
       } else {
         setError("주소를 찾을 수 없습니다.");
       }
-    } catch {
-      setError("주소 검색 중 오류가 발생했습니다.");
+    } catch (error) {
+      console.error('주소 검색 오류:', error);
+      setError("주소 검색 중 오류가 발생했습니다. 정확한 주소를 영문으로 입력해주세요.");
     } finally {
       setIsSearching(false);
     }
