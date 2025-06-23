@@ -620,8 +620,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const purposeCategories = [
         { id: 'food', name: '먹을거', nameJapanese: '食べ物' },
         { id: 'drink', name: '마실거', nameJapanese: '飲み物' },
-        { id: 'cosmetic', name: '바를거', nameJapanese: 'コスメ' },
-        { id: 'clothing', name: '입을거', nameJapanese: '衣類' },
+        { id: 'beauty', name: '바를거', nameJapanese: 'コスメ' },
+        { id: 'health', name: '건강용품', nameJapanese: 'ヘルス' },
         { id: 'etc', name: '기타', nameJapanese: 'その他' }
       ];
       res.json(purposeCategories);

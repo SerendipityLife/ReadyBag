@@ -480,7 +480,12 @@ export function ProductCardStack() {
     const currentIds = visibleProducts.map(p => p.id).sort().join(',');
     const newIds = visibleProductsToShow.map(p => p.id).sort().join(',');
     
+    console.log('[ProductCardStack] 상품 목록 업데이트 체크:');
+    console.log('- currentIds:', currentIds);
+    console.log('- newIds:', newIds);
+    
     if (currentIds !== newIds) {
+      console.log('[ProductCardStack] 상품 목록 업데이트 실행');
       setVisibleProducts(visibleProductsToShow);
     }
   }, [visibleProductsToShow]);
