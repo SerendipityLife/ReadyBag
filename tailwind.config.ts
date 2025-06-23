@@ -71,6 +71,19 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // Custom Sand Brown theme colors
+        "sand-brown": {
+          50: "#F9F4F0",
+          100: "#F3E3C6", // Warm Beige
+          200: "#E8C89A",
+          300: "#DCAD6E",
+          400: "#D1924B",
+          500: "#A97F5F", // Sand Brown
+          600: "#8B6548",
+          700: "#6D4B35",
+          800: "#4F3125",
+          900: "#321A14",
+        },
       },
       keyframes: {
         "accordion-down": {
