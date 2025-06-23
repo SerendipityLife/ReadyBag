@@ -3,8 +3,8 @@ import { useSpring, animated } from "@react-spring/web";
 import { useAppContext } from "@/contexts/AppContext";
 import { Card } from "@/components/ui/card";
 import { SwipeDirection } from "@/lib/constants";
-import { Loader2, Heart, X, HelpCircle } from "lucide-react";
-import { ProductReviewsDisplay } from "./product-reviews-display";
+import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
+import { ReviewButton } from "./review-button";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 
@@ -246,27 +246,31 @@ export function ProductCard({
               </p>
             </div>
 
-            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
               {product.description}
             </p>
-
-            {/* Reviews display */}
-            <ProductReviewsDisplay 
-              productId={product.id} 
-              productName={product.name}
-            />
           </div>
 
-          {/* 가격 정보 */}
-          <div className="flex items-baseline space-x-2 mt-auto">
-            <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
-              ¥{product.price.toLocaleString()}
-            </span>
-            {exchangeRate && (
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                ≈ ₩{priceInKRW.toLocaleString()}
+          {/* 가격 정보와 리뷰 버튼 */}
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-baseline space-x-2">
+              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                ¥{product.price.toLocaleString()}
               </span>
-            )}
+              {exchangeRate && (
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  ≈ ₩{priceInKRW.toLocaleString()}
+                </span>
+              )}
+            </div>
+            {/* Review button - read-only mode */}
+            <ReviewButton 
+              productId={product.id} 
+              productName={product.name}
+              variant="icon"
+              size="sm"
+              readOnly={true}
+            />
           </div>
         </div>
 

@@ -17,9 +17,10 @@ import type { ProductReview } from "@shared/schema";
 interface ProductReviewsProps {
   productId: number;
   productName: string;
+  readOnly?: boolean;
 }
 
-export function ProductReviews({ productId, productName }: ProductReviewsProps) {
+export function ProductReviews({ productId, productName, readOnly = false }: ProductReviewsProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -196,7 +197,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
           <span className="font-medium">리뷰 ({reviews.length})</span>
         </div>
         
-        {!userReview && (
+        {!readOnly && !userReview && (
           <Dialog open={isWritingReview} onOpenChange={setIsWritingReview}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
@@ -298,8 +299,8 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                     </p>
                   </div>
                   
-                  {/* Edit/Delete buttons for user's own review */}
-                  {((user && review.userId === user.id) || 
+                  {/* Edit/Delete buttons for user's own review (only if not read-only) */}
+                  {!readOnly && ((user && review.userId === user.id) || 
                     (!user && review.sessionId === localStorage.getItem('sessionId'))) && (
                     <div className="flex gap-1">
                       <Button

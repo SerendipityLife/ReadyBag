@@ -9,9 +9,10 @@ interface ReviewButtonProps {
   productName: string;
   variant?: "button" | "icon";
   size?: "sm" | "default";
+  readOnly?: boolean;
 }
 
-export function ReviewButton({ productId, productName, variant = "button", size = "sm" }: ReviewButtonProps) {
+export function ReviewButton({ productId, productName, variant = "button", size = "sm", readOnly = false }: ReviewButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -36,7 +37,7 @@ export function ReviewButton({ productId, productName, variant = "button", size 
           </DialogTitle>
         </DialogHeader>
         <div className="mt-4">
-          <ProductReviews productId={productId} productName={productName} />
+          <ProductReviews productId={productId} productName={productName} readOnly={readOnly} />
         </div>
       </DialogContent>
     </Dialog>
