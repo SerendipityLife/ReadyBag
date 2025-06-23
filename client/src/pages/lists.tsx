@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
