@@ -404,7 +404,7 @@ export function ShoppingHistory() {
           <DialogHeader className="pb-3 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 -mx-6 -mt-6 px-6 pt-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="p-1.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
+                <div className="p-1.5 bg-gradient-to-br from-sand-brown-500 to-sand-brown-600 rounded-lg shadow-md">
                   <CalendarDays className="h-4 w-4 text-white" />
                 </div>
                 <div>
@@ -417,8 +417,8 @@ export function ShoppingHistory() {
                 </div>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="inline-flex items-center px-2.5 py-1 bg-white text-blue-700 text-xs font-medium rounded-full shadow-sm border border-blue-100">
-                  <span className="w-1 h-1 bg-blue-500 rounded-full mr-1.5"></span>
+                <div className="inline-flex items-center px-2.5 py-1 bg-white text-sand-brown-700 text-xs font-medium rounded-full shadow-sm border border-sand-brown-100">
+                  <span className="w-1 h-1 bg-sand-brown-500 rounded-full mr-1.5"></span>
                   {selectedGroup?.items.length}개 상품
                 </div>
                 <div className="bg-gradient-to-r from-green-500 to-emerald-600 px-3 py-1.5 rounded-lg shadow-md text-white">
@@ -469,14 +469,14 @@ export function ShoppingHistory() {
                     )}
                   </div>
                   {userProduct.accommodationAddress && (
-                    <div className="mt-2 p-2 bg-blue-50 border border-blue-100 rounded-lg">
+                    <div className="mt-2 p-2 bg-sand-brown-50 border border-sand-brown-100 rounded-lg">
                       <div className="flex items-start space-x-2">
                         <div className="flex-shrink-0 mt-0.5">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                          <div className="w-2 h-2 bg-sand-brown-500 rounded-full"></div>
                         </div>
                         <div>
-                          <span className="text-xs font-medium text-blue-800">숙박지</span>
-                          <p className="text-xs text-blue-700 mt-0.5 leading-relaxed">
+                          <span className="text-xs font-medium text-sand-brown-800">숙박지</span>
+                          <p className="text-xs text-sand-brown-700 mt-0.5 leading-relaxed">
                             {userProduct.accommodationAddress}
                           </p>
                         </div>
