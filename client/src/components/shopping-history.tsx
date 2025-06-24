@@ -7,7 +7,7 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon } from "lucide-react";
+import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -43,6 +43,7 @@ export function ShoppingHistory() {
   const [groupToEdit, setGroupToEdit] = useState<TravelGroup | null>(null);
   const [isEditTitleOpen, setIsEditTitleOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
+  const [showAccommodationAddress, setShowAccommodationAddress] = useState(false);
 
   // Helper function to calculate total amounts for a group
   const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
@@ -337,6 +338,7 @@ export function ShoppingHistory() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedGroup(null);
+    setShowAccommodationAddress(false);
   };
 
   return (
@@ -412,6 +414,17 @@ export function ShoppingHistory() {
                 </p>
               </div>
               <div className="flex items-center space-x-3">
+                {/* 숙박지 아이콘 */}
+                {selectedGroup?.items.some(item => item.accommodationAddress) && (
+                  <button
+                    onClick={() => setShowAccommodationAddress(!showAccommodationAddress)}
+                    className="p-2 bg-white text-sand-brown-600 rounded-lg shadow-sm border border-sand-brown-100 hover:bg-sand-brown-50 transition-colors"
+                    title="숙박지 주소 보기"
+                  >
+                    <MapPin className="h-4 w-4" />
+                  </button>
+                )}
+                
                 <div className="inline-flex items-center px-3 py-1.5 bg-white text-sand-brown-700 text-sm font-medium rounded-lg shadow-sm border border-sand-brown-100">
                   <span className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mr-2"></span>
                   {selectedGroup?.items.length}개 상품
@@ -427,19 +440,35 @@ export function ShoppingHistory() {
               </div>
             </div>
             
-            {/* 숙박지 주소 표시 - 컴팩트한 버전 */}
-            {selectedGroup?.items.some(item => item.accommodationAddress) && (
-              <div className="mt-2 px-3 py-2 bg-sand-brown-50 border border-sand-brown-100 rounded-md">
-                <div className="flex items-center space-x-2">
-                  <div className="flex-shrink-0">
-                    <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full"></div>
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <span className="text-xs font-medium text-sand-brown-800 mr-2">숙박지</span>
-                    <span className="text-xs text-sand-brown-700 break-words">
+            {/* 숙박지 주소 표시 - 토글 가능 */}
+            {showAccommodationAddress && selectedGroup?.items.some(item => item.accommodationAddress) && (
+              <div className="mt-3 px-4 py-3 bg-sand-brown-50 border border-sand-brown-200 rounded-lg">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin className="h-4 w-4 text-sand-brown-600" />
+                      <span className="text-sm font-medium text-sand-brown-800">숙박지 주소</span>
+                    </div>
+                    <p className="text-sm text-sand-brown-700 leading-relaxed">
                       {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
-                    </span>
+                    </p>
                   </div>
+                  <button
+                    onClick={() => {
+                      const address = selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress;
+                      if (address) {
+                        navigator.clipboard.writeText(address);
+                        toast({
+                          title: "주소가 복사되었습니다",
+                          description: "클립보드에 숙박지 주소가 저장되었습니다.",
+                        });
+                      }
+                    }}
+                    className="p-2 text-sand-brown-600 hover:bg-sand-brown-100 rounded-md transition-colors"
+                    title="주소 복사"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
                 </div>
               </div>
             )}
