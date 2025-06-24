@@ -26,38 +26,34 @@ def clear_all_tables(conn):
     try:
         print("기존 데이터 삭제 중...")
         
-        # 외래 키 제약 조건 임시 비활성화
-        cursor.execute("SET session_replication_role = replica;")
-        
-        # 테이블 데이터 삭제
+        # 의존성 순서에 따라 테이블 데이터 삭제
         tables_to_clear = [
             'product_reviews', 'user_products', 'travel_dates', 
             'products', 'purpose_categories', 'store_types', 'countries'
         ]
         
         for table in tables_to_clear:
-            cursor.execute(f"DELETE FROM {table};")
-            print(f"  {table} 테이블 클리어됨")
+            try:
+                cursor.execute(f"DELETE FROM {table};")
+                print(f"  {table} 테이블 클리어됨")
+            except Exception as e:
+                print(f"  {table} 테이블 삭제 중 오류: {e}")
         
-        # 시퀀스 리셋
+        # 시퀀스 리셋 (권한이 있는 경우에만)
         sequences = [
-            'products_id_seq', 'countries_id_seq', 'store_types_id_seq', 
-            'purpose_categories_id_seq', 'user_products_id_seq', 
-            'travel_dates_id_seq', 'product_reviews_id_seq'
+            'products_id_seq', 'purpose_categories_id_seq', 
+            'store_types_id_seq', 'product_reviews_id_seq'
         ]
         
         for seq in sequences:
             try:
                 cursor.execute(f"ALTER SEQUENCE {seq} RESTART WITH 1;")
                 print(f"  {seq} 시퀀스 리셋됨")
-            except:
-                pass  # 시퀀스가 없으면 무시
-        
-        # 외래 키 제약 조건 재활성화
-        cursor.execute("SET session_replication_role = DEFAULT;")
+            except Exception as e:
+                print(f"  {seq} 시퀀스 리셋 실패: {e}")
         
         conn.commit()
-        print("모든 데이터가 삭제되었습니다.")
+        print("데이터 삭제 완료")
         
     except Exception as e:
         conn.rollback()
