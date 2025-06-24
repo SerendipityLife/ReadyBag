@@ -29,6 +29,61 @@ interface TravelGroup {
   customTitle?: string;
 }
 
+// 숙박지 주소 표시 컴포넌트
+function AccommodationAddressDisplay({ address }: { address: string }) {
+  const [isVisible, setIsVisible] = useState(false);
+  const { toast } = useToast();
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({
+        title: "주소가 복사되었습니다",
+        description: "클립보드에 저장되었습니다.",
+      });
+    } catch (err) {
+      toast({
+        variant: "destructive",
+        title: "복사 실패",
+        description: "주소 복사에 실패했습니다.",
+      });
+    }
+  };
+
+  return (
+    <div className="mt-2">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsVisible(!isVisible)}
+          className="text-sand-brown-700 hover:text-sand-brown-800 hover:bg-sand-brown-50 p-1 h-auto"
+        >
+          <MapPin className="h-3 w-3 mr-1" />
+          <span className="text-xs">숙박지</span>
+        </Button>
+        
+        {isVisible && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => copyToClipboard(address)}
+            className="text-sand-brown-600 hover:text-sand-brown-700 hover:bg-sand-brown-50 p-1 h-auto"
+          >
+            <Copy className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+      
+      {isVisible && (
+        <div className="mt-1 px-2 py-1.5 bg-sand-brown-50 border border-sand-brown-100 rounded text-xs text-sand-brown-700 break-words">
+          {address}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ShoppingHistory() {
   const { selectedCountry, removeTravelDateWithProducts } = useAppContext();
   const { user } = useAuth();
