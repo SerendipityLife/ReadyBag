@@ -432,18 +432,18 @@ export function ShoppingHistory() {
               </div>
             </div>
             
-            {/* 숙박지 주소 표시 - 최상단에 한 번만 */}
+            {/* 숙박지 주소 표시 - 컴팩트한 버전 */}
             {selectedGroup?.items.some(item => item.accommodationAddress) && (
-              <div className="mt-3 p-3 bg-sand-brown-50 border border-sand-brown-100 rounded-lg">
-                <div className="flex items-start space-x-2">
-                  <div className="flex-shrink-0 mt-0.5">
-                    <div className="w-2 h-2 bg-sand-brown-500 rounded-full"></div>
+              <div className="mt-2 px-3 py-2 bg-sand-brown-50 border border-sand-brown-100 rounded-md">
+                <div className="flex items-center space-x-2">
+                  <div className="flex-shrink-0">
+                    <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full"></div>
                   </div>
-                  <div>
-                    <span className="text-sm font-medium text-sand-brown-800">숙박지</span>
-                    <p className="text-sm text-sand-brown-700 mt-0.5 leading-relaxed">
+                  <div className="min-w-0 flex-1">
+                    <span className="text-xs font-medium text-sand-brown-800 mr-2">숙박지</span>
+                    <span className="text-xs text-sand-brown-700 break-words">
                       {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
-                    </p>
+                    </span>
                   </div>
                 </div>
               </div>
