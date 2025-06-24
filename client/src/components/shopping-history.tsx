@@ -447,11 +447,7 @@ export function ShoppingHistory() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin className="h-4 w-4 text-sand-brown-600" />
-                      <span className="text-sm font-medium text-sand-brown-800">
-                        {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress?.includes('호텔') || 
-                         selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress?.includes('Hotel') ? 
-                         '숙박지' : '숙박지 주소'}
-                      </span>
+                      <span className="text-sm font-medium text-sand-brown-800">숙박지 주소</span>
                     </div>
                     <p className="text-sm text-sand-brown-700 leading-relaxed">
                       {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
