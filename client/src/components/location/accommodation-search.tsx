@@ -41,9 +41,15 @@ export function AccommodationSearch() {
 
     setIsSearchingHotels(true);
     try {
-      await googleMapsService.initialize();
       const hotels = await googleMapsService.searchNearbyHotels(address);
       console.log('Found hotels:', hotels);
+      
+      if (hotels.length === 0) {
+        toast({
+          title: "검색 결과가 없습니다",
+          description: "해당 지역에서 호텔을 찾을 수 없습니다. 다른 지역을 시도해보세요.",
+        });
+      }
       
       const hotelList: Hotel[] = hotels.map(hotel => ({
         placeId: hotel.placeId || '',
@@ -86,7 +92,6 @@ export function AccommodationSearch() {
         setIsLoading(false);
       } else {
         // 에어비앤비 - 기존 주소 검색 방식
-        await googleMapsService.initialize();
         const location = await googleMapsService.geocodeAddress(searchQuery);
         if (location) {
           setAccommodationAddress(location.address);
