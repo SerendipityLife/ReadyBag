@@ -68,12 +68,14 @@ def insert_reference_data(conn):
         # 국가 데이터
         print("국가 데이터 삽입 중...")
         cursor.execute("""
-            INSERT INTO countries (id, name, code, currency) 
-            VALUES ('japan', '일본', 'JP', 'JPY')
+            INSERT INTO countries (id, name, code, currency, flag_url, created_at, updated_at) 
+            VALUES ('japan', '일본', 'JP', 'JPY', 'https://flagcdn.com/w20/jp.png', NOW(), NOW())
             ON CONFLICT (id) DO UPDATE SET
                 name = EXCLUDED.name,
                 code = EXCLUDED.code,
-                currency = EXCLUDED.currency;
+                currency = EXCLUDED.currency,
+                flag_url = EXCLUDED.flag_url,
+                updated_at = NOW();
         """)
         
         # 판매처 (Store Types) 데이터
