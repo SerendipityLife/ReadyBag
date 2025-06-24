@@ -41,18 +41,26 @@ export function AccommodationSearch() {
 
     setIsSearchingHotels(true);
     try {
+      await googleMapsService.initialize();
       const hotels = await googleMapsService.searchNearbyHotels(address);
+      console.log('Found hotels:', hotels);
+      
       const hotelList: Hotel[] = hotels.map(hotel => ({
         placeId: hotel.placeId || '',
         name: hotel.name || '',
         address: hotel.address || '',
         rating: hotel.rating,
-        types: []
+        types: hotel.types || []
       })).filter(hotel => hotel.name && hotel.placeId);
 
       setHotels(hotelList);
     } catch (error) {
       console.error("Hotel search error:", error);
+      toast({
+        variant: "destructive",
+        title: "호텔 검색 실패",
+        description: "호텔 검색 중 오류가 발생했습니다. 다시 시도해주세요.",
+      });
       setHotels([]);
     } finally {
       setIsSearchingHotels(false);
@@ -78,6 +86,7 @@ export function AccommodationSearch() {
         setIsLoading(false);
       } else {
         // 에어비앤비 - 기존 주소 검색 방식
+        await googleMapsService.initialize();
         const location = await googleMapsService.geocodeAddress(searchQuery);
         if (location) {
           setAccommodationAddress(location.address);
