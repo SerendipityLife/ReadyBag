@@ -49,13 +49,7 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
 
   // Create review mutation
   const createReview = useMutation({
-    mutationFn: async (reviewData: {
-      productId: number;
-      rating: number;
-      reviewText: string;
-      reviewerName: string;
-      isAnonymous: boolean;
-    }) => {
+    mutationFn: async (reviewData: any) => {
       return apiRequest("POST", API_ROUTES.PRODUCT_REVIEWS, reviewData);
     },
     onSuccess: () => {
@@ -64,7 +58,6 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
       resetForm();
       toast({
         title: "리뷰가 작성되었습니다",
-        description: "다른 사용자들이 당신의 리뷰를 볼 수 있습니다.",
       });
     },
     onError: (error: any) => {
@@ -123,16 +116,17 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
     setReviewText("");
     setReviewerName(user?.nickname || "");
     setIsAnonymous(false);
+    setIsWritingReview(false);
+    setEditingReview(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!reviewText.trim() || !reviewerName.trim()) {
+    if (!reviewText.trim()) {
       toast({
         variant: "destructive",
-        title: "입력 오류",
-        description: "리뷰 내용과 작성자명을 모두 입력해주세요.",
+        title: "리뷰 내용을 입력해주세요",
       });
       return;
     }
@@ -141,8 +135,10 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
       productId,
       rating,
       reviewText: reviewText.trim(),
-      reviewerName: reviewerName.trim(),
+      reviewerName: isAnonymous ? "" : (reviewerName.trim() || "익명"),
       isAnonymous,
+      userId: user?.id || null,
+      sessionId: user ? null : localStorage.getItem('sessionId')
     };
 
     if (editingReview) {
@@ -152,25 +148,33 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
     }
   };
 
-  const startEdit = (review: ProductReview) => {
+  const handleEdit = (review: ProductReview) => {
     setEditingReview(review);
     setRating(review.rating);
     setReviewText(review.reviewText || "");
     setReviewerName(review.reviewerName || "");
-    setIsAnonymous(review.isAnonymous || false);
+    setIsAnonymous(review.isAnonymous);
     setIsWritingReview(true);
   };
 
-  const renderStars = (rating: number, interactive = false, onStarClick?: (rating: number) => void) => {
+  const handleDelete = (reviewId: number) => {
+    if (confirm("정말로 이 리뷰를 삭제하시겠습니까?")) {
+      deleteReview.mutate(reviewId);
+    }
+  };
+
+  const renderStars = (currentRating: number, interactive = false, onRatingChange?: (rating: number) => void) => {
     return (
       <div className="flex gap-1">
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
             className={`h-4 w-4 ${
-              star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-            } ${interactive ? "cursor-pointer hover:text-yellow-400" : ""}`}
-            onClick={() => interactive && onStarClick?.(star)}
+              interactive ? "cursor-pointer" : ""
+            } ${
+              star <= currentRating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
+            }`}
+            onClick={interactive && onRatingChange ? () => onRatingChange(star) : undefined}
           />
         ))}
       </div>
@@ -197,7 +201,7 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
           <span className="font-medium">리뷰 ({reviews.length})</span>
         </div>
         
-        {!readOnly && !userReview && (
+        {!readOnly && !userReview && user && (
           <Dialog open={isWritingReview} onOpenChange={setIsWritingReview}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
@@ -277,6 +281,17 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
             </DialogContent>
           </Dialog>
         )}
+        
+        {!readOnly && !userReview && !user && (
+          <div className="text-center">
+            <p className="text-sm text-gray-600 mb-2">
+              리뷰 작성은 회원 로그인 후 이용 가능합니다
+            </p>
+            <Button size="sm" variant="outline" disabled>
+              로그인 필요
+            </Button>
+          </div>
+        )}
       </div>
 
       {reviews.length === 0 ? (
@@ -306,15 +321,16 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => startEdit(review)}
+                        onClick={() => handleEdit(review)}
+                        className="h-8 w-8 p-0"
                       >
                         <Edit className="h-3 w-3" />
                       </Button>
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => deleteReview.mutate(review.id)}
-                        disabled={deleteReview.isPending}
+                        onClick={() => handleDelete(review.id)}
+                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
                       >
                         <Trash2 className="h-3 w-3" />
                       </Button>
@@ -323,7 +339,9 @@ export function ProductReviews({ productId, productName, readOnly = false }: Pro
                 </div>
                 
                 {review.reviewText && (
-                  <p className="text-sm">{review.reviewText}</p>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    {review.reviewText}
+                  </p>
                 )}
               </CardContent>
             </Card>

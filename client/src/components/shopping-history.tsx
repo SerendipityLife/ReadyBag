@@ -431,6 +431,23 @@ export function ShoppingHistory() {
                 </div>
               </div>
             </div>
+            
+            {/* 숙박지 주소 표시 - 최상단에 한 번만 */}
+            {selectedGroup?.items.some(item => item.accommodationAddress) && (
+              <div className="mt-3 p-3 bg-sand-brown-50 border border-sand-brown-100 rounded-lg">
+                <div className="flex items-start space-x-2">
+                  <div className="flex-shrink-0 mt-0.5">
+                    <div className="w-2 h-2 bg-sand-brown-500 rounded-full"></div>
+                  </div>
+                  <div>
+                    <span className="text-sm font-medium text-sand-brown-800">숙박지</span>
+                    <p className="text-sm text-sand-brown-700 mt-0.5 leading-relaxed">
+                      {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </DialogHeader>
           
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
@@ -468,21 +485,6 @@ export function ShoppingHistory() {
                       />
                     )}
                   </div>
-                  {userProduct.accommodationAddress && (
-                    <div className="mt-2 p-2 bg-sand-brown-50 border border-sand-brown-100 rounded-lg">
-                      <div className="flex items-start space-x-2">
-                        <div className="flex-shrink-0 mt-0.5">
-                          <div className="w-2 h-2 bg-sand-brown-500 rounded-full"></div>
-                        </div>
-                        <div>
-                          <span className="text-xs font-medium text-sand-brown-800">숙박지</span>
-                          <p className="text-xs text-sand-brown-700 mt-0.5 leading-relaxed">
-                            {userProduct.accommodationAddress}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
