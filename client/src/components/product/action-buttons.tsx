@@ -79,20 +79,20 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
           text-gray-500 shadow-md mb-1`;
         break;
         
-      case SwipeDirection.UP: // 고민중 (브라운 계열)
+      case SwipeDirection.UP: // 고민중 (코코아 브라운)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-[#A97F5F] bg-[#F3E3C6] shadow-lg scale-110 animate-pulse-strong" 
-            : "border-[#C19A7A] hover:border-[#A97F5F] hover:bg-[#F3E3C6] hover:scale-105"}
-          text-[#A97F5F] shadow-md mb-1`;
+            ? "border-[#7B5E57] bg-[#FAF6F0] shadow-lg scale-110 animate-pulse-strong" 
+            : "border-[#C5B8A5] hover:border-[#7B5E57] hover:bg-[#FAF6F0] hover:scale-105"}
+          text-[#7B5E57] shadow-md mb-1`;
         break;
         
-      case SwipeDirection.RIGHT: // 관심 (빨간색)
+      case SwipeDirection.RIGHT: // 관심 (딥 살몬)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-red-500 bg-red-100 shadow-lg scale-110 animate-pulse-strong" 
-            : "border-red-500 hover:border-red-600 hover:bg-red-50 hover:scale-105"}
-          text-red-500 shadow-md mb-1`;
+            ? "border-[#E6614E] bg-[#FDF2F0] shadow-lg scale-110 animate-pulse-strong" 
+            : "border-[#E6614E] hover:border-[#D4503D] hover:bg-[#FDF2F0] hover:scale-105"}
+          text-[#E6614E] shadow-md mb-1`;
         break;
     }
     
@@ -118,7 +118,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-3 w-full max-w-md mx-auto bg-gradient-to-r from-[#F3E3C6]/90 to-[#F0DCC0]/90 backdrop-blur-sm rounded-2xl border border-[#E5D4B3]/60 shadow-sm">
+    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-3 w-full max-w-md mx-auto bg-gradient-to-r from-[#FAF6F0]/95 to-[#F5F0E8]/95 backdrop-blur-sm rounded-2xl border border-[#C5B8A5]/60 shadow-sm">
       <div className="flex justify-between items-center w-full">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
@@ -159,7 +159,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={2.5} 
             />
           </Button>
-          <span className="text-sm font-medium text-[#A97F5F] mt-1">고민중</span>
+          <span className="text-sm font-medium text-[#7B5E57] mt-1">고민중</span>
         </div>
         
         {/* 관심 버튼 */}

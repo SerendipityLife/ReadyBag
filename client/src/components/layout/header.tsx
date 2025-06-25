@@ -91,7 +91,7 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#F3E3C6] to-[#F0DCC0] shadow-sm border-b border-[#E5D4B3]">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#FAF6F0] to-[#F5F0E8] shadow-sm border-b border-[#C5B8A5]">
       <div className="flex items-center justify-between h-12 px-2">
         {/* Logo & Country Selector */}
         <div className="flex items-center">
