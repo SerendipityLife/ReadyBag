@@ -104,20 +104,11 @@ export function Header() {
               <ArrowLeft size={16} />
             </button>
           )}
-          <div 
-            className="cursor-pointer bg-[#F3E3C6] rounded-lg p-1.5 hover:bg-[#E8D3B0] transition-colors border border-[#E5D4B3]"
-            onClick={() => navigate("/")}
-          >
-            <img 
-              src="/logo-readybag.png" 
-              alt="ReadyBag" 
-              className="h-6 w-auto"
-            />
-          </div>
+
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
-            <div className="ml-4">
+            <div>
               <CountrySelector />
             </div>
           )}
