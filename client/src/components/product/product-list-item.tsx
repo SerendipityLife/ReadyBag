@@ -11,6 +11,8 @@ import { ReviewButton } from "./review-button";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
+import { CurrencyDisplay } from "@/components/ui/currency-display";
+import { PriceRangeDisplay } from "@/components/ui/price-range-display";
 
 interface ProductListItemProps {
   product?: Product;
@@ -28,7 +30,7 @@ export function ProductListItem(props: ProductListItemProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const isNonMember = !user;
-  
+
   // 상태 초기화
   const [price, setPrice] = useState(0);
   const [convertedPrice, setConvertedPrice] = useState(0);
@@ -38,7 +40,7 @@ export function ProductListItem(props: ProductListItemProps) {
   const [productLocation, setProductLocation] = useState<string | null>(null);
   const [productHashtags, setProductHashtags] = useState<string[] | null>(null);
   const [hasProductError, setHasProductError] = useState(false);
-  
+
   // 실제 구입 가격 관련 상태
   const [isEditingPrice, setIsEditingPrice] = useState(false);
   const [actualPriceInput, setActualPriceInput] = useState("");
@@ -102,7 +104,7 @@ export function ProductListItem(props: ProductListItemProps) {
         variant: "destructive",
         duration: 2000,
       });
-      
+
       // 여행 날짜 오류일 때 캘린더 활성화
       if (error.message.includes("여행 날짜를 먼저 선택해주세요")) {
         setShouldActivateCalendar(true);
@@ -117,32 +119,32 @@ export function ProductListItem(props: ProductListItemProps) {
       if (isNonMember) {
         const storageKey = `userProducts_${selectedCountry.id}`;
         const storedData = localStorage.getItem(storageKey);
-        
+
         if (storedData) {
           const products = JSON.parse(storedData);
           const updatedProducts = products.filter((item: any) => item.id !== userProduct.id);
-          
+
           localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
-          
+
           // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
           window.dispatchEvent(new Event('localStorageChange'));
-          
+
           return { success: true };
         }
-        
+
         throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
       }
-      
+
       // 회원인 경우 API 호출
       const response = await apiRequest(
         "DELETE",
         `${API_ROUTES.USER_PRODUCTS}/${userProduct.id}`
       );
-      
+
       if (!response.ok) {
         throw new Error("Delete operation failed");
       }
-      
+
       return response.json();
     },
     onSuccess: () => {
@@ -150,12 +152,12 @@ export function ProductListItem(props: ProductListItemProps) {
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
-      
+
       // This is important to make the product reappear in the exploring section
       queryClient.invalidateQueries({ 
         queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id] 
       });
-      
+
       // Call callback if provided
       if (onSuccessfulAction) {
         onSuccessfulAction();
@@ -168,7 +170,7 @@ export function ProductListItem(props: ProductListItemProps) {
     mutationFn: async (actualPrice: number) => {
       // 실시간 환율로 원화 가격 계산
       const actualPriceKrw = Math.round(actualPrice * (exchangeRate || 9.57));
-      
+
       if (isNonMember) {
         // 비회원은 로컬 스토리지에서 업데이트
         const storageKey = `userProducts_${selectedCountry.id}`;
@@ -184,10 +186,10 @@ export function ProductListItem(props: ProductListItemProps) {
             : item
         );
         localStorage.setItem(storageKey, JSON.stringify(updatedData));
-        
+
         // 로컬 스토리지 변경 이벤트 트리거 (다른 컴포넌트에 알림)
         window.dispatchEvent(new Event('localStorageChange'));
-        
+
         return { success: true };
       } else {
         // 회원은 API 호출
@@ -212,7 +214,7 @@ export function ProductListItem(props: ProductListItemProps) {
         description: "실제 구입 가격이 저장되었습니다.",
         duration: 2000,
       });
-      
+
       // 즉시 UI 업데이트를 위해 onSuccessfulAction 호출
       if (onSuccessfulAction) {
         onSuccessfulAction();
@@ -229,7 +231,7 @@ export function ProductListItem(props: ProductListItemProps) {
 
   const handleSaveActualPrice = () => {
     const actualPrice = actualPriceInput ? parseInt(actualPriceInput) : undefined;
-    
+
     if (!actualPrice) {
       toast({
         description: "실제 가격을 입력해주세요.",
@@ -238,7 +240,7 @@ export function ProductListItem(props: ProductListItemProps) {
       });
       return;
     }
-    
+
     updateActualPrice.mutate(actualPrice);
   };
 
@@ -248,18 +250,18 @@ export function ProductListItem(props: ProductListItemProps) {
       setHasProductError(true);
       return;
     }
-    
+
     setHasProductError(false);
     setProductImageUrl(product.imageUrl || "");
     setProductName(product.name || "");
     setProductNameJapanese(product.nameJapanese || null);
     setProductLocation(product.location || null);
     setProductHashtags(product.hashtags || null);
-    
+
     // 가격 계산
     const roundedPrice = Math.round(product.price);
     const calculatedPrice = Math.round(product.price * (exchangeRate || 9.57));
-    
+
     setPrice(roundedPrice);
     setConvertedPrice(calculatedPrice);
   }, [product, exchangeRate]);
@@ -267,7 +269,7 @@ export function ProductListItem(props: ProductListItemProps) {
   // Opens Instagram in a new tab with the product name search
   const handleInstagramSearch = () => {
     if (!productName) return;
-    
+
     // Use product name for Instagram search instead of hashtag
     window.open(`https://www.instagram.com/explore/tags/${encodeURIComponent(productName)}`, "_blank");
   };
@@ -301,7 +303,7 @@ export function ProductListItem(props: ProductListItemProps) {
           </Button>
         )}
       </div>
-      
+
       <div className="p-3 flex-1">
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <div className="flex flex-col mb-2 sm:mb-0">
@@ -323,7 +325,7 @@ export function ProductListItem(props: ProductListItemProps) {
               <p className="text-xs text-gray-500 mt-0.5">{productNameJapanese}</p>
             )}
           </div>
-          
+
           <div className="bg-gradient-to-r from-white to-gray-50 px-2 py-1 rounded-md shadow-sm">
             {/* Price edit button */}
             {!readOnly && (
@@ -386,9 +388,9 @@ export function ProductListItem(props: ProductListItemProps) {
                 </Dialog>
               </div>
             )}
-            
+
             {/* Price display */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               {/* 예상 가격 */}
               <div className="text-xs text-gray-500 pb-1 border-b border-gray-200">
                 <div className="flex justify-between">
@@ -400,7 +402,7 @@ export function ProductListItem(props: ProductListItemProps) {
                   <span className="text-primary">{convertedPrice.toLocaleString()}원</span>
                 </div>
               </div>
-              
+
               {/* 실제 구입 가격 */}
               {userProduct.actualPurchasePrice && (
                 <div className="text-xs font-medium text-green-700">
@@ -415,9 +417,13 @@ export function ProductListItem(props: ProductListItemProps) {
                 </div>
               )}
             </div>
+            <PriceRangeDisplay 
+              productId={product.id}
+              className="text-xs"
+            />
           </div>
         </div>
-        
+
         {!readOnly && userProduct.status === ProductStatus.INTERESTED && (
           <div className="mt-3 flex gap-2">
             <Button

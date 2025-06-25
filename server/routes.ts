@@ -6,10 +6,11 @@ import { z } from "zod";
 import { getCurrencyRate } from "./services/currency";
 import { getInstagramHashtags } from "./services/instagram";
 import { db } from "../db";
-import { userProducts, productReviews } from "../shared/schema";
+import { userProducts, productReviews, products } from "../shared/schema";
 import { eq, and, or, desc } from "drizzle-orm";
 import { setupAuth } from "./auth";
 import cache from "./cache";
+import { rakutenService } from "./services/rakuten";
 
 // Extend Express Request type to have session properties
 declare module 'express-session' {
@@ -30,17 +31,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 캐시에서 국가 목록 확인
       const cacheKey = "countries:all";
       const cachedData = cache.get(cacheKey);
-      
+
       if (cachedData) {
         console.log("Serving countries from cache");
         return res.json(cachedData);
       }
-      
+
       const countries = await storage.getCountries();
-      
+
       // 캐시에 데이터 저장 (5분 유효)
       cache.set(cacheKey, countries, 5 * 60 * 1000);
-      
+
       return res.json(countries);
     } catch (error) {
       console.error("Error fetching countries:", error);
@@ -54,28 +55,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // 성능 측정 시작
       const startTime = Date.now();
       const countryId = req.query.countryId as string || "japan";
-      
+
       // 필터 파라미터 추출 - 새로운 두단계 카테고리 시스템
       const storeTypes = req.query.storeTypes 
         ? (req.query.storeTypes as string).split(',') 
         : undefined;
-        
+
       const purposeCategories = req.query.purposeCategories 
         ? (req.query.purposeCategories as string).split(',') 
         : undefined;
-        
+
       const minPrice = req.query.minPrice 
         ? parseInt(req.query.minPrice as string) 
         : undefined;
-        
+
       const maxPrice = req.query.maxPrice 
         ? parseInt(req.query.maxPrice as string) 
         : undefined;
-        
+
       const tags = req.query.tags 
         ? (req.query.tags as string).split(',') 
         : undefined;
-      
+
       // 필터 객체 생성 - 새로운 두단계 카테고리 시스템
       const filters = {
         storeTypes,
@@ -88,15 +89,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           : undefined,
         tags
       };
-      
+
       // 캐시 키 생성
       const cacheKey = `products:${countryId}:${JSON.stringify(filters)}`;
-      
+
       // 캐시에서 데이터 확인
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log("Serving products from cache");
-        
+
         // 로깅 추가
         try {
           // logger 모듈 동적 로드 (비동기 import가 실패해도 API는 계속 동작하도록)
@@ -109,16 +110,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // 로깅 실패해도 API 응답에는 영향 없도록
           console.error("로깅 실패:", logError);
         }
-        
+
         return res.json(cachedData);
       }
-      
+
       console.log("Fetching products with filters:", filters);
       const products = await storage.getProductsByCountry(countryId, filters);
-      
+
       // 캐시에 데이터 저장 (30초 유효)
       cache.set(cacheKey, products, 30 * 1000);
-      
+
       // 로깅 추가
       try {
         const logger = await import('./logger').catch(() => null);
@@ -129,11 +130,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (logError) {
         console.error("로깅 실패:", logError);
       }
-      
+
       return res.json(products);
     } catch (error) {
       console.error("Error fetching products:", error);
-      
+
       // 에러 로깅 추가
       try {
         const logger = await import('./logger').catch(() => null);
@@ -143,7 +144,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (logError) {
         console.error("에러 로깅 실패:", logError);
       }
-      
+
       return res.status(500).json({ message: "Failed to fetch products" });
     }
   });
@@ -157,7 +158,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const product = await storage.getProductById(id);
-      
+
       if (!product) {
         return res.status(404).json({ message: "Product not found" });
       }
@@ -175,29 +176,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const countryId = req.query.countryId as string;
       const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID || null;
-      
+
       if (!countryId) {
         return res.status(400).json({ message: "Country ID is required" });
       }
-      
+
       const travelDateId = req.query.travelDateId as string | undefined;
-      
+
       // 캐시 키 생성 - 사용자 ID 또는 세션 ID와 여행 날짜 ID로 구별
       const userIdentifier = userId || sessionId || 'anonymous';
       const cacheKey = `user-products:${countryId}:${userIdentifier}:${travelDateId || 'no-date'}`;
-      
+
       // 캐시에서 데이터 확인
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log("Serving user products from cache");
         return res.json(cachedData);
       }
-      
+
       const userProducts = await storage.getUserProducts(countryId, userId, sessionId, travelDateId);
-      
+
       // 캐시에 데이터 저장 (60초 유효 - 사용자 제품 캐시 시간 연장)
       cache.set(cacheKey, userProducts, 60 * 1000);
-      
+
       return res.json(userProducts);
     } catch (error) {
       console.error("Error fetching user products:", error);
@@ -216,11 +217,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         travelEndDate: z.string().nullable().optional(),
         accommodationAddress: z.string().optional(),
       });
-      
+
       const validatedData = schema.parse(req.body);
       const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID;
-      
+
       const userProduct = await storage.upsertUserProduct(
         validatedData.productId,
         validatedData.status,
@@ -231,10 +232,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         validatedData.travelDateId === null ? undefined : validatedData.travelDateId,
         validatedData.accommodationAddress
       );
-      
+
       // 사용자 제품 관련 캐시 무효화
       cache.deleteByPrefix("user-products:");
-      
+
       return res.status(201).json(userProduct);
     } catch (error) {
       console.error("Error updating product status:", error);
@@ -249,7 +250,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       const schema = z.object({
         status: z.string(),
         travelStartDate: z.string().optional(),
@@ -258,20 +259,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         actualPurchasePrice: z.number().optional(),
         actualPurchasePriceKrw: z.number().optional(),
       });
-      
+
       const validatedData = schema.parse(req.body);
-      
+
       // Log detailed information for debugging
       console.log("Update request: ID=", id, "Status=", validatedData.status);
       console.log("Travel dates:", validatedData.travelStartDate, validatedData.travelEndDate);
-      
+
       // 간단하게 직접 업데이트 - 모든 권한 확인 생략
       try {
         const updateData: any = {
           status: validatedData.status,
           updatedAt: new Date(),
         };
-        
+
         // Add travel dates if provided
         if (validatedData.travelStartDate) {
           updateData.travelStartDate = new Date(validatedData.travelStartDate);
@@ -279,12 +280,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (validatedData.travelEndDate) {
           updateData.travelEndDate = new Date(validatedData.travelEndDate);
         }
-        
+
         // Set purchase date for completed purchases
         if (validatedData.status === 'purchased') {
           updateData.purchaseDate = new Date();
         }
-        
+
         // Add accommodation address for purchased items
         if (validatedData.accommodationAddress !== undefined) {
           updateData.accommodationAddress = validatedData.accommodationAddress;
@@ -295,20 +296,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (validatedData.actualPurchasePriceKrw !== undefined) {
           updateData.actualPurchasePriceKrw = validatedData.actualPurchasePriceKrw;
         }
-        
+
         const [updated] = await db
           .update(userProducts)
           .set(updateData)
           .where(eq(userProducts.id, id))
           .returning();
-        
+
         if (!updated) {
           return res.status(404).json({ message: "User product not found" });
         }
-        
+
         // 사용자 제품 관련 캐시 무효화
         cache.deleteByPrefix("user-products:");
-        
+
         return res.json(updated);
       } catch (dbError) {
         console.error("Database error:", dbError);
@@ -326,16 +327,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Batch delete request body:", req.body);
       console.log("Request body type:", typeof req.body);
       console.log("Request headers:", req.headers);
-      
+
       if (!req.body || typeof req.body !== 'object') {
         console.log("Invalid request body format");
         return res.status(400).json({ message: "Invalid request body format" });
       }
-      
+
       const schema = z.object({
         ids: z.array(z.number()),
       });
-      
+
       let validatedData;
       try {
         validatedData = schema.parse(req.body);
@@ -343,15 +344,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Schema validation error:", parseError);
         return res.status(400).json({ message: "Invalid data format", details: parseError });
       }
-      
+
       const { ids } = validatedData;
-      
+
       if (ids.length === 0) {
         return res.status(400).json({ message: "No IDs provided for deletion" });
       }
-      
+
       console.log(`Batch delete request: IDs=${ids.join(', ')}`);
-      
+
       try {
         // Delete each product individually and collect results
         const deletePromises = ids.map(id => 
@@ -359,15 +360,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .where(eq(userProducts.id, id))
             .returning()
         );
-        
+
         const deleteResults = await Promise.all(deletePromises);
         const deletedProducts = deleteResults.filter(result => result.length > 0).flat();
-        
+
         console.log(`Successfully batch deleted ${deletedProducts.length} products`);
-        
+
         // 사용자 제품 관련 캐시 무효화
         cache.deleteByPrefix("user-products:");
-        
+
         return res.json({ 
           message: `Deleted ${deletedProducts.length} products`,
           deletedProducts 
@@ -381,7 +382,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to batch delete user products" });
     }
   });
-  
+
   // Delete user product
   app.delete(`${apiPrefix}/user-products/:id`, async (req, res) => {
     try {
@@ -389,25 +390,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (isNaN(id)) {
         return res.status(400).json({ message: "Invalid ID format" });
       }
-      
+
       // Log detailed information for debugging
       console.log("Delete request: ID=", id);
-      
+
       // 최적화된 직접 삭제 - 존재 확인 없이 바로 삭제
       try {
         const [deleted] = await db
           .delete(userProducts)
           .where(eq(userProducts.id, id))
           .returning();
-        
+
         if (!deleted) {
           console.log("Product with ID", id, "does not exist");
           return res.status(200).json({ message: "Product already deleted" });
         }
-        
+
         // 사용자 제품 관련 캐시 무효화
         cache.deleteByPrefix("user-products:");
-        
+
         console.log("Successfully deleted product:", deleted);
         return res.json(deleted);
       } catch (dbError) {
@@ -426,13 +427,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const travelDateId = req.params.travelDateId;
       const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID || null;
-      
+
       if (!travelDateId) {
         return res.status(400).json({ message: "Travel date ID is required" });
       }
-      
+
       console.log(`Delete products by travel date: ${travelDateId} for user ${userId || sessionId}`);
-      
+
       // Build where conditions based on user authentication
       let whereConditions;
       if (userId) {
@@ -448,18 +449,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         return res.status(400).json({ message: "User authentication required" });
       }
-      
+
       try {
         const deletedProducts = await db
           .delete(userProducts)
           .where(whereConditions)
           .returning();
-        
+
         console.log(`Successfully deleted ${deletedProducts.length} products for travel date ${travelDateId}`);
-        
+
         // 사용자 제품 관련 캐시 무효화
         cache.deleteByPrefix("user-products:");
-        
+
         return res.json({ 
           message: `Deleted ${deletedProducts.length} products for travel date ${travelDateId}`,
           deletedProducts 
@@ -480,15 +481,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const schema = z.object({
         countryId: z.string(),
       });
-      
+
       const validatedData = schema.parse(req.body);
       const status = req.query.status as string | undefined;
       const userId = req.user?.id ? String(req.user.id) : null;
       const sessionId = req.session?.id || req.sessionID;
-      
+
       // Generate a unique share ID
       const shareId = nanoid(8);
-      
+
       // Create shared list in database
       const sharedList = await storage.createSharedList(
         shareId,
@@ -497,12 +498,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userId,
         sessionId
       );
-      
+
       // Generate share URL
       const host = req.headers.host || "localhost:5000";
       const protocol = req.secure ? "https" : "http";
       const shareUrl = `${protocol}://${host}/shared/${shareId}`;
-      
+
       return res.status(201).json({ shareId, shareUrl });
     } catch (error) {
       console.error("Error creating shared list:", error);
@@ -514,13 +515,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/shared-list/:shareId`, async (req, res) => {
     try {
       const shareId = req.params.shareId;
-      
+
       const sharedListData = await storage.getSharedListByShareId(shareId);
-      
+
       if (!sharedListData) {
         return res.status(404).json({ message: "Shared list not found or expired" });
       }
-      
+
       return res.json(sharedListData);
     } catch (error) {
       console.error("Error fetching shared list:", error);
@@ -533,22 +534,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const fromCurrency = req.query.from as string || "JPY";
       const toCurrency = req.query.to as string || "KRW";
-      
+
       // 캐시 키 생성
       const cacheKey = `currency:${fromCurrency}:${toCurrency}`;
-      
+
       // 캐시에서 환율 데이터 확인
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
         console.log("Serving currency data from cache");
         return res.json(cachedData);
       }
-      
+
       const rate = await getCurrencyRate(fromCurrency, toCurrency);
-      
+
       // 캐시에 데이터 저장 (1시간 유효)
       cache.set(cacheKey, rate, 60 * 60 * 1000);
-      
+
       return res.json(rate);
     } catch (error) {
       console.error("Error fetching exchange rate:", error);
@@ -560,13 +561,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/instagram-hashtags`, async (req, res) => {
     try {
       const productName = req.query.productName as string;
-      
+
       if (!productName) {
         return res.status(400).json({ message: "Product name is required" });
       }
-      
+
       const hashtags = await getInstagramHashtags(productName);
-      
+
       return res.json({ hashtags });
     } catch (error) {
       console.error("Error fetching Instagram hashtags:", error);
@@ -577,7 +578,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // 로그 확인용 엔드포인트 (개발 환경에서만 사용)
   if (process.env.NODE_ENV !== 'production') {
     const logger = await import('./logger');
-    
+
     app.get(`${apiPrefix}/logs/api`, (req, res) => {
       try {
         const lines = req.query.lines ? parseInt(req.query.lines as string) : 100;
@@ -588,7 +589,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ message: 'API 로그 열람 중 오류가 발생했습니다.' });
       }
     });
-    
+
     app.get(`${apiPrefix}/logs/error`, (req, res) => {
       try {
         const lines = req.query.lines ? parseInt(req.query.lines as string) : 100;
@@ -641,7 +642,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Product Reviews API endpoints
-  
+
   // Get reviews for a specific product
   app.get(`${apiPrefix}/product-reviews/:productId`, async (req, res) => {
     try {
@@ -682,7 +683,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const validatedData = schema.parse(req.body);
-      
+
       // Check if user is authenticated
       const userId = req.user?.id || null;
       const sessionId = !userId ? req.session.id || nanoid() : null;
@@ -737,7 +738,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const validatedData = schema.parse(req.body);
-      
+
       // Check if user owns this review
       const userId = req.user?.id || null;
       const sessionId = !userId ? req.session.id : null;
@@ -804,6 +805,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting review:", error);
       return res.status(500).json({ message: "Failed to delete review" });
+    }
+  });
+
+  // Currency conversion endpoint
+  app.get("/api/currency", async (req, res) => {
+    try {
+      const rate = await getCurrencyRate("JPY", "KRW");
+      res.json({
+        fromCurrency: "JPY",
+        toCurrency: "KRW",
+        rate: rate.toString(),
+        lastUpdated: new Date()
+      });
+    } catch (error) {
+      console.error("Currency rate fetch error:", error);
+      res.status(500).json({ message: "환율 정보를 가져올 수 없습니다." });
+    }
+  });
+
+  // 라쿠텐 가격 정보 업데이트 엔드포인트
+  app.post("/api/rakuten/update-prices", async (req, res) => {
+    try {
+      const { limit = 10 } = req.body;
+      await rakutenService.updateProductPrices(limit);
+      res.json({ 
+        message: `라쿠텐 가격 정보 업데이트가 시작되었습니다. (최대 ${limit}개 상품)`,
+        success: true 
+      });
+    } catch (error) {
+      console.error("라쿠텐 가격 업데이트 오류:", error);
+      res.status(500).json({ message: "가격 업데이트 중 오류가 발생했습니다." });
+    }
+  });
+
+  // 특정 상품의 라쿠텐 가격 조회
+  app.get("/api/rakuten/product/:id/price", async (req, res) => {
+    try {
+      const productId = parseInt(req.params.id);
+      const product = await db.query.products.findFirst({
+        where: eq(products.id, productId),
+        columns: {
+          id: true,
+          name: true,
+          nameJapanese: true,
+          nameEnglish: true,
+          rakutenMinPrice: true,
+          rakutenMaxPrice: true,
+          rakutenMinPriceKrw: true,
+          rakutenMaxPriceKrw: true,
+          rakutenPriceUpdatedAt: true,
+        }
+      });
+
+      if (!product) {
+        return res.status(404).json({ message: "상품을 찾을 수 없습니다." });
+      }
+
+      res.json(product);
+    } catch (error) {
+      console.error("라쿠텐 상품 가격 조회 오류:", error);
+      res.status(500).json({ message: "가격 정보를 가져올 수 없습니다." });
     }
   });
 

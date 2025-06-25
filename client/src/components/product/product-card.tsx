@@ -7,6 +7,8 @@ import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
 import { ReviewButton } from "./review-button";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
+import { CurrencyDisplay } from "@/components/ui/currency-display";
+import { PriceRangeDisplay } from "@/components/ui/price-range-display";
 
 interface ProductCardProps {
   product: Product;
@@ -25,7 +27,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const { travelStartDate, travelEndDate, setShouldActivateCalendar, exchangeRate } = useAppContext();
   const { toast } = useToast();
-  
+
   // 아이콘 애니메이션을 위한 상태 추가
   const [animatingIcon, setAnimatingIcon] = useState(false);
   const [iconAnimation, setIconAnimation] = useState({
@@ -33,10 +35,10 @@ export function ProductCard({
     opacity: 0,
     size: 0
   });
-  
+
   const [showFeedbackIcon, setShowFeedbackIcon] = useState(false);
   const [buttonShake, setButtonShake] = useState(false);
-  
+
   // 버튼 트리거 여부를 추적하는 ref
   const isButtonTriggered = useRef(false);
 
@@ -48,14 +50,14 @@ export function ProductCard({
       triggerAction(direction);
     }
   };
-  
+
   // 아이콘 애니메이션 함수를 외부에서 사용할 수 있도록 설정
   // @ts-ignore
   window.startIconAnimation = (direction: SwipeDirection) => {
     if (index === 0) {
       // 현재 활성화된 애니메이션이 있으면 리셋
       setAnimatingIcon(false);
-      
+
       // 새 애니메이션 시작 
       setTimeout(() => {
         setAnimatingIcon(true);
@@ -64,13 +66,13 @@ export function ProductCard({
           opacity: 0,
           size: 0
         });
-        
+
         // 여러 단계로 나누어 아이콘이 부드럽게 커지도록 함
         setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.3, size: 40 })), 50);
         setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.6, size: 70 })), 150);
         setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 0.9, size: 100 })), 250);
         setTimeout(() => setIconAnimation(prev => ({ ...prev, opacity: 1, size: 120 })), 350);
-        
+
         // 일정 시간 후 아이콘 숨기기
         setTimeout(() => {
           setAnimatingIcon(false);
@@ -78,15 +80,15 @@ export function ProductCard({
       }, 20);
     }
   };
-  
+
   // Calculate styles based on position in the stack
   const styles = {
     zIndex: index === 0 ? 10 : 10 - index,
     opacity: index === 0 ? 1 : 1 - index * 0.2,
   };
-  
+
   const isTopCard = index === 0;
-  
+
   // Animation for the card movement including border and background color
   const [{ x, y, rotate, filter, borderColor, borderWidth, boxShadow }, api] = useSpring(() => ({
     x: 0,
@@ -98,25 +100,25 @@ export function ProductCard({
     boxShadow: '0 0 0 0 rgba(0,0,0,0)',
     config: { tension: 300, friction: 20 }
   }));
-  
+
   // 피드백 아이콘 표시 로직
   useEffect(() => {
     if (showFeedbackIcon) {
       const timer = setTimeout(() => {
         setShowFeedbackIcon(false);
       }, 800); // 0.8초 후 아이콘 숨김
-      
+
       return () => clearTimeout(timer);
     }
   }, [showFeedbackIcon]);
-  
+
   // 버튼 진동 효과 로직
   useEffect(() => {
     if (buttonShake) {
       const timer = setTimeout(() => {
         setButtonShake(false);
       }, 300); // 0.3초 후 진동 효과 중단
-      
+
       return () => clearTimeout(timer);
     }
   }, [buttonShake]);
@@ -239,7 +241,7 @@ export function ProductCard({
               const currentSrc = target.src;
               const currentExt = currentSrc.split('.').pop()?.toLowerCase();
               const currentIndex = extensions.indexOf(currentExt || 'jpg');
-              
+
               if (currentIndex < extensions.length - 1) {
                 const nextExt = extensions[currentIndex + 1];
                 target.src = `/images/${pid}.${nextExt}`;
@@ -271,15 +273,17 @@ export function ProductCard({
 
           {/* 가격 정보와 리뷰 버튼 */}
           <div className="flex items-center justify-between mt-auto">
-            <div className="flex items-baseline space-x-2">
-              <span className="text-xl font-bold text-[#7B5E57]">
-                ¥{product.price.toLocaleString()}
-              </span>
-              {exchangeRate && (
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  ≈ ₩{priceInKRW.toLocaleString()}
-                </span>
-              )}
+            <div className="space-y-2">
+              <CurrencyDisplay 
+                price={product.price} 
+                fromCurrency="JPY" 
+                toCurrency="KRW"
+                className="text-lg font-bold text-green-600"
+              />
+              <PriceRangeDisplay 
+                productId={product.id}
+                className="border-t pt-2"
+              />
             </div>
             {/* Review button - read-only mode */}
             <ReviewButton 

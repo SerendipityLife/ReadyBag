@@ -36,6 +36,12 @@ export const products = pgTable("products", {
   info: text("info"), // 추가 상품 정보
   location: text("location"),
   featured: boolean("featured").default(false),
+  // 라쿠텐 가격 정보
+  rakutenMinPrice: integer("rakuten_min_price"), // 라쿠텐 최저가 (엔화)
+  rakutenMaxPrice: integer("rakuten_max_price"), // 라쿠텐 최저가 + 20% (엔화)
+  rakutenMinPriceKrw: integer("rakuten_min_price_krw"), // 라쿠텐 최저가 (원화)
+  rakutenMaxPriceKrw: integer("rakuten_max_price_krw"), // 라쿠텐 최저가 + 20% (원화)
+  rakutenPriceUpdatedAt: timestamp("rakuten_price_updated_at"), // 가격 업데이트 시간
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
