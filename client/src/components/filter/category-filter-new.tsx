@@ -1,7 +1,5 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Store, Package, ShoppingCart } from "lucide-react";
@@ -31,9 +29,6 @@ export function CategoryFilter({
   onStoreTypesChange,
   onPurposeCategoriesChange,
 }: CategoryFilterProps) {
-  const [showAllStoreTypes, setShowAllStoreTypes] = useState(false);
-  const [showAllPurposeCategories, setShowAllPurposeCategories] = useState(false);
-
   // 판매처 데이터 가져오기
   const { data: storeTypes = [] } = useQuery<StoreType[]>({
     queryKey: ["/api/categories/store-types"],
@@ -69,9 +64,6 @@ export function CategoryFilter({
   const isAllStoreTypesSelected = selectedStoreTypes.includes("ALL") || selectedStoreTypes.length === 0;
   const isAllPurposeCategoriesSelected = selectedPurposeCategories.includes("ALL") || selectedPurposeCategories.length === 0;
 
-  const displayedStoreTypes = showAllStoreTypes ? storeTypes : storeTypes.slice(0, 3);
-  const displayedPurposeCategories = showAllPurposeCategories ? purposeCategories : purposeCategories.slice(0, 3);
-
   const getStoreIcon = (storeTypeId: string) => {
     switch (storeTypeId) {
       case 'donkihote':
@@ -84,7 +76,7 @@ export function CategoryFilter({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* 판매처 필터 */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
@@ -108,7 +100,7 @@ export function CategoryFilter({
             </Badge>
             
             {/* 개별 판매처 */}
-            {displayedStoreTypes.map((storeType) => (
+            {storeTypes.map((storeType) => (
               <Badge
                 key={storeType.id}
                 variant={selectedStoreTypes.includes(storeType.id) ? "default" : "outline"}
@@ -123,17 +115,6 @@ export function CategoryFilter({
                 {storeType.name}
               </Badge>
             ))}
-            
-            {storeTypes.length > 3 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAllStoreTypes(!showAllStoreTypes)}
-                className="text-blue-600 hover:text-blue-800"
-              >
-                {showAllStoreTypes ? "접기" : `+${storeTypes.length - 3}개 더`}
-              </Button>
-            )}
           </div>
         </ScrollArea>
       </div>
@@ -163,7 +144,7 @@ export function CategoryFilter({
             </Badge>
             
             {/* 개별 용도 */}
-            {displayedPurposeCategories.map((category) => (
+            {purposeCategories.map((category) => (
               <Badge
                 key={category.id}
                 variant={selectedPurposeCategories.includes(category.id) ? "default" : "outline"}
@@ -177,17 +158,6 @@ export function CategoryFilter({
                 {category.name}
               </Badge>
             ))}
-            
-            {purposeCategories.length > 3 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowAllPurposeCategories(!showAllPurposeCategories)}
-                className="text-green-600 hover:text-green-800"
-              >
-                {showAllPurposeCategories ? "접기" : `+${purposeCategories.length - 3}개 더`}
-              </Button>
-            )}
           </div>
         </ScrollArea>
       </div>
