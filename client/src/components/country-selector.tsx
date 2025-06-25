@@ -59,8 +59,8 @@ export function CountrySelector() {
         className="flex items-center space-x-1 p-1 rounded-full hover:bg-gray-50"
       >
         <img
-          src="https://flagcdn.com/w20/jp.png"
-          alt={`${selectedCountry.name} 국기`}
+          src="/images/logo-readybag.png"
+          alt="레디백 로고"
           className="w-5 h-5 rounded-sm object-cover"
         />
         <span className="text-xs md:text-sm font-medium">{selectedCountry.name}</span>
