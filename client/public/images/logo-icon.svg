@@ -1,0 +1,29 @@
+<svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 여행가방 아이콘 -->
+  <g transform="translate(10, 20)">
+    <!-- 가방 손잡이 -->
+    <path d="M25 8 C25 4, 30 0, 40 0 C50 0, 55 4, 55 8 L55 12 L25 12 Z" fill="#8B4513" stroke="#F5E6D3" stroke-width="1"/>
+    
+    <!-- 메인 가방 몸체 -->
+    <rect x="5" y="12" width="70" height="50" rx="8" fill="#8B4513" stroke="#F5E6D3" stroke-width="2"/>
+    
+    <!-- 가방 라인들 -->
+    <line x1="10" y1="20" x2="70" y2="20" stroke="#F5E6D3" stroke-width="1.5"/>
+    <line x1="10" y1="28" x2="70" y2="28" stroke="#F5E6D3" stroke-width="1.5"/>
+    <line x1="10" y1="36" x2="70" y2="36" stroke="#F5E6D3" stroke-width="1.5"/>
+    <line x1="10" y1="44" x2="70" y2="44" stroke="#F5E6D3" stroke-width="1.5"/>
+    <line x1="10" y1="52" x2="60" y2="52" stroke="#F5E6D3" stroke-width="1.5"/>
+    
+    <!-- 체크마크 원 -->
+    <circle cx="65" cy="45" r="8" fill="#8B4513" stroke="#F5E6D3" stroke-width="2"/>
+    
+    <!-- 체크마크 -->
+    <path d="M60 45 L63 48 L70 41" stroke="#F5E6D3" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <!-- 가방 바퀴들 -->
+    <circle cx="15" cy="65" r="3" fill="#8B4513"/>
+    <circle cx="25" cy="65" r="3" fill="#8B4513"/>
+    <circle cx="55" cy="65" r="3" fill="#8B4513"/>
+    <circle cx="65" cy="65" r="3" fill="#8B4513"/>
+  </g>
+</svg>
