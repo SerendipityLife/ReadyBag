@@ -10,7 +10,7 @@ export default {
         body: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
         heading: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
         display: ["Nunito Sans", "Noto Sans KR", "sans-serif"],
-        logo: ["Pretendard", "sans-serif"],
+        logo: ["PretendardBold", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
