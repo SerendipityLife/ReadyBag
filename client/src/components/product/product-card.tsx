@@ -214,7 +214,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-sm mx-auto bg-white dark:bg-gray-800 shadow-lg relative overflow-hidden">
+      <Card className="w-full h-full max-w-sm mx-auto bg-gradient-to-b from-white to-amber-50/40 border-2 border-amber-200/60 shadow-lg relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -225,7 +225,7 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-64 overflow-hidden rounded-t-lg">
+        <div className="relative h-64 overflow-hidden rounded-t-lg bg-gradient-to-br from-amber-50 to-orange-50">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -254,7 +254,7 @@ export function ProductCard({
           {/* 가격 정보와 리뷰 버튼 */}
           <div className="flex items-center justify-between mt-auto">
             <div className="flex items-baseline space-x-2">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+              <span className="text-xl font-bold text-amber-700">
                 ¥{product.price.toLocaleString()}
               </span>
               {exchangeRate && (
