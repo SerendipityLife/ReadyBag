@@ -54,7 +54,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 bg-[#FAF6F0] border-[#C5B8A5] text-[#7B5E57] hover:bg-[#F0EBE3] shadow-sm"
+          className="h-8 px-3 bg-white border-2 border-[#7B5E57] text-[#7B5E57] hover:bg-[#FAF6F0] shadow-md"
         >
           <Check className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 설정됨</span>
@@ -65,7 +65,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 text-[#7B5E57] border-[#C5B8A5] hover:bg-[#FAF6F0] shadow-sm"
+          className="h-8 px-3 text-[#7B5E57] border-2 border-[#C5B8A5] hover:bg-white shadow-md"
         >
           <Plus className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 추가</span>

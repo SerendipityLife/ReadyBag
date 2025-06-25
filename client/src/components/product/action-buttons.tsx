@@ -74,25 +74,25 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       case SwipeDirection.LEFT: // 건너뛰기 (회색)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-gray-500 bg-gray-100 shadow-lg scale-110 animate-pulse-strong" 
-            : "border-gray-400 hover:border-gray-500 hover:bg-gray-50 hover:scale-105"}
-          text-gray-500 shadow-md mb-1`;
+            ? "border-gray-500 bg-gray-500 shadow-xl scale-110 animate-pulse-strong" 
+            : "border-gray-400 hover:border-gray-500 hover:bg-gray-500 hover:scale-105"}
+          ${isActive ? "text-white" : "text-gray-500 hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
         
       case SwipeDirection.UP: // 고민중 (코코아 브라운)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-[#7B5E57] bg-[#FAF6F0] shadow-lg scale-110 animate-pulse-strong" 
-            : "border-[#C5B8A5] hover:border-[#7B5E57] hover:bg-[#FAF6F0] hover:scale-105"}
-          text-[#7B5E57] shadow-md mb-1`;
+            ? "border-[#7B5E57] bg-[#7B5E57] shadow-xl scale-110 animate-pulse-strong" 
+            : "border-[#7B5E57] hover:border-[#7B5E57] hover:bg-[#7B5E57] hover:scale-105"}
+          ${isActive ? "text-white" : "text-[#7B5E57] hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
         
       case SwipeDirection.RIGHT: // 관심 (딥 살몬)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-[#E6614E] bg-[#FDF2F0] shadow-lg scale-110 animate-pulse-strong" 
-            : "border-[#E6614E] hover:border-[#D4503D] hover:bg-[#FDF2F0] hover:scale-105"}
-          text-[#E6614E] shadow-md mb-1`;
+            ? "border-[#E6614E] bg-[#E6614E] shadow-xl scale-110 animate-pulse-strong" 
+            : "border-[#E6614E] hover:border-[#E6614E] hover:bg-[#E6614E] hover:scale-105"}
+          ${isActive ? "text-white" : "text-[#E6614E] hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
     }
     
@@ -118,7 +118,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-3 w-full max-w-md mx-auto bg-gradient-to-r from-[#FAF6F0]/95 to-[#F5F0E8]/95 backdrop-blur-sm rounded-2xl border border-[#C5B8A5]/60 shadow-sm">
+    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full max-w-md mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
       <div className="flex justify-between items-center w-full">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">

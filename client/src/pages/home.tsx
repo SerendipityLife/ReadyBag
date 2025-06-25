@@ -31,7 +31,7 @@ export default function Home() {
   }, [currentView]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-[#FAF6F0] to-[#F5F0E8]">
+    <div className="min-h-screen flex flex-col bg-[#FAF6F0]">
       <Header />
       
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
