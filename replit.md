@@ -107,6 +107,15 @@ The application follows a modern full-stack architecture with clear separation o
 
 ## Recent Changes
 
+**June 25, 2025** - Complete Product Database Restructure
+- ✅ Updated products schema to support comprehensive product information
+- ✅ Added new columns: name_english, brand, tags, info for enhanced product data
+- ✅ Imported 614 products from Excel with full product details
+- ✅ Enhanced product structure with Korean, Japanese, and English names
+- ✅ Added brand information and detailed product descriptions
+- ✅ Updated sales channel mapping (donki → donkihote, conve → convenience)
+- ✅ Reorganized product categories for better filtering and discovery
+
 **June 18, 2025** - Travel Date-Based Product Management System
 - ✅ Complete product segregation by travel date for both members and non-members
 - ✅ Fixed batch delete functionality with proper UI refresh mechanisms  

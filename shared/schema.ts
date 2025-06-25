@@ -22,14 +22,18 @@ export type Country = typeof countries.$inferSelect;
 export const products = pgTable("products", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  nameJapanese: text("name_japanese"), // 일본어 상품명 추가
+  nameJapanese: text("name_japanese"), // 일본어 상품명
+  nameEnglish: text("name_english"), // 영어 상품명
   description: text("description").notNull(),
   price: integer("price").notNull(),
   imageUrl: text("image_url").notNull(),
   countryId: text("country_id").references(() => countries.id).notNull(),
-  storeType: text("store_type").notNull(), // 상위 카테고리 - 판매처: donkihote, convenience, drugstore
-  purposeCategory: text("purpose_category").notNull(), // 하위 카테고리 - 용도: food, drink, cosmetic, clothing, etc
+  storeType: text("store_type").notNull(), // 판매처: donkihote, convenience
+  purposeCategory: text("purpose_category").notNull(), // 용도: eat, apply, health, etc
+  brand: text("brand"), // 브랜드명
   hashtags: jsonb("hashtags").$type<string[]>(),
+  tags: text("tags"), // 태그 (기존 호환성 유지)
+  info: text("info"), // 추가 상품 정보
   location: text("location"),
   featured: boolean("featured").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
