@@ -91,7 +91,7 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 shadow-sm border-b border-amber-100">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#F3E3C6] to-[#F0DCC0] shadow-sm border-b border-[#E5D4B3]">
       <div className="flex items-center justify-between h-12 px-2">
         {/* Logo & Country Selector */}
         <div className="flex items-center">
@@ -105,7 +105,7 @@ export function Header() {
             </button>
           )}
           <div 
-            className="cursor-pointer bg-amber-100 rounded-lg p-1.5 hover:bg-amber-200 transition-colors"
+            className="cursor-pointer bg-[#F3E3C6] rounded-lg p-1.5 hover:bg-[#E8D3B0] transition-colors border border-[#E5D4B3]"
             onClick={() => navigate("/")}
           >
             <img 

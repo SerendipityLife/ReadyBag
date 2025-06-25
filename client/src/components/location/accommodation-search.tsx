@@ -54,7 +54,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200 shadow-sm"
+          className="h-8 px-3 bg-[#F3E3C6] border-[#E5D4B3] text-[#A97F5F] hover:bg-[#E8D3B0] shadow-sm"
         >
           <Check className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 설정됨</span>
@@ -65,7 +65,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 text-amber-700 border-amber-300 hover:bg-amber-100 shadow-sm"
+          className="h-8 px-3 text-[#A97F5F] border-[#E5D4B3] hover:bg-[#F3E3C6] shadow-sm"
         >
           <Plus className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 추가</span>
@@ -85,7 +85,7 @@ export function AccommodationSearch() {
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw] bg-white border border-gray-200 rounded-lg shadow-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Home className="h-5 w-5 text-amber-700" />
+                <Home className="h-5 w-5 text-[#A97F5F]" />
                 <span className="text-base font-medium text-gray-700">숙박지 주소 설정</span>
               </div>
               <Button

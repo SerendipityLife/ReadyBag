@@ -132,7 +132,7 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
           <PopoverTrigger asChild>
             <Button
               variant="default"
-              className="bg-amber-600 hover:bg-amber-700 text-white border-amber-600 h-8 text-[10px] px-2 min-w-[180px] max-w-[200px] shadow-sm"
+              className="bg-[#A97F5F] hover:bg-[#966B4F] text-white border-[#A97F5F] h-8 text-[10px] px-2 min-w-[180px] max-w-[200px] shadow-sm"
             >
               <CalendarDays className="h-3 w-3 mr-1 flex-shrink-0" />
               <span className="truncate whitespace-nowrap overflow-hidden text-ellipsis">
