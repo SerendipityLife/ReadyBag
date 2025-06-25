@@ -80,33 +80,22 @@ export function PriceRangeDisplay({ productId, className = "" }: PriceRangeDispl
     new Date(priceInfo.rakutenPriceUpdatedAt) > new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   return (
-    <div className={`space-y-1 ${className}`}>
-      {/* 엔화 가격 */}
-      <div className="flex items-center space-x-2">
-        <Badge variant="outline" className="text-xs font-medium">
-          라쿠텐 가격
-        </Badge>
-        <span className="text-sm font-medium text-green-600">
-          ¥{formatPrice(priceInfo.rakutenMinPrice)} - ¥{formatPrice(priceInfo.rakutenMaxPrice)}
-        </span>
+    <div className={`space-y-1.5 ${className}`}>
+      {/* 엔화 가격 구간 */}
+      <div className="text-xs">
+        <div className="text-gray-500 mb-0.5">엔화 가격 구간(최저가 ~ +20%)</div>
+        <div className="font-semibold text-green-600">
+          ¥{formatPrice(priceInfo.rakutenMinPrice)} ~ ¥{formatPrice(priceInfo.rakutenMaxPrice)}
+        </div>
       </div>
       
-      {/* 원화 가격 */}
+      {/* 원화 가격 구간 */}
       {priceInfo.rakutenMinPriceKrw && priceInfo.rakutenMaxPriceKrw && (
-        <div className="flex items-center space-x-2">
-          <Badge variant="outline" className="text-xs">
-            원화 환산
-          </Badge>
-          <span className="text-sm text-blue-600">
-            ₩{formatPrice(priceInfo.rakutenMinPriceKrw)} - ₩{formatPrice(priceInfo.rakutenMaxPriceKrw)}
-          </span>
-        </div>
-      )}
-      
-      {/* 업데이트 시간 */}
-      {priceInfo.rakutenPriceUpdatedAt && (
-        <div className="text-xs text-gray-400">
-          {isRecent ? '최근 업데이트' : `${new Date(priceInfo.rakutenPriceUpdatedAt).toLocaleDateString('ko-KR')} 업데이트`}
+        <div className="text-xs">
+          <div className="text-gray-500 mb-0.5">한화 가격 구간(최저가 ~ +20%)</div>
+          <div className="font-semibold text-blue-600">
+            ₩{formatPrice(priceInfo.rakutenMinPriceKrw)} ~ ₩{formatPrice(priceInfo.rakutenMaxPriceKrw)}
+          </div>
         </div>
       )}
     </div>

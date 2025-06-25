@@ -254,9 +254,9 @@ export function ProductCard({
           />
         </div>
 
-        {/* 상품 정보 - 고정 높이 */}
-        <div className="p-5 h-48 flex flex-col justify-between">
-          <div className="space-y-3">
+        {/* 상품 정보 - 유연한 높이 */}
+        <div className="p-5 min-h-56 flex flex-col">
+          <div className="space-y-3 flex-1">
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
                 {product.name}
@@ -266,33 +266,29 @@ export function ProductCard({
               </p>
             </div>
 
-            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-3">
+            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
               {product.description}
             </p>
           </div>
 
           {/* 가격 정보와 리뷰 버튼 */}
-          <div className="flex items-center justify-between mt-auto">
-            <div className="space-y-2">
-              <CurrencyDisplay 
-                price={product.price} 
-                fromCurrency="JPY" 
-                toCurrency="KRW"
-                className="text-lg font-bold text-green-600"
-              />
-              <PriceRangeDisplay 
-                productId={product.id}
-                className="border-t pt-2"
+          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 mr-3">
+                <PriceRangeDisplay 
+                  productId={product.id}
+                  className=""
+                />
+              </div>
+              {/* Review button - read-only mode */}
+              <ReviewButton 
+                productId={product.id} 
+                productName={product.name}
+                variant="icon"
+                size="sm"
+                readOnly={true}
               />
             </div>
-            {/* Review button - read-only mode */}
-            <ReviewButton 
-              productId={product.id} 
-              productName={product.name}
-              variant="icon"
-              size="sm"
-              readOnly={true}
-            />
           </div>
         </div>
 
