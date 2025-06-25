@@ -618,11 +618,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get(`${apiPrefix}/categories/purpose-categories`, async (_req, res) => {
     try {
       const purposeCategories = [
-        { id: 'food', name: '먹을거', nameJapanese: '食べ物' },
-        { id: 'drink', name: '마실거', nameJapanese: '飲み物' },
-        { id: 'beauty', name: '바를거', nameJapanese: 'コスメ' },
-        { id: 'health', name: '건강용품', nameJapanese: 'ヘルス' },
-        { id: 'etc', name: '기타', nameJapanese: 'その他' }
+        { id: 'eat', name: '먹을거', nameJapanese: '食べ物' },
+        { id: 'apply', name: '바르는거', nameJapanese: 'コスメ' },
+        { id: 'health', name: '몸에 좋은거', nameJapanese: 'ヘルス' },
+        { id: 'stick', name: '붙이는거/붙여두는거', nameJapanese: 'ステッカー' },
+        { id: 'home', name: '집에서 쓰는거', nameJapanese: 'ホーム' },
+        { id: 'wear', name: '입는거/쓰는거', nameJapanese: '衣類' },
+        { id: 'gift', name: '기분내는거/선물용', nameJapanese: 'ギフト' }
       ];
       res.json(purposeCategories);
     } catch (error) {
