@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'PretendardBold';
-  font-weight: normal;
+  font-family: 'PretendardBlack';
+  font-weight: 900;
   font-style: normal;
   font-display: swap;
-  src: url('/fonts/Pretendard-ExtraBold.woff2') format('woff2');
+  src: url('/fonts/Pretendard-Black.woff2') format('woff2');
 }
 
 @layer base {
