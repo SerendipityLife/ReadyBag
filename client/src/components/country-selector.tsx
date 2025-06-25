@@ -6,7 +6,7 @@ export function CountrySelector() {
         alt="ReadyBag 로고"
         className="w-6 h-6 object-contain"
       />
-      <span className="text-lg font-bold text-[#8B4513] tracking-tight">ReadyBag</span>
+      <span className="text-lg font-logo font-bold text-[#8B4513] tracking-tight">ReadyBag</span>
     </div>
   );
 }
