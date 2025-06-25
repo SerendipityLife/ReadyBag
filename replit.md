@@ -107,6 +107,12 @@ The application follows a modern full-stack architecture with clear separation o
 
 ## Recent Changes
 
+**June 25, 2025** - UI/UX Updates & Product Database Restructure
+- ✅ Removed country selection functionality and replaced with ReadyBag logo
+- ✅ Updated filter system to show Korean category names with English backend filtering
+- ✅ Removed expand/collapse functionality from filters to show all options at once
+- ✅ Created gradient logo design for ReadyBag branding
+
 **June 25, 2025** - Complete Product Database Restructure
 - ✅ Updated products schema to support comprehensive product information
 - ✅ Added new columns: name_english, brand, tags, info for enhanced product data

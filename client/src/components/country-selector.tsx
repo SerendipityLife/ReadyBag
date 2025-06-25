@@ -1,12 +1,12 @@
 export function CountrySelector() {
   return (
-    <div className="flex items-center space-x-1 p-1">
+    <div className="flex items-center space-x-2 p-1">
       <img
         src="/images/logo-readybag.png"
-        alt="ReadyBag 로고"
-        className="w-5 h-5 rounded-sm object-cover"
+        alt="ReadyBag"
+        className="w-6 h-6 object-contain"
       />
-      <span className="text-xs md:text-sm font-medium">ReadyBag</span>
+      <span className="text-sm font-semibold text-[#8B4513]">ReadyBag</span>
     </div>
   );
 }
