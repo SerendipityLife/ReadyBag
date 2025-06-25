@@ -91,7 +91,7 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white shadow-sm">
+    <header className="sticky top-0 z-50 bg-gradient-to-r from-amber-50 to-orange-50 shadow-sm border-b border-amber-100">
       <div className="flex items-center justify-between h-12 px-2">
         {/* Logo & Country Selector */}
         <div className="flex items-center">
@@ -105,13 +105,13 @@ export function Header() {
             </button>
           )}
           <div 
-            className="cursor-pointer"
+            className="cursor-pointer bg-amber-100 rounded-lg p-1.5 hover:bg-amber-200 transition-colors"
             onClick={() => navigate("/")}
           >
             <img 
               src="/logo-readybag.png" 
               alt="ReadyBag" 
-              className="h-8 w-auto"
+              className="h-6 w-auto"
             />
           </div>
           
