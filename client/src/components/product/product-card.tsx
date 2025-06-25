@@ -231,6 +231,24 @@ export function ProductCard({
             alt={product.name}
             className="w-full h-full object-cover"
             loading="lazy"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              // pid 기반으로 다른 확장자들 시도
+              const pid = product.id;
+              const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+              const currentSrc = target.src;
+              const currentExt = currentSrc.split('.').pop()?.toLowerCase();
+              const currentIndex = extensions.indexOf(currentExt || 'jpg');
+              
+              if (currentIndex < extensions.length - 1) {
+                const nextExt = extensions[currentIndex + 1];
+                target.src = `/images/${pid}.${nextExt}`;
+              } else {
+                // 모든 확장자 시도 후에도 실패하면 기본 이미지 표시
+                target.src = '/images/placeholder.svg';
+                target.onerror = null; // 무한 루프 방지
+              }
+            }}
           />
         </div>
 
