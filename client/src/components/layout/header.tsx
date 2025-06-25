@@ -104,12 +104,16 @@ export function Header() {
               <ArrowLeft size={16} />
             </button>
           )}
-          <h1 
-            className="text-lg font-bold text-primary cursor-pointer"
+          <div 
+            className="cursor-pointer"
             onClick={() => navigate("/")}
           >
-            <span>Ready</span><span className="font-bold">Bag</span>
-          </h1>
+            <img 
+              src="/logo-readybag.png" 
+              alt="ReadyBag" 
+              className="h-8 w-auto"
+            />
+          </div>
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
