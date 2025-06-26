@@ -195,7 +195,8 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
       // 태그 초기화
       setLocalTags(contextTags || []);
       
-      // 카테고리 목록은 이미 별도의 useEffect에서 생성됨 (147-189라인)
+      // 선택된 카테고리에 맞는 가격 범위로 업데이트
+      updatePriceRangeForCategories(selectedCategories);
     }
   }, [isOpen, scope, selectedCategories, contextPriceRange, contextTags]);
   
@@ -341,25 +342,55 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
     console.log("📊 필터 모달: 카테고리 생성 완료 - 총 상품 수:", totalCount);
   }, [isOpen, selectedCountry.id, exploreProducts, isFilteringLists]);
   
-  // 카테고리 변경 핸들러
-  const handleCategoryChange = (categoryId: string) => {
-    if (categoryId === "ALL") {
-      setLocalCategories(["ALL"]);
-    } else {
-      setLocalCategories(prev => {
-        const withoutAll = prev.filter(c => c !== "ALL");
-        const hasCategory = withoutAll.includes(categoryId);
-        
-        if (hasCategory) {
-          // 이미 선택된 카테고리라면 제거
-          const result = withoutAll.filter(c => c !== categoryId);
-          return result.length === 0 ? ["ALL"] : result;
-        } else {
-          // 선택되지 않은 카테고리라면 추가
-          return [...withoutAll, categoryId];
-        }
-      });
+  // 가격 범위 업데이트 함수
+  const updatePriceRangeForCategories = async (categories: string[]) => {
+    try {
+      const params = new URLSearchParams();
+      params.append('countryId', selectedCountry.id);
+      
+      // 전체가 아닌 경우에만 카테고리 필터 추가
+      if (!categories.includes("ALL") && categories.length > 0) {
+        params.append('purposeCategories', categories.join(','));
+      }
+      
+      const response = await fetch(`/api/products/price-range?${params.toString()}`);
+      
+      if (response.ok) {
+        const priceRange = await response.json();
+        console.log('가격 범위 업데이트:', priceRange);
+        setLocalPriceRange(priceRange);
+        setMaxPrice(priceRange.max);
+        setMinPrice(priceRange.min);
+      }
+    } catch (error) {
+      console.error('가격 범위 업데이트 실패:', error);
     }
+  };
+
+  // 카테고리 변경 핸들러
+  const handleCategoryChange = async (categoryId: string) => {
+    let newCategories: string[];
+    
+    if (categoryId === "ALL") {
+      newCategories = ["ALL"];
+    } else {
+      const withoutAll = localCategories.filter(c => c !== "ALL");
+      const hasCategory = withoutAll.includes(categoryId);
+      
+      if (hasCategory) {
+        // 이미 선택된 카테고리라면 제거
+        const result = withoutAll.filter(c => c !== categoryId);
+        newCategories = result.length === 0 ? ["ALL"] : result;
+      } else {
+        // 선택되지 않은 카테고리라면 추가
+        newCategories = [...withoutAll, categoryId];
+      }
+    }
+    
+    setLocalCategories(newCategories);
+    
+    // 카테고리 변경 시 가격 범위 업데이트
+    await updatePriceRangeForCategories(newCategories);
   };
   
   // 태그 추가 핸들러
