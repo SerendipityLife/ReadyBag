@@ -167,12 +167,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ? (req.query.tags as string).split(',') 
         : undefined;
 
+      console.log(`[PRICE RANGE] 요청 파라미터: countryId=${countryId}, storeTypes=${storeTypes}, purposeCategories=${purposeCategories}`);
+
       // 캐시 키 생성
       const cacheKey = `price-range:${countryId}:${JSON.stringify({ storeTypes, purposeCategories, tags })}`;
       
       // 캐시에서 데이터 확인
       const cachedData = cache.get(cacheKey);
       if (cachedData) {
+        console.log(`[PRICE RANGE] 캐시에서 반환: ${JSON.stringify(cachedData)}`);
         return res.json(cachedData);
       }
 
@@ -185,9 +188,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // 해당 필터 조건에 맞는 상품들 가져오기
       const products = await storage.getProductsByCountry(countryId, filters);
+      console.log(`[PRICE RANGE] 필터링된 상품 수: ${products.length}`);
 
       if (products.length === 0) {
         const defaultRange = { min: 0, max: 50000 };
+        console.log(`[PRICE RANGE] 상품이 없어서 기본값 반환: ${JSON.stringify(defaultRange)}`);
         cache.set(cacheKey, defaultRange, 5 * 60 * 1000); // 5분 캐시
         return res.json(defaultRange);
       }
@@ -196,11 +201,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const prices = products.map(p => p.price);
       const minPrice = Math.min(...prices);
       const maxPrice = Math.max(...prices);
+      console.log(`[PRICE RANGE] 실제 가격 범위: ${minPrice} ~ ${maxPrice}`);
 
       const priceRange = {
-        min: Math.floor(minPrice / 1000) * 1000, // 1000엔 단위로 내림
-        max: Math.ceil(maxPrice / 1000) * 1000   // 1000엔 단위로 올림
+        min: Math.floor(minPrice / 100) * 100, // 100엔 단위로 내림
+        max: Math.ceil(maxPrice / 100) * 100   // 100엔 단위로 올림
       };
+
+      console.log(`[PRICE RANGE] 최종 반환값: ${JSON.stringify(priceRange)}`);
 
       // 캐시에 저장 (5분 유효)
       cache.set(cacheKey, priceRange, 5 * 60 * 1000);
