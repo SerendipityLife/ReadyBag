@@ -78,6 +78,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             selectedPurposeCategories={localPurposeCategories}
             onStoreTypesChange={setLocalStoreTypes}
             onPurposeCategoriesChange={setLocalPurposeCategories}
+            onPriceRangeUpdate={setLocalPriceRange}
           />
 
           {/* 가격 범위 필터 */}
