@@ -75,7 +75,71 @@ class RakutenService {
     }
   }
 
-  async getMinPriceForProduct(productName: string, productNameJapanese?: string, productNameEnglish?: string): Promise<{ minPrice: number; maxPrice: number } | null> {
+  // Amazon Japan 스크래핑 함수
+  private async searchAmazonJapan(keyword: string): Promise<number | null> {
+    try {
+      const searchUrl = `https://www.amazon.co.jp/s?k=${encodeURIComponent(keyword)}&ref=nb_sb_noss`;
+      console.log(`Amazon Japan에서 "${keyword}" 검색 중...`);
+      
+      // 실제 구현 시에는 스크래핑 방지를 위해 User-Agent와 헤더 설정 필요
+      const response = await fetch(searchUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept-Language': 'ja-JP,ja;q=0.9,en;q=0.8'
+        }
+      });
+      
+      if (response.ok) {
+        const html = await response.text();
+        // 간단한 가격 추출 로직 (실제로는 더 정교한 파싱 필요)
+        const priceMatch = html.match(/￥([\d,]+)/);
+        if (priceMatch) {
+          const price = parseInt(priceMatch[1].replace(/,/g, ''));
+          console.log(`Amazon Japan에서 찾은 가격: ${price}엔`);
+          return price;
+        }
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+      return null;
+    } catch (error) {
+      console.error('Amazon Japan 검색 오류:', error);
+      return null;
+    }
+  }
+
+  // Yahoo Shopping 스크래핑 함수
+  private async searchYahooShopping(keyword: string): Promise<number | null> {
+    try {
+      const searchUrl = `https://shopping.yahoo.co.jp/search?p=${encodeURIComponent(keyword)}`;
+      console.log(`Yahoo Shopping에서 "${keyword}" 검색 중...`);
+      
+      const response = await fetch(searchUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept-Language': 'ja-JP,ja;q=0.9,en;q=0.8'
+        }
+      });
+      
+      if (response.ok) {
+        const html = await response.text();
+        const priceMatch = html.match(/￥([\d,]+)/);
+        if (priceMatch) {
+          const price = parseInt(priceMatch[1].replace(/,/g, ''));
+          console.log(`Yahoo Shopping에서 찾은 가격: ${price}엔`);
+          return price;
+        }
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 1000)); // 1초 대기
+      return null;
+    } catch (error) {
+      console.error('Yahoo Shopping 검색 오류:', error);
+      return null;
+    }
+  }
+
+  async getMinPriceForProduct(productName: string, productNameJapanese?: string, productNameEnglish?: string): Promise<{ minPrice: number; maxPrice: number; source: string } | null> {
     const searchTerms = [
       productNameJapanese,
       productName,
@@ -84,7 +148,9 @@ class RakutenService {
 
     let minPrice = Infinity;
     let foundResults = false;
+    let priceSource = '';
 
+    // 1단계: 라쿠텐에서 검색
     for (const searchTerm of searchTerms) {
       if (!searchTerm) continue;
 
@@ -94,6 +160,7 @@ class RakutenService {
       
       if (result && result.Items && result.Items.length > 0) {
         foundResults = true;
+        priceSource = 'Rakuten';
         
         for (const item of result.Items) {
           const price = item.Item.itemPrice;
@@ -108,22 +175,52 @@ class RakutenService {
         }
       }
       
-      // API 호출 제한을 고려해 잠시 대기
       await new Promise(resolve => setTimeout(resolve, 100));
     }
 
+    // 2단계: 라쿠텐에서 결과가 없으면 다른 사이트에서 검색
     if (!foundResults || minPrice === Infinity) {
-      console.log(`"${productName}"에 대한 라쿠텐 검색 결과가 없습니다.`);
+      console.log(`라쿠텐에서 "${productName}" 검색 결과 없음. 다른 사이트 검색 시도...`);
+      
+      for (const searchTerm of searchTerms) {
+        if (!searchTerm) continue;
+        
+        // Amazon Japan 검색
+        const amazonPrice = await this.searchAmazonJapan(searchTerm);
+        if (amazonPrice && amazonPrice < minPrice) {
+          minPrice = amazonPrice;
+          foundResults = true;
+          priceSource = 'Amazon Japan';
+        }
+        
+        // 이미 좋은 가격을 찾았으면 중단
+        if (minPrice < Infinity) break;
+        
+        // Yahoo Shopping 검색
+        const yahooPrice = await this.searchYahooShopping(searchTerm);
+        if (yahooPrice && yahooPrice < minPrice) {
+          minPrice = yahooPrice;
+          foundResults = true;
+          priceSource = 'Yahoo Shopping';
+        }
+        
+        if (minPrice < Infinity) break;
+      }
+    }
+
+    if (!foundResults || minPrice === Infinity) {
+      console.log(`"${productName}"에 대한 모든 사이트 검색 결과가 없습니다.`);
       return null;
     }
 
     const maxPrice = Math.round(minPrice * 1.2); // 20% 추가
 
-    console.log(`"${productName}" - 최저가: ${minPrice}엔, 최대가: ${maxPrice}엔`);
+    console.log(`"${productName}" - 최저가: ${minPrice}엔, 최대가: ${maxPrice}엔 (출처: ${priceSource})`);
     
     return {
       minPrice: Math.round(minPrice),
-      maxPrice
+      maxPrice,
+      source: priceSource
     };
   }
 
@@ -175,11 +272,11 @@ class RakutenService {
             })
             .where(eq(products.id, product.id));
 
-          console.log(`✅ ${product.name}: ${priceInfo.minPrice}엔 - ${priceInfo.maxPrice}엔 (${minPriceKrw}원 - ${maxPriceKrw}원)`);
+          console.log(`✅ ${product.name}: ${priceInfo.minPrice}엔 - ${priceInfo.maxPrice}엔 (${minPriceKrw}원 - ${maxPriceKrw}원) [출처: ${priceInfo.source}]`);
           successCount++;
         } else {
           failCount++;
-          console.log(`❌ ${product.name}: 가격 정보를 찾을 수 없음`);
+          console.log(`❌ ${product.name}: 모든 사이트에서 가격 정보를 찾을 수 없음`);
         }
 
         // API 제한을 고려해 대기
