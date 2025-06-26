@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
 import { CurrencyDisplay } from "@/components/ui/currency-display";
 import { PriceRangeDisplay } from "@/components/ui/price-range-display";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 interface ProductCardProps {
   product: Product;
@@ -38,6 +39,10 @@ export function ProductCard({
 
   const [showFeedbackIcon, setShowFeedbackIcon] = useState(false);
   const [buttonShake, setButtonShake] = useState(false);
+  
+  // 상품 설명 모달 상태
+  const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
   // 버튼 트리거 여부를 추적하는 ref
   const isButtonTriggered = useRef(false);
@@ -200,6 +205,30 @@ export function ProductCard({
   // 환율을 고려한 가격 표시 (null 체크 추가)
   const priceInKRW = exchangeRate ? Math.round(product.price * exchangeRate) : 0;
 
+  // 터치 이벤트 핸들러
+  const handleDescriptionTouchStart = () => {
+    const timer = setTimeout(() => {
+      setIsDescriptionModalOpen(true);
+    }, 500); // 0.5초 길게 누르기
+    setLongPressTimer(timer);
+  };
+
+  const handleDescriptionTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  // 컴포넌트 언마운트 시 타이머 정리
+  useEffect(() => {
+    return () => {
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+      }
+    };
+  }, [longPressTimer]);
+
   return (
     <animated.div
       className="absolute top-0 left-0 right-0 mx-auto"
@@ -266,9 +295,16 @@ export function ProductCard({
               </p>
             </div>
 
-            <p className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2">
+            <div 
+              className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 cursor-pointer select-none"
+              onTouchStart={handleDescriptionTouchStart}
+              onTouchEnd={handleDescriptionTouchEnd}
+              onMouseDown={handleDescriptionTouchStart}
+              onMouseUp={handleDescriptionTouchEnd}
+              onMouseLeave={handleDescriptionTouchEnd}
+            >
               {product.description}
-            </p>
+            </div>
           </div>
 
           {/* 가격 정보와 리뷰 버튼 */}
@@ -317,6 +353,27 @@ export function ProductCard({
           </div>
         )}
       </Card>
+
+      {/* 상품 설명 모달 */}
+      <Dialog open={isDescriptionModalOpen} onOpenChange={setIsDescriptionModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-bold">
+              {product.name}
+            </DialogTitle>
+            {product.nameJapanese && (
+              <p className="text-sm text-gray-500 mt-1">
+                {product.nameJapanese}
+              </p>
+            )}
+          </DialogHeader>
+          <div className="mt-4">
+            <p className="text-gray-700 dark:text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
+              {product.description}
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </animated.div>
   );
 }
