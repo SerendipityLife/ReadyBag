@@ -170,6 +170,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get price range for specific category filters
+  app.get(`${apiPrefix}/products/price-range`, async (req, res) => {
+    try {
+      const countryId = req.query.countryId as string || "japan";
+
+      // 필터 파라미터 추출
+      const storeTypes = req.query.storeTypes 
+        ? (req.query.storeTypes as string).split(',') 
+        : undefined;
+
+      const purposeCategories = req.query.purposeCategories 
+        ? (req.query.purposeCategories as string).split(',') 
+        : undefined;
+
+      const tags = req.query.tags 
+        ? (req.query.tags as string).split(',') 
+        : undefined;
+
+      // 캐시 키 생성
+      const cacheKey = `price-range:${countryId}:${JSON.stringify({ storeTypes, purposeCategories, tags })}`;
+      
+      // 캐시에서 데이터 확인
+      const cachedData = cache.get(cacheKey);
+      if (cachedData) {
+        return res.json(cachedData);
+      }
+
+      // 필터 객체 생성
+      const filters = {
+        storeTypes,
+        purposeCategories,
+        tags
+      };
+
+      // 해당 필터 조건에 맞는 상품들 가져오기
+      const products = await storage.getProductsByCountry(countryId, filters);
+
+      if (products.length === 0) {
+        const defaultRange = { min: 0, max: 50000 };
+        cache.set(cacheKey, defaultRange, 5 * 60 * 1000); // 5분 캐시
+        return res.json(defaultRange);
+      }
+
+      // 가격 범위 계산
+      const prices = products.map(p => p.price);
+      const minPrice = Math.min(...prices);
+      const maxPrice = Math.max(...prices);
+
+      const priceRange = {
+        min: Math.floor(minPrice / 1000) * 1000, // 1000엔 단위로 내림
+        max: Math.ceil(maxPrice / 1000) * 1000   // 1000엔 단위로 올림
+      };
+
+      // 캐시에 저장 (5분 유효)
+      cache.set(cacheKey, priceRange, 5 * 60 * 1000);
+
+      return res.json(priceRange);
+    } catch (error) {
+      console.error("Error fetching price range:", error);
+      return res.status(500).json({ message: "Failed to fetch price range" });
+    }
+  });
+
   // Get user products (categorized)
   app.get(`${apiPrefix}/user-products`, async (req, res) => {
     try {

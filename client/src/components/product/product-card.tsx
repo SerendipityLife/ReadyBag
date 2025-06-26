@@ -209,7 +209,7 @@ export function ProductCard({
   const handleDescriptionTouchStart = () => {
     const timer = setTimeout(() => {
       setIsDescriptionModalOpen(true);
-    }, 500); // 0.5초 길게 누르기
+    }, 100); // 0.5초 길게 누르기
     setLongPressTimer(timer);
   };
 

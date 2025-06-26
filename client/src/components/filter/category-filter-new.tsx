@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Store, Package, ShoppingCart } from "lucide-react";
+import { useEffect } from "react";
 
 interface StoreType {
   id: string;
@@ -21,6 +22,7 @@ interface CategoryFilterProps {
   selectedPurposeCategories: string[];
   onStoreTypesChange: (storeTypes: string[]) => void;
   onPurposeCategoriesChange: (categories: string[]) => void;
+  onPriceRangeUpdate?: (priceRange: { min: number; max: number }) => void;
 }
 
 export function CategoryFilter({
@@ -28,6 +30,7 @@ export function CategoryFilter({
   selectedPurposeCategories,
   onStoreTypesChange,
   onPurposeCategoriesChange,
+  onPriceRangeUpdate,
 }: CategoryFilterProps) {
   // 판매처 데이터 가져오기
   const { data: storeTypes = [] } = useQuery<StoreType[]>({
@@ -39,26 +42,59 @@ export function CategoryFilter({
     queryKey: ["/api/categories/purpose-categories"],
   });
 
-  const handleStoreTypeToggle = (storeTypeId: string) => {
-    if (storeTypeId === "ALL") {
-      onStoreTypesChange(selectedStoreTypes.includes("ALL") ? [] : ["ALL"]);
-    } else {
-      const newSelection = selectedStoreTypes.includes(storeTypeId)
-        ? selectedStoreTypes.filter((id) => id !== storeTypeId && id !== "ALL")
-        : [...selectedStoreTypes.filter((id) => id !== "ALL"), storeTypeId];
-      onStoreTypesChange(newSelection);
+  // 가격 범위 업데이트 함수
+  const updatePriceRange = async (storeTypes: string[], purposeCategories: string[]) => {
+    if (!onPriceRangeUpdate) return;
+
+    try {
+      // API 파라미터 구성
+      const params = new URLSearchParams();
+      params.append('countryId', 'japan');
+      
+      // "ALL" 또는 빈 배열이 아닌 경우에만 필터 추가
+      if (storeTypes.length > 0 && !storeTypes.includes("ALL")) {
+        params.append('storeTypes', storeTypes.join(','));
+      }
+      
+      if (purposeCategories.length > 0 && !purposeCategories.includes("ALL")) {
+        params.append('purposeCategories', purposeCategories.join(','));
+      }
+
+      const response = await fetch(`/api/products/price-range?${params.toString()}`);
+      
+      if (response.ok) {
+        const priceRange = await response.json();
+        onPriceRangeUpdate(priceRange);
+      }
+    } catch (error) {
+      console.error('가격 범위 업데이트 실패:', error);
     }
   };
 
-  const handlePurposeCategoryToggle = (categoryId: string) => {
-    if (categoryId === "ALL") {
-      onPurposeCategoriesChange(selectedPurposeCategories.includes("ALL") ? [] : ["ALL"]);
+  const handleStoreTypeToggle = (storeTypeId: string) => {
+    let newSelection: string[];
+    if (storeTypeId === "ALL") {
+      newSelection = selectedStoreTypes.includes("ALL") ? [] : ["ALL"];
     } else {
-      const newSelection = selectedPurposeCategories.includes(categoryId)
+      newSelection = selectedStoreTypes.includes(storeTypeId)
+        ? selectedStoreTypes.filter((id) => id !== storeTypeId && id !== "ALL")
+        : [...selectedStoreTypes.filter((id) => id !== "ALL"), storeTypeId];
+    }
+    onStoreTypesChange(newSelection);
+    updatePriceRange(newSelection, selectedPurposeCategories);
+  };
+
+  const handlePurposeCategoryToggle = (categoryId: string) => {
+    let newSelection: string[];
+    if (categoryId === "ALL") {
+      newSelection = selectedPurposeCategories.includes("ALL") ? [] : ["ALL"];
+    } else {
+      newSelection = selectedPurposeCategories.includes(categoryId)
         ? selectedPurposeCategories.filter((id) => id !== categoryId && id !== "ALL")
         : [...selectedPurposeCategories.filter((id) => id !== "ALL"), categoryId];
-      onPurposeCategoriesChange(newSelection);
     }
+    onPurposeCategoriesChange(newSelection);
+    updatePriceRange(selectedStoreTypes, newSelection);
   };
 
   const isAllStoreTypesSelected = selectedStoreTypes.includes("ALL") || selectedStoreTypes.length === 0;
