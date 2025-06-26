@@ -34,48 +34,48 @@
   }
   
   :root {
-    --background: 39 31% 95%; /* Warm Beige */
-    --foreground: 0 0% 28%;
+    --background: 30 60% 97%; /* #F9F5F0 */
+    --foreground: 16 17% 43%; /* #6D4C41 */
     
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 28%;
+    --card-foreground: 16 17% 43%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 28%;
+    --popover-foreground: 16 17% 43%;
     
-    --primary: 24 29% 52%; /* Sand Brown */
+    --primary: 30 27% 46%; /* #8E735D */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 39 31% 85%; /* Light Warm Beige */
-    --secondary-foreground: 0 0% 28%;
+    --secondary: 30 60% 94%; /* Lighter version of background */
+    --secondary-foreground: 16 17% 43%;
     
-    --muted: 39 31% 90%;
-    --muted-foreground: 0 0% 46%;
+    --muted: 30 60% 92%;
+    --muted-foreground: 16 17% 60%;
     
-    --accent: 24 29% 60%; /* Lighter Sand Brown */
+    --accent: 19 72% 58%; /* #DC7C4A */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 39 25% 85%;
-    --input: 39 25% 90%;
-    --ring: 24 29% 52%;
+    --border: 30 30% 88%;
+    --input: 30 40% 92%;
+    --ring: 30 27% 46%;
     
-    --chart-1: 24 29% 52%;
-    --chart-2: 39 31% 75%;
-    --chart-3: 30 40% 65%;
-    --chart-4: 45 35% 70%;
-    --chart-5: 35 45% 60%;
+    --chart-1: 30 27% 46%;
+    --chart-2: 19 72% 58%;
+    --chart-3: 30 60% 85%;
+    --chart-4: 16 17% 60%;
+    --chart-5: 30 40% 70%;
     
-    --sidebar-background: 39 31% 95%;
-    --sidebar-foreground: 0 0% 28%;
-    --sidebar-primary: 24 29% 52%;
+    --sidebar-background: 30 60% 97%;
+    --sidebar-foreground: 16 17% 43%;
+    --sidebar-primary: 30 27% 46%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 174 100% 33%;
+    --sidebar-accent: 19 72% 58%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 82%;
+    --sidebar-border: 30 30% 88%;
+    --sidebar-ring: 30 27% 46%;
     
     --radius: 0.5rem;
   }
@@ -85,7 +85,7 @@
   }
   
   body {
-    @apply font-body antialiased bg-neutral-light text-neutral-dark overflow-x-hidden;
+    @apply font-body antialiased bg-background text-foreground overflow-x-hidden;
   }
   
   /* Card swiping animations */

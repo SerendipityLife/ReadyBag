@@ -73,18 +73,30 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom Sand Brown theme colors
-        "sand-brown": {
-          50: "#F9F4F0",
-          100: "#F3E3C6", // Warm Beige
-          200: "#E8C89A",
-          300: "#DCAD6E",
-          400: "#D1924B",
-          500: "#A97F5F", // Sand Brown
-          600: "#8B6548",
-          700: "#6D4B35",
-          800: "#4F3125",
-          900: "#321A14",
+        // Custom refined theme colors
+        "refined": {
+          50: "#F9F5F0", // Background
+          100: "#F0E8E0",
+          200: "#E8D5C8",
+          300: "#D6B8A0",
+          400: "#C29B78",
+          500: "#8E735D", // Main
+          600: "#7A614F",
+          700: "#6D4C41", // Text
+          800: "#5A3F36",
+          900: "#47322B",
+        },
+        "accent": {
+          50: "#FEF3EF",
+          100: "#FDE4DA",
+          200: "#FBCBB5",
+          300: "#F8A885",
+          400: "#F08054",
+          500: "#DC7C4A", // Point
+          600: "#C6642F",
+          700: "#A45025",
+          800: "#824023",
+          900: "#6A3520",
         },
       },
       keyframes: {
