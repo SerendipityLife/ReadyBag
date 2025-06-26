@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log(`[PRICE RANGE] 필터링된 상품 수: ${products.length}`);
 
       if (products.length === 0) {
-        const defaultRange = { min: 0, max: 50000 };
+        const defaultRange = { min: 100, max: 3000 };
         console.log(`[PRICE RANGE] 상품이 없어서 기본값 반환: ${JSON.stringify(defaultRange)}`);
         cache.set(cacheKey, defaultRange, 5 * 60 * 1000); // 5분 캐시
         return res.json(defaultRange);

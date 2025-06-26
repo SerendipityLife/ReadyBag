@@ -57,7 +57,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   const handleResetFilters = () => {
     const resetStoreTypes = ["ALL"];
     const resetPurposeCategories = ["ALL"];
-    const resetPriceRange = { min: 0, max: 50000 };
+    const resetPriceRange = { min: 100, max: 3000 };
     
     setLocalStoreTypes(resetStoreTypes);
     setLocalPurposeCategories(resetPurposeCategories);
@@ -86,9 +86,9 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
             <Label className="text-base font-semibold">가격 범위</Label>
             <div className="px-2">
               <Slider
-                min={0}
-                max={50000}
-                step={1000}
+                min={100}
+                max={3000}
+                step={100}
                 value={[localPriceRange.min, localPriceRange.max]}
                 onValueChange={([min, max]) => 
                   setLocalPriceRange({ min, max })

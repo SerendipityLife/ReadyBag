@@ -115,7 +115,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   
   // 필터 관련 상태
-  const [priceRange, setPriceRange] = useState<PriceRange>({ min: 0, max: 50000 });
+  const [priceRange, setPriceRange] = useState<PriceRange>({ min: 100, max: 3000 });
   const [tags, setTags] = useState<string[]>([]);
   
   // 캘린더 활성화 상태
