@@ -149,28 +149,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get product by ID
-  app.get(`${apiPrefix}/products/:id`, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) {
-        return res.status(400).json({ message: "Invalid product ID" });
-      }
-
-      const product = await storage.getProductById(id);
-
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-
-      return res.json(product);
-    } catch (error) {
-      console.error("Error fetching product:", error);
-      return res.status(500).json({ message: "Failed to fetch product" });
-    }
-  });
-
-  // Get price range for specific category filters
+  // Get price range for specific category filters (이 라우트를 먼저 배치)
   app.get(`${apiPrefix}/products/price-range`, async (req, res) => {
     try {
       const countryId = req.query.countryId as string || "japan";
@@ -230,6 +209,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching price range:", error);
       return res.status(500).json({ message: "Failed to fetch price range" });
+    }
+  });
+
+  // Get product by ID
+  app.get(`${apiPrefix}/products/:id`, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid product ID" });
+      }
+
+      const product = await storage.getProductById(id);
+
+      if (!product) {
+        return res.status(404).json({ message: "Product not found" });
+      }
+
+      return res.json(product);
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      return res.status(500).json({ message: "Failed to fetch product" });
     }
   });
 
