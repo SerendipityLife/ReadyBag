@@ -118,7 +118,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
+    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full max-w-sm mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
       <div className="flex justify-between items-center w-full">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
