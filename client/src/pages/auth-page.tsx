@@ -230,20 +230,20 @@ export default function AuthPage() {
               <Form {...loginForm}>
                 <form 
                   onSubmit={loginForm.handleSubmit(onLoginSubmit)} 
-                  className="space-y-4"
+                  className="space-y-5"
                 >
                   <FormField
                     control={loginForm.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>이메일</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium text-base">이메일</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="your@email.com" 
-                              className="pl-10"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg"
                               autoComplete="email" 
                               {...field} 
                             />
@@ -259,14 +259,14 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>비밀번호</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium text-base">비밀번호</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                             <Input 
                               type="password" 
                               placeholder="********" 
-                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg" 
                               autoComplete="current-password"
                               {...field} 
                             />
@@ -277,16 +277,16 @@ export default function AuthPage() {
                     )}
                   />
 
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
                         id="rememberEmail"
                         checked={saveEmail}
                         onChange={(e) => setSaveEmail(e.target.checked)}
-                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                       />
-                      <label htmlFor="rememberEmail" className="text-sm text-gray-500 select-none">
+                      <label htmlFor="rememberEmail" className="text-sm text-gray-600 select-none">
                         이메일 저장
                       </label>
                     </div>
@@ -294,11 +294,11 @@ export default function AuthPage() {
                   
                   <Button 
                     type="submit" 
-                    className="w-full mt-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white" 
+                    className="w-full mt-6 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all" 
                     disabled={loginMutation.isPending || isLoading}
                   >
                     {loginMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : null}
                     로그인
                   </Button>
@@ -570,32 +570,7 @@ export default function AuthPage() {
         </div>
       </div>
 
-      {/* 앱 소개 섹션 */}
-      <div className="w-full md:w-1/2 bg-gradient-to-br from-sand-brown-100 to-sand-brown-200 flex flex-col justify-center items-center p-8 md:p-12 hidden md:flex">
-        <div className="max-w-lg text-center">
-          <h2 className="text-3xl font-bold text-sand-brown-800 mb-4">스마트한 여행 쇼핑 플래너</h2>
-          <p className="text-sand-brown-700 mb-8 leading-relaxed">ReadyBag과 함께 해외 여행에서 구매할 상품들을<br/>여행 날짜별로 분류하고 관리하세요.</p>
-          
-          <div className="space-y-4 mt-8">
-            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-2">날짜별 관리</h3>
-              <p className="text-sm text-sand-brown-600">여행 날짜별로 상품을 분류하고 체계적인 쇼핑 계획을 세우세요.</p>
-            </div>
-            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-2">실시간 환율</h3>
-              <p className="text-sm text-sand-brown-600">현지 통화와 한국 원화의 실시간 환율을 확인하세요.</p>
-            </div>
-            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-2">위치 기반 쇼핑</h3>
-              <p className="text-sm text-sand-brown-600">숙소 위치 기반으로 주변 매장을 찾고 쇼핑하세요.</p>
-            </div>
-            <div className="bg-white/90 p-5 rounded-lg shadow-sm border border-sand-brown-200">
-              <h3 className="font-semibold text-sand-brown-700 mb-2">상품 리뷰</h3>
-              <p className="text-sm text-sand-brown-600">구매 상품에 리뷰를 남기고 다른 여행자 후기를 확인하세요.</p>
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }
