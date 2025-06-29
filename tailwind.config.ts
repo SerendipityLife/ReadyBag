@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -73,30 +74,45 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Modern travel-themed colors
+        // Modern travel-themed colors - comprehensive palette
         "sky": {
           50: "#F0F9FF",
           100: "#E0F2FE", 
           200: "#BAE6FD",
           300: "#7DD3FC",
           400: "#38BDF8",
-          500: "#00BFFF", // Bright Sky Blue
-          600: "#0EA5E9",
-          700: "#0284C7",
-          800: "#0369A1",
+          500: "#0EA5E9", // Primary sky blue
+          600: "#0284C7",
+          700: "#0369A1",
+          800: "#075985",
           900: "#0C4A6E",
+          950: "#082F49",
         },
         "ocean": {
           50: "#ECFEFF",
           100: "#CFFAFE",
           200: "#A5F3FC",
           300: "#67E8F9",
-          400: "#22D3EE", // Cyan
+          400: "#22D3EE", // Cyan accent
           500: "#06B6D4",
           600: "#0891B2",
           700: "#0E7490",
           800: "#155E75",
           900: "#164E63",
+          950: "#083344",
+        },
+        "slate": {
+          50: "#F8FAFC",
+          100: "#F1F5F9",
+          200: "#E2E8F0",
+          300: "#CBD5E1",
+          400: "#94A3B8",
+          500: "#64748B",
+          600: "#475569",
+          700: "#334155", // Dark text
+          800: "#1E293B",
+          900: "#0F172A",
+          950: "#020617",
         },
         "sunset": {
           50: "#FFF7ED",
@@ -104,25 +120,37 @@ export default {
           200: "#FED7AA",
           300: "#FDBA74",
           400: "#FB923C",
-          500: "#F97316", // Orange
+          500: "#F97316", // Orange accent
           600: "#EA580C",
           700: "#C2410C",
           800: "#9A3412",
           900: "#7C2D12",
         },
-        // Keep existing colors for compatibility
+        // Travel brand colors
         "travel": {
           50: "#F0F9FF",
           100: "#E0F2FE",
           200: "#BAE6FD", 
           300: "#7DD3FC",
           400: "#38BDF8",
-          500: "#00BFFF",
-          600: "#0EA5E9",
-          700: "#0284C7",
-          800: "#0369A1",
+          500: "#0EA5E9", // Main brand color
+          600: "#0284C7",
+          700: "#0369A1",
+          800: "#075985",
           900: "#0C4A6E",
         },
+        // Gradient colors
+        "gradient": {
+          "sky-start": "#0EA5E9",
+          "sky-end": "#22D3EE",
+          "ocean-start": "#06B6D4",
+          "ocean-end": "#67E8F9",
+        }
+      },
+      backgroundImage: {
+        'gradient-travel': 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #BAE6FD 100%)',
+        'gradient-sky': 'linear-gradient(135deg, #0EA5E9 0%, #22D3EE 100%)',
+        'gradient-ocean': 'linear-gradient(135deg, #06B6D4 0%, #67E8F9 100%)',
       },
       keyframes: {
         "accordion-down": {
@@ -165,6 +193,10 @@ export default {
           "0%, 100%": { transform: "rotate(-3deg)" },
           "50%": { transform: "rotate(3deg)" }
         },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -172,6 +204,11 @@ export default {
         "bounce-subtle": "bounce-subtle 1.5s infinite ease-in-out",
         "pulse-strong": "pulse-strong 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "wiggle": "wiggle 0.3s ease-in-out 2",
+        "shimmer": "shimmer 2s linear infinite",
+      },
+      boxShadow: {
+        'travel': '0 10px 25px -5px rgba(14, 165, 233, 0.1), 0 10px 10px -5px rgba(14, 165, 233, 0.04)',
+        'travel-lg': '0 25px 50px -12px rgba(14, 165, 233, 0.25)',
       },
     },
   },

@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,48 +35,48 @@
   }
   
   :root {
-    --background: 210 40% 98%; /* #F0F4F8 - Lighter Blue White */
-    --foreground: 210 22% 22%; /* #2D3748 - Dark Blue Gray */
+    --background: 206 100% 97%; /* #F0F9FF - Light Sky Blue */
+    --foreground: 214 32% 25%; /* #1E293B - Slate Gray */
     
     --card: 0 0% 100%;
-    --card-foreground: 210 22% 22%;
+    --card-foreground: 214 32% 25%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 210 22% 22%;
+    --popover-foreground: 214 32% 25%;
     
-    --primary: 195 100% 50%; /* #00BFFF - Bright Sky Blue */
+    --primary: 199 89% 48%; /* #0EA5E9 - Sky Blue */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 210 40% 94%; /* #E2E8F0 - Very Light Blue */
-    --secondary-foreground: 210 22% 22%;
+    --secondary: 214 32% 91%; /* #F1F5F9 - Light Slate */
+    --secondary-foreground: 214 32% 25%;
     
-    --muted: 210 40% 90%;
-    --muted-foreground: 210 14% 46%;
+    --muted: 210 40% 94%;
+    --muted-foreground: 214 13% 47%;
     
-    --accent: 158 64% 52%; /* #22D3EE - Cyan Accent */
+    --accent: 188 85% 64%; /* #22D3EE - Cyan */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 210 40% 85%;
-    --input: 210 40% 90%;
-    --ring: 195 100% 50%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 199 89% 48%;
     
-    --chart-1: 195 100% 50%;
-    --chart-2: 158 64% 52%;
+    --chart-1: 199 89% 48%;
+    --chart-2: 188 85% 64%;
     --chart-3: 45 93% 58%;
     --chart-4: 262 83% 58%;
     --chart-5: 346 87% 43%;
     
-    --sidebar-background: 210 40% 98%;
-    --sidebar-foreground: 210 22% 22%;
-    --sidebar-primary: 195 100% 50%;
+    --sidebar-background: 206 100% 97%;
+    --sidebar-foreground: 214 32% 25%;
+    --sidebar-primary: 199 89% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 158 64% 52%;
+    --sidebar-accent: 188 85% 64%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 210 40% 85%;
-    --sidebar-ring: 195 100% 50%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 199 89% 48%;
     
     --radius: 0.75rem;
   }
@@ -86,54 +87,99 @@
   
   body {
     @apply font-body antialiased bg-background text-foreground overflow-x-hidden;
+    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
   }
   
   /* Travel theme component overrides */
   .travel-header {
-    @apply bg-gradient-to-r from-sky-500 to-ocean-400 text-white;
+    @apply bg-gradient-to-r from-sky-500 to-cyan-400 text-white;
   }
   
   .travel-card {
-    @apply bg-white border border-sky-200 shadow-lg;
+    @apply bg-white border border-sky-200 shadow-lg rounded-xl;
   }
   
   .travel-button-primary {
-    @apply bg-sky-500 hover:bg-sky-600 text-white;
+    @apply bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white shadow-lg;
   }
   
   .travel-button-secondary {
-    @apply bg-ocean-400 hover:bg-ocean-500 text-white;
+    @apply bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-500 hover:to-cyan-600 text-white shadow-lg;
   }
   
   .travel-accent {
     @apply text-sky-600;
   }
   
-  /* Override any remaining brown/beige elements */
-  .bg-brown-50, .bg-amber-50, .bg-yellow-50 {
+  /* Complete color override for any brown/beige/amber elements */
+  .bg-brown-50, .bg-amber-50, .bg-yellow-50, .bg-orange-50 {
     @apply bg-sky-50 !important;
   }
   
-  .bg-brown-100, .bg-amber-100, .bg-yellow-100 {
+  .bg-brown-100, .bg-amber-100, .bg-yellow-100, .bg-orange-100 {
     @apply bg-sky-100 !important;
   }
   
-  .text-brown-600, .text-amber-600, .text-yellow-600 {
+  .bg-brown-200, .bg-amber-200, .bg-yellow-200, .bg-orange-200 {
+    @apply bg-sky-200 !important;
+  }
+  
+  .text-brown-600, .text-amber-600, .text-yellow-600, .text-orange-600 {
     @apply text-sky-600 !important;
   }
   
-  .text-brown-700, .text-amber-700, .text-yellow-700 {
+  .text-brown-700, .text-amber-700, .text-yellow-700, .text-orange-700 {
     @apply text-sky-700 !important;
   }
   
-  .border-brown-200, .border-amber-200, .border-yellow-200 {
+  .text-brown-800, .text-amber-800, .text-yellow-800, .text-orange-800 {
+    @apply text-slate-700 !important;
+  }
+  
+  .border-brown-200, .border-amber-200, .border-yellow-200, .border-orange-200 {
     @apply border-sky-200 !important;
+  }
+  
+  /* Header and logo styling */
+  header {
+    @apply bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-lg;
+  }
+  
+  /* Logo specific overrides */
+  .text-brown-500 {
+    @apply text-sky-600 !important;
+  }
+  
+  /* Button styling overrides */
+  .bg-brown-500, .bg-amber-500, .bg-yellow-500, .bg-orange-500 {
+    @apply bg-sky-500 !important;
+  }
+  
+  .hover\:bg-brown-600:hover, .hover\:bg-amber-600:hover, .hover\:bg-yellow-600:hover, .hover\:bg-orange-600:hover {
+    @apply hover:bg-sky-600 !important;
+  }
+  
+  /* Card and container styling */
+  .shadow-brown, .shadow-amber, .shadow-yellow, .shadow-orange {
+    @apply shadow-sky-200 !important;
+  }
+  
+  /* Focus and ring colors */
+  .ring-brown-500, .ring-amber-500, .ring-yellow-500, .ring-orange-500 {
+    @apply ring-sky-500 !important;
+  }
+  
+  .focus\:ring-brown-500:focus, .focus\:ring-amber-500:focus, .focus\:ring-yellow-500:focus, .focus\:ring-orange-500:focus {
+    @apply focus:ring-sky-500 !important;
   }
   
   /* Card swiping animations */
   .card {
     will-change: transform;
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+    background: white;
+    border: 1px solid #BAE6FD;
+    box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.1), 0 10px 10px -5px rgba(14, 165, 233, 0.04);
   }
   
   .card.swiped-right {
@@ -189,5 +235,18 @@
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
+  }
+  
+  /* Global component overrides for remaining elements */
+  [style*="color: #8E735D"], [style*="color: #DC7C4A"], [style*="color: #6D4C41"] {
+    color: #0EA5E9 !important;
+  }
+  
+  [style*="background-color: #F9F5F0"], [style*="background-color: #8E735D"] {
+    background-color: #F0F9FF !important;
+  }
+  
+  [style*="border-color: #8E735D"], [style*="border-color: #DC7C4A"] {
+    border-color: #BAE6FD !important;
   }
 }
