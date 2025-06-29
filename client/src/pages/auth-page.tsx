@@ -183,12 +183,12 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-warm-beige">
+    <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* 로그인/회원가입 양식 섹션 */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12 bg-warm-beige">
+      <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-warm-beige p-6 rounded-xl mb-4 shadow-sm">
+            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100">
               <img 
                 src="/logo-readybag.png" 
                 alt="ReadyBag" 
@@ -199,29 +199,31 @@ export default function AuthPage() {
                 }}
               />
             </div>
-            <p className="text-sm text-sand-brown-700">여행 쇼핑 계획을 더 쉽게</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">ReadyBag</h1>
+            <p className="text-base text-gray-600">여행 쇼핑 계획을 더 쉽게</p>
           </div>
 
-          <Tabs 
-            defaultValue="login" 
-            value={activeTab} 
-            onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}
-            className="w-full"
-          >
-            <TabsList className="grid w-full grid-cols-2 mb-8 bg-white/70 border border-sand-brown-200">
-              <TabsTrigger 
-                value="login"
-                className="data-[state=active]:bg-sand-brown-500 data-[state=active]:text-white text-sand-brown-700"
-              >
-                로그인
-              </TabsTrigger>
-              <TabsTrigger 
-                value="register"
-                className="data-[state=active]:bg-sand-brown-500 data-[state=active]:text-white text-sand-brown-700"
-              >
-                회원가입
-              </TabsTrigger>
-            </TabsList>
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
+            <Tabs 
+              defaultValue="login" 
+              value={activeTab} 
+              onValueChange={(value) => setActiveTab(value as "login" | "register" | "forgot")}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 mb-6 bg-gray-100 border-0 h-12">
+                <TabsTrigger 
+                  value="login"
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 font-medium text-base h-10"
+                >
+                  로그인
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="register"
+                  className="data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-md text-gray-700 font-medium text-base h-10"
+                >
+                  회원가입
+                </TabsTrigger>
+              </TabsList>
 
             {/* 로그인 탭 */}
             <TabsContent value="login">
@@ -563,7 +565,8 @@ export default function AuthPage() {
                 </div>
               </div>
             </TabsContent>
-          </Tabs>
+            </Tabs>
+          </div>
         </div>
       </div>
 
