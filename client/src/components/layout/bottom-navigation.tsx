@@ -144,7 +144,7 @@ export function BottomNavigation() {
                    navItems.length === 3 ? 'grid-cols-3' : 'grid-cols-4';
   
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-white border-t border-gray-200 z-40">
+    <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-blue-200 z-40">
       <div className="container mx-auto px-4">
         <div className={`grid ${gridCols} gap-4 h-16`}>
           {navItems.map((item) => (

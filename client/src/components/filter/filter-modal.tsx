@@ -479,7 +479,7 @@ export function FilterModal({ isOpen, onClose, scope = View.EXPLORE }: FilterMod
   return (
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent 
-        className="max-w-md max-h-[90vh] overflow-y-auto p-6" 
+        className="max-w-md max-h-[90vh] overflow-y-auto p-6 bg-white rounded-xl shadow-lg" 
         onEscapeKeyDown={onClose}
         onInteractOutside={onClose}
         onPointerDownOutside={onClose}
