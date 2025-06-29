@@ -769,7 +769,7 @@ export function ProductCardStack() {
   
   return (
     <div className="w-full max-w-md mx-auto flex flex-col min-h-0">
-      <div className="card-stack relative h-[480px] w-full mx-auto">
+      <div className="card-stack relative h-[480px] w-full">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -799,7 +799,7 @@ export function ProductCardStack() {
         </div>
       )}
       
-      <div className="mb-2">
+      <div className="mb-2 w-full">
         <ActionButtons onActionClick={handleActionClick} />
       </div>
       
