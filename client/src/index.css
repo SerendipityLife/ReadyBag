@@ -34,48 +34,48 @@
   }
   
   :root {
-    --background: 210 20% 98%; /* #F8FAFC - Clean Sky White */
-    --foreground: 215 25% 27%; /* #334155 - Deep Slate */
+    --background: 210 40% 98%; /* #F0F4F8 - Lighter Blue White */
+    --foreground: 210 22% 22%; /* #2D3748 - Dark Blue Gray */
     
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 27%;
+    --card-foreground: 210 22% 22%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 27%;
+    --popover-foreground: 210 22% 22%;
     
-    --primary: 200 95% 45%; /* #0EA5E9 - Travel Blue */
+    --primary: 195 100% 50%; /* #00BFFF - Bright Sky Blue */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 210 40% 96%; /* #F1F5F9 - Light Sky */
-    --secondary-foreground: 215 25% 27%;
+    --secondary: 210 40% 94%; /* #E2E8F0 - Very Light Blue */
+    --secondary-foreground: 210 22% 22%;
     
-    --muted: 210 40% 93%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 210 40% 90%;
+    --muted-foreground: 210 14% 46%;
     
-    --accent: 142 76% 36%; /* #059669 - Success Green */
+    --accent: 158 64% 52%; /* #22D3EE - Cyan Accent */
     --accent-foreground: 0 0% 100%;
     
-    --destructive: 0 84% 60%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 214 32% 91%;
-    --input: 214 32% 94%;
-    --ring: 200 95% 45%;
+    --border: 210 40% 85%;
+    --input: 210 40% 90%;
+    --ring: 195 100% 50%;
     
-    --chart-1: 200 95% 45%;
-    --chart-2: 142 76% 36%;
-    --chart-3: 47 96% 53%;
+    --chart-1: 195 100% 50%;
+    --chart-2: 158 64% 52%;
+    --chart-3: 45 93% 58%;
     --chart-4: 262 83% 58%;
     --chart-5: 346 87% 43%;
     
-    --sidebar-background: 210 20% 98%;
-    --sidebar-foreground: 215 25% 27%;
-    --sidebar-primary: 200 95% 45%;
+    --sidebar-background: 210 40% 98%;
+    --sidebar-foreground: 210 22% 22%;
+    --sidebar-primary: 195 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 142 76% 36%;
+    --sidebar-accent: 158 64% 52%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 200 95% 45%;
+    --sidebar-border: 210 40% 85%;
+    --sidebar-ring: 195 100% 50%;
     
     --radius: 0.75rem;
   }
@@ -86,6 +86,48 @@
   
   body {
     @apply font-body antialiased bg-background text-foreground overflow-x-hidden;
+  }
+  
+  /* Travel theme component overrides */
+  .travel-header {
+    @apply bg-gradient-to-r from-sky-500 to-ocean-400 text-white;
+  }
+  
+  .travel-card {
+    @apply bg-white border border-sky-200 shadow-lg;
+  }
+  
+  .travel-button-primary {
+    @apply bg-sky-500 hover:bg-sky-600 text-white;
+  }
+  
+  .travel-button-secondary {
+    @apply bg-ocean-400 hover:bg-ocean-500 text-white;
+  }
+  
+  .travel-accent {
+    @apply text-sky-600;
+  }
+  
+  /* Override any remaining brown/beige elements */
+  .bg-brown-50, .bg-amber-50, .bg-yellow-50 {
+    @apply bg-sky-50 !important;
+  }
+  
+  .bg-brown-100, .bg-amber-100, .bg-yellow-100 {
+    @apply bg-sky-100 !important;
+  }
+  
+  .text-brown-600, .text-amber-600, .text-yellow-600 {
+    @apply text-sky-600 !important;
+  }
+  
+  .text-brown-700, .text-amber-700, .text-yellow-700 {
+    @apply text-sky-700 !important;
+  }
+  
+  .border-brown-200, .border-amber-200, .border-yellow-200 {
+    @apply border-sky-200 !important;
   }
   
   /* Card swiping animations */
