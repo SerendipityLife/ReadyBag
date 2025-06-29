@@ -1,23 +1,16 @@
 import { useState, useEffect } from "react";
-import { Calendar, CalendarDays, Plus, Trash2 } from "lucide-react";
+import { CalendarDays, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { useAppContext } from "@/contexts/AppContext";
+import { DateRange } from "react-day-picker";
 
 interface TravelDateSelectorProps {
   startDate?: Date | null;
@@ -40,17 +33,17 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
   } = useAppContext();
   
   const [isOpen, setIsOpen] = useState(false);
-  const [tempStartDate, setTempStartDate] = useState<string>(
-    startDate ? format(startDate, "yyyy-MM-dd") : ""
-  );
-  const [tempEndDate, setTempEndDate] = useState<string>(
-    endDate ? format(endDate, "yyyy-MM-dd") : ""
-  );
+  const [isNewDateModalOpen, setIsNewDateModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startDate || undefined,
+    to: endDate || undefined,
+  });
 
   // 캘린더 활성화 상태 감지
   useEffect(() => {
     if (shouldActivateCalendar) {
       setIsOpen(true);
+      setIsNewDateModalOpen(true);
       setShouldActivateCalendar(false);
     }
   }, [shouldActivateCalendar, setShouldActivateCalendar]);
@@ -59,27 +52,38 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
   useEffect(() => {
     if (showTravelDateSelector) {
       setIsOpen(true);
+      setIsNewDateModalOpen(true);
       setShowTravelDateSelector(false);
     }
   }, [showTravelDateSelector, setShowTravelDateSelector]);
 
+  // 날짜 범위가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setDateRange({
+      from: startDate || undefined,
+      to: endDate || undefined,
+    });
+  }, [startDate, endDate]);
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+  };
+
   const handleSave = () => {
-    const start = tempStartDate ? new Date(tempStartDate) : null;
-    const end = tempEndDate ? new Date(tempEndDate) : null;
-    
-    if (start && end) {
+    if (dateRange?.from && dateRange?.to) {
       // 새 여행 날짜 저장
-      const travelDateId = addTravelDate(start, end);
-      onDatesChange(start, end);
+      const travelDateId = addTravelDate(dateRange.from, dateRange.to);
+      onDatesChange(dateRange.from, dateRange.to);
     }
     
+    setIsNewDateModalOpen(false);
     setIsOpen(false);
   };
 
   const handleClear = () => {
-    setTempStartDate("");
-    setTempEndDate("");
+    setDateRange(undefined);
     onDatesChange(null, null);
+    setIsNewDateModalOpen(false);
     setIsOpen(false);
   };
 
@@ -88,8 +92,10 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
     if (selectedDate) {
       setSelectedTravelDateId(travelDateId);
       onDatesChange(selectedDate.startDate, selectedDate.endDate);
-      setTempStartDate(format(selectedDate.startDate, "yyyy-MM-dd"));
-      setTempEndDate(format(selectedDate.endDate, "yyyy-MM-dd"));
+      setDateRange({
+        from: selectedDate.startDate,
+        to: selectedDate.endDate,
+      });
       
       console.log(`[TravelDateSelector] 여행 날짜 선택됨: ${travelDateId} (${selectedDate.label})`);
       console.log(`[TravelDateSelector] Context 업데이트 전 selectedTravelDateId:`, selectedTravelDateId);
@@ -112,8 +118,7 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
     if (selectedTravelDateId === travelDateId) {
       setSelectedTravelDateId(null);
       onDatesChange(null, null);
-      setTempStartDate("");
-      setTempEndDate("");
+      setDateRange(undefined);
     }
   };
 
@@ -122,6 +127,13 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
     if (!startDate) return "시작일 미설정";
     if (!endDate) return format(startDate, "yyyy.MM.dd", { locale: ko });
     return `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
+  };
+
+  const formatCalendarDateRange = () => {
+    if (!dateRange?.from && !dateRange?.to) return "날짜를 선택하세요";
+    if (!dateRange?.from) return "시작일 미설정";
+    if (!dateRange?.to) return format(dateRange.from, "yyyy.MM.dd", { locale: ko });
+    return `${format(dateRange.from, "yyyy.MM.dd", { locale: ko })} - ${format(dateRange.to, "yyyy.MM.dd", { locale: ko })}`;
   };
 
   return (
@@ -171,36 +183,33 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
               {mode === 'browse' && (
                 <>
                   <div className="border-t border-gray-200 my-1"></div>
-                  <Popover>
+                  <Popover open={isNewDateModalOpen} onOpenChange={setIsNewDateModalOpen}>
                     <PopoverTrigger asChild>
                       <button className="w-full flex items-center justify-center p-2 rounded hover:bg-blue-50 text-blue-600">
                         <Plus className="h-3 w-3 mr-1" />
                         <span className="text-xs">새 날짜 추가</span>
                       </button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-80" align="start">
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="start-date">여행 시작일</Label>
-                          <Input
-                            id="start-date"
-                            type="date"
-                            value={tempStartDate}
-                            onChange={(e) => setTempStartDate(e.target.value)}
-                          />
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-4 space-y-4">
+                        <div className="text-center">
+                          <h4 className="text-sm font-medium">여행 날짜 선택</h4>
+                          <p className="text-xs text-gray-500 mt-1">{formatCalendarDateRange()}</p>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="end-date">여행 종료일</Label>
-                          <Input
-                            id="end-date"
-                            type="date"
-                            value={tempEndDate}
-                            onChange={(e) => setTempEndDate(e.target.value)}
-                            min={tempStartDate}
-                          />
-                        </div>
+                        <Calendar
+                          mode="range"
+                          selected={dateRange}
+                          onSelect={handleDateRangeSelect}
+                          numberOfMonths={1}
+                          className="rounded-md border"
+                          locale={ko}
+                        />
                         <div className="flex gap-2">
-                          <Button onClick={handleSave} className="flex-1">
+                          <Button 
+                            onClick={handleSave} 
+                            className="flex-1"
+                            disabled={!dateRange?.from || !dateRange?.to}
+                          >
                             저장
                           </Button>
                           <Button variant="outline" onClick={handleClear} className="flex-1">
@@ -228,29 +237,26 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
                 {formatDateRange()}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="start">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="start-date">여행 시작일</Label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={tempStartDate}
-                    onChange={(e) => setTempStartDate(e.target.value)}
-                  />
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="p-4 space-y-4">
+                <div className="text-center">
+                  <h4 className="text-sm font-medium">여행 날짜 선택</h4>
+                  <p className="text-xs text-gray-500 mt-1">{formatCalendarDateRange()}</p>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="end-date">여행 종료일</Label>
-                  <Input
-                    id="end-date"
-                    type="date"
-                    value={tempEndDate}
-                    onChange={(e) => setTempEndDate(e.target.value)}
-                    min={tempStartDate}
-                  />
-                </div>
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDateRangeSelect}
+                  numberOfMonths={1}
+                  className="rounded-md border"
+                  locale={ko}
+                />
                 <div className="flex gap-2">
-                  <Button onClick={handleSave} className="flex-1">
+                  <Button 
+                    onClick={handleSave} 
+                    className="flex-1"
+                    disabled={!dateRange?.from || !dateRange?.to}
+                  >
                     저장
                   </Button>
                   <Button variant="outline" onClick={handleClear} className="flex-1">
