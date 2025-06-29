@@ -73,30 +73,42 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
-        // Custom refined theme colors
-        "refined": {
-          50: "#F9F5F0", // Background
-          100: "#F0E8E0",
-          200: "#E8D5C8",
-          300: "#D6B8A0",
-          400: "#C29B78",
-          500: "#8E735D", // Main
-          600: "#7A614F",
-          700: "#6D4C41", // Text
-          800: "#5A3F36",
-          900: "#47322B",
+        // Modern travel-themed colors
+        "travel": {
+          50: "#F0F9FF", // Lightest sky
+          100: "#E0F2FE",
+          200: "#BAE6FD", 
+          300: "#7DD3FC",
+          400: "#38BDF8",
+          500: "#0EA5E9", // Main travel blue
+          600: "#0284C7",
+          700: "#0369A1",
+          800: "#075985",
+          900: "#0C4A6E",
         },
-        "accent": {
-          50: "#FEF3EF",
-          100: "#FDE4DA",
-          200: "#FBCBB5",
-          300: "#F8A885",
-          400: "#F08054",
-          500: "#DC7C4A", // Point
-          600: "#C6642F",
-          700: "#A45025",
-          800: "#824023",
-          900: "#6A3520",
+        "success": {
+          50: "#ECFDF5",
+          100: "#D1FAE5",
+          200: "#A7F3D0",
+          300: "#6EE7B7",
+          400: "#34D399",
+          500: "#059669", // Success green
+          600: "#047857",
+          700: "#065F46",
+          800: "#064E3B",
+          900: "#022C22",
+        },
+        "warm": {
+          50: "#FFFBEB",
+          100: "#FEF3C7",
+          200: "#FDE68A",
+          300: "#FCD34D",
+          400: "#FBBF24",
+          500: "#F59E0B", // Warm accent
+          600: "#D97706",
+          700: "#B45309",
+          800: "#92400E",
+          900: "#78350F",
         },
       },
       keyframes: {

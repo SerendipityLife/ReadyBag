@@ -34,50 +34,50 @@
   }
   
   :root {
-    --background: 30 60% 97%; /* #F9F5F0 */
-    --foreground: 16 17% 43%; /* #6D4C41 */
+    --background: 210 20% 98%; /* #F8FAFC - Clean Sky White */
+    --foreground: 215 25% 27%; /* #334155 - Deep Slate */
     
     --card: 0 0% 100%;
-    --card-foreground: 16 17% 43%;
+    --card-foreground: 215 25% 27%;
     
     --popover: 0 0% 100%;
-    --popover-foreground: 16 17% 43%;
+    --popover-foreground: 215 25% 27%;
     
-    --primary: 30 27% 46%; /* #8E735D */
+    --primary: 200 95% 45%; /* #0EA5E9 - Travel Blue */
     --primary-foreground: 0 0% 100%;
     
-    --secondary: 30 60% 94%; /* Lighter version of background */
-    --secondary-foreground: 16 17% 43%;
+    --secondary: 210 40% 96%; /* #F1F5F9 - Light Sky */
+    --secondary-foreground: 215 25% 27%;
     
-    --muted: 30 60% 92%;
-    --muted-foreground: 16 17% 60%;
+    --muted: 210 40% 93%;
+    --muted-foreground: 215 16% 47%;
     
-    --accent: 19 72% 58%; /* #DC7C4A */
+    --accent: 142 76% 36%; /* #059669 - Success Green */
     --accent-foreground: 0 0% 100%;
     
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 30 30% 88%;
-    --input: 30 40% 92%;
-    --ring: 30 27% 46%;
+    --border: 214 32% 91%;
+    --input: 214 32% 94%;
+    --ring: 200 95% 45%;
     
-    --chart-1: 30 27% 46%;
-    --chart-2: 19 72% 58%;
-    --chart-3: 30 60% 85%;
-    --chart-4: 16 17% 60%;
-    --chart-5: 30 40% 70%;
+    --chart-1: 200 95% 45%;
+    --chart-2: 142 76% 36%;
+    --chart-3: 47 96% 53%;
+    --chart-4: 262 83% 58%;
+    --chart-5: 346 87% 43%;
     
-    --sidebar-background: 30 60% 97%;
-    --sidebar-foreground: 16 17% 43%;
-    --sidebar-primary: 30 27% 46%;
+    --sidebar-background: 210 20% 98%;
+    --sidebar-foreground: 215 25% 27%;
+    --sidebar-primary: 200 95% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 19 72% 58%;
+    --sidebar-accent: 142 76% 36%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 30 30% 88%;
-    --sidebar-ring: 30 27% 46%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 200 95% 45%;
     
-    --radius: 0.5rem;
+    --radius: 0.75rem;
   }
  
   * {
