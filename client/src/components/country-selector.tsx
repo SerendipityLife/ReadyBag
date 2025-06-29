@@ -1,18 +1,12 @@
 export function CountrySelector() {
   return (
-    <div className="flex items-center space-x-2 p-1">
-      <img
-        src="/images/logo-icon.svg"
-        alt="ReadyBag 로고"
-        className="w-6 h-6 object-contain"
-      />
+    <div className="flex items-center p-1">
       <span 
-        className="text-xl text-[#8B4513] tracking-tight" 
+        className="text-xl text-blue-800 font-bold tracking-tight" 
         style={{ 
-          fontFamily: 'PretendardBlack, Arial Black, sans-serif', 
-          fontWeight: 900,
-          textShadow: '0.5px 0.5px 0 rgba(139, 69, 19, 0.8), -0.5px -0.5px 0 rgba(139, 69, 19, 0.8)',
-          WebkitTextStroke: '0.5px rgba(139, 69, 19, 0.3)'
+          fontFamily: 'Inter, system-ui, sans-serif', 
+          fontWeight: 700,
+          letterSpacing: '-0.5px'
         }}
       >
         ReadyBag
