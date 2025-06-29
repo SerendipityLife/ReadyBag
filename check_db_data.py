@@ -117,4 +117,4 @@ def check_table_data():
         conn.close()
 
 if __name__ == "__main__":
-    check_db_data()
+    check_table_data()
