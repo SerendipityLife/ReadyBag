@@ -23,8 +23,8 @@ export function CountrySelector() {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <Button
-          variant="outline"
-          className="h-8 px-3 bg-blue-50 border-blue-300 hover:bg-blue-100 gap-2 text-blue-900 font-medium shadow-sm"
+          variant="default"
+          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 gap-2 font-medium shadow-md"
         >
           <img
             src={selectedCountry.flagUrl}

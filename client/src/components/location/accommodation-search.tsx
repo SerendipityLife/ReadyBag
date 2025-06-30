@@ -52,9 +52,9 @@ export function AccommodationSearch() {
         // 숙박지가 설정된 경우 - 컴팩트한 표시
         <Button
           onClick={() => setIsExpanded(true)}
-          variant="outline"
+          variant="default"
           size="sm"
-          className="h-8 px-3 bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md"
+          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
         >
           <Check className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 설정됨</span>
@@ -63,9 +63,9 @@ export function AccommodationSearch() {
         // 숙박지가 설정되지 않은 경우 - 설정 버튼
         <Button
           onClick={() => setIsExpanded(true)}
-          variant="outline"
+          variant="default"
           size="sm"
-          className="h-8 px-3 text-blue-600 border-2 border-blue-300 hover:bg-blue-50 shadow-md"
+          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
         >
           <Plus className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 추가</span>
