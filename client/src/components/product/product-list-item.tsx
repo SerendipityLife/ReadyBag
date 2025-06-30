@@ -417,10 +417,12 @@ export function ProductListItem(props: ProductListItemProps) {
                 </div>
               )}
             </div>
-            <PriceRangeDisplay 
-              productId={product.id}
-              className="text-xs"
-            />
+            {product && (
+              <PriceRangeDisplay 
+                productId={product.id}
+                className="text-xs"
+              />
+            )}
           </div>
         </div>
 

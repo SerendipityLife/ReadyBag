@@ -237,13 +237,13 @@ export function ShoppingHistory() {
   };
 
   // API query for logged-in users
-  const { data: apiData, refetch } = useQuery({
+  const { data: apiData, refetch } = useQuery<ExtendedUserProduct[]>({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
     enabled: !isNonMember && !!selectedCountry?.id,
   });
 
   // Get all products for reference
-  const { data: allProducts } = useQuery({
+  const { data: allProducts } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
     enabled: !!selectedCountry?.id,
   });
@@ -267,7 +267,7 @@ export function ShoppingHistory() {
         item.status === ProductStatus.PURCHASED || item.status === ProductStatus.NOT_PURCHASED
       );
       
-      if (allProducts && allProducts.length > 0) {
+      if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
         return purchasedItems.map((item: any) => {
           const productData = allProducts.find((p: Product) => p.id === item.productId);
           return {
@@ -300,7 +300,7 @@ export function ShoppingHistory() {
       if (isNonMember) {
         const localProducts = await getLocalPurchasedProducts();
         setPurchasedProducts(localProducts);
-      } else if (apiData) {
+      } else if (apiData && Array.isArray(apiData)) {
         const purchased = apiData.filter((item: ExtendedUserProduct) => 
           item.status === ProductStatus.PURCHASED || item.status === ProductStatus.NOT_PURCHASED
         );
