@@ -58,10 +58,10 @@ export function NearbyFacilities() {
         const storageKey = `userProducts_${selectedCountry.id}`;
         const storedData = localStorage.getItem(storageKey);
         if (!storedData) return [];
-        
+
         const localData = JSON.parse(storedData);
         if (!Array.isArray(localData)) return [];
-        
+
         // 선택된 여행 날짜에 해당하는 상품들만 필터링
         return selectedTravelDateId 
           ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
@@ -77,23 +77,30 @@ export function NearbyFacilities() {
     enabled: !!selectedCountry?.id,
   });
 
-  // 저장된 숙박지 주소 추출
+  // AppContext에서 설정한 숙박지 주소 사용
   useEffect(() => {
-    if (userProducts && userProducts.length > 0) {
-      // 현재 선택된 여행 날짜의 상품들 중에서 숙박지 주소가 있는 것 찾기
-      const productWithAccommodation = userProducts.find(
-        (product: any) => product.accommodationAddress && product.accommodationAddress.trim() !== ''
-      );
-      
-      if (productWithAccommodation) {
-        setSavedAccommodationAddress(productWithAccommodation.accommodationAddress);
+    if (accommodationLocation && accommodationLocation.address) {
+      setSavedAccommodationAddress(accommodationLocation.address);
+      console.log('컨텍스트에서 가져온 숙박지 주소:', accommodationLocation.address);
+    } else {
+      // 컨텍스트에 없으면 상품에서 추출 시도 (기존 로직 유지)
+      if (userProducts && userProducts.length > 0) {
+        const productWithAccommodation = userProducts.find(
+          (product: any) => product.accommodationAddress && product.accommodationAddress.trim() !== ""
+        );
+
+        if (productWithAccommodation) {
+          setSavedAccommodationAddress(productWithAccommodation.accommodationAddress);
+          console.log('상품에서 추출한 숙박지 주소:', productWithAccommodation.accommodationAddress);
+        } else {
+          setSavedAccommodationAddress(null);
+          console.log('현재 여행 날짜에 저장된 숙박지 주소가 없습니다');
+        }
       } else {
         setSavedAccommodationAddress(null);
       }
-    } else {
-      setSavedAccommodationAddress(null);
     }
-  }, [userProducts, selectedTravelDateId]);
+  }, [accommodationLocation, userProducts, selectedTravelDateId]);
 
   const handleFacilitySearch = () => {
     handleFacilitySearchWithOverrideTravelMode();
@@ -101,12 +108,12 @@ export function NearbyFacilities() {
 
   const handleFacilitySearchWithOverrideTravelMode = async (overrideMode?: 'walking' | 'driving' | 'transit') => {
     let searchLocation = accommodationLocation;
-    
+
     // accommodationLocation이 없지만 저장된 주소가 있으면 지오코딩 수행
     if (!accommodationLocation && savedAccommodationAddress) {
       setIsLoadingPlaces(true);
       setError(null);
-      
+
       try {
         const geocodedLocation = await googleMapsService.geocodeAddress(savedAccommodationAddress);
         if (geocodedLocation) {
@@ -122,7 +129,7 @@ export function NearbyFacilities() {
         return;
       }
     }
-    
+
     if (!searchLocation) {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
