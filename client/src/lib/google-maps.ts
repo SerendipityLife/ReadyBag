@@ -200,16 +200,9 @@ class GoogleMapsService {
         } else {
           console.log('Distance Matrix API 실패:', status);
           
-          // 대중교통 모드에서 실패시 Directions API로 재시도
-          if (travelMode === 'transit' && this.directionsService) {
-            console.log('Distance Matrix 실패, Directions API로 재시도');
-            try {
-              const retryResults = await this.getTransitDirections(origin, destinations);
-              resolve(retryResults);
-              return;
-            } catch (error) {
-              console.log('Directions API 재시도도 실패:', error);
-            }
+          // 대중교통 모드에서 실패시 추가 로깅
+          if (travelMode === 'transit') {
+            console.log('대중교통 Distance Matrix API 실패, 기본값 반환');
           }
           
           const fallback = destinations.map(dest => ({
@@ -223,59 +216,7 @@ class GoogleMapsService {
     });
   }
 
-  // Directions API를 사용한 대중교통 시간 계산
-  private async getTransitDirections(
-    origin: { lat: number; lng: number },
-    destinations: PlaceResult[]
-  ): Promise<PlaceResult[]> {
-    if (!this.directionsService) {
-      return destinations;
-    }
 
-    const results = await Promise.all(
-      destinations.map(async (dest) => {
-        try {
-          const result = await new Promise<google.maps.DirectionsResult>((resolve, reject) => {
-            this.directionsService!.route({
-              origin: new google.maps.LatLng(origin.lat, origin.lng),
-              destination: new google.maps.LatLng(dest.lat, dest.lng),
-              travelMode: google.maps.TravelMode.TRANSIT,
-              transitOptions: {
-                modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.SUBWAY, google.maps.TransitMode.TRAIN],
-                routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS,
-                departureTime: new Date()
-              }
-            }, (result, status) => {
-              if (status === 'OK' && result) {
-                resolve(result);
-              } else {
-                reject(new Error(`Directions API 실패: ${status}`));
-              }
-            });
-          });
-
-          const route = result.routes[0];
-          const leg = route.legs[0];
-          
-          console.log(`${dest.name} Directions API 결과:`, {
-            distance: leg.distance?.text,
-            duration: leg.duration?.text
-          });
-
-          return {
-            ...dest,
-            distance: leg.distance?.text || dest.distance,
-            duration: leg.duration?.text || dest.duration
-          };
-        } catch (error) {
-          console.log(`${dest.name} Directions API 실패:`, error);
-          return dest; // 기존 값 유지
-        }
-      })
-    );
-
-    return results;
-  }
 
   calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371;
