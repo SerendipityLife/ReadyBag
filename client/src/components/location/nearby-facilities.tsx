@@ -165,7 +165,14 @@ export function NearbyFacilities() {
         });
       }
 
+      // 편의점은 항상 도보, 돈키호테는 사용자가 선택한 이동수단 사용
       const travelModeToUse = selectedFacilityType === "store" ? selectedTravelMode : "walking";
+      
+      console.log('거리 계산 이동수단:', {
+        facility: selectedFacilityType,
+        selectedMode: selectedTravelMode,
+        actualMode: travelModeToUse
+      });
 
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
@@ -194,7 +201,17 @@ export function NearbyFacilities() {
       return;
     }
     const address = currentAccommodation?.address || savedAccommodationAddress || "";
+    
+    // 편의점은 항상 도보, 돈키호테는 사용자 선택 이동수단 사용
     const travelModeToUse = selectedFacilityType === "store" ? selectedTravelMode : "walking";
+    
+    console.log('길찾기 호출:', {
+      facility: selectedFacilityType,
+      selectedMode: selectedTravelMode,
+      actualMode: travelModeToUse,
+      place: place.name
+    });
+    
     googleMapsService.navigateFromAccommodation(address, {
       lat: place.lat,
       lng: place.lng,
@@ -275,7 +292,7 @@ export function NearbyFacilities() {
           {/* 이동 수단 선택 (돈키호테일 때만) */}
           {selectedFacilityType === "store" && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-gray-700">이동 수단</p>
+              <p className="text-xs font-medium text-gray-700">이동 수단 (거리/시간 계산 및 길찾기에 적용)</p>
               <div className="flex gap-1">
                 {[
                   { value: "walking", label: "도보", icon: "🚶" },
@@ -286,13 +303,20 @@ export function NearbyFacilities() {
                     key={mode.value}
                     variant={selectedTravelMode === mode.value ? "default" : "outline"}
                     size="sm"
-                    onClick={() => setSelectedTravelMode(mode.value)}
+                    onClick={() => {
+                      setSelectedTravelMode(mode.value);
+                      // 이동수단 변경시 기존 결과 초기화
+                      setNearbyPlaces([]);
+                    }}
                     className="text-xs h-7 px-2"
                   >
                     {mode.icon} {mode.label}
                   </Button>
                 ))}
               </div>
+              <p className="text-xs text-gray-500">
+                현재 선택: {selectedTravelMode === 'walking' ? '🚶 도보' : selectedTravelMode === 'transit' ? '🚇 대중교통' : '🚗 자동차'}
+              </p>
             </div>
           )}
 

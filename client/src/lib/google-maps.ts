@@ -233,10 +233,22 @@ class GoogleMapsService {
   ): void {
     const origin = encodeURIComponent(address.trim());
     const dest = `${destination.lat},${destination.lng}`;
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${travelMode}`;
+    
+    // Google Maps URL의 travelmode 파라미터 매핑
+    let urlTravelMode = travelMode;
+    if (travelMode === 'transit') {
+      urlTravelMode = 'transit';  // 대중교통
+    } else if (travelMode === 'walking') {
+      urlTravelMode = 'walking';  // 도보
+    } else if (travelMode === 'driving') {
+      urlTravelMode = 'driving';  // 자동차
+    }
+    
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${urlTravelMode}`;
 
     console.log('길찾기: 출발지 -', address);
     console.log('길찾기: 목적지 -', destination.name);
+    console.log('길찾기: 이동수단 -', travelMode, '→', urlTravelMode);
 
     window.open(url, '_blank');
   }
