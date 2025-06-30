@@ -186,8 +186,8 @@ export function CategoryFilter({
                 variant={selectedPurposeCategories.includes(category.id) ? "default" : "outline"}
                 className={`cursor-pointer transition-colors ${
                   selectedPurposeCategories.includes(category.id)
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "hover:bg-green-50 border-green-200"
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "hover:bg-blue-50 border-blue-200"
                 }`}
                 onClick={() => handlePurposeCategoryToggle(category.id)}
               >
