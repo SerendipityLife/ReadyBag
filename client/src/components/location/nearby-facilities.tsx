@@ -26,7 +26,7 @@ const FACILITY_TYPES = [
   {
     value: "store",
     label: "돈키호테",
-    keywords: ["돈키호테", "don quijote", "ドン・キホーテ", "donki"],
+    keywords: ["don quijote", "ドン・キホーテ", "donki", "mega don quijote", "メガドン・キホーテ", "ドンキ", "don", "mega donki"],
     subTypes: []
   }
 ];
@@ -119,7 +119,7 @@ export function NearbyFacilities() {
         keywords = facilityType.subTypes.length
           ? facilityType.subTypes.flatMap(st => st.keywords)
           : facilityType.keywords;
-        radius = selectedFacilityType === "store" ? 10000 : 300;
+        radius = selectedFacilityType === "store" ? 20000 : 300;
       }
 
       let allResults: PlaceResult[] = [];
@@ -149,20 +149,26 @@ export function NearbyFacilities() {
         });
       }
 
-      // 돈키호테의 경우 더 엄격한 필터링 적용
+      // 돈키호테의 경우 완화된 필터링 적용
       if (selectedFacilityType === "store") {
-        const strictDonkiKeywords = ["don quijote", "ドン・キホーテ", "donki"];
+        console.log('돈키호테 필터링 전 결과:', unique.map(p => p.name));
+        
+        const donkiKeywords = ["don quijote", "ドン・キホーテ", "donki", "ドンキ", "don"];
         unique = unique.filter(p => {
           const name = p.name.toLowerCase();
-          return strictDonkiKeywords.some(k => name.includes(k)) && 
-                 !name.includes("picasso") && // 피카소 등 제외
-                 !name.includes("uny") && // UNY 등 제외
-                 !name.includes("eki donki") && // Eki Donki 제외
-                 !name.includes("eki marche") && // Eki Marche 제외
-                 !name.includes("ekidonki") && // 붙여쓴 경우도 제외
-                 !name.includes("ekimarche") && // 붙여쓴 경우도 제외
-                 name.includes("don"); // don이 포함된 것만 (메가 돈키호테 포함)
+          const hasKeyword = donkiKeywords.some(k => name.includes(k.toLowerCase()));
+          const isExcluded = name.includes("picasso") || 
+                            name.includes("uny") || 
+                            name.includes("eki donki") || 
+                            name.includes("eki marche") || 
+                            name.includes("ekidonki") || 
+                            name.includes("ekimarche");
+          
+          console.log(`${p.name}: hasKeyword=${hasKeyword}, isExcluded=${isExcluded}`);
+          return hasKeyword && !isExcluded;
         });
+        
+        console.log('돈키호테 필터링 후 결과:', unique.map(p => p.name));
       }
 
       // 편의점은 항상 도보, 돈키호테는 사용자가 선택한 이동수단 사용

@@ -84,10 +84,23 @@ class GoogleMapsService {
         location: new google.maps.LatLng(location.lat, location.lng),
         radius,
         keyword,
-        type: type as any
+        type: type === 'store' ? 'store' as any : type as any
       };
 
+      console.log('Google Places API 요청:', {
+        location: `${location.lat}, ${location.lng}`,
+        radius,
+        keyword,
+        type: type === 'store' ? 'store' : type
+      });
+
       this.service!.nearbySearch(request, (results, status) => {
+        console.log('Google Places API 응답:', {
+          status,
+          resultsCount: results?.length || 0,
+          results: results?.slice(0, 3).map(r => ({ name: r.name, vicinity: r.vicinity })) || []
+        });
+        
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const sortedResults = results
             .filter(place => place.geometry?.location)
@@ -202,7 +215,7 @@ class GoogleMapsService {
                 status: element?.status,
                 distance: element?.distance,
                 duration: element?.duration,
-                transitDetails: element?.transit_details
+                transitDetails: (element as any)?.transit_details
               });
               
               const durationText = dest.duration;
