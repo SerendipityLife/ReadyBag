@@ -239,9 +239,9 @@ export function NearbyFacilities() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* 저장된 숙박지 주소 표시 - 컴팩트한 아이콘 버튼 */}
-        {savedAccommodationAddress && (
-          <div className="mb-4">
+        {/* 숙박지 확인과 주변 시설 검색을 한 줄에 배치 */}
+        <div className="flex items-center gap-2 mb-4">
+          {savedAccommodationAddress && (
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -268,8 +268,24 @@ export function NearbyFacilities() {
                 </div>
               </PopoverContent>
             </Popover>
-          </div>
-        )}
+          )}
+          
+          <Button 
+            onClick={handleFacilitySearch}
+            disabled={isLoadingPlaces}
+            className="flex-1"
+            size="sm"
+          >
+            {isLoadingPlaces ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                검색 중...
+              </>
+            ) : (
+              "주변 시설 검색"
+            )}
+          </Button>
+        </div>
 
         {/* 숙박지가 설정되지 않은 경우 안내 */}
         {!savedAccommodationAddress && !accommodationLocation && (
@@ -346,21 +362,7 @@ export function NearbyFacilities() {
           </Select>
         )}
 
-        <Button 
-          onClick={handleFacilitySearch}
-          disabled={isLoadingPlaces}
-          className="w-full"
-          size="sm"
-        >
-          {isLoadingPlaces ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              검색 중...
-            </>
-          ) : (
-            "주변 시설 검색"
-          )}
-        </Button>
+        
 
         {error && (
           <p className="text-sm text-red-600">{error}</p>
