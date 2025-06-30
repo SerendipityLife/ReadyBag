@@ -445,11 +445,14 @@ export function ShoppingHistory() {
       });
 
       // 거리 계산 (대중교통)
+      console.log('돈키호테 검색 - 대중교통 거리 계산 시작');
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         filtered,
         "transit"
       );
+      
+      console.log('돈키호테 검색 - 거리 계산 결과:', resultsWithDistance);
 
       const sortedResults = resultsWithDistance
         .sort((a, b) => {

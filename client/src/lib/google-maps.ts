@@ -153,11 +153,22 @@ class GoogleMapsService {
 
       // 대중교통 모드일 때 추가 설정
       if (travelMode === 'transit') {
+        const now = new Date();
+        // 현재 시간이 너무 이른 시간(새벽)이면 오전 9시로 설정
+        const departureTime = now.getHours() < 6 ? 
+          new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0) : 
+          now;
+          
         requestOptions.transitOptions = {
-          modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.SUBWAY, google.maps.TransitMode.TRAIN],
+          modes: [google.maps.TransitMode.SUBWAY, google.maps.TransitMode.BUS, google.maps.TransitMode.TRAIN],
           routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS,
-          departureTime: new Date() // 현재 시간 기준
+          departureTime: departureTime
         };
+        
+        console.log('대중교통 옵션 설정:', {
+          modes: requestOptions.transitOptions.modes,
+          departureTime: departureTime.toLocaleString('ko-KR')
+        });
       }
 
       console.log('Distance Matrix 요청 옵션:', requestOptions);
@@ -185,7 +196,15 @@ class GoogleMapsService {
 
           // 결과 검증 및 개선된 로깅
           if (travelMode === 'transit') {
-            updated.forEach(dest => {
+            updated.forEach((dest, index) => {
+              const element = elements[index];
+              console.log(`${dest.name} 대중교통 상세 결과:`, {
+                status: element?.status,
+                distance: element?.distance,
+                duration: element?.duration,
+                transitDetails: element?.transit_details
+              });
+              
               const durationText = dest.duration;
               const minutes = parseInt(durationText.replace(/[^0-9]/g, ''));
               console.log(`${dest.name} 대중교통 시간 분석:`, {
