@@ -166,6 +166,14 @@ The application follows a modern full-stack architecture with clear separation o
 - ✅ Support for both authenticated users and guest sessions
 - ✅ Anonymous review option with custom reviewer names
 
+**June 30, 2025** - Country Selection UI Enhancement
+- ✅ Restored country selector functionality to browse tab
+- ✅ Enhanced CountrySelector component with improved visual design
+- ✅ Improved button styling with blue theme consistency (bg-blue-50, text-blue-900)
+- ✅ Added future expansion message "더 많은 국가가 곧 추가될 예정입니다"
+- ✅ Positioned country selector at top of browse tab above travel date selector
+- ✅ Enhanced accessibility with larger buttons and improved contrast
+
 **Technical Implementation**:
 - Server: Added `/api/user-products/batch` endpoint with individual delete operations
 - Frontend: Enhanced cache invalidation using `forceRefresh` state variable in query keys

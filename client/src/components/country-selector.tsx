@@ -20,37 +20,42 @@ export function CountrySelector() {
   };
 
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="h-9 px-3 bg-white/80 border-blue-200 hover:bg-white/90 gap-2"
-        >
-          <img
-            src={selectedCountry.flagUrl}
-            alt={`${selectedCountry.name} 국기`}
-            className="w-4 h-4 rounded-sm object-cover"
-          />
-          <span className="text-sm font-medium">{selectedCountry.name}</span>
-          <ChevronDown className="h-3 w-3 opacity-50" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-36">
-        {COUNTRIES.map((country) => (
-          <DropdownMenuItem
-            key={country.id}
-            onClick={() => handleCountrySelect(country)}
-            className="gap-2"
+    <div className="flex flex-col items-center gap-2">
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="h-10 px-4 bg-blue-50 border-blue-300 hover:bg-blue-100 gap-2 text-blue-900 font-medium shadow-sm"
           >
             <img
-              src={country.flagUrl}
-              alt={`${country.name} 국기`}
-              className="w-4 h-4 rounded-sm object-cover"
+              src={selectedCountry.flagUrl}
+              alt={`${selectedCountry.name} 국기`}
+              className="w-5 h-5 rounded-sm object-cover"
             />
-            <span className="text-sm">{country.name}</span>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <span className="text-sm font-semibold">{selectedCountry.name}</span>
+            <ChevronDown className="h-3 w-3 opacity-70" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-40">
+          {COUNTRIES.map((country) => (
+            <DropdownMenuItem
+              key={country.id}
+              onClick={() => handleCountrySelect(country)}
+              className="gap-2"
+            >
+              <img
+                src={country.flagUrl}
+                alt={`${country.name} 국기`}
+                className="w-4 h-4 rounded-sm object-cover"
+              />
+              <span className="text-sm">{country.name}</span>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <p className="text-xs text-blue-600/80 font-medium">
+        더 많은 국가가 곧 추가될 예정입니다
+      </p>
+    </div>
   );
 }
