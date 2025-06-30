@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Loader2, Home, Plus, Check, Info } from "lucide-react";
 import { googleMapsService, type HotelLocation } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
@@ -88,11 +89,29 @@ export function AccommodationSearch() {
               </TooltipContent>
             </Tooltip>
             
-            {/* 추가 안내 문구 */}
-            <div className="flex items-center gap-1 text-gray-500">
-              <Info className="h-3 w-3" />
-              <span className="text-xs">주변 시설 검색에 활용돼요</span>
-            </div>
+            {/* 정보 아이콘 - 팝오버로 설명 표시 */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+                  <Info className="h-3 w-3" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3" side="bottom" align="start">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="p-1 bg-blue-100 rounded-full">
+                      <Home className="h-3 w-3 text-blue-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-800">숙박지 추가 기능</span>
+                  </div>
+                  <div className="text-xs text-gray-600 space-y-1">
+                    <p>• 숙소 주소를 설정하면 주변 시설을 자동으로 찾아드려요</p>
+                    <p>• 편의점, 드럭스토어, 쇼핑몰 등을 구글 맵스로 검색</p>
+                    <p>• 길찾기 기능으로 바로 이동 가능</p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
       </TooltipProvider>
