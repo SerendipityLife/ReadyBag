@@ -24,12 +24,12 @@ export function CountrySelector() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="h-10 px-4 bg-blue-50 border-blue-300 hover:bg-blue-100 gap-2 text-blue-900 font-medium shadow-sm"
+          className="h-8 px-3 bg-blue-50 border-blue-300 hover:bg-blue-100 gap-2 text-blue-900 font-medium shadow-sm"
         >
           <img
             src={selectedCountry.flagUrl}
             alt={`${selectedCountry.name} 국기`}
-            className="w-5 h-5 rounded-sm object-cover"
+            className="w-4 h-4 rounded-sm object-cover"
           />
           <span className="text-sm font-semibold">{selectedCountry.name}</span>
           <ChevronDown className="h-3 w-3 opacity-70" />
