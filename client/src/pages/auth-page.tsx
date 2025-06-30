@@ -193,15 +193,6 @@ export default function AuthPage() {
                 src="/logo-readybag.png" 
                 alt="ReadyBag" 
                 className="h-24 w-auto max-w-full object-contain"
-                onError={(e) => {
-                  console.error('Logo image failed to load');
-                  // Fallback to text if image fails
-                  const target = e.currentTarget;
-                  const container = target.parentElement;
-                  if (container) {
-                    container.innerHTML = '<div class="text-2xl font-bold text-blue-600">ReadyBag</div>';
-                  }
-                }}
                 onLoad={() => {
                   console.log('Logo image loaded successfully');
                 }}
