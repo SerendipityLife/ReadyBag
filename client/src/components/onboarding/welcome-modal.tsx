@@ -21,14 +21,14 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     },
     {
       icon: <Calendar className="w-16 h-16 text-green-600" />,
-      title: "여행 날짜를 설정하세요",
-      description: "여행 날짜별로 상품을 분류하여 체계적으로 쇼핑 계획을 세울 수 있습니다.",
+      title: "여행 날짜별 쇼핑 히스토리 관리",
+      description: "여행 날짜별로 상품을 분류하고 구매 기록을 체계적으로 관리할 수 있습니다.",
       subtitle: "날짜별 맞춤 관리"
     },
     {
       icon: <MapPin className="w-16 h-16 text-red-600" />,
       title: "숙박지를 추가하세요",
-      description: "숙박지 주변의 편의점, 돈키호테 등 쇼핑 가능한 곳을 쉽게 찾을 수 있습니다.",
+      description: "숙박지 주변의 마트, 쇼핑몰 등 쇼핑 가능한 곳을 쉽게 찾을 수 있습니다.",
       subtitle: "위치 기반 쇼핑 가이드"
     },
     {
