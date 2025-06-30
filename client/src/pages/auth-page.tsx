@@ -212,8 +212,8 @@ export default function AuthPage() {
                 </div>
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">ReadyBag</h1>
-            <p className="text-base text-gray-600">여행 쇼핑 계획을 더 쉽게</p>
+            
+            <p className="text-center text-[#0068ff] bg-[#ffffff00] font-extrabold text-[19px]">귀찮은 해외 여행 쇼핑 계획과 관리를 한번에!</p>
           </div>
 
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
@@ -582,8 +582,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
