@@ -188,15 +188,29 @@ export default function AuthPage() {
       <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center">
-              <img 
-                src="/logo-readybag.png" 
-                alt="ReadyBag" 
-                className="h-24 w-auto max-w-full object-contain"
-                onLoad={() => {
-                  console.log('Logo image loaded successfully');
-                }}
-              />
+            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center min-h-[120px]">
+              <div className="relative w-full flex justify-center items-center">
+                <img 
+                  src="/logo-readybag.png" 
+                  alt="ReadyBag Logo" 
+                  className="h-24 w-auto max-w-full object-contain"
+                  onLoad={() => {
+                    console.log('Logo image loaded successfully');
+                  }}
+                  onError={(e) => {
+                    console.error('Logo image failed to load, showing fallback');
+                    e.currentTarget.style.display = 'none';
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = 'block';
+                  }}
+                />
+                <div 
+                  className="text-3xl font-bold text-blue-600 hidden"
+                  style={{ display: 'none' }}
+                >
+                  ReadyBag
+                </div>
+              </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800 mb-2">ReadyBag</h1>
             <p className="text-base text-gray-600">여행 쇼핑 계획을 더 쉽게</p>
