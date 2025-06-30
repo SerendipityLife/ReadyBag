@@ -142,7 +142,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 첫 방문자 확인 및 온보딩 모달 표시
   useEffect(() => {
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-    if (!hasSeenWelcome) {
+    const welcomeSkippedDate = localStorage.getItem('welcomeSkippedDate');
+    const today = new Date().toDateString();
+    
+    // 영구적으로 닫기를 선택했거나, 오늘 이미 "오늘은 그만보기"를 선택한 경우 표시하지 않음
+    if (!hasSeenWelcome && welcomeSkippedDate !== today) {
       setShowWelcomeModal(true);
     }
   }, []);

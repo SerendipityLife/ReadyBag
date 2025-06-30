@@ -16,7 +16,7 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     {
       icon: <ShoppingBag className="w-16 h-16 text-blue-600" />,
       title: "ReadyBag에 오신 것을 환영합니다!",
-      description: "일본 여행에서 꼭 사야 할 인기 상품들을 미리 발견하고 계획해보세요.",
+      description: "해외여행에서 꼭 사야 할 인기 상품들을 미리 발견하고 계획해보세요.",
       subtitle: "스마트한 여행 쇼핑의 시작"
     },
     {
@@ -52,18 +52,19 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
 
   const handleSkip = () => {
     onClose();
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
+
+  const handleTodayOnly = () => {
+    onClose();
+    const today = new Date().toDateString();
+    localStorage.setItem('welcomeSkippedDate', today);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <DialogHeader className="relative">
-          <button
-            onClick={handleSkip}
-            className="absolute -top-2 -right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
+        <DialogHeader>
           <DialogTitle className="sr-only">ReadyBag 온보딩</DialogTitle>
         </DialogHeader>
 
@@ -107,20 +108,10 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
               </div>
 
               {/* 버튼 영역 */}
-              <div className="flex gap-3 pt-4">
-                {!isLastStep && (
-                  <Button
-                    variant="ghost"
-                    onClick={handleSkip}
-                    className="flex-1 text-gray-600 hover:text-gray-800"
-                  >
-                    건너뛰기
-                  </Button>
-                )}
-                
+              <div className="space-y-3 pt-4">
                 <Button
                   onClick={handleNext}
-                  className={`${isLastStep ? 'flex-1' : 'flex-1'} bg-blue-600 hover:bg-blue-700 text-white`}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isLastStep ? (
                     <>
@@ -134,6 +125,25 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                     </>
                   )}
                 </Button>
+                
+                {!isLastStep && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={handleTodayOnly}
+                      className="flex-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      오늘은 그만보기
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleSkip}
+                      className="flex-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      앞으로 열지 않기
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </Card>
