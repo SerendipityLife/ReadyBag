@@ -120,7 +120,7 @@ class GoogleMapsService {
   async calculateDistances(
     origin: { lat: number; lng: number },
     destinations: PlaceResult[],
-    travelMode: 'walking' | 'driving' | 'transit'
+    travelMode: "walking" | "transit" | "driving" = "walking"
   ): Promise<PlaceResult[]> {
     if (!this.distanceService || destinations.length === 0) {
       return destinations;
@@ -198,14 +198,14 @@ class GoogleMapsService {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
       );
-      
+
       if (!response.ok) {
         console.error('Geocoding API 요청 실패:', response.status);
         return null;
       }
 
       const data = await response.json();
-      
+
       if (data.status !== 'OK' || !data.results?.length) {
         console.error('Geocoding 결과 없음:', data.status, data.error_message);
         return null;
@@ -213,7 +213,7 @@ class GoogleMapsService {
 
       const result = data.results[0];
       const location = result.geometry.location;
-      
+
       return {
         name: result.formatted_address,
         address: address,
@@ -234,10 +234,10 @@ class GoogleMapsService {
     const origin = encodeURIComponent(address.trim());
     const dest = `${destination.lat},${destination.lng}`;
     const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${travelMode}`;
-    
+
     console.log('길찾기: 출발지 -', address);
     console.log('길찾기: 목적지 -', destination.name);
-    
+
     window.open(url, '_blank');
   }
 }

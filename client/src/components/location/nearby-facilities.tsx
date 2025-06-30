@@ -170,7 +170,7 @@ export function NearbyFacilities() {
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         unique.map(p => ({ ...p, name: normalizeBrandName(p.name) })),
-        travelModeToUse
+        travelModeToUse as "walking" | "transit" | "driving"
       );
 
       const sortedResults = resultsWithDistance.sort((a, b) => {
