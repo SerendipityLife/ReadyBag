@@ -443,7 +443,7 @@ export default function AuthPage() {
                             <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="your@email.com" 
-                              className="pl-10"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg"
                               autoComplete="email" 
                               {...field} 
                             />
@@ -465,7 +465,7 @@ export default function AuthPage() {
                             <UserCircle className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="닉네임" 
-                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg" 
                               {...field} 
                             />
                           </div>
@@ -487,7 +487,7 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="최소 8자 이상" 
-                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg"
                               autoComplete="new-password"
                               {...field} 
                             />
@@ -510,7 +510,7 @@ export default function AuthPage() {
                             <Input 
                               type="password" 
                               placeholder="비밀번호 확인" 
-                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg"
                               autoComplete="new-password" 
                               {...field} 
                             />
@@ -523,11 +523,11 @@ export default function AuthPage() {
 
                   <Button 
                     type="submit" 
-                    className="w-full mt-6 bg-sand-brown-600 hover:bg-sand-brown-700 text-white" 
+                    className="w-full mt-6 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all" 
                     disabled={registerMutation.isPending || isLoading}
                   >
                     {registerMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : null}
                     회원가입
                   </Button>
