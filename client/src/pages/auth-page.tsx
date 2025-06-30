@@ -188,12 +188,12 @@ export default function AuthPage() {
       <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center min-h-[120px]">
+            <div className="bg-white p-8 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center min-h-[160px]">
               <div className="relative w-full flex justify-center items-center">
                 <img 
                   src="/readybag-logo.png" 
                   alt="ReadyBag Logo" 
-                  className="h-24 w-auto max-w-full object-contain"
+                  className="h-32 w-auto max-w-full object-contain"
                   onLoad={() => {
                     console.log('Logo image loaded successfully');
                   }}
