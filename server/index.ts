@@ -1,7 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import cors from "cors";
 
 const app = express();
 app.use(express.json());
@@ -36,23 +35,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-// Trust proxy for Replit deployment
-if (process.env.NODE_ENV === "production") {
-  app.set('trust proxy', 1);
-}
-
-// CORS setup
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5000",
-    process.env.NODE_ENV === "production"
-      ? `https://${process.env.REPL_SLUG}.${process.env.REPL_OWNER}.repl.co`
-      : undefined
-  ].filter(Boolean),
-  credentials: true,
-}));
 
 (async () => {
   const server = await registerRoutes(app);
