@@ -86,6 +86,10 @@ type AppContextType = {
   removeTravelDate: (id: string) => void;
   removeTravelDateWithProducts: (id: string) => Promise<void>;
   clearNonMemberData: () => void;
+  
+  // 온보딩 모달 관리
+  showWelcomeModal: boolean;
+  setShowWelcomeModal: (show: boolean) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -131,6 +135,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   // 저장된 여행 날짜 폴더 상태
   const [savedTravelDates, setSavedTravelDates] = useState<Array<{id: string; startDate: Date; endDate: Date; label: string}>>([]);
   const [selectedTravelDateId, setSelectedTravelDateId] = useState<string | null>(null);
+  
+  // 온보딩 모달 상태
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false);
+  
+  // 첫 방문자 확인 및 온보딩 모달 표시
+  useEffect(() => {
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+    if (!hasSeenWelcome) {
+      setShowWelcomeModal(true);
+    }
+  }, []);
 
   // selectedTravelDateId 변경 시 localStorage 동기화 및 다른 컴포넌트들에게 알림
   useEffect(() => {
@@ -608,7 +623,11 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     addTravelDate,
     removeTravelDate,
     removeTravelDateWithProducts,
-    clearNonMemberData
+    clearNonMemberData,
+    
+    // 온보딩 모달 관리
+    showWelcomeModal,
+    setShowWelcomeModal
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
