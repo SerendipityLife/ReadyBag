@@ -26,7 +26,7 @@ const FACILITY_TYPES = [
   {
     value: "store",
     label: "돈키호테",
-    keywords: ["don quijote", "ドン・キホーテ", "donki", "mega don quijote", "メガドン・キホーテ", "ドンキ", "don", "mega donki"],
+    keywords: ["ドン・キホーテ", "Don Quijote", "メガドン・キホーテ"],
     subTypes: []
   }
 ];
@@ -149,14 +149,23 @@ export function NearbyFacilities() {
         });
       }
 
-      // 돈키호테의 경우 완화된 필터링 적용
+      // 돈키호테의 경우 필터링 적용
       if (selectedFacilityType === "store") {
         console.log('돈키호테 필터링 전 결과:', unique.map(p => p.name));
         
-        const donkiKeywords = ["don quijote", "ドン・キホーテ", "donki", "ドンキ", "don"];
         unique = unique.filter(p => {
           const name = p.name.toLowerCase();
-          const hasKeyword = donkiKeywords.some(k => name.includes(k.toLowerCase()));
+          const originalName = p.name;
+          
+          // 한국어, 일본어, 영어 돈키호테 키워드 확인
+          const isDonki = name.includes("돈키호테") || 
+                         name.includes("ドン・キホーテ") || 
+                         name.includes("don quijote") ||
+                         name.includes("메가돈키호테") ||
+                         name.includes("メガドン・キホーテ") ||
+                         name.includes("mega don quijote");
+          
+          // 제외할 매장들
           const isExcluded = name.includes("picasso") || 
                             name.includes("uny") || 
                             name.includes("eki donki") || 
@@ -164,8 +173,8 @@ export function NearbyFacilities() {
                             name.includes("ekidonki") || 
                             name.includes("ekimarche");
           
-          console.log(`${p.name}: hasKeyword=${hasKeyword}, isExcluded=${isExcluded}`);
-          return hasKeyword && !isExcluded;
+          console.log(`${originalName}: isDonki=${isDonki}, isExcluded=${isExcluded}`);
+          return isDonki && !isExcluded;
         });
         
         console.log('돈키호테 필터링 후 결과:', unique.map(p => p.name));
