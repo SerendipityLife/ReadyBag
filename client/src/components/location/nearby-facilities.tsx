@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -147,6 +146,18 @@ export function NearbyFacilities() {
             name.replace(/[-\s]/g, '').includes(k.replace(/[-\s]/g, '')) ||
             name.includes(k.replace('7-eleven', '7eleven'))
           );
+        });
+      }
+
+      // 돈키호테의 경우 더 엄격한 필터링 적용
+      if (selectedFacilityType === "store") {
+        const strictDonkiKeywords = ["don quijote", "ドン・キホーテ", "donki"];
+        unique = unique.filter(p => {
+          const name = p.name.toLowerCase();
+          return strictDonkiKeywords.some(k => name.includes(k)) && 
+                 !name.includes("picasso") && // 피카소 등 제외
+                 !name.includes("uny") && // UNY 등 제외
+                 name.includes("don"); // don이 포함된 것만 (메가 돈키호테 포함)
         });
       }
 
