@@ -75,13 +75,14 @@ export function setupAuth(app: Express) {
                 tableName: "session", // 세션 테이블 이름
                 createTableIfMissing: true, // 테이블이 없으면 생성
             }),
-            secret: process.env.SESSION_SECRET || "readybag-session-secret",
+            secret: process.env.SESSION_SECRET || "readybag-session-secret-" + process.env.REPL_SLUG || "readybag-session-secret-default",
             resave: false,
             saveUninitialized: false,
             cookie: {
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
                 secure: process.env.NODE_ENV === "production",
                 httpOnly: true,
+                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
             },
         })
     );
