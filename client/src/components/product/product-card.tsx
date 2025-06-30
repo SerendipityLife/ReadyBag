@@ -245,7 +245,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-sm mx-auto bg-white border-2 border-[#E6E0D4] shadow-xl relative overflow-hidden">
+      <Card className="w-full h-full max-w-sm mx-auto bg-white border-2 border-blue-200 shadow-xl relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -256,7 +256,7 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-64 overflow-hidden rounded-t-lg bg-[#F8F6F2]">
+        <div className="relative h-64 overflow-hidden rounded-t-lg bg-blue-50">
           <img
             src={product.imageUrl}
             alt={product.name}

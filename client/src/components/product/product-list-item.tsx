@@ -439,7 +439,7 @@ export function ProductListItem(props: ProductListItemProps) {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 text-xs py-0.5 px-2 h-8 border-orange-300 text-orange-600 hover:bg-orange-500 hover:text-white"
+              className="flex-1 text-xs py-0.5 px-2 h-8 border-blue-300 text-blue-600 hover:bg-blue-500 hover:text-white"
               onClick={() => updateProductStatus.mutate(ProductStatus.NOT_PURCHASED)}
               disabled={updateProductStatus.isPending}
             >

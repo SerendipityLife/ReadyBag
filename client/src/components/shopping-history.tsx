@@ -544,7 +544,7 @@ export function ShoppingHistory() {
                       <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
                         userProduct.status === ProductStatus.PURCHASED 
                           ? 'bg-green-100 text-green-700 border border-green-200' 
-                          : 'bg-orange-100 text-orange-700 border border-orange-200'
+                          : 'bg-blue-100 text-blue-700 border border-blue-200'
                       }`}>
                         {userProduct.status === ProductStatus.PURCHASED ? '✓ 구입완료' : '⏳ 미구입'}
                       </span>
