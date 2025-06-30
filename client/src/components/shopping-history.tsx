@@ -378,9 +378,7 @@ export function ShoppingHistory() {
           <ShoppingBag className="h-12 w-12 text-blue-400" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">쇼핑 기록이 없습니다</h3>
-        <p className="text-gray-500 text-center max-w-sm">
-          관심 상품에서 '구입완료'를 선택하면 여기에 여행별로 기록됩니다.
-        </p>
+        <p className="text-gray-500 text-center max-w-sm">관심 상품에서 '구입완료'를 선택하면 여행 날짜별로 폴더가 생성됩니다.</p>
       </div>
     );
   }
