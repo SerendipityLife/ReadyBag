@@ -79,20 +79,20 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
           ${isActive ? "text-white" : "text-gray-500 hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
         
-      case SwipeDirection.UP: // 고민중 (코코아 브라운)
+      case SwipeDirection.UP: // 고민중 (블루 그레이)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-[#7B5E57] bg-[#7B5E57] shadow-xl scale-110 animate-pulse-strong" 
-            : "border-[#7B5E57] hover:border-[#7B5E57] hover:bg-[#7B5E57] hover:scale-105"}
-          ${isActive ? "text-white" : "text-[#7B5E57] hover:text-white"} shadow-lg mb-1 bg-white`;
+            ? "border-blue-500 bg-blue-500 shadow-xl scale-110 animate-pulse-strong" 
+            : "border-blue-400 hover:border-blue-500 hover:bg-blue-500 hover:scale-105"}
+          ${isActive ? "text-white" : "text-blue-500 hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
         
-      case SwipeDirection.RIGHT: // 관심 (딥 살몬)
+      case SwipeDirection.RIGHT: // 관심 (밝은 블루)
         styles = `${base} ${size} rounded-full border-3 
           ${isActive 
-            ? "border-[#E6614E] bg-[#E6614E] shadow-xl scale-110 animate-pulse-strong" 
-            : "border-[#E6614E] hover:border-[#E6614E] hover:bg-[#E6614E] hover:scale-105"}
-          ${isActive ? "text-white" : "text-[#E6614E] hover:text-white"} shadow-lg mb-1 bg-white`;
+            ? "border-blue-600 bg-blue-600 shadow-xl scale-110 animate-pulse-strong" 
+            : "border-blue-500 hover:border-blue-600 hover:bg-blue-600 hover:scale-105"}
+          ${isActive ? "text-white" : "text-blue-600 hover:text-white"} shadow-lg mb-1 bg-white`;
         break;
     }
     
@@ -118,7 +118,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full max-w-sm mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
+    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full max-w-sm mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-blue-200 shadow-lg">
       <div className="flex justify-between items-center w-full">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
