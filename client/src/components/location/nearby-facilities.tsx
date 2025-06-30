@@ -98,7 +98,7 @@ export function NearbyFacilities() {
         : "walking";
 
       console.log('이동수단으로 거리 계산:', travelModeToUse, '장소 수:', unique.length);
-      
+
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         unique.map(p => ({ ...p, name: normalizeBrandName(p.name) })),
@@ -106,13 +106,13 @@ export function NearbyFacilities() {
       );
 
       console.log('거리 계산 완료, 결과 수:', resultsWithDistance.length);
-      
+
       const sortedResults = resultsWithDistance.sort((a, b) => {
         const da = parseFloat(a.distance.replace(/[^\d.]/g, ""));
         const db = parseFloat(b.distance.replace(/[^\d.]/g, ""));
         return da - db;
       }).slice(0, 3);
-      
+
       console.log('최종 결과:', sortedResults.map(r => `${r.name}: ${r.distance} (${r.duration})`));
       setNearbyPlaces(sortedResults);
     } catch {
@@ -269,3 +269,4 @@ export function NearbyFacilities() {
     </Card>
   );
 }
+```
