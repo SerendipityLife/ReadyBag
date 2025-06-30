@@ -7,7 +7,7 @@ import { API_ROUTES, ProductStatus } from "@/lib/constants";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy } from "lucide-react";
+import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -374,8 +374,8 @@ export function ShoppingHistory() {
   if (purchasedProducts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="bg-gray-100 rounded-full p-6 mb-4">
-          <Heart className="h-12 w-12 text-gray-400" />
+        <div className="bg-blue-50 rounded-full p-6 mb-4">
+          <ShoppingBag className="h-12 w-12 text-blue-400" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">쇼핑 기록이 없습니다</h3>
         <p className="text-gray-500 text-center max-w-sm">
