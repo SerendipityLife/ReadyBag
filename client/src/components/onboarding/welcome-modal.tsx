@@ -34,8 +34,8 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     {
       icon: <Heart className="w-16 h-16 text-pink-600" />,
       title: "상품을 탐색하고 저장하세요",
-      description: "관심 있는 상품은 ❤️, 고민 중인 상품은 ?, 필요 없는 상품은 ✕ 버튼으로 분류해보세요.",
-      subtitle: "간편한 스와이프 방식"
+      description: "여행 날짜별로 상품을 분류하고 구매 기록을 체계적으로 관리할 수 있습니다.",
+      subtitle: "날짜별 쇼핑 히스토리 관리"
     }
   ];
 
@@ -125,7 +125,7 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                     </>
                   )}
                 </Button>
-                
+
                 {!isLastStep && (
                   <div className="flex gap-2">
                     <Button
