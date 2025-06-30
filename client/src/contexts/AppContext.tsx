@@ -149,13 +149,17 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     console.log('[온보딩] welcomeSkippedDate:', welcomeSkippedDate);
     console.log('[온보딩] today:', today);
     
-    // 영구적으로 닫기를 선택하지 않았고, 오늘 "오늘은 그만보기"를 선택하지 않은 경우 표시
-    if (!hasSeenWelcome && (!welcomeSkippedDate || welcomeSkippedDate !== today)) {
-      console.log('[온보딩] 모달 표시');
-      setShowWelcomeModal(true);
-    } else {
-      console.log('[온보딩] 모달 숨김');
-    }
+    // 테스트를 위해 임시로 항상 온보딩 모달 표시
+    console.log('[온보딩] 테스트 모드 - 모달 표시');
+    setShowWelcomeModal(true);
+    
+    // 원래 로직 (주석 처리)
+    // if (!hasSeenWelcome && (!welcomeSkippedDate || welcomeSkippedDate !== today)) {
+    //   console.log('[온보딩] 모달 표시');
+    //   setShowWelcomeModal(true);
+    // } else {
+    //   console.log('[온보딩] 모달 숨김');
+    // }
   }, []);
 
   // 온보딩 완료 처리
