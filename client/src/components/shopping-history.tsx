@@ -76,7 +76,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
       </div>
       
       {isVisible && (
-        <div className="mt-1 px-2 py-1.5 bg-blue-50 border border-blue-100 roundedext-xs text-sand-brown-700 break-words">
+        <div className="mt-1 px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs text-blue-700 break-words">
           {address}
         </div>
       )}
@@ -473,22 +473,22 @@ export function ShoppingHistory() {
                 {selectedGroup?.items.some(item => item.accommodationAddress) && (
                   <button
                     onClick={() => setShowAccommodationAddress(!showAccommodationAddress)}
-                    className="p-2 bg-white text-sand-brown-600 rounded-lg shadow-sm border border-sand-brown-100 hover:bg-sand-brown-50 transition-colors"
+                    className="p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-blue-100 hover:bg-blue-50 transition-colors"
                     title="숙박지 주소 보기"
                   >
                     <MapPin className="h-4 w-4" />
                   </button>
                 )}
                 
-                <div className="inline-flex items-center px-3 py-1.5 bg-white text-sand-brown-700 text-sm font-medium rounded-lg shadow-sm border border-sand-brown-100">
-                  <span className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mr-2"></span>
+                <div className="inline-flex items-center px-3 py-1.5 bg-white text-blue-700 text-sm font-medium rounded-lg shadow-sm border border-blue-100">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
                   {selectedGroup?.items.length}개 상품
                 </div>
-                <div className="inline-flex items-center px-3 py-1.5 bg-sand-brown-50 border border-sand-brown-200 rounded-lg">
-                  <div className="text-sm font-semibold text-sand-brown-800">
+                <div className="inline-flex items-center px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm font-semibold text-blue-800">
                     ¥{selectedGroup?.totalAmount.toLocaleString()}
                   </div>
-                  <div className="text-xs text-sand-brown-600 ml-2">
+                  <div className="text-xs text-blue-600 ml-2">
                     약 {selectedGroup?.totalAmountKrw.toLocaleString()}원
                   </div>
                 </div>
@@ -497,14 +497,14 @@ export function ShoppingHistory() {
             
             {/* 숙박지 주소 표시 - 토글 가능 */}
             {showAccommodationAddress && selectedGroup?.items.some(item => item.accommodationAddress) && (
-              <div className="mt-3 px-4 py-3 bg-sand-brown-50 border border-sand-brown-200 rounded-lg">
+              <div className="mt-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4 text-sand-brown-600" />
-                      <span className="text-sm font-medium text-sand-brown-800">숙박지 주소</span>
+                      <MapPin className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">숙박지 주소</span>
                     </div>
-                    <p className="text-sm text-sand-brown-700 leading-relaxed">
+                    <p className="text-sm text-blue-700 leading-relaxed">
                       {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
                     </p>
                   </div>
@@ -519,7 +519,7 @@ export function ShoppingHistory() {
                         });
                       }
                     }}
-                    className="p-2 text-sand-brown-600 hover:bg-sand-brown-100 rounded-md transition-colors"
+                    className="p-2 text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
                     title="주소 복사"
                   >
                     <Copy className="h-4 w-4" />
