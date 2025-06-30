@@ -22,6 +22,7 @@ class GoogleMapsService {
   private map: google.maps.Map | null = null;
   private service: google.maps.places.PlacesService | null = null;
   private distanceService: google.maps.DistanceMatrixService | null = null;
+  private directionsService: google.maps.DirectionsService | null = null;
 
   constructor() {
     this.loader = null as any;
@@ -67,6 +68,7 @@ class GoogleMapsService {
 
     this.service = new google.maps.places.PlacesService(this.map);
     this.distanceService = new google.maps.DistanceMatrixService();
+    this.directionsService = new google.maps.DirectionsService();
   }
 
   async findNearbyPlacesWithRadius(
@@ -139,26 +141,77 @@ class GoogleMapsService {
         new google.maps.LatLng(dest.lat, dest.lng)
       );
 
-      this.distanceService!.getDistanceMatrix({
+      // 대중교통일 때 추가 옵션 설정
+      const requestOptions: google.maps.DistanceMatrixRequest = {
         origins: [new google.maps.LatLng(origin.lat, origin.lng)],
         destinations: destinationLatLngs,
         travelMode: googleTravelMode,
         unitSystem: google.maps.UnitSystem.METRIC,
         avoidHighways: false,
         avoidTolls: false
-      }, (response, status) => {
+      };
+
+      // 대중교통 모드일 때 추가 설정
+      if (travelMode === 'transit') {
+        requestOptions.transitOptions = {
+          modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.SUBWAY, google.maps.TransitMode.TRAIN],
+          routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS,
+          departureTime: new Date() // 현재 시간 기준
+        };
+      }
+
+      console.log('Distance Matrix 요청 옵션:', requestOptions);
+
+      this.distanceService!.getDistanceMatrix(requestOptions, async (response, status) => {
+        console.log('Distance Matrix 응답:', { status, response });
+        
         if (status === 'OK' && response?.rows[0]) {
           const elements = response.rows[0].elements;
-          const updated = destinations.map((dest, i) => {
+          let updated = destinations.map((dest, i) => {
             const el = elements[i];
+            console.log(`${dest.name} 결과:`, {
+              status: el?.status,
+              distance: el?.distance?.text,
+              duration: el?.duration?.text,
+              travelMode: travelMode
+            });
+            
             return {
               ...dest,
               distance: el?.distance?.text || '정보 없음',
               duration: el?.duration?.text || '정보 없음'
             };
           });
+
+          // 결과 검증 및 개선된 로깅
+          if (travelMode === 'transit') {
+            updated.forEach(dest => {
+              const durationText = dest.duration;
+              const minutes = parseInt(durationText.replace(/[^0-9]/g, ''));
+              console.log(`${dest.name} 대중교통 시간 분석:`, {
+                originalText: durationText,
+                extractedMinutes: minutes,
+                isValid: !isNaN(minutes) && minutes <= 60
+              });
+            });
+          }
+
           resolve(updated);
         } else {
+          console.log('Distance Matrix API 실패:', status);
+          
+          // 대중교통 모드에서 실패시 Directions API로 재시도
+          if (travelMode === 'transit' && this.directionsService) {
+            console.log('Distance Matrix 실패, Directions API로 재시도');
+            try {
+              const retryResults = await this.getTransitDirections(origin, destinations);
+              resolve(retryResults);
+              return;
+            } catch (error) {
+              console.log('Directions API 재시도도 실패:', error);
+            }
+          }
+          
           const fallback = destinations.map(dest => ({
             ...dest,
             distance: '정보 없음',
@@ -168,6 +221,60 @@ class GoogleMapsService {
         }
       });
     });
+  }
+
+  // Directions API를 사용한 대중교통 시간 계산
+  private async getTransitDirections(
+    origin: { lat: number; lng: number },
+    destinations: PlaceResult[]
+  ): Promise<PlaceResult[]> {
+    if (!this.directionsService) {
+      return destinations;
+    }
+
+    const results = await Promise.all(
+      destinations.map(async (dest) => {
+        try {
+          const result = await new Promise<google.maps.DirectionsResult>((resolve, reject) => {
+            this.directionsService!.route({
+              origin: new google.maps.LatLng(origin.lat, origin.lng),
+              destination: new google.maps.LatLng(dest.lat, dest.lng),
+              travelMode: google.maps.TravelMode.TRANSIT,
+              transitOptions: {
+                modes: [google.maps.TransitMode.BUS, google.maps.TransitMode.SUBWAY, google.maps.TransitMode.TRAIN],
+                routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS,
+                departureTime: new Date()
+              }
+            }, (result, status) => {
+              if (status === 'OK' && result) {
+                resolve(result);
+              } else {
+                reject(new Error(`Directions API 실패: ${status}`));
+              }
+            });
+          });
+
+          const route = result.routes[0];
+          const leg = route.legs[0];
+          
+          console.log(`${dest.name} Directions API 결과:`, {
+            distance: leg.distance?.text,
+            duration: leg.duration?.text
+          });
+
+          return {
+            ...dest,
+            distance: leg.distance?.text || dest.distance,
+            duration: leg.duration?.text || dest.duration
+          };
+        } catch (error) {
+          console.log(`${dest.name} Directions API 실패:`, error);
+          return dest; // 기존 값 유지
+        }
+      })
+    );
+
+    return results;
   }
 
   calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {

@@ -180,6 +180,13 @@ export function NearbyFacilities() {
         travelModeToUse as "walking" | "transit" | "driving"
       );
 
+      console.log('거리 계산 완료:', resultsWithDistance.map(r => ({
+        name: r.name,
+        distance: r.distance,
+        duration: r.duration,
+        travelMode: travelModeToUse
+      })));
+
       const sortedResults = resultsWithDistance.sort((a, b) => {
         const da = parseFloat(a.distance.replace(/[^0-9.]/g, ""));
         const db = parseFloat(b.distance.replace(/[^0-9.]/g, ""));
