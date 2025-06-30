@@ -10,6 +10,7 @@ import { ShoppingHistoryPage } from "@/pages/shopping-history";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 import { AccommodationSearch } from "@/components/location/accommodation-search";
 import { WelcomeModal } from "@/components/onboarding/welcome-modal";
+import { CountrySelector } from "@/components/country-selector";
 import { View } from "@/lib/constants";
 
 export default function Home() {
@@ -52,6 +53,13 @@ export default function Home() {
       <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
+            {/* 국가 선택 */}
+            <div className="w-full mb-3">
+              <div className="flex justify-center px-2">
+                <CountrySelector />
+              </div>
+            </div>
+            
             {/* 여행 날짜 선택과 숙박지 주소 - 한줄 레이아웃 */}
             <div className="w-full mb-3">
               <div className="flex items-center justify-center gap-2 px-2">
