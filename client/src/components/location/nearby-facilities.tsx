@@ -157,6 +157,10 @@ export function NearbyFacilities() {
           return strictDonkiKeywords.some(k => name.includes(k)) && 
                  !name.includes("picasso") && // 피카소 등 제외
                  !name.includes("uny") && // UNY 등 제외
+                 !name.includes("eki donki") && // Eki Donki 제외
+                 !name.includes("eki marche") && // Eki Marche 제외
+                 !name.includes("ekidonki") && // 붙여쓴 경우도 제외
+                 !name.includes("ekimarche") && // 붙여쓴 경우도 제외
                  name.includes("don"); // don이 포함된 것만 (메가 돈키호테 포함)
         });
       }
