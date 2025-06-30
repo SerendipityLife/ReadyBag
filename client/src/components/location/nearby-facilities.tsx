@@ -18,7 +18,7 @@ const FACILITY_TYPES = [
     label: "편의점",
     keywords: ["convenience store", "コンビニ", "편의점"],
     subTypes: [
-      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐"] },
+      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐", "seven eleven", "7eleven"] },
       { value: "lawson", label: "로손", keywords: ["Lawson", "ローソン", "로손"] },
       { value: "family_mart", label: "패밀리마트", keywords: ["FamilyMart", "ファミリーマート", "패밀리마트"] }
     ]

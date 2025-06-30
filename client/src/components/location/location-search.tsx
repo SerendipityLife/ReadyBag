@@ -127,7 +127,14 @@ export function LocationSearch() {
       if (selectedFacilityType === "convenience_store" && selectedSubType !== "all_brands") {
         const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
         const subKeywords = sub ? sub.keywords.map(k => k.toLowerCase()) : [];
-        filtered = filtered.filter(p => subKeywords.some(k => p.name.toLowerCase().includes(k)));
+        filtered = filtered.filter(p => {
+          const placeName = p.name.toLowerCase();
+          return subKeywords.some(k => 
+            placeName.includes(k) || 
+            placeName.includes(k.replace(/[-\s]/g, '')) ||
+            placeName.includes(k.replace('7-eleven', '7eleven'))
+          );
+        });
       }
 
       if (selectedFacilityType === "store") {
