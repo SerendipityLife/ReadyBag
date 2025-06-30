@@ -9,10 +9,25 @@ import { ShareModal } from "@/components/share-modal";
 import { ShoppingHistoryPage } from "@/pages/shopping-history";
 import { TravelDateSelector } from "@/components/travel-date-selector";
 import { AccommodationSearch } from "@/components/location/accommodation-search";
+import { WelcomeModal } from "@/components/onboarding/welcome-modal";
 import { View } from "@/lib/constants";
 
 export default function Home() {
-  const { currentView, setCurrentView, travelStartDate, travelEndDate, setTravelStartDate, setTravelEndDate } = useAppContext();
+  const { 
+    currentView, 
+    setCurrentView, 
+    travelStartDate, 
+    travelEndDate, 
+    setTravelStartDate, 
+    setTravelEndDate,
+    showWelcomeModal,
+    setShowWelcomeModal
+  } = useAppContext();
+
+  const handleWelcomeComplete = () => {
+    setShowWelcomeModal(false);
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
   
   // Add no-scroll class to HTML element when in EXPLORE view for mobile devices
   useEffect(() => {
@@ -80,6 +95,12 @@ export default function Home() {
       <BottomNavigation />
       <InfoPanel />
       <ShareModal />
+      
+      {/* 온보딩 모달 */}
+      <WelcomeModal 
+        isOpen={showWelcomeModal} 
+        onClose={handleWelcomeComplete} 
+      />
     </div>
   );
 }

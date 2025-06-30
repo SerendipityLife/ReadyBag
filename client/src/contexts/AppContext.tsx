@@ -147,6 +147,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   }, []);
 
+  // 온보딩 완료 처리
+  const handleWelcomeComplete = () => {
+    setShowWelcomeModal(false);
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
+
   // selectedTravelDateId 변경 시 localStorage 동기화 및 다른 컴포넌트들에게 알림
   useEffect(() => {
     console.log(`[AppContext] selectedTravelDateId 변경됨:`, selectedTravelDateId);
