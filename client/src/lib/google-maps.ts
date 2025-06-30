@@ -165,11 +165,10 @@ class GoogleMapsService {
           departureTime: departureTime
         };
         
-        console.log('=== 대중교통 모드 강화 디버깅 ===');
-        console.log('Google Maps TravelMode:', googleTravelMode);
-        console.log('Transit Options:', requestOptions.transitOptions);
-        console.log('Departure Time:', departureTime.toLocaleString('ko-KR'));
-        console.log('Current Time:', now.toLocaleString('ko-KR'));
+        console.log('대중교통 옵션 설정:', {
+          modes: requestOptions.transitOptions.modes,
+          departureTime: departureTime.toLocaleString('ko-KR')
+        });
       }
 
       console.log('Distance Matrix 요청 옵션:', requestOptions);
@@ -197,31 +196,21 @@ class GoogleMapsService {
 
           // 결과 검증 및 개선된 로깅
           if (travelMode === 'transit') {
-            console.log('=== 대중교통 응답 상세 분석 ===');
-            console.log('전체 응답:', response);
             updated.forEach((dest, index) => {
               const element = elements[index];
               console.log(`${dest.name} 대중교통 상세 결과:`, {
                 status: element?.status,
                 distance: element?.distance,
                 duration: element?.duration,
-                transitDetails: element?.transit_details,
-                rawElement: element
+                transitDetails: element?.transit_details
               });
-              
-              if (element?.status === 'OK') {
-                console.log(`${dest.name} - 성공적으로 대중교통 시간 계산됨:`, element.duration?.text);
-              } else {
-                console.log(`${dest.name} - 대중교통 계산 실패:`, element?.status);
-              }
               
               const durationText = dest.duration;
               const minutes = parseInt(durationText.replace(/[^0-9]/g, ''));
               console.log(`${dest.name} 대중교통 시간 분석:`, {
                 originalText: durationText,
                 extractedMinutes: minutes,
-                isValid: !isNaN(minutes) && minutes <= 60,
-                travelModeUsed: travelMode
+                isValid: !isNaN(minutes) && minutes <= 60
               });
             });
           }

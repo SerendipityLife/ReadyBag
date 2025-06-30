@@ -99,10 +99,6 @@ export function ShoppingHistory() {
   const [isEditTitleOpen, setIsEditTitleOpen] = useState(false);
   const [editTitle, setEditTitle] = useState("");
   const [showAccommodationAddress, setShowAccommodationAddress] = useState(false);
-  const [accommodationLocation, setAccommodationLocation] = useState<any>(null);
-  const [nearbyStores, setNearbyStores] = useState<any[]>([]);
-  const [isLoadingStores, setIsLoadingStores] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   // Helper function to calculate total amounts for a group
   const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
@@ -448,12 +444,12 @@ export function ShoppingHistory() {
                name.includes("don");
       });
 
-      // 거리 계산 (대중교통) - 매개변수 타입 명시
+      // 거리 계산 (대중교통)
       console.log('돈키호테 검색 - 대중교통 거리 계산 시작');
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         filtered,
-        "transit" as "walking" | "transit" | "driving"
+        "transit"
       );
       
       console.log('돈키호테 검색 - 거리 계산 결과:', resultsWithDistance);
