@@ -62,7 +62,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
           <MapPin className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지</span>
         </Button>
-        
+
         {isVisible && (
           <Button
             variant="ghost"
@@ -74,7 +74,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
           </Button>
         )}
       </div>
-      
+
       {isVisible && (
         <div className="mt-1 px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs text-blue-700 break-words">
           {address}
@@ -104,7 +104,7 @@ export function ShoppingHistory() {
   const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
     let totalJpy = 0;
     let totalKrw = 0;
-    
+
     items.forEach(item => {
       // 사용자가 입력한 실제 가격이 있으면 우선 사용
       if (item.actualPurchasePrice) {
@@ -121,7 +121,7 @@ export function ShoppingHistory() {
         totalKrw += Math.round(item.product.price * 9.57);
       }
     });
-    
+
     return { totalJpy, totalKrw };
   };
 
@@ -183,14 +183,14 @@ export function ShoppingHistory() {
     mutationFn: async (group: TravelGroup) => {
       // Extract travel date ID from the first item in the group
       const travelDateId = group.items[0]?.travelDateId;
-      
+
       if (!travelDateId) {
         throw new Error('Travel date ID not found');
       }
-      
+
       // Use the context function to delete travel date with all its products
       await removeTravelDateWithProducts(travelDateId);
-      
+
       return { success: true };
     },
     onSuccess: () => {
@@ -252,21 +252,21 @@ export function ShoppingHistory() {
   const getLocalPurchasedProducts = async () => {
     try {
       if (!selectedCountry?.id) return [];
-      
+
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
-      
+
       if (!storedData) return [];
-        
+
       const localData = JSON.parse(storedData);
-      
+
       if (!Array.isArray(localData) || localData.length === 0) return [];
-      
+
       // Filter only purchased and not purchased items
       const purchasedItems = localData.filter((item: any) => 
         item.status === ProductStatus.PURCHASED || item.status === ProductStatus.NOT_PURCHASED
       );
-      
+
       if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
         return purchasedItems.map((item: any) => {
           const productData = allProducts.find((p: Product) => p.id === item.productId);
@@ -286,7 +286,7 @@ export function ShoppingHistory() {
           };
         });
       }
-      
+
       return purchasedItems;
     } catch (error) {
       console.error("로컬 스토리지에서 구매 기록 로드 중 오류:", error);
@@ -329,16 +329,16 @@ export function ShoppingHistory() {
     const startDate = product.travelStartDate ? new Date(product.travelStartDate) : null;
     const endDate = product.travelEndDate ? new Date(product.travelEndDate) : null;
     const travelDateId = product.travelDateId || 'no-date';
-    
+
     let dateRange = "날짜 미설정";
     if (startDate && endDate) {
       dateRange = `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
     } else if (startDate) {
       dateRange = format(startDate, "yyyy.MM.dd", { locale: ko });
     }
-    
+
     const existingGroup = groups.find(g => g.travelDateId === travelDateId);
-    
+
     if (existingGroup) {
       existingGroup.items.push(product);
     } else {
@@ -353,7 +353,7 @@ export function ShoppingHistory() {
         customTitle
       });
     }
-    
+
     return groups;
   }, []);
 
@@ -395,6 +395,94 @@ export function ShoppingHistory() {
     setIsModalOpen(false);
     setSelectedGroup(null);
     setShowAccommodationAddress(false);
+  };
+
+  const handleFindNearbyStores = async () => {
+    if (!accommodationLocation) {
+      setError("숙박지 위치가 설정되지 않았습니다.");
+      return;
+    }
+
+    setIsLoadingStores(true);
+    setError(null);
+
+    try {
+      const origin = { lat: accommodationLocation.lat, lng: accommodationLocation.lng };
+      const keywords = ["돈키호테", "don quijote", "ドン・キホーテ", "donki"];
+      let allResults: PlaceResult[] = [];
+
+      for (const keyword of keywords) {
+        const results = await googleMapsService.findNearbyPlacesWithRadius(
+          origin, 
+          "store", 
+          keyword, 
+          10000
+        );
+        allResults.push(...results);
+      }
+
+      // 중복 제거
+      const seen = new Set();
+      const unique = allResults.filter(p => {
+        const key = `${p.name}_${p.address}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      // 돈키호테 필터링
+      const strictDonkiKeywords = ["don quijote", "ドン・キホーテ", "donki"];
+      const filtered = unique.filter(p => {
+        const name = p.name.toLowerCase();
+        return strictDonkiKeywords.some(k => name.includes(k)) && 
+               !name.includes("picasso") && 
+               !name.includes("uny") &&
+               !name.includes("eki donki") &&
+               !name.includes("eki marche") &&
+               !name.includes("ekidonki") &&
+               !name.includes("ekimarche") &&
+               name.includes("don");
+      });
+
+      // 거리 계산 (대중교통)
+      const resultsWithDistance = await googleMapsService.calculateDistances(
+        origin,
+        filtered,
+        "transit"
+      );
+
+      const sortedResults = resultsWithDistance
+        .sort((a, b) => {
+          const da = parseFloat(a.distance.replace(/[^0-9.]/g, ""));
+          const db = parseFloat(b.distance.replace(/[^0-9.]/g, ""));
+          return da - db;
+        })
+        .slice(0, 3);
+
+      setNearbyStores(sortedResults);
+    } catch (error) {
+      console.error("주변 돈키호테 검색 실패:", error);
+      setError("주변 돈키호테를 찾을 수 없습니다.");
+    } finally {
+      setIsLoadingStores(false);
+    }
+  };
+
+  const handleNavigateToStore = (store: PlaceResult) => {
+    if (!accommodationLocation) {
+      setError("숙박지 위치가 설정되지 않았습니다.");
+      return;
+    }
+
+    googleMapsService.navigateFromAccommodation(
+      accommodationLocation.address,
+      {
+        lat: store.lat,
+        lng: store.lng,
+        name: store.name
+      },
+      "transit"
+    );
   };
 
   return (
@@ -480,7 +568,7 @@ export function ShoppingHistory() {
                     <MapPin className="h-4 w-4" />
                   </button>
                 )}
-                
+
                 <div className="inline-flex items-center px-3 py-1.5 bg-white text-blue-700 text-sm font-medium rounded-lg shadow-sm border border-blue-100">
                   <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
                   {selectedGroup?.items.length}개 상품
@@ -495,7 +583,7 @@ export function ShoppingHistory() {
                 </div>
               </div>
             </div>
-            
+
             {/* 숙박지 주소 표시 - 토글 가능 */}
             {showAccommodationAddress && selectedGroup?.items.some(item => item.accommodationAddress) && (
               <div className="mt-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -529,7 +617,7 @@ export function ShoppingHistory() {
               </div>
             )}
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
             {selectedGroup?.items.map((userProduct) => (
               <div key={userProduct.id} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
