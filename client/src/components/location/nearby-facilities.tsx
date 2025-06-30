@@ -194,11 +194,12 @@ export function NearbyFacilities() {
       return;
     }
     const address = currentAccommodation?.address || savedAccommodationAddress || "";
+    const travelModeToUse = selectedFacilityType === "store" ? selectedTravelMode : "walking";
     googleMapsService.navigateFromAccommodation(address, {
       lat: place.lat,
       lng: place.lng,
       name: place.name
-    });
+    }, travelModeToUse as "walking" | "transit" | "driving");
   };
 
   return (
