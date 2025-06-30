@@ -54,7 +54,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 bg-white border-2 border-[#7B5E57] text-[#7B5E57] hover:bg-[#FAF6F0] shadow-md"
+          className="h-8 px-3 bg-white border-2 border-blue-500 text-blue-600 hover:bg-blue-50 shadow-md"
         >
           <Check className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 설정됨</span>
@@ -65,7 +65,7 @@ export function AccommodationSearch() {
           onClick={() => setIsExpanded(true)}
           variant="outline"
           size="sm"
-          className="h-8 px-3 text-[#7B5E57] border-2 border-[#C5B8A5] hover:bg-white shadow-md"
+          className="h-8 px-3 text-blue-600 border-2 border-blue-300 hover:bg-blue-50 shadow-md"
         >
           <Plus className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지 추가</span>
@@ -85,7 +85,7 @@ export function AccommodationSearch() {
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-96 max-w-[90vw] bg-white border border-gray-200 rounded-lg shadow-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Home className="h-5 w-5 text-[#7B5E57]" />
+                <Home className="h-5 w-5 text-blue-600" />
                 <span className="text-base font-medium text-gray-700">숙박지 주소 설정</span>
               </div>
               <Button
@@ -99,23 +99,23 @@ export function AccommodationSearch() {
             </div>
 
             {/* 안내 문구 추가 */}
-            <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
+            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
               <div className="space-y-1.5">
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-sand-brown-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm text-blue-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
                 </div>
                 <div className="flex items-start gap-2">
-                  <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-sand-brown-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
+                  <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm text-blue-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
                 </div>
               </div>
             </div>
 
             {accommodationLocation && (
-              <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
-                <p className="text-sm text-sand-brown-700 font-medium">현재 설정된 숙박지:</p>
-                <p className="text-sm text-sand-brown-600 mt-1 break-all">{accommodationLocation.address}</p>
+              <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-700 font-medium">현재 설정된 숙박지:</p>
+                <p className="text-sm text-blue-600 mt-1 break-all">{accommodationLocation.address}</p>
               </div>
             )}
 
@@ -133,7 +133,7 @@ export function AccommodationSearch() {
                   onClick={handleLocationSearch}
                   disabled={isSearching}
                   size="sm"
-                  className="h-10 px-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white"
+                  className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isSearching ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

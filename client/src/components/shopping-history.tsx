@@ -57,7 +57,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
           variant="ghost"
           size="sm"
           onClick={() => setIsVisible(!isVisible)}
-          className="text-sand-brown-700 hover:text-sand-brown-800 hover:bg-sand-brown-50 p-1 h-auto"
+          className="text-blue-700 hover:text-blue-800 hover:bg-blue-50 p-1 h-auto"
         >
           <MapPin className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지</span>
@@ -68,7 +68,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
             variant="ghost"
             size="sm"
             onClick={() => copyToClipboard(address)}
-            className="text-sand-brown-600 hover:text-sand-brown-700 hover:bg-sand-brown-50 p-1 h-auto"
+            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 h-auto"
           >
             <Copy className="h-3 w-3" />
           </Button>
@@ -76,7 +76,7 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
       </div>
       
       {isVisible && (
-        <div className="mt-1 px-2 py-1.5 bg-sand-brown-50 border border-sand-brown-100 rounded text-xs text-sand-brown-700 break-words">
+        <div className="mt-1 px-2 py-1.5 bg-blue-50 border border-blue-100 roundedext-xs text-sand-brown-700 break-words">
           {address}
         </div>
       )}
