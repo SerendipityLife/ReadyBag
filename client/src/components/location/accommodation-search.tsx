@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Home, Plus, Check } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Loader2, Home, Plus, Check, Info } from "lucide-react";
 import { googleMapsService, type HotelLocation } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
 
@@ -48,29 +49,53 @@ export function AccommodationSearch() {
 
   return (
     <div className="relative">
-      {accommodationLocation ? (
-        // 숙박지가 설정된 경우 - 컴팩트한 표시
-        <Button
-          onClick={() => setIsExpanded(true)}
-          variant="default"
-          size="sm"
-          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
-        >
-          <Check className="h-3 w-3 mr-1" />
-          <span className="text-xs">숙박지 설정됨</span>
-        </Button>
-      ) : (
-        // 숙박지가 설정되지 않은 경우 - 설정 버튼
-        <Button
-          onClick={() => setIsExpanded(true)}
-          variant="default"
-          size="sm"
-          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
-        >
-          <Plus className="h-3 w-3 mr-1" />
-          <span className="text-xs">숙박지 추가</span>
-        </Button>
-      )}
+      <TooltipProvider>
+        {accommodationLocation ? (
+          // 숙박지가 설정된 경우 - 컴팩트한 표시
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                onClick={() => setIsExpanded(true)}
+                variant="default"
+                size="sm"
+                className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
+              >
+                <Check className="h-3 w-3 mr-1" />
+                <span className="text-xs">숙박지 설정됨</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p className="text-xs">숙박지 근처 편의점, 쇼핑몰 등을 찾을 수 있어요</p>
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          // 숙박지가 설정되지 않은 경우 - 설정 버튼
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => setIsExpanded(true)}
+                  variant="default"
+                  size="sm"
+                  className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 shadow-md"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  <span className="text-xs">숙박지 추가</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p className="text-xs">구글 맵스 연동으로 주변 시설을 쉽게 찾아보세요</p>
+              </TooltipContent>
+            </Tooltip>
+            
+            {/* 추가 안내 문구 */}
+            <div className="flex items-center gap-1 text-gray-500">
+              <Info className="h-3 w-3" />
+              <span className="text-xs">주변 시설 검색에 활용돼요</span>
+            </div>
+          </div>
+        )}
+      </TooltipProvider>
 
       {/* 확장된 검색 창 - 고정 위치 모달 */}
       {isExpanded && (
@@ -98,16 +123,26 @@ export function AccommodationSearch() {
               </Button>
             </div>
 
-            {/* 안내 문구 추가 */}
-            <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            {/* 향상된 안내 문구 */}
+            <div className="mb-4 p-3 bg-gradient-to-r from-blue-50 to-sky-50 rounded-lg border border-blue-200">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1 bg-blue-100 rounded-full">
+                  <Home className="h-3 w-3 text-blue-600" />
+                </div>
+                <span className="text-sm font-medium text-blue-800">구글 맵스 연동 기능</span>
+              </div>
               <div className="space-y-1.5">
                 <div className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-blue-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
+                  <p className="text-sm text-blue-700">숙박하는 호텔이나 숙소 주소를 설정하면</p>
                 </div>
                 <div className="flex items-start gap-2">
                   <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm text-blue-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
+                  <p className="text-sm text-blue-700">주변 편의점, 드럭스토어, 쇼핑몰을 자동으로 찾아드려요</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm text-green-700">구글 맵스에서 바로 길찾기도 가능해요!</p>
                 </div>
               </div>
             </div>
