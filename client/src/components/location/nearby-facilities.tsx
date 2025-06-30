@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MapPin, Clock, Navigation, Loader2, AlertTriangle, Home } from "lucide-react";
 import { googleMapsService, type PlaceResult } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
@@ -238,20 +239,35 @@ export function NearbyFacilities() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* 저장된 숙박지 주소 표시 */}
+        {/* 저장된 숙박지 주소 표시 - 컴팩트한 아이콘 버튼 */}
         {savedAccommodationAddress && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-            <div className="flex items-start gap-2">
-              <Home className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="flex-1">
-                <div className="text-sm font-medium text-blue-900 mb-1">
-                  현재 설정된 숙박지
+          <div className="mb-4">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700"
+                >
+                  <Home className="h-3 w-3 mr-1.5" />
+                  <span className="text-xs">숙박지 확인</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Home className="h-4 w-4 text-blue-600" />
+                    <h4 className="font-medium text-sm text-blue-900">현재 설정된 숙박지</h4>
+                  </div>
+                  <p className="text-sm text-gray-700 leading-relaxed break-words">
+                    {savedAccommodationAddress}
+                  </p>
+                  <div className="text-xs text-gray-500 mt-2">
+                    구경하기 탭에서 설정한 숙박지 주소입니다
+                  </div>
                 </div>
-                <div className="text-sm text-blue-700 break-words">
-                  {savedAccommodationAddress}
-                </div>
-              </div>
-            </div>
+              </PopoverContent>
+            </Popover>
           </div>
         )}
 
