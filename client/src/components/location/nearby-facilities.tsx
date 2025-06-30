@@ -185,51 +185,36 @@ export function NearbyFacilities() {
   };
 
   return (
-    <div className="space-y-6 p-4">
-      {/* 숙소 주소 상태 표시 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Home className="h-5 w-5" /> 숙박지 정보
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+    <div className="h-full flex flex-col max-h-[calc(100vh-200px)]">
+      {/* 상단 고정 영역 - 숙소 주소 상태 */}
+      <div className="flex-shrink-0 p-3 border-b bg-gray-50">
+        <div className="bg-white rounded-lg p-3 shadow-sm">
           {accommodationLocation?.address || savedAccommodationAddress ? (
-            <div className="flex items-start gap-2">
-              <MapPin className="h-4 w-4 mt-1 text-green-600" />
-              <div>
-                <p className="text-sm font-medium text-green-700">
-                  설정된 숙박지 주소
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-green-600" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-green-700">숙박지 설정됨</p>
+                <p className="text-xs text-gray-600 truncate">
                   {accommodationLocation?.address || savedAccommodationAddress}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 mt-1 text-orange-500" />
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-orange-500" />
               <div>
-                <p className="text-sm font-medium text-orange-700">
-                  숙박지 주소가 설정되지 않았습니다
-                </p>
-                <p className="text-xs text-gray-600 mt-1">
-                  홈 화면에서 숙박지 주소를 먼저 설정해주세요.
-                </p>
+                <p className="text-sm font-medium text-orange-700">숙박지 주소 미설정</p>
+                <p className="text-xs text-gray-600">홈에서 주소를 설정해주세요</p>
               </div>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* 주변 시설 검색 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Navigation className="h-5 w-5" /> 주변 시설 검색
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      {/* 검색 컨트롤 영역 */}
+      <div className="flex-shrink-0 p-3 bg-white border-b">
+        <div className="space-y-3">
+          {/* 시설 선택 및 검색 버튼 */}
           <div className="flex gap-2">
             <Select value={selectedFacilityType} onValueChange={(v) => {
               setSelectedFacilityType(v);
@@ -245,8 +230,8 @@ export function NearbyFacilities() {
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleFacilitySearch} disabled={isLoadingPlaces}>
-              {isLoadingPlaces ? <Loader2 className="animate-spin" /> : "찾기"}
+            <Button onClick={handleFacilitySearch} disabled={isLoadingPlaces} size="sm">
+              {isLoadingPlaces ? <Loader2 className="animate-spin h-4 w-4" /> : "찾기"}
             </Button>
           </div>
 
@@ -272,8 +257,8 @@ export function NearbyFacilities() {
           {/* 이동 수단 선택 (돈키호테일 때만) */}
           {selectedFacilityType === "store" && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">이동 수단</p>
-              <div className="flex gap-2">
+              <p className="text-xs font-medium text-gray-700">이동 수단</p>
+              <div className="flex gap-1">
                 {[
                   { value: "walking", label: "도보", icon: "🚶" },
                   { value: "transit", label: "대중교통", icon: "🚇" },
@@ -284,7 +269,7 @@ export function NearbyFacilities() {
                     variant={selectedTravelMode === mode.value ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSelectedTravelMode(mode.value)}
-                    className="text-xs"
+                    className="text-xs h-7 px-2"
                   >
                     {mode.icon} {mode.label}
                   </Button>
@@ -293,42 +278,63 @@ export function NearbyFacilities() {
             </div>
           )}
 
+          {/* 에러 메시지 */}
           {error && (
-            <div className="flex items-center gap-2 p-3 bg-red-50 rounded-lg">
-              <AlertTriangle className="h-4 w-4 text-red-500" />
-              <p className="text-sm text-red-700">{error}</p>
+            <div className="flex items-center gap-2 p-2 bg-red-50 rounded-lg">
+              <AlertTriangle className="h-3 w-3 text-red-500" />
+              <p className="text-xs text-red-700">{error}</p>
             </div>
           )}
+        </div>
+      </div>
 
-          {/* 검색 결과 */}
-          {nearbyPlaces.length > 0 ? (
-            <div className="space-y-3">
-              <h4 className="font-medium">가까운 {FACILITY_TYPES.find(f => f.value === selectedFacilityType)?.label} TOP {nearbyPlaces.length}</h4>
+      {/* 검색 결과 영역 - 스크롤 가능 */}
+      <div className="flex-1 overflow-y-auto">
+        {nearbyPlaces.length > 0 ? (
+          <div className="p-3">
+            <h4 className="font-medium text-sm mb-3 text-gray-800">
+              가까운 {FACILITY_TYPES.find(f => f.value === selectedFacilityType)?.label} TOP {nearbyPlaces.length}
+            </h4>
+            <div className="space-y-2">
               {nearbyPlaces.map((place, i) => (
-                <div key={i} className="flex justify-between items-start border p-3 rounded-lg bg-white">
-                  <div className="flex-1">
-                    <p className="font-semibold text-gray-900">{place.name}</p>
-                    <p className="text-sm text-gray-600 mt-1">{place.address}</p>
-                    <div className="flex items-center gap-4 mt-2">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{place.distance}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-gray-400" />
-                        <span className="text-xs text-gray-500">{place.duration}</span>
+                <div key={i} className="border rounded-lg p-3 bg-white shadow-sm">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">{place.name}</p>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{place.address}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{place.distance}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{place.duration}</span>
+                        </div>
                       </div>
                     </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleNavigate(place)} 
+                      className="ml-2 h-8 px-3 text-xs"
+                    >
+                      <Navigation className="w-3 h-3 mr-1" /> 길찾기
+                    </Button>
                   </div>
-                  <Button size="sm" onClick={() => handleNavigate(place)} className="ml-3">
-                    <Navigation className="w-4 h-4 mr-1" /> 길찾기
-                  </Button>
                 </div>
               ))}
             </div>
-          ) : (
-            !isLoadingPlaces && (
-              <div className="text-center py-8">
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-8">
+            {isLoadingPlaces ? (
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-500" />
+                <p className="text-sm text-gray-500">검색 중...</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Navigation className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                 <p className="text-sm text-gray-500">
                   {accommodationLocation?.address || savedAccommodationAddress 
                     ? "검색 버튼을 눌러 주변 시설을 찾아보세요"
@@ -336,10 +342,10 @@ export function NearbyFacilities() {
                   }
                 </p>
               </div>
-            )
-          )}
-        </CardContent>
-      </Card>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
