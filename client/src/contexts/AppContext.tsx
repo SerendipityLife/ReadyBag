@@ -145,9 +145,16 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     const welcomeSkippedDate = localStorage.getItem('welcomeSkippedDate');
     const today = new Date().toDateString();
     
-    // 영구적으로 닫기를 선택했거나, 오늘 이미 "오늘은 그만보기"를 선택한 경우 표시하지 않음
-    if (!hasSeenWelcome && welcomeSkippedDate !== today) {
+    console.log('[온보딩] hasSeenWelcome:', hasSeenWelcome);
+    console.log('[온보딩] welcomeSkippedDate:', welcomeSkippedDate);
+    console.log('[온보딩] today:', today);
+    
+    // 영구적으로 닫기를 선택하지 않았고, 오늘 "오늘은 그만보기"를 선택하지 않은 경우 표시
+    if (!hasSeenWelcome && (!welcomeSkippedDate || welcomeSkippedDate !== today)) {
+      console.log('[온보딩] 모달 표시');
       setShowWelcomeModal(true);
+    } else {
+      console.log('[온보딩] 모달 숨김');
     }
   }, []);
 
