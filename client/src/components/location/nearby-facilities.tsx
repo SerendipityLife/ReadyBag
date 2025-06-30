@@ -1,11 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Navigation, Loader2, AlertTriangle } from "lucide-react";
+import { MapPin, Clock, Navigation, Loader2, AlertTriangle, Home } from "lucide-react";
 import { googleMapsService, type PlaceResult } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
+import { useAuth } from "@/hooks/use-auth";
+import { API_ROUTES } from "@/lib/constants";
+import type { UserProduct } from "@shared/schema";
 
 const FACILITY_TYPES = [
   {
@@ -35,20 +39,91 @@ const normalizeBrandName = (name: string): string => {
 };
 
 export function NearbyFacilities() {
-  const { accommodationLocation } = useAppContext();
+  const { accommodationLocation, selectedCountry, selectedTravelDateId } = useAppContext();
+  const { user } = useAuth();
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
   const [selectedSubType, setSelectedSubType] = useState("all_brands");
   const [selectedTravelMode, setSelectedTravelMode] = useState<'walking' | 'driving' | 'transit'>('transit');
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedAccommodationAddress, setSavedAccommodationAddress] = useState<string | null>(null);
+
+  // 선택된 여행 날짜의 상품들에서 숙박지 주소 가져오기
+  const { data: userProducts } = useQuery<UserProduct[]>({
+    queryKey: ['user-products', selectedCountry.id, selectedTravelDateId || 'no-date'],
+    queryFn: async () => {
+      if (!user || !selectedCountry?.id) {
+        // 비회원 사용자의 경우 로컬 스토리지에서 가져오기
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey);
+        if (!storedData) return [];
+        
+        const localData = JSON.parse(storedData);
+        if (!Array.isArray(localData)) return [];
+        
+        // 선택된 여행 날짜에 해당하는 상품들만 필터링
+        return selectedTravelDateId 
+          ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
+          : localData;
+      }
+
+      // 로그인한 사용자는 API 호출
+      const url = `${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}${selectedTravelDateId ? `&travelDateId=${selectedTravelDateId}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) return [];
+      return await response.json();
+    },
+    enabled: !!selectedCountry?.id,
+  });
+
+  // 저장된 숙박지 주소 추출
+  useEffect(() => {
+    if (userProducts && userProducts.length > 0) {
+      // 현재 선택된 여행 날짜의 상품들 중에서 숙박지 주소가 있는 것 찾기
+      const productWithAccommodation = userProducts.find(
+        (product: any) => product.accommodationAddress && product.accommodationAddress.trim() !== ''
+      );
+      
+      if (productWithAccommodation) {
+        setSavedAccommodationAddress(productWithAccommodation.accommodationAddress);
+      } else {
+        setSavedAccommodationAddress(null);
+      }
+    } else {
+      setSavedAccommodationAddress(null);
+    }
+  }, [userProducts, selectedTravelDateId]);
 
   const handleFacilitySearch = () => {
     handleFacilitySearchWithOverrideTravelMode();
   };
 
   const handleFacilitySearchWithOverrideTravelMode = async (overrideMode?: 'walking' | 'driving' | 'transit') => {
-    if (!accommodationLocation) {
+    let searchLocation = accommodationLocation;
+    
+    // accommodationLocation이 없지만 저장된 주소가 있으면 지오코딩 수행
+    if (!accommodationLocation && savedAccommodationAddress) {
+      setIsLoadingPlaces(true);
+      setError(null);
+      
+      try {
+        const geocodedLocation = await googleMapsService.geocodeAddress(savedAccommodationAddress);
+        if (geocodedLocation) {
+          searchLocation = geocodedLocation;
+        } else {
+          setError("저장된 숙박지 주소의 위치를 찾을 수 없습니다.");
+          setIsLoadingPlaces(false);
+          return;
+        }
+      } catch (error) {
+        setError("주소 검색 중 오류가 발생했습니다.");
+        setIsLoadingPlaces(false);
+        return;
+      }
+    }
+    
+    if (!searchLocation) {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
     }
@@ -56,7 +131,7 @@ export function NearbyFacilities() {
     setIsLoadingPlaces(true);
     setError(null);
     try {
-      const origin = { lat: accommodationLocation.lat, lng: accommodationLocation.lng };
+      const origin = { lat: searchLocation.lat, lng: searchLocation.lng };
       const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
       if (!facilityType) return;
 
@@ -156,6 +231,40 @@ export function NearbyFacilities() {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* 저장된 숙박지 주소 표시 */}
+        {savedAccommodationAddress && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <Home className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-blue-900 mb-1">
+                  현재 설정된 숙박지
+                </div>
+                <div className="text-sm text-blue-700 break-words">
+                  {savedAccommodationAddress}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 숙박지가 설정되지 않은 경우 안내 */}
+        {!savedAccommodationAddress && !accommodationLocation && (
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mb-4">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="flex-1">
+                <div className="text-sm font-medium text-amber-900 mb-1">
+                  숙박지 설정 필요
+                </div>
+                <div className="text-sm text-amber-700">
+                  구경하기 탭에서 여행 날짜를 선택하고 상품을 저장할 때 숙박지를 설정해주세요.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-2 gap-2">
           <Select value={selectedFacilityType} onValueChange={(v) => {
             setSelectedFacilityType(v);
