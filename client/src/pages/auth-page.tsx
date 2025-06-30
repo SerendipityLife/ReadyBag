@@ -191,7 +191,7 @@ export default function AuthPage() {
             <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center min-h-[120px]">
               <div className="relative w-full flex justify-center items-center">
                 <img 
-                  src="/logo-readybag.png" 
+                  src="/readybag-logo.png" 
                   alt="ReadyBag Logo" 
                   className="h-24 w-auto max-w-full object-contain"
                   onLoad={() => {
