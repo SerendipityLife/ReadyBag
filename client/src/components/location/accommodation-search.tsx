@@ -9,17 +9,24 @@ import { googleMapsService, type HotelLocation } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
 
 export function AccommodationSearch() {
-  const { accommodationLocation, setAccommodationLocation } = useAppContext();
+  const { 
+    accommodationLocation, 
+    setAccommodationLocation, 
+    selectedTravelDateId, 
+    setAccommodationForTravelDate, 
+    getCurrentAccommodation 
+  } = useAppContext();
   const [locationAddress, setLocationAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
   useEffect(() => {
-    if (accommodationLocation) {
-      setLocationAddress(accommodationLocation.address);
+    const currentAccommodation = getCurrentAccommodation();
+    if (currentAccommodation) {
+      setLocationAddress(currentAccommodation.address);
     }
-  }, [accommodationLocation]);
+  }, [accommodationLocation, selectedTravelDateId, getCurrentAccommodation]);
 
   const handleLocationSearch = async () => {
     if (!locationAddress.trim()) {
@@ -31,12 +38,20 @@ export function AccommodationSearch() {
     try {
       const location = await googleMapsService.geocodeAddress(locationAddress);
       if (location) {
-        setAccommodationLocation({
+        const accommodationData = {
           name: location.name,
           address: locationAddress,
           lat: location.lat,
           lng: location.lng
-        });
+        };
+        
+        // 여행 날짜가 선택된 경우 해당 날짜에 숙박지 설정
+        if (selectedTravelDateId) {
+          setAccommodationForTravelDate(selectedTravelDateId, accommodationData);
+        } else {
+          // 여행 날짜가 선택되지 않은 경우 전역 숙박지 설정
+          setAccommodationLocation(accommodationData);
+        }
       } else {
         setError("주소를 찾을 수 없습니다.");
       }
@@ -51,7 +66,7 @@ export function AccommodationSearch() {
   return (
     <div className="relative">
       <TooltipProvider>
-        {accommodationLocation ? (
+        {getCurrentAccommodation() ? (
           // 숙박지가 설정된 경우 - 컴팩트한 표시
           <Tooltip>
             <TooltipTrigger asChild>
@@ -167,10 +182,13 @@ export function AccommodationSearch() {
               </div>
             </div>
 
-            {accommodationLocation && (
+            {getCurrentAccommodation() && (
               <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-700 font-medium">현재 설정된 숙박지:</p>
-                <p className="text-sm text-blue-600 mt-1 break-all">{accommodationLocation.address}</p>
+                <p className="text-sm text-blue-600 mt-1 break-all">{getCurrentAccommodation()!.address}</p>
+                {selectedTravelDateId && (
+                  <p className="text-xs text-blue-500 mt-1">현재 여행 날짜에 설정됨</p>
+                )}
               </div>
             )}
 
@@ -202,11 +220,15 @@ export function AccommodationSearch() {
                 <p className="text-sm text-red-500">{error}</p>
               )}
 
-              {accommodationLocation && (
+              {getCurrentAccommodation() && (
                 <Button
                   onClick={() => {
                     setLocationAddress("");
-                    setAccommodationLocation(null);
+                    if (selectedTravelDateId) {
+                      setAccommodationForTravelDate(selectedTravelDateId, null);
+                    } else {
+                      setAccommodationLocation(null);
+                    }
                     setIsExpanded(false);
                   }}
                   variant="outline"

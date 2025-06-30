@@ -87,6 +87,11 @@ type AppContextType = {
   removeTravelDateWithProducts: (id: string) => Promise<void>;
   clearNonMemberData: () => void;
   
+  // 여행 날짜별 숙박지 주소 관리
+  accommodationsByTravelDate: Record<string, AccommodationLocation>;
+  setAccommodationForTravelDate: (travelDateId: string, location: AccommodationLocation | null) => void;
+  getCurrentAccommodation: () => AccommodationLocation | null;
+  
   // 온보딩 모달 관리
   showWelcomeModal: boolean;
   setShowWelcomeModal: (show: boolean) => void;
@@ -104,6 +109,9 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
   
   // 숙박지 주소 상태
   const [accommodationLocation, setAccommodationLocation] = useState<AccommodationLocation | null>(null);
+  
+  // 여행 날짜별 숙박지 주소 상태
+  const [accommodationsByTravelDate, setAccommodationsByTravelDate] = useState<Record<string, AccommodationLocation>>({});
   
   // 새로운 두단계 카테고리 시스템
   const [selectedStoreTypes, setSelectedStoreTypes] = useState<string[]>(["ALL"]);
@@ -203,12 +211,13 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Load saved travel dates from localStorage on mount
+  // Load saved travel dates and accommodations from localStorage on mount
   useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const savedDates = localStorage.getItem('savedTravelDates');
         const savedSelectedId = localStorage.getItem('selectedTravelDateId');
+        const savedAccommodations = localStorage.getItem('accommodationsByTravelDate');
         
         if (savedDates) {
           const parsed = JSON.parse(savedDates);
@@ -277,11 +286,43 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         if (savedSelectedId) {
           setSelectedTravelDateId(savedSelectedId);
         }
+        
+        // Load accommodations by travel date
+        if (savedAccommodations) {
+          const parsedAccommodations = JSON.parse(savedAccommodations);
+          setAccommodationsByTravelDate(parsedAccommodations);
+        }
       } catch (error) {
         console.error('Error loading saved travel dates:', error);
       }
     }
   }, []);
+
+  // 여행 날짜별 숙박지 관리 함수
+  const setAccommodationForTravelDate = (travelDateId: string, location: AccommodationLocation | null) => {
+    setAccommodationsByTravelDate(prev => {
+      const updated = { ...prev };
+      if (location) {
+        updated[travelDateId] = location;
+      } else {
+        delete updated[travelDateId];
+      }
+      
+      // localStorage에 저장
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('accommodationsByTravelDate', JSON.stringify(updated));
+      }
+      
+      return updated;
+    });
+  };
+
+  const getCurrentAccommodation = (): AccommodationLocation | null => {
+    if (selectedTravelDateId && accommodationsByTravelDate[selectedTravelDateId]) {
+      return accommodationsByTravelDate[selectedTravelDateId];
+    }
+    return accommodationLocation; // 기존 전역 숙박지 설정 fallback
+  };
 
   // 여행 날짜 관리 함수
   const addTravelDate = (startDate: Date, endDate: Date): string => {
@@ -637,7 +678,12 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
     
     // 온보딩 모달 관리
     showWelcomeModal,
-    setShowWelcomeModal
+    setShowWelcomeModal,
+    
+    // 여행 날짜별 숙박지 주소 관리
+    accommodationsByTravelDate,
+    setAccommodationForTravelDate,
+    getCurrentAccommodation
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

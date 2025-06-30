@@ -41,7 +41,7 @@ const normalizeBrandName = (name: string): string => {
 };
 
 export function NearbyFacilities() {
-  const { accommodationLocation, selectedCountry, selectedTravelDateId } = useAppContext();
+  const { accommodationLocation, selectedCountry, selectedTravelDateId, getCurrentAccommodation } = useAppContext();
   const { user } = useAuth();
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
   const [selectedSubType, setSelectedSubType] = useState("all_brands");
@@ -72,18 +72,19 @@ export function NearbyFacilities() {
   });
 
   useEffect(() => {
-    if (accommodationLocation && accommodationLocation.address) {
-      setSavedAccommodationAddress(accommodationLocation.address);
+    const currentAccommodation = getCurrentAccommodation();
+    if (currentAccommodation && currentAccommodation.address) {
+      setSavedAccommodationAddress(currentAccommodation.address);
     } else if (userProducts?.length) {
       const found = userProducts.find((p: any) => p.accommodationAddress?.trim());
       setSavedAccommodationAddress(found?.accommodationAddress || null);
     } else {
       setSavedAccommodationAddress(null);
     }
-  }, [accommodationLocation, userProducts, selectedTravelDateId]);
+  }, [accommodationLocation, userProducts, selectedTravelDateId, getCurrentAccommodation]);
 
   const handleFacilitySearch = async () => {
-    let searchLocation = accommodationLocation;
+    let searchLocation = getCurrentAccommodation();
     if (!accommodationLocation && savedAccommodationAddress) {
       try {
         const geo = await googleMapsService.geocodeAddress(savedAccommodationAddress);
@@ -172,11 +173,12 @@ export function NearbyFacilities() {
   };
 
   const handleNavigate = (place: PlaceResult) => {
-    if (!accommodationLocation && !savedAccommodationAddress) {
+    const currentAccommodation = getCurrentAccommodation();
+    if (!currentAccommodation && !savedAccommodationAddress) {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
     }
-    const address = accommodationLocation?.address || savedAccommodationAddress || "";
+    const address = currentAccommodation?.address || savedAccommodationAddress || "";
     googleMapsService.navigateFromAccommodation(address, {
       lat: place.lat,
       lng: place.lng,
@@ -189,13 +191,13 @@ export function NearbyFacilities() {
       {/* 상단 고정 영역 - 숙소 주소 상태 */}
       <div className="flex-shrink-0 p-3 border-b bg-gray-50">
         <div className="bg-white rounded-lg p-3 shadow-sm">
-          {accommodationLocation?.address || savedAccommodationAddress ? (
+          {getCurrentAccommodation()?.address || savedAccommodationAddress ? (
             <div className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-green-600" />
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-green-700">숙박지 설정됨</p>
                 <p className="text-xs text-gray-600 truncate">
-                  {accommodationLocation?.address || savedAccommodationAddress}
+                  {getCurrentAccommodation()?.address || savedAccommodationAddress}
                 </p>
               </div>
             </div>
@@ -336,7 +338,7 @@ export function NearbyFacilities() {
               <div className="text-center">
                 <Navigation className="h-12 w-12 mx-auto mb-3 text-gray-300" />
                 <p className="text-sm text-gray-500">
-                  {accommodationLocation?.address || savedAccommodationAddress 
+                  {getCurrentAccommodation()?.address || savedAccommodationAddress 
                     ? "검색 버튼을 눌러 주변 시설을 찾아보세요"
                     : "숙박지 주소를 먼저 설정해주세요"
                   }

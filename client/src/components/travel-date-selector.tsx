@@ -74,6 +74,9 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
       // 새 여행 날짜 저장
       const travelDateId = addTravelDate(dateRange.from, dateRange.to);
       onDatesChange(dateRange.from, dateRange.to);
+      
+      console.log(`[TravelDateSelector] 새 여행 날짜 추가됨: ${travelDateId}`);
+      console.log('[TravelDateSelector] 각 여행 날짜별로 독립적인 숙박지를 설정할 수 있습니다.');
     }
     
     setIsNewDateModalOpen(false);
