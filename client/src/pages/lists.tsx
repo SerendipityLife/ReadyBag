@@ -5,7 +5,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { API_ROUTES, ProductStatus, CATEGORY_MAPPING } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin } from "lucide-react";
+import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin, HelpCircle, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -41,32 +41,32 @@ export function Lists() {
   const [selectedIds, setSelectedIds] = useState<Record<number, boolean>>({});
   const [selectAll, setSelectAll] = useState(false);
   const [forceRefresh, setForceRefresh] = useState(0);
-  
+
   // 비회원 사용자의 로컬 스토리지 데이터 가져오기
   const getLocalUserProducts = async () => {
     try {
       if (!selectedCountry?.id) return [];
-      
+
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
-      
+
       if (!storedData) return [];
-        
+
       // 로컬 스토리지 데이터 파싱 
       const localData = JSON.parse(storedData);
       console.log("로컬 스토리지에서 로드된 상품 데이터:", localData);
-      
+
       if (!Array.isArray(localData) || localData.length === 0) return [];
-      
+
       // 선택된 여행 날짜 ID로 필터링
       console.log(`[Lists] 필터링 중 - 선택된 날짜: ${selectedTravelDateId}`);
       const filteredData = selectedTravelDateId 
         ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
         : localData.filter((item: any) => !item.travelDateId); // 날짜 ID가 없는 기존 데이터
-      
+
       console.log(`[Lists] 필터링 결과: ${filteredData.length}개 상품`);
       console.log(`[Lists] 필터링된 데이터:`, filteredData);
-      
+
       // allProducts가 있으면 먼저 사용 (API 호출 최소화)
       if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
         return filteredData.map((item: any) => {
@@ -94,7 +94,7 @@ export function Lists() {
           };
         });
       }
-      
+
       // API에서 실제 상품 데이터 가져오기 (allProducts가 없을 경우)
       const results = await Promise.all(
         localData.map(async (item: any) => {
@@ -115,7 +115,7 @@ export function Lists() {
               }
             };
           }
-          
+
           try {
             const response = await fetch(`${API_ROUTES.PRODUCTS}/${item.productId}`);
             if (!response.ok) {
@@ -136,7 +136,7 @@ export function Lists() {
               };
             }
             const productData = await response.json();
-            
+
             return {
               ...item,
               product: productData
@@ -160,7 +160,7 @@ export function Lists() {
           }
         })
       );
-      
+
       console.log("최종 로드된 제품 수:", results.length);
       return results;
     } catch (error) {
@@ -168,32 +168,32 @@ export function Lists() {
       return [];
     }
   };
-  
+
   // 상품 데이터 가져오기
   const { data: allProducts = [] } = useQuery({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
     enabled: !!selectedCountry && !!selectedCountry.id,
   });
-  
+
   // 상품 데이터가 변경되면 로컬 스토리지 데이터 검증
   useEffect(() => {
     if (!user && allProducts && Array.isArray(allProducts) && allProducts.length > 0 && selectedCountry?.id) {
       try {
         const storageKey = `userProducts_${selectedCountry.id}`;
         const storedData = localStorage.getItem(storageKey);
-        
+
         if (storedData) {
           const parsedData = JSON.parse(storedData);
-          
+
           if (Array.isArray(parsedData) && parsedData.length > 0) {
             console.log(`로컬 스토리지에서 ${parsedData.length}개 항목 검증 중`);
-            
+
             // 유효한 productId만 남기기
             const validProductIds = Array.isArray(allProducts) ? allProducts.map((p: any) => p.id) : [];
             let validItems = parsedData.filter((item: any) => 
               item.productId && validProductIds.includes(item.productId)
             );
-            
+
             // "notInterested" 상태인 아이템을 "maybe"로 변경 (관심없음 -> 나중에)
             validItems = validItems.map((item: any) => {
               if (item.status === "notInterested") {
@@ -202,12 +202,12 @@ export function Lists() {
               }
               return item;
             });
-            
+
             // 변경 사항이 있으면 스토리지 업데이트
             if (validItems.length !== parsedData.length || validItems.some((item: any, idx: number) => item.status !== parsedData[idx].status)) {
               console.log(`로컬 스토리지 항목 업데이트: ${validItems.length}개 항목 저장`);
               localStorage.setItem(storageKey, JSON.stringify(validItems));
-              
+
               // 이벤트 발생시켜 UI 업데이트
               window.dispatchEvent(new Event('localStorageChange'));
             }
@@ -218,7 +218,7 @@ export function Lists() {
       }
     }
   }, [user, allProducts, selectedCountry?.id]);
-  
+
   // Fetch user products
   const { data: userProducts = [], isLoading, refetch } = useQuery<
     Array<UserProduct & { product: { id: number; name: string; description: string; price: number; imageUrl: string; category: string; countryId: string; hashtags?: string[]; location?: string }}>
@@ -230,7 +230,7 @@ export function Lists() {
         const localProducts = await getLocalUserProducts();
         return localProducts;
       }
-      
+
       // 로그인한 사용자는 API 호출
       const url = `${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}${selectedTravelDateId ? `&travelDateId=${selectedTravelDateId}` : ''}`;
       const response = await fetch(url);
@@ -242,7 +242,7 @@ export function Lists() {
     refetchOnMount: true,
     refetchOnWindowFocus: true
   });
-  
+
   // 여행 날짜 변경 시 데이터 리페치
   useEffect(() => {
     if (selectedCountry?.id) {
@@ -267,7 +267,7 @@ export function Lists() {
       };
     }
   }, [selectedCountry?.id, refetch]);
-  
+
   // 대량 삭제 mutation
   const batchDelete = useMutation({
     mutationFn: async (ids: number[]) => {
@@ -276,52 +276,52 @@ export function Lists() {
         try {
           const storageKey = `userProducts_${selectedCountry.id}`;
           const storedData = localStorage.getItem(storageKey);
-          
+
           if (storedData) {
             const products = JSON.parse(storedData);
             // 지정된 ID의 상품들을 삭제 (여행 날짜 필터링 적용)
             const updatedProducts = products.filter((item: any) => {
               // 삭제 대상이 아니면 유지
               if (!ids.includes(item.id)) return true;
-              
+
               // 삭제 대상인 경우, 현재 선택된 여행 날짜와 일치하는지 확인
               const itemTravelDateId = item.travelDateId || null;
               const currentTravelDateId = selectedTravelDateId || null;
-              
+
               // 여행 날짜가 일치하지 않으면 유지 (다른 날짜의 상품)
               if (itemTravelDateId !== currentTravelDateId) {
                 return true;
               }
-              
+
               // 여행 날짜가 일치하면 삭제 (false 반환)
               return false;
             });
-            
+
             localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
             console.log(`로컬 스토리지에서 ${ids.length}개 상품 삭제 완료`);
-            
+
             // 로컬 스토리지 변경 이벤트 트리거
             window.dispatchEvent(new Event('localStorageChange'));
-            
+
             return { success: true, count: ids.length };
           }
-          
+
           throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
         } catch (error) {
           console.error("로컬 스토리지 삭제 오류:", error);
           throw error;
         }
       }
-      
+
       // 회원인 경우 API 호출 (배치 삭제 엔드포인트 사용)
       try {
         console.log(`회원 배치 삭제 요청: IDs = [${ids.join(', ')}]`);
         console.log(`전송할 데이터:`, { ids: ids });
-        
+
         const result = await apiRequest("DELETE", `${API_ROUTES.USER_PRODUCTS}/batch`, {
           ids: ids
         });
-        
+
         console.log(`회원 배치 삭제 완료: ${ids.length}개 상품`);
         return result;
       } catch (error) {
@@ -331,23 +331,23 @@ export function Lists() {
     },
     onSuccess: () => {
       console.log("일괄 삭제 성공, 쿼리 무효화 중...");
-      
+
       console.log("삭제 성공 - UI 강제 새로고침");
-      
+
       // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
-      
+
       // forceRefresh를 변경하여 쿼리 키 강제 변경
       setForceRefresh(prev => prev + 1);
-      
+
       // ProductCardStack 리프레시
       window.dispatchEvent(new Event('localStorageChange'));
-      
+
       console.log("UI 강제 새로고침 완료");
     }
   });
-  
+
   // 대량 상태 변경 mutation
   const batchChangeStatus = useMutation({
     mutationFn: async ({ ids, status }: { ids: number[], status: ProductStatus }) => {
@@ -356,7 +356,7 @@ export function Lists() {
         try {
           const storageKey = `userProducts_${selectedCountry.id}`;
           const storedData = localStorage.getItem(storageKey);
-          
+
           if (storedData) {
             const products = JSON.parse(storedData);
             const updatedProducts = products.map((item: any) => {
@@ -365,30 +365,30 @@ export function Lists() {
               }
               return item;
             });
-            
+
             localStorage.setItem(storageKey, JSON.stringify(updatedProducts));
             console.log(`로컬 스토리지에서 ${ids.length}개 상품 상태 변경 완료: ${status}`);
-            
+
             // 로컬 스토리지 변경 이벤트 트리거
             window.dispatchEvent(new Event('localStorageChange'));
-            
+
             return { success: true, count: ids.length };
           }
-          
+
           throw new Error("로컬 스토리지에서 상품을 찾을 수 없습니다");
         } catch (error) {
           console.error("로컬 스토리지 상태 변경 오류:", error);
           throw error;
         }
       }
-    
+
       // 회원인 경우 API 호출
       try {  
         // 각 ID마다 개별 요청을 보냄
         const updatePromises = ids.map(id => 
           apiRequest("PATCH", `${API_ROUTES.USER_PRODUCTS}/${id}`, { status })
         );
-        
+
         const results = await Promise.all(updatePromises);
         return results;
       } catch (error) {
@@ -398,17 +398,17 @@ export function Lists() {
     },
     onSuccess: () => {
       console.log("일괄 상태 변경 성공, 쿼리 무효화 중...");
-      
+
       // 특정 쿼리 무효화
       queryClient.invalidateQueries({ 
         queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id] 
       });
-      
+
       // 모든 사용자 상품 관련 쿼리 무효화
       queryClient.invalidateQueries({
         queryKey: [API_ROUTES.USER_PRODUCTS]
       });
-      
+
       // 패턴 기반 쿼리 무효화
       queryClient.invalidateQueries({
         predicate: (query) => {
@@ -416,13 +416,13 @@ export function Lists() {
           return typeof queryKey === 'string' && queryKey.includes('/api/user-products');
         }
       });
-      
+
       // 상태 초기화
       setSelectedIds({});
       setSelectAll(false);
     }
   });
-  
+
   // TypeScript 타입 정의
   type ExtendedUserProduct = UserProduct & {
     product: {
@@ -452,14 +452,14 @@ export function Lists() {
   // 상품이 선택된 카테고리에 포함되는지 확인하는 함수
   const isProductInSelectedCategories = (product: any): boolean => {
     if (!product || !product.category) return false;
-    
+
     // 상품의 원래 카테고리와 정규화된 카테고리 모두 확인
     const originalCategory = product.category;
     const normalizedCategory = normalizeCategory(originalCategory);
-    
+
     // 디버깅 정보
     console.log(`상품 카테고리 확인: ${originalCategory} → ${normalizedCategory}, 선택됨: ${selectedCategories.includes(originalCategory) || selectedCategories.includes(normalizedCategory)}`);
-    
+
     // 원래 카테고리나 정규화된 카테고리가 선택된 카테고리에 포함되면 true
     return selectedCategories.includes(originalCategory) || 
            selectedCategories.includes(normalizedCategory);
@@ -469,39 +469,39 @@ export function Lists() {
   const getProductsByStatus = (status: ProductStatus) => {
     // 먼저 상태로 필터링
     const filteredByStatus = userProducts.filter((up) => up.status === status) as ExtendedUserProduct[];
-    
+
     // 모든 카테고리가 선택되었으면 추가 필터링 없이 반환
     if (isAllCategoriesSelected) {
       return filteredByStatus;
     }
-    
+
     // 디버깅 정보
     console.log(`필터링 전 ${status} 상품 수:`, filteredByStatus.length);
     console.log("선택된 카테고리:", selectedCategories);
-    
+
     // 선택된 카테고리에 따라 필터링
     const result = filteredByStatus.filter(userProduct => 
       isProductInSelectedCategories(userProduct.product)
     );
-    
+
     // 디버깅 정보
     console.log(`필터링 후 ${status} 상품 수:`, result.length);
-    
+
     return result;
   };
-  
+
   const interestedProducts = getProductsByStatus(ProductStatus.INTERESTED) || [];
   const maybeProducts = getProductsByStatus(ProductStatus.MAYBE) || [];
-  
 
-  
+
+
   // Handle share button click
   const handleShare = () => {
     if (activeTab !== "location" && Object.values(ProductStatus).includes(activeTab as ProductStatus)) {
       generateShareUrl(activeTab as ProductStatus);
     }
   };
-  
+
   // 체크박스 변경 처리
   const handleCheckboxChange = (id: number, checked: boolean) => {
     setSelectedIds(prev => ({ ...prev, [id]: checked }));
@@ -510,11 +510,11 @@ export function Lists() {
   // 전체 선택/해제 처리
   const handleSelectAllChange = (checked: boolean) => {
     setSelectAll(checked);
-    
+
     if (checked) {
       // 현재 활성 탭의 모든 제품 선택
       const productsToSelect = activeTab === ProductStatus.INTERESTED ? interestedProducts : maybeProducts;
-      
+
       const newSelectedIds: Record<number, boolean> = {};
       productsToSelect.forEach(product => {
         newSelectedIds[product.id] = true;
@@ -531,7 +531,7 @@ export function Lists() {
     const ids = Object.entries(selectedIds)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => parseInt(id));
-    
+
     if (ids.length > 0) {
       batchDelete.mutate(ids);
     }
@@ -542,7 +542,7 @@ export function Lists() {
     const ids = Object.entries(selectedIds)
       .filter(([_, isSelected]) => isSelected)
       .map(([id]) => parseInt(id));
-    
+
     if (ids.length > 0) {
       batchChangeStatus.mutate({ ids, status: newStatus });
     }
@@ -560,11 +560,11 @@ export function Lists() {
         </div>
       );
     }
-    
+
     if (products.length === 0) {
       let emptyMessage = "";
       let emptyIcon = null;
-      
+
       switch (status) {
         case ProductStatus.INTERESTED:
           emptyMessage = "관심 있는 상품들이 여기에 표시됩니다.";
@@ -575,7 +575,7 @@ export function Lists() {
           emptyIcon = <Bookmark className="w-16 h-16 mb-4 opacity-20" />;
           break;
       }
-      
+
       return (
         <div className="p-8 text-center text-neutral">
           {emptyIcon}
@@ -583,11 +583,11 @@ export function Lists() {
         </div>
       );
     }
-    
+
     // 선택 관련 버튼 렌더링
     const renderActionButtons = () => {
       if (products.length === 0) return null;
-      
+
       return (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 border-b pb-3 gap-3">
           <div className="flex items-center space-x-2">
@@ -600,7 +600,7 @@ export function Lists() {
               전체 선택 {selectedCount > 0 && `(${selectedCount}/${products.length})`}
             </label>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {/* 고민중 탭에서 관심으로 이동하는 전용 버튼 */}
             {status === ProductStatus.MAYBE && products.length > 0 && (
@@ -644,7 +644,7 @@ export function Lists() {
 
                   </DropdownMenuContent>
                 </DropdownMenu>
-                
+
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -656,7 +656,7 @@ export function Lists() {
                 </Button>
               </>
             )}
-            
+
             {products.length > 0 && (
               <Button 
                 variant="outline" 
@@ -672,11 +672,11 @@ export function Lists() {
         </div>
       );
     };
-    
+
     return (
       <div>
         {renderActionButtons()}
-        
+
         <div className="grid grid-cols-1 gap-4">
           {products.map((userProduct: ExtendedUserProduct) => (
             <div key={userProduct.id} className="flex items-start space-x-2">
@@ -701,7 +701,7 @@ export function Lists() {
       </div>
     );
   };
-  
+
   return (
     <div className="w-full max-w-3xl mx-auto pb-20">
       {/* 메인 헤더 아래 위치하도록 top 값 조정 (헤더 높이 + 여백) */}
@@ -721,7 +721,7 @@ export function Lists() {
                 </div>
               </div>
             )}
-            
+
             {/* 여행 날짜 선택 */}
             <div className="flex items-center">
               <TravelDateSelector
@@ -755,21 +755,23 @@ export function Lists() {
             <TabsList className="w-full grid grid-cols-3 bg-white rounded-lg mb-2">
               <TabsTrigger
                 value={ProductStatus.INTERESTED}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center gap-1.5"
               >
+                <Heart className="h-4 w-4 text-red-500" />
                 <span className="text-red-500">관심</span>
               </TabsTrigger>
               <TabsTrigger
                 value={ProductStatus.MAYBE}
-                className="flex items-center justify-center"
+                className="flex items-center justify-center gap-1.5"
               >
+                <HelpCircle className="h-4 w-4 text-gray-600" />
                 <span className="text-gray-600">고민중</span>
               </TabsTrigger>
               <TabsTrigger
                 value="location"
-                className="flex items-center justify-center"
+                className="flex items-center justify-center gap-1.5"
               >
-                <MapPin className="h-4 w-4 mr-1" />
+                <ShoppingBag className="h-4 w-4 text-blue-600" />
                 <span className="text-blue-600">사러가기</span>
               </TabsTrigger>
 
@@ -792,7 +794,7 @@ export function Lists() {
                 {renderTabContent(interestedProducts, ProductStatus.INTERESTED)}
               </div>
             </div>
-            
+
             {interestedProducts.length > 0 && (
               <div className="mt-6 text-center">
                 {user ? (
@@ -821,7 +823,7 @@ export function Lists() {
               </div>
             )}
           </TabsContent>
-          
+
           <TabsContent value={ProductStatus.MAYBE}>
             <div>
               {/* 메인 컨텐츠 */}
