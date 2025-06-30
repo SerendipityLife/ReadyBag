@@ -24,7 +24,7 @@ export function CountrySelector() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="default"
-          className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 px-3 gap-2 font-medium shadow-md"
+          className="bg-sky-400 hover:bg-sky-500 text-white border-sky-400 h-8 px-3 gap-2 font-medium shadow-md"
         >
           <img
             src={selectedCountry.flagUrl}
