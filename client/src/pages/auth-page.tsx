@@ -188,14 +188,22 @@ export default function AuthPage() {
       <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
           <div className="flex flex-col items-center mb-8">
-            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100">
+            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100 flex justify-center items-center">
               <img 
                 src="/logo-readybag.png" 
                 alt="ReadyBag" 
-                className="h-32 w-auto"
+                className="h-24 w-auto max-w-full object-contain"
                 onError={(e) => {
                   console.error('Logo image failed to load');
-                  e.currentTarget.style.display = 'none';
+                  // Fallback to text if image fails
+                  const target = e.currentTarget;
+                  const container = target.parentElement;
+                  if (container) {
+                    container.innerHTML = '<div class="text-2xl font-bold text-blue-600">ReadyBag</div>';
+                  }
+                }}
+                onLoad={() => {
+                  console.log('Logo image loaded successfully');
                 }}
               />
             </div>
