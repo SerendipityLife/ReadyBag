@@ -27,7 +27,7 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar.tsx";
 import { cn } from "../../lib/utils.ts";
 import { TravelDateSelector } from "../travel-date-selector.tsx";
-import { AccommodationSearch } from "../accommodation-search.tsx";
+import { AccommodationSearch } from "../location/accommodation-search.tsx";
 
 export function Header() {
   const [location, navigate] = useLocation();
