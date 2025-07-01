@@ -186,36 +186,39 @@
   /* Desktop and large screen optimizations */
   @media (min-width: 1024px) {
     .main-content {
-      padding-bottom: 140px;
+      padding-bottom: 160px;
     }
 
     .card-stack-container {
       max-width: 420px;
       padding: 0 16px;
       margin: 0 auto;
-      height: calc(100vh - 140px);
-    }
-
-    /* Product card desktop sizing */
-    .product-card {
-      max-width: 420px;
-      max-height: calc(100vh - 200px);
-      margin-left: auto;
-      margin-right: auto;
+      height: calc(100vh - 200px);
     }
 
     /* Card stack desktop positioning */
     .card-stack {
       max-width: 420px;
-      height: calc(100vh - 180px);
+      height: 100%;
       margin: 0 auto;
       position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Product card desktop sizing */
+    .product-card {
+      max-width: 420px;
+      max-height: calc(100vh - 250px);
+      margin: 0 auto;
+      position: absolute;
     }
 
     /* Action buttons desktop positioning */
     .action-buttons-wrapper {
       position: fixed;
-      bottom: 80px;
+      bottom: 90px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 50;
@@ -230,46 +233,84 @@
 
   @media (min-width: 768px) and (max-width: 1023px) {
     .main-content {
-      padding-bottom: 100px;
+      padding-bottom: 140px;
     }
 
-    /* Product card tablet sizing */
-    .product-card {
+    .card-stack-container {
       max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
+      margin: 0 auto;
+      height: calc(100vh - 180px);
+      padding: 0 12px;
     }
 
     /* Card stack tablet positioning */
     .card-stack {
       max-width: 400px;
+      height: 100%;
       margin: 0 auto;
-      min-height: 500px;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Product card tablet sizing */
+    .product-card {
+      max-width: 400px;
+      max-height: calc(100vh - 220px);
+      margin: 0 auto;
+      position: absolute;
     }
 
     /* Action buttons tablet positioning */
+    .action-buttons-wrapper {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+    }
+
     .action-buttons {
       max-width: 400px;
-      margin: 0 auto;
-      position: fixed;
-      bottom: 70px;
-      left: 50%;
-      right: auto;
-      transform: translateX(-50%);
       width: 400px;
+      margin: 0 auto;
     }
   }
 
   @media (max-width: 640px) {
     .main-content {
-      padding-bottom: calc(70px + env(safe-area-inset-bottom));
+      padding-bottom: calc(180px + env(safe-area-inset-bottom));
+    }
+
+    .card-stack-container {
+      height: calc(100vh - 250px);
+      padding: 0 16px;
+    }
+
+    .card-stack {
+      height: 100%;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     /* Product card mobile sizing */
     .product-card {
       max-width: calc(100vw - 32px);
-      margin-left: auto;
-      margin-right: auto;
+      max-height: calc(100vh - 300px);
+      margin: 0 auto;
+      position: absolute;
+    }
+
+    .action-buttons-wrapper {
+      position: fixed;
+      bottom: 80px;
+      left: 0;
+      right: 0;
+      padding: 0 16px;
+      z-index: 50;
     }
 
     /* Prevent text from overflowing */
@@ -459,22 +500,36 @@
   }
 }
 
-/* iPhone SE 및 매우 작은 화면 (375px 이하) - 플로팅 버튼 */
+/* iPhone SE 및 매우 작은 화면 (375px 이하) */
 @media (max-width: 375px) {
+  .main-content {
+    padding-bottom: 200px !important;
+    padding-left: 8px;
+    padding-right: 8px;
+    padding-top: 4px;
+  }
+
   .card-stack-container {
     padding: 0 8px;
     width: 100%;
+    height: calc(100vh - 300px);
+    max-height: calc(100vh - 300px);
+    overflow: hidden;
   }
 
   .card-stack {
-    height: calc(100vh - 280px);
+    height: 100%;
     width: 100%;
     margin: 0;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .action-buttons-wrapper {
     position: fixed;
-    bottom: 80px;
+    bottom: 90px;
     left: 0;
     right: 0;
     padding: 0 8px;
@@ -506,16 +561,18 @@
 
   /* 카드 내부 최적화 */
   .product-card {
-    max-width: calc(100vw - 16px);
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 350px);
     margin: 0 auto;
+    position: absolute;
   }
 
   .product-card .relative.h-48 {
-    height: 160px !important;
+    height: 140px !important;
   }
 
   .product-card .sm\\:h-64 {
-    height: 160px !important;
+    height: 140px !important;
   }
 
   .product-card .p-3,
