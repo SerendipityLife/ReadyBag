@@ -179,12 +179,12 @@
 
   /* Main content spacing for all screen sizes */
   .main-content {
-    padding-bottom: 60px; /* Default spacing for desktop */
+    padding-bottom: 80px; /* Default spacing for desktop */
   }
 
   @media (max-width: 640px) {
     .main-content {
-      padding-bottom: calc(50px + env(safe-area-inset-bottom));
+      padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
 
     /* Product card mobile sizing */
@@ -282,7 +282,7 @@
 
     /* Main content spacing for small screens with extra padding */
     .main-content {
-      padding-bottom: calc(60px + env(safe-area-inset-bottom));
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
       padding-left: 8px;
       padding-right: 8px;
       padding-top: 4px;
@@ -290,8 +290,8 @@
 
     /* Card stack container adjustments */
     .card-stack {
-      margin-bottom: 12px;
-      padding-bottom: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 20px;
     }
 
     /* Text sizing adjustments */
@@ -407,20 +407,20 @@
 
     /* Main content with extra bottom padding */
     .main-content {
-      padding-bottom: calc(56px + env(safe-area-inset-bottom));
+      padding-bottom: calc(76px + env(safe-area-inset-bottom));
       padding-left: 4px;
       padding-right: 4px;
     }
 
     /* Card stack adjustments */
     .card-stack {
-      margin-bottom: 16px;
-      padding-bottom: 16px;
+      margin-bottom: 24px;
+      padding-bottom: 24px;
     }
 
     /* Ensure cards don't overlap with navigation */
     .relative.h-full.overflow-hidden {
-      padding-bottom: 76px;
+      padding-bottom: 96px;
     }
   }
 
