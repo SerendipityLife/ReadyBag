@@ -245,7 +245,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-xs mx-auto bg-white border-2 border-blue-200 shadow-xl relative overflow-hidden">
+      <Card className="w-full h-full max-w-xs mx-auto bg-white border-2 border-blue-200 shadow-md relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
