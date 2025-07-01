@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useAppContext } from "../contexts/AppContext";
-import { Header } from "@/components/layout/header";
-import { BottomNavigation } from "@/components/layout/bottom-navigation";
-import { ProductCardStack } from "@/components/product/product-card-stack";
+import { Header } from "../components/layout/header.tsx";
+import { BottomNavigation } from "../components/layout/bottom-navigation.tsx";
+import { ProductCardStack } from "../components/product/product-card-stack.tsx";
 import { Lists } from "./lists";
-import { InfoPanel } from "@/components/info-panel";
-import { ShareModal } from "@/components/share-modal";
+import { InfoPanel } from "../components/info-panel.tsx";
+import { ShareModal } from "../components/share-modal.tsx";
 import { ShoppingHistoryPage } from "./shopping-history";
-import { TravelDateSelector } from "@/components/travel-date-selector";
-import { AccommodationSearch } from "@/components/location/accommodation-search";
-import { WelcomeModal } from "@/components/onboarding/welcome-modal";
+import { TravelDateSelector } from "../components/travel-date-selector.tsx";
+import { AccommodationSearch } from "../components/location/accommodation-search.tsx";
+import { WelcomeModal } from "../components/onboarding/welcome-modal.tsx";
 import { CountrySelector } from "@/components/country-selector";
 import { View } from "@/lib/constants";
 
