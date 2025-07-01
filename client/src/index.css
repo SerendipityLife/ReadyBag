@@ -90,6 +90,32 @@
     background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
   }
   
+  /* Safe area support for mobile devices */
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  /* Touch optimization */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  /* Improved button sizing for touch devices */
+  @media (max-width: 640px) {
+    button, .button {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    button:not(.no-touch-sizing) {
+      padding: 8px;
+    }
+  }
+  
   /* Travel theme component overrides */
   .travel-header {
     @apply bg-gradient-to-r from-sky-500 to-cyan-400 text-white;

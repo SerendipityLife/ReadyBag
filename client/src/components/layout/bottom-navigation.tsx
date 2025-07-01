@@ -10,19 +10,19 @@ export function BottomNavigation() {
   const { currentView, setCurrentView, selectedCountry } = useAppContext();
   const { user } = useAuth();
   const queryClient = useQueryClient();
-  
+
   // 비회원일 경우 로컬스토리지에서 상품을 가져옴
   const getLocalUserProducts = () => {
     try {
       if (!selectedCountry?.id) return [];
-      
+
       const storageKey = `userProducts_${selectedCountry.id}`;
       const localData = localStorage.getItem(storageKey);
-      
+
       if (localData) {
         try {
           const parsedData = JSON.parse(localData);
-          
+
           // 배열인지 확인하고 반환
           if (Array.isArray(parsedData)) {
             return parsedData;
@@ -42,7 +42,7 @@ export function BottomNavigation() {
     }
     return [];
   };
-  
+
   // 로그인한 경우: API 호출로 사용자 상품 목록 가져오기
   const { data: userProducts = [], refetch } = useQuery<any[]>({
     queryKey: [`/api/user-products?countryId=${selectedCountry?.id}`, selectedCountry?.id],
@@ -51,10 +51,10 @@ export function BottomNavigation() {
       if (!user) {
         return getLocalUserProducts();
       }
-      
+
       // countryId가 있을 때만 API 요청을 보냄
       if (!selectedCountry?.id) return [];
-      
+
       const response = await fetch(`/api/user-products?countryId=${selectedCountry.id}`);
       if (!response.ok) return [];
       const data = await response.json();
@@ -66,7 +66,7 @@ export function BottomNavigation() {
     refetchOnWindowFocus: false, // 윈도우 포커스 시 업데이트 비활성화
     staleTime: 0 // 즉시 stale 상태로 만들어 실시간 업데이트
   });
-  
+
   // 로컬 스토리지 변경 감지 (비회원용)
   useEffect(() => {
     if (!user) {
@@ -74,34 +74,34 @@ export function BottomNavigation() {
         console.log("[BottomNavigation] 로컬 스토리지 변경 감지됨");
         refetch();
       };
-      
+
       // 일반 storage 이벤트 (다른 탭에서 변경 시)
       window.addEventListener('storage', handleStorageChange);
-      
+
       // 커스텀 이벤트 (같은 탭 내에서 변경 시)
       window.addEventListener('localStorageChange', handleStorageChange);
-      
+
       return () => {
         window.removeEventListener('storage', handleStorageChange);
         window.removeEventListener('localStorageChange', handleStorageChange);
       };
     }
   }, [user, refetch]);
-  
+
   // 구독 대신 특정 쿼리키 변경 감지 - 무한 루프 방지
   useEffect(() => {
     if (selectedCountry?.id) {
       refetch();
     }
   }, [selectedCountry?.id, refetch]);
-  
+
   // "관심" 상태의 상품만 필터링하여 개수 세기
   const interestedCount = userProducts?.filter(
     (product: any) => product.status === ProductStatus.INTERESTED
   )?.length || 0;
-  
+
   console.log("[BottomNavigation] Interested count:", interestedCount);
-  
+
   // 기본 네비게이션 아이템들
   const coreNavItems = [
     {
@@ -130,7 +130,7 @@ export function BottomNavigation() {
   // - 알림: Bell 아이콘, 가격 변동 및 새 상품 알림
   // - 설정: Settings 아이콘, 앱 설정 및 환경설정
   // ============================================================================
-  
+
   const additionalNavItems: any[] = [
     {
       id: View.HISTORY,
@@ -142,27 +142,41 @@ export function BottomNavigation() {
   const navItems = [...coreNavItems, ...additionalNavItems];
   const gridCols = navItems.length <= 2 ? 'grid-cols-2' : 
                    navItems.length === 3 ? 'grid-cols-3' : 'grid-cols-4';
-  
+
+  const tabs = navItems.map(item => ({
+    value: item.id,
+    label: item.label,
+    icon: item.icon
+  }));
+
+  const { currentView: currentViewLocal, setCurrentView: setCurrentViewLocal } = useAppContext();
+
+  const handleTabClick = (tabValue: View) => {
+      setCurrentViewLocal(tabValue);
+  };
+
   return (
-    <nav className="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-sm border-t border-blue-200 z-40">
-      <div className="container mx-auto px-4">
-        <div className={`grid ${gridCols} gap-4 h-16`}>
-          {navItems.map((item) => (
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
+      <div className="flex justify-around items-center h-14 sm:h-16 px-2 sm:px-4">
+        {tabs.map((tab) => {
+          const isActive = currentViewLocal === tab.value;
+          return (
             <button
-              key={item.id}
-              onClick={() => setCurrentView(item.id)}
+              key={tab.value}
+              onClick={() => handleTabClick(tab.value)}
               className={cn(
-                "flex flex-col items-center justify-center h-full rounded-lg transition-colors",
-                currentView === item.id 
+                "flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
+                "min-w-0 flex-1 max-w-[80px] sm:max-w-none", // Limit max width on mobile
+                isActive 
                   ? "text-primary bg-primary/5" 
-                  : "text-neutral hover:bg-gray-50"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               )}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs mt-1 font-medium">{item.label}</span>
+              <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 sm:mb-1" />
+              <span className="text-[10px] sm:text-xs font-medium truncate leading-tight">{tab.label}</span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
     </nav>
   );

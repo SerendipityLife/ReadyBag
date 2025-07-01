@@ -92,43 +92,46 @@ export function Header() {
   
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md border-b border-blue-200">
-      <div className="flex items-center justify-between h-12 px-2">
+      <div className="flex items-center justify-between min-h-[48px] sm:min-h-[52px] md:min-h-[56px] px-2 sm:px-3 md:px-4 py-1">
         {/* Logo & Country Selector */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-shrink-0">
           {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
           {isSharedList && (
             <button 
-              className="p-1 mr-1 text-gray-600 md:hidden"
+              className="p-1.5 sm:p-2 mr-1 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
               onClick={handleBackClick}
             >
-              <ArrowLeft size={16} />
+              <ArrowLeft size={16} className="sm:w-4 sm:h-4" />
             </button>
           )}
 
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
-            <div>
+            <div className="flex-shrink-0">
               <CountrySelector />
             </div>
           )}
         </div>
         
         {/* Action buttons */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
           {!isAuthPage && (
             <>
               <button 
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                 onClick={() => setIsFilterModalOpen(true)}
                 title="필터"
               >
-                <SlidersHorizontal size={18} className="text-gray-600" />
+                <SlidersHorizontal 
+                  size={16} 
+                  className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
+                />
               </button>
               
               <button 
                 className={cn(
-                  "p-2 rounded-lg transition-colors",
+                  "p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
                   currentView === View.INFO 
                     ? "bg-primary/10 text-primary" 
                     : "hover:bg-gray-100 text-gray-600"
@@ -136,22 +139,28 @@ export function Header() {
                 onClick={handleInfoClick}
                 title="정보"
               >
-                <Info size={18} />
+                <Info 
+                  size={16} 
+                  className="sm:w-[18px] sm:h-[18px]" 
+                />
               </button>
               
               <button 
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                 onClick={handleShareClick}
                 title="공유하기"
               >
-                <Share2 size={18} className="text-gray-600" />
+                <Share2 
+                  size={16} 
+                  className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
+                />
               </button>
               
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <button className="p-0.5 rounded-full hover:bg-gray-100">
-                      <Avatar className="h-6 w-6">
+                    <button className="p-1 sm:p-1.5 rounded-full hover:bg-gray-100 touch-manipulation">
+                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
                         <AvatarFallback className="text-xs bg-gray-100 text-gray-700">
                           {getUserInitials()}
                         </AvatarFallback>
@@ -181,11 +190,14 @@ export function Header() {
                 </DropdownMenu>
               ) : (
                 <button 
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                   onClick={handleLoginClick}
                   title="로그인"
                 >
-                  <LogIn size={18} className="text-gray-600" />
+                  <LogIn 
+                    size={16} 
+                    className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
+                  />
                 </button>
               )}
             </>
