@@ -34,7 +34,7 @@ export function Header() {
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
-  
+
   const handleBackClick = () => {
     if (isSharedList) {
       navigate("/");
@@ -42,7 +42,7 @@ export function Header() {
       setCurrentView(View.EXPLORE);
     }
   };
-  
+
   const handleShareClick = () => {
     // 로그인한 경우에만 공유 가능
     if (user) {
@@ -65,7 +65,7 @@ export function Header() {
       detail: { type: 'logout' }
     });
     window.dispatchEvent(resetEvent);
-    
+
     // 로그아웃 API 호출
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
@@ -82,17 +82,17 @@ export function Header() {
   // Get user initials for avatar
   const getUserInitials = () => {
     if (!user || !user.email) return "U";
-    
+
     if (user.nickname) {
       return user.nickname.charAt(0).toUpperCase();
     }
-    
+
     return user.email.charAt(0).toUpperCase();
   };
-  
+
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md border-b border-blue-200 w-full">
-      <div className="flex items-center justify-between min-h-[48px] sm:min-h-[52px] md:min-h-[56px] px-2 sm:px-3 md:px-4 py-1 w-full max-w-full overflow-hidden">
+      <div className="flex items-center justify-between min-h-[40px] sm:min-h-[44px] md:min-h-[48px] px-2 sm:px-3 md:px-4 py-1 w-full max-w-full overflow-hidden">
         {/* Logo & Country Selector */}
         <div className="flex items-center flex-shrink-0">
           {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
@@ -105,7 +105,7 @@ export function Header() {
             </button>
           )}
 
-          
+
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (
             <div className="flex-shrink-0">
@@ -113,13 +113,13 @@ export function Header() {
             </div>
           )}
         </div>
-        
+
         {/* Action buttons */}
         <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 max-w-fit overflow-hidden">
           {!isAuthPage && (
             <>
               <button 
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                 onClick={() => setIsFilterModalOpen(true)}
                 title="필터"
               >
@@ -128,10 +128,10 @@ export function Header() {
                   className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
                 />
               </button>
-              
+
               <button 
                 className={cn(
-                  "p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
+                  "p-1 sm:p-1.5 rounded-lg transition-colors touch-manipulation",
                   currentView === View.INFO 
                     ? "bg-primary/10 text-primary" 
                     : "hover:bg-gray-100 text-gray-600"
@@ -144,9 +144,9 @@ export function Header() {
                   className="sm:w-[18px] sm:h-[18px]" 
                 />
               </button>
-              
+
               <button 
-                className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                 onClick={handleShareClick}
                 title="공유하기"
               >
@@ -155,7 +155,7 @@ export function Header() {
                   className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
                 />
               </button>
-              
+
               {user ? (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -190,7 +190,7 @@ export function Header() {
                 </DropdownMenu>
               ) : (
                 <button 
-                  className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                   onClick={handleLoginClick}
                   title="로그인"
                 >
@@ -204,7 +204,7 @@ export function Header() {
           )}
         </div>
       </div>
-      
+
       {/* 필터 모달 */}
       <FilterModal 
         isOpen={isFilterModalOpen}

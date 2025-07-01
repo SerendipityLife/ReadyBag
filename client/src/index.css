@@ -215,8 +215,116 @@
     }
   }
   
-  /* Extra small mobile devices */
+  /* Extra small mobile devices (iPhone SE, iPhone 5/5s) */
   @media (max-width: 375px) {
+    /* Header adjustments for small screens */
+    header {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      min-height: 60px;
+    }
+    
+    /* Button sizing for small screens */
+    .action-buttons {
+      padding: 0 8px;
+      gap: 8px;
+    }
+    
+    .action-buttons button {
+      min-width: 48px;
+      min-height: 48px;
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    /* Product card adjustments */
+    .product-card {
+      max-width: calc(100vw - 16px);
+      margin: 0 8px;
+      min-height: 400px;
+    }
+    
+    /* Bottom navigation for very small screens */
+    .bottom-nav {
+      padding-left: 4px;
+      padding-right: 4px;
+      padding-bottom: max(4px, env(safe-area-inset-bottom));
+    }
+    
+    .bottom-nav button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 6px 4px;
+      font-size: 10px;
+    }
+    
+    .bottom-nav button span {
+      font-size: 10px;
+      line-height: 1.1;
+    }
+    
+    /* Main content spacing for small screens */
+    .main-content {
+      padding-bottom: calc(65px + env(safe-area-inset-bottom));
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    
+    /* Text sizing adjustments */
+    h1 {
+      font-size: 20px;
+    }
+    
+    h2 {
+      font-size: 18px;
+    }
+    
+    /* Filter buttons */
+    .filter-buttons {
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
+    .filter-buttons button {
+      font-size: 12px;
+      padding: 6px 8px;
+      min-height: 36px;
+    }
+  }
+  
+  /* iPhone SE specific (320px width) */
+  @media (max-width: 320px) {
+    .action-buttons {
+      flex-direction: column;
+      gap: 6px;
+      padding: 0 4px;
+    }
+    
+    .action-buttons button {
+      width: 100%;
+      min-height: 44px;
+      font-size: 13px;
+    }
+    
+    .product-card {
+      max-width: calc(100vw - 8px);
+      margin: 0 4px;
+    }
+    
+    .bottom-nav {
+      padding-left: 2px;
+      padding-right: 2px;
+    }
+    
+    .bottom-nav button {
+      min-width: 40px;
+      padding: 4px 2px;
+    }
+    
+    .bottom-nav button span {
+      font-size: 9px;
+    }
+    
     header {
       padding-left: 4px !important;
       padding-right: 4px !important;

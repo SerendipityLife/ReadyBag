@@ -39,7 +39,7 @@ export function ProductCard({
 
   const [showFeedbackIcon, setShowFeedbackIcon] = useState(false);
   const [buttonShake, setButtonShake] = useState(false);
-  
+
   // 상품 설명 모달 상태
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
