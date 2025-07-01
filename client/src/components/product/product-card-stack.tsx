@@ -769,7 +769,7 @@ export function ProductCardStack() {
   
   return (
     <div className="w-full max-w-md mx-auto flex flex-col min-h-0">
-      <div className="card-stack relative h-[480px] w-full mb-2">
+      <div className="card-stack relative h-[460px] w-full mb-1">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -784,7 +784,7 @@ export function ProductCardStack() {
 
       {/* 진행상황 표시 - 카드와 버튼 사이에 배치 */}
       {filteredProducts.length > 0 && (
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-center mb-1">
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-blue-200/50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-700 tabular-nums">
@@ -805,12 +805,11 @@ export function ProductCardStack() {
       
       {/* 비회원 사용자일 경우 안내 메시지 */}
       {!user && (
-        <div className="w-full max-w-md mx-auto text-center text-gray-500 text-xs leading-tight px-4">
+        <div className="w-full max-w-md mx-auto text-center text-gray-500 text-xs leading-tight px-4 mt-2">
           <p>비회원으로 이용 중입니다. 목록이 브라우저에 임시 저장됩니다.</p>
           <p>로그인 후 이용하시면 데이터가 안전하게 보관됩니다.</p>
         </div>
       )}
-
 
     </div>
   );
