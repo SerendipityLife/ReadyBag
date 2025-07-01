@@ -63,8 +63,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
 
   // 버튼 상태에 따른 스타일 클래스 결정
   const getButtonStyles = (direction: SwipeDirection) => {
-    const base = "transition-all duration-200 relative";
-    const size = "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"; // 모바일에서 더 작은 버튼
+    const base = "transition-all duration-200 relative flex items-center justify-center";
+    const size = "w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18"; // 버튼 크기 증가
     const isActive = activeButton === direction;
 
     // 각 방향별 기본 스타일
@@ -72,27 +72,27 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
 
     switch (direction) {
       case SwipeDirection.LEFT: // 건너뛰기 (회색)
-        styles = `${base} ${size} rounded-full border-3 
+        styles = `${base} ${size} rounded-full border-2 
           ${isActive 
-            ? "border-gray-500 bg-gray-500 shadow-xl scale-110 animate-pulse-strong" 
-            : "border-gray-400 hover:border-gray-500 hover:bg-gray-500 hover:scale-105"}
-          ${isActive ? "text-white" : "text-gray-500 hover:text-white"} shadow-lg mb-1 bg-white`;
+            ? "border-gray-600 bg-gray-600 shadow-2xl scale-110" 
+            : "border-gray-400 bg-white hover:border-gray-500 hover:bg-gray-500 hover:scale-105"}
+          ${isActive ? "text-white" : "text-gray-600 hover:text-white"} shadow-lg`;
         break;
 
       case SwipeDirection.UP: // 고민중 (블루 그레이)
-        styles = `${base} ${size} rounded-full border-3 
+        styles = `${base} ${size} rounded-full border-2 
           ${isActive 
-            ? "border-blue-500 bg-blue-500 shadow-xl scale-110 animate-pulse-strong" 
-            : "border-blue-400 hover:border-blue-500 hover:bg-blue-500 hover:scale-105"}
-          ${isActive ? "text-white" : "text-blue-500 hover:text-white"} shadow-lg mb-1 bg-white`;
+            ? "border-amber-500 bg-amber-500 shadow-2xl scale-110" 
+            : "border-amber-400 bg-white hover:border-amber-500 hover:bg-amber-500 hover:scale-105"}
+          ${isActive ? "text-white" : "text-amber-600 hover:text-white"} shadow-lg`;
         break;
 
-      case SwipeDirection.RIGHT: // 관심 (밝은 블루)
-        styles = `${base} ${size} rounded-full border-3 
+      case SwipeDirection.RIGHT: // 관심 (빨간색)
+        styles = `${base} ${size} rounded-full border-2 
           ${isActive 
-            ? "border-blue-600 bg-blue-600 shadow-xl scale-110 animate-pulse-strong" 
-            : "border-blue-500 hover:border-blue-600 hover:bg-blue-600 hover:scale-105"}
-          ${isActive ? "text-white" : "text-blue-600 hover:text-white"} shadow-lg mb-1 bg-white`;
+            ? "border-red-500 bg-red-500 shadow-2xl scale-110" 
+            : "border-red-400 bg-white hover:border-red-500 hover:bg-red-500 hover:scale-105"}
+          ${isActive ? "text-white" : "text-red-500 hover:text-white"} shadow-lg`;
         break;
     }
 
@@ -113,15 +113,15 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   const getIconStyles = (direction: SwipeDirection) => {
     const isActive = activeButton === direction;
     return isActive 
-      ? "w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-all duration-200 scale-110" 
-      : "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transition-all duration-200";
+      ? "w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 transition-all duration-200 scale-110" 
+      : "w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-all duration-200";
   };
 
   console.log('[ActionButtons] 렌더링됨 - activeButton:', activeButton, 'showActive:', showActive);
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-1 px-2 py-1.5 w-full max-w-xs mx-auto bg-white backdrop-blur-sm rounded-xl border-2 border-blue-200 shadow-lg">
-      <div className="flex justify-between items-center w-full max-w-xs">
+    <div className="action-buttons flex flex-col items-center mt-2 px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl z-50">
+      <div className="flex justify-between items-center w-full gap-4">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
           <Button
@@ -140,7 +140,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={3} 
             />
           </Button>
-          <span className="text-xs sm:text-sm font-medium text-gray-600 mt-0.5">건너뛰기</span>
+          <span className="text-xs sm:text-sm font-semibold text-gray-700 mt-1">건너뛰기</span>
         </div>
 
         {/* 고민중 버튼 */}
@@ -161,7 +161,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={2.5} 
             />
           </Button>
-          <span className="text-xs sm:text-sm font-medium text-[#7B5E57] mt-0.5">고민중</span>
+          <span className="text-xs sm:text-sm font-semibold text-amber-700 mt-1">고민중</span>
         </div>
 
         {/* 관심 버튼 */}
@@ -183,7 +183,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={2} 
             />
           </Button>
-          <span className="text-xs sm:text-sm font-medium text-red-600 mt-0.5">관심</span>
+          <span className="text-xs sm:text-sm font-semibold text-red-600 mt-1">관심</span>
         </div>
       </div>
     </div>
