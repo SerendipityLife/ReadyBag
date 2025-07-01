@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { SwipeDirection } from "@/lib/constants";
@@ -120,70 +121,138 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   console.log('[ActionButtons] 렌더링됨 - activeButton:', activeButton, 'showActive:', showActive);
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-2 px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl z-50">
-      <div className="flex justify-between items-center w-full gap-4">
-        {/* 건너뛰기 버튼 */}
-        <div className="flex flex-col items-center">
-          <Button
-            id="skipBtn"
-            variant="outline"
-            size="icon"
-            className={getButtonStyles(SwipeDirection.LEFT)}
-            onClick={() => handleButtonClick(SwipeDirection.LEFT)}
-            disabled={activeButton !== null}
-            aria-label="건너뛰기"
-            onMouseEnter={() => setHoverButton(SwipeDirection.LEFT)}
-            onMouseLeave={() => setHoverButton(null)}
-          >
-            <X 
-              className={getIconStyles(SwipeDirection.LEFT)} 
-              strokeWidth={3} 
-            />
-          </Button>
-          <span className="text-xs sm:text-sm font-semibold text-gray-700 mt-1">건너뛰기</span>
-        </div>
+    <div 
+      className="fixed bottom-16 left-0 right-0 z-[100] pointer-events-none"
+      style={{ 
+        position: 'fixed', 
+        bottom: '64px', 
+        left: '0', 
+        right: '0', 
+        zIndex: 100,
+        pointerEvents: 'none'
+      }}
+    >
+      <div 
+        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl pointer-events-auto"
+        style={{
+          backgroundColor: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(8px)',
+          border: '2px solid rgb(147, 197, 253)',
+          borderRadius: '12px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+          pointerEvents: 'auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          padding: '12px 16px',
+          width: '100%',
+          maxWidth: '384px',
+          margin: '0 auto'
+        }}
+      >
+        <div className="flex justify-between items-center w-full gap-4">
+          {/* 건너뛰기 버튼 */}
+          <div className="flex flex-col items-center">
+            <Button
+              id="skipBtn"
+              variant="outline"
+              size="icon"
+              className={getButtonStyles(SwipeDirection.LEFT)}
+              onClick={() => handleButtonClick(SwipeDirection.LEFT)}
+              disabled={activeButton !== null}
+              aria-label="건너뛰기"
+              onMouseEnter={() => setHoverButton(SwipeDirection.LEFT)}
+              onMouseLeave={() => setHoverButton(null)}
+              style={{
+                backgroundColor: activeButton === SwipeDirection.LEFT ? 'rgb(75, 85, 99)' : 'white',
+                borderColor: activeButton === SwipeDirection.LEFT ? 'rgb(75, 85, 99)' : 'rgb(156, 163, 175)',
+                color: activeButton === SwipeDirection.LEFT ? 'white' : 'rgb(75, 85, 99)',
+                borderWidth: '2px',
+                borderRadius: '50%',
+                width: '56px',
+                height: '56px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <X 
+                className={getIconStyles(SwipeDirection.LEFT)} 
+                strokeWidth={3} 
+              />
+            </Button>
+            <span className="text-xs sm:text-sm font-semibold text-gray-700 mt-1">건너뛰기</span>
+          </div>
 
-        {/* 고민중 버튼 */}
-        <div className="flex flex-col items-center">
-          <Button
-            id="maybeBtn"
-            variant="outline"
-            size="icon"
-            className={getButtonStyles(SwipeDirection.UP)}
-            onClick={() => handleButtonClick(SwipeDirection.UP)}
-            disabled={activeButton !== null}
-            aria-label="고민중"
-            onMouseEnter={() => setHoverButton(SwipeDirection.UP)}
-            onMouseLeave={() => setHoverButton(null)}
-          >
-            <HelpCircle 
-              className={getIconStyles(SwipeDirection.UP)} 
-              strokeWidth={2.5} 
-            />
-          </Button>
-          <span className="text-xs sm:text-sm font-semibold text-amber-700 mt-1">고민중</span>
-        </div>
+          {/* 고민중 버튼 */}
+          <div className="flex flex-col items-center">
+            <Button
+              id="maybeBtn"
+              variant="outline"
+              size="icon"
+              className={getButtonStyles(SwipeDirection.UP)}
+              onClick={() => handleButtonClick(SwipeDirection.UP)}
+              disabled={activeButton !== null}
+              aria-label="고민중"
+              onMouseEnter={() => setHoverButton(SwipeDirection.UP)}
+              onMouseLeave={() => setHoverButton(null)}
+              style={{
+                backgroundColor: activeButton === SwipeDirection.UP ? 'rgb(245, 158, 11)' : 'white',
+                borderColor: activeButton === SwipeDirection.UP ? 'rgb(245, 158, 11)' : 'rgb(251, 191, 36)',
+                color: activeButton === SwipeDirection.UP ? 'white' : 'rgb(217, 119, 6)',
+                borderWidth: '2px',
+                borderRadius: '50%',
+                width: '56px',
+                height: '56px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <HelpCircle 
+                className={getIconStyles(SwipeDirection.UP)} 
+                strokeWidth={2.5} 
+              />
+            </Button>
+            <span className="text-xs sm:text-sm font-semibold text-amber-700 mt-1">고민중</span>
+          </div>
 
-        {/* 관심 버튼 */}
-        <div className="flex flex-col items-center">
-          <Button
-            id="likeBtn"
-            variant="outline"
-            size="icon"
-            className={getButtonStyles(SwipeDirection.RIGHT)}
-            onClick={() => handleButtonClick(SwipeDirection.RIGHT)}
-            disabled={activeButton !== null}
-            aria-label="관심"
-            onMouseEnter={() => setHoverButton(SwipeDirection.RIGHT)}
-            onMouseLeave={() => setHoverButton(null)}
-          >
-            <Heart 
-              className={getIconStyles(SwipeDirection.RIGHT)} 
-              fill={activeButton === SwipeDirection.RIGHT ? "currentColor" : "#f87171"}
-              strokeWidth={2} 
-            />
-          </Button>
-          <span className="text-xs sm:text-sm font-semibold text-red-600 mt-1">관심</span>
+          {/* 관심 버튼 */}
+          <div className="flex flex-col items-center">
+            <Button
+              id="likeBtn"
+              variant="outline"
+              size="icon"
+              className={getButtonStyles(SwipeDirection.RIGHT)}
+              onClick={() => handleButtonClick(SwipeDirection.RIGHT)}
+              disabled={activeButton !== null}
+              aria-label="관심"
+              onMouseEnter={() => setHoverButton(SwipeDirection.RIGHT)}
+              onMouseLeave={() => setHoverButton(null)}
+              style={{
+                backgroundColor: activeButton === SwipeDirection.RIGHT ? 'rgb(239, 68, 68)' : 'white',
+                borderColor: activeButton === SwipeDirection.RIGHT ? 'rgb(239, 68, 68)' : 'rgb(248, 113, 113)',
+                color: activeButton === SwipeDirection.RIGHT ? 'white' : 'rgb(239, 68, 68)',
+                borderWidth: '2px',
+                borderRadius: '50%',
+                width: '56px',
+                height: '56px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+            >
+              <Heart 
+                className={getIconStyles(SwipeDirection.RIGHT)} 
+                fill={activeButton === SwipeDirection.RIGHT ? "currentColor" : "#f87171"}
+                strokeWidth={2} 
+              />
+            </Button>
+            <span className="text-xs sm:text-sm font-semibold text-red-600 mt-1">관심</span>
+          </div>
         </div>
       </div>
     </div>
