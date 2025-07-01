@@ -245,7 +245,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-sm mx-auto bg-white border-2 border-blue-200 shadow-xl relative overflow-hidden">
+      <Card className="w-full h-full max-w-xs mx-auto bg-white border-2 border-blue-200 shadow-xl relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -284,7 +284,7 @@ export function ProductCard({
         </div>
 
         {/* 상품 정보 - 유연한 높이 */}
-        <div className="p-5 min-h-56 flex flex-col">
+        <div className="p-4 min-h-48 flex flex-col">
           <div className="space-y-3 flex-1">
             <div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
