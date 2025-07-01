@@ -85,8 +85,9 @@
   }
 
   body {
-    @apply font-body antialiased bg-background text-foreground overflow-x-hidden;
+    @apply font-sans antialiased overflow-x-hidden;
     background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+    color: #1E293B;
   }
 
   /* Safe area support for mobile devices */
