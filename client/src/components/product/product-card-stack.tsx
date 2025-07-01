@@ -768,8 +768,8 @@ export function ProductCardStack() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col min-h-0">
-      <div className="card-stack relative h-[460px] w-full mb-1">
+    <div className="w-full max-w-md mx-auto flex flex-col min-h-0 lg:max-w-[420px] md:max-w-[400px]">
+      <div className="card-stack relative h-[460px] w-full mb-1 lg:h-[520px] md:h-[500px]">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}

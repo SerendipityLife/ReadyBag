@@ -122,7 +122,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   
   return (
     <div 
-      className="fixed bottom-16 left-0 right-0 z-[100] pointer-events-none"
+      className="action-buttons-container fixed bottom-16 left-0 right-0 z-[100] pointer-events-none lg:left-1/2 lg:right-auto lg:transform lg:-translate-x-1/2 lg:w-[420px] md:w-[400px] md:left-1/2 md:right-auto md:transform md:-translate-x-1/2"
       style={{ 
         position: 'fixed', 
         bottom: '64px', 
@@ -133,7 +133,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       }}
     >
       <div 
-        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl pointer-events-auto"
+        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl pointer-events-auto lg:max-w-full md:max-w-full"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(8px)',

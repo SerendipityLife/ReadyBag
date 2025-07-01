@@ -182,6 +182,71 @@
     padding-bottom: 80px; /* Default spacing for desktop */
   }
 
+  /* Desktop and large screen optimizations */
+  @media (min-width: 1024px) {
+    .main-content {
+      padding-bottom: 120px; /* More space for desktop */
+    }
+
+    /* Product card desktop sizing */
+    .product-card {
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Card stack desktop positioning */
+    .card-stack {
+      max-width: 420px;
+      margin: 0 auto;
+      min-height: 550px;
+    }
+
+    /* Action buttons desktop positioning */
+    .action-buttons {
+      max-width: 420px;
+      margin: 0 auto;
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      width: 420px;
+    }
+  }
+
+  @media (min-width: 768px) and (max-width: 1023px) {
+    .main-content {
+      padding-bottom: 100px;
+    }
+
+    /* Product card tablet sizing */
+    .product-card {
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Card stack tablet positioning */
+    .card-stack {
+      max-width: 400px;
+      margin: 0 auto;
+      min-height: 500px;
+    }
+
+    /* Action buttons tablet positioning */
+    .action-buttons {
+      max-width: 400px;
+      margin: 0 auto;
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
+      width: 400px;
+    }
+  }
+
   @media (max-width: 640px) {
     .main-content {
       padding-bottom: calc(70px + env(safe-area-inset-bottom));
@@ -341,6 +406,40 @@
   .product-card {
     max-width: calc(100vw - 24px);
     max-height: calc(100vh - 280px);
+    margin: 0 auto;
+  }
+}
+
+/* Large screens (1024px and above) */
+@media (min-width: 1024px) {
+  .action-buttons-container {
+    bottom: 80px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 420px !important;
+  }
+
+  .card-stack {
+    height: 520px !important;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+}
+
+/* Medium screens (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .action-buttons-container {
+    bottom: 70px !important;
+    left: 50% !important;
+    right: auto !important;
+    transform: translateX(-50%) !important;
+    width: 400px !important;
+  }
+
+  .card-stack {
+    height: 500px !important;
+    max-width: 400px;
     margin: 0 auto;
   }
 }
