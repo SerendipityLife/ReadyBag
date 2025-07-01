@@ -770,9 +770,9 @@ export function ProductCardStack() {
   return (
     <div className="w-full flex flex-col min-h-0">
       {/* 통합된 카드 스택 및 액션 버튼 컨테이너 */}
-      <div className="unified-card-container relative bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl p-4 mx-4 mb-4 max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl mx-auto">
+      <div className="unified-card-container relative bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl p-4 mx-4 mb-4">
         {/* 카드 스택 */}
-        <div className="card-stack relative h-[420px] w-full lg:h-[480px] md:h-[460px] mb-4 flex items-center justify-center">
+        <div className="card-stack relative h-[420px] w-full lg:h-[480px] md:h-[460px] mb-4">
           {visibleProducts.map((product, index) => (
             <ProductCard
               key={product.id}
@@ -786,7 +786,7 @@ export function ProductCardStack() {
         </div>
 
         {/* 액션 버튼 - 카드 바로 아래 통합 */}
-        <div className="action-buttons-wrapper flex justify-center">
+        <div className="action-buttons-wrapper">
           <ActionButtons onActionClick={handleActionClick} />
         </div>
       </div>

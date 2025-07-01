@@ -123,7 +123,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   return (
     <div className="w-full">
       <div className="action-buttons flex flex-col items-center w-full max-w-sm mx-auto">
-        <div className="flex justify-center items-center w-full gap-4 md:gap-6 lg:gap-8">
+        <div className="flex justify-between items-center w-full gap-4">
           {/* 건너뛰기 버튼 */}
           <div className="flex flex-col items-center">
             <Button

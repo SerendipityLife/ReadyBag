@@ -189,12 +189,6 @@
       padding-bottom: 160px;
     }
 
-    /* 통합 컨테이너 크기 제한 */
-    .unified-card-container {
-      max-width: 480px !important;
-      margin: 0 auto !important;
-    }
-
     .card-stack-container {
       max-width: 420px;
       padding: 0 16px;
@@ -215,7 +209,7 @@
 
     /* Product card desktop sizing */
     .product-card {
-      max-width: 400px;
+      max-width: 420px;
       max-height: calc(100vh - 250px);
       margin: 0 auto;
       position: absolute;
@@ -226,13 +220,11 @@
       position: relative;
       padding: 0;
       z-index: 1;
-      display: flex;
-      justify-content: center;
     }
 
     .action-buttons {
-      max-width: 400px;
-      width: 100%;
+      max-width: 420px;
+      width: 420px;
       margin: 0 auto;
     }
   }
@@ -240,12 +232,6 @@
   @media (min-width: 768px) and (max-width: 1023px) {
     .main-content {
       padding-bottom: 140px;
-    }
-
-    /* 통합 컨테이너 크기 제한 */
-    .unified-card-container {
-      max-width: 440px !important;
-      margin: 0 auto !important;
     }
 
     .card-stack-container {
@@ -268,7 +254,7 @@
 
     /* Product card tablet sizing */
     .product-card {
-      max-width: 380px;
+      max-width: 400px;
       max-height: calc(100vh - 220px);
       margin: 0 auto;
       position: absolute;
@@ -279,13 +265,11 @@
       position: relative;
       padding: 0;
       z-index: 1;
-      display: flex;
-      justify-content: center;
     }
 
     .action-buttons {
-      max-width: 380px;
-      width: 100%;
+      max-width: 400px;
+      width: 400px;
       margin: 0 auto;
     }
   }
