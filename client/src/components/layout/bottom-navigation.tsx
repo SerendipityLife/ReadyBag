@@ -161,7 +161,7 @@ export function BottomNavigation() {
         className="flex justify-around items-center px-2 sm:px-4 w-full"
         style={{
           height: '60px',
-          paddingBottom: 'max(8px, env(safe-area-inset-bottom))'
+          paddingBottom: 'env(safe-area-inset-bottom)'
         }}
       >
         {tabs.map((tab) => {
