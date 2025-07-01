@@ -105,9 +105,12 @@ export function Header() {
             <div className="flex items-center gap-1 flex-1 justify-center">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 px-2">
-                    <Calendar className="h-4 w-4" />
-                  </Button>
+                  <button 
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                    title="날짜 선택"
+                  >
+                    <Calendar size={16} className="text-gray-600" />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" className="w-80">
                   <div className="p-2">
@@ -127,9 +130,12 @@ export function Header() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 px-2">
-                    <MapPin className="h-4 w-4" />
-                  </Button>
+                  <button 
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                    title="숙박지 선택"
+                  >
+                    <MapPin size={16} className="text-gray-600" />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center" className="w-80">
                   <div className="p-2">
@@ -140,9 +146,12 @@ export function Header() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8 px-2">
-                    <Globe className="h-4 w-4" />
-                  </Button>
+                  <button 
+                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                    title="국가 선택"
+                  >
+                    <Globe size={16} className="text-gray-600" />
+                  </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="center">
                   <div className="p-2">
