@@ -290,8 +290,8 @@
 
     /* Card stack container adjustments */
     .card-stack {
-      margin-bottom: 20px;
-      padding-bottom: 20px;
+      margin-bottom: 4px;
+      padding-bottom: 4px;
     }
 
     /* Text sizing adjustments */
@@ -414,8 +414,8 @@
 
     /* Card stack adjustments */
     .card-stack {
-      margin-bottom: 24px;
-      padding-bottom: 24px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
     }
 
     /* Ensure cards don't overlap with navigation */

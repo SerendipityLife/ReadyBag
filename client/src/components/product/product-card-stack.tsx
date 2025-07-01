@@ -769,7 +769,7 @@ export function ProductCardStack() {
   
   return (
     <div className="w-full max-w-md mx-auto flex flex-col min-h-0">
-      <div className="card-stack relative h-[480px] w-full">
+      <div className="card-stack relative h-[480px] w-full mb-2">
         {visibleProducts.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -784,7 +784,7 @@ export function ProductCardStack() {
 
       {/* 진행상황 표시 - 카드와 버튼 사이에 배치 */}
       {filteredProducts.length > 0 && (
-        <div className="flex justify-center my-1">
+        <div className="flex justify-center mb-2">
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-blue-200/50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-700 tabular-nums">
@@ -799,7 +799,7 @@ export function ProductCardStack() {
         </div>
       )}
       
-      <div className="mb-1 w-full">
+      <div className="w-full">
         <ActionButtons onActionClick={handleActionClick} />
       </div>
       
