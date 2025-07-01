@@ -10,10 +10,14 @@ import { cn } from '../lib/utils';
 import { useAppContext } from '../contexts/AppContext';
 
 interface TravelDateSelectorProps {
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onDatesChange?: (start: Date | null, end: Date | null) => void;
+  mode?: string;
   onClose?: () => void;
 }
 
-export const TravelDateSelector: React.FC<TravelDateSelectorProps> = ({ onClose }) => {
+export const TravelDateSelector: React.FC<TravelDateSelectorProps> = ({ startDate, endDate, onDatesChange, mode, onClose }) => {
   const {
     travelStartDate,
     setTravelStartDate,
@@ -23,7 +27,7 @@ export const TravelDateSelector: React.FC<TravelDateSelectorProps> = ({ onClose 
     selectedTravelDateId,
     addTravelDate,
     setSelectedTravelDateId,
-    deleteTravelDate,
+    removeTravelDate,
     showTravelDateSelector,
     setShowTravelDateSelector
   } = useAppContext();
@@ -77,6 +81,61 @@ export const TravelDateSelector: React.FC<TravelDateSelectorProps> = ({ onClose 
     }
   };
 
+  // Browse mode: compact dropdown for header
+  if (mode === "browse") {
+    return (
+      <div className="relative">
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 px-2 text-xs">
+              <CalendarIcon className="h-3 w-3 mr-1" />
+              {selectedTravelDateId 
+                ? savedTravelDates.find(d => d.id === selectedTravelDateId)?.label || "여행 날짜"
+                : "여행 날짜"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-64 p-3" align="start">
+            <div className="space-y-2">
+              <h4 className="font-medium text-sm">여행 날짜 선택</h4>
+              
+              {/* 저장된 여행 날짜 목록 */}
+              {savedTravelDates.length > 0 && (
+                <div className="space-y-1 max-h-32 overflow-y-auto">
+                  {savedTravelDates.map((savedDate) => (
+                    <div
+                      key={savedDate.id}
+                      className={cn(
+                        "flex items-center justify-between p-2 rounded border cursor-pointer hover:bg-gray-50 text-xs",
+                        selectedTravelDateId === savedDate.id ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                      )}
+                      onClick={() => handleSelectSavedDate(savedDate.id)}
+                    >
+                      <span>{savedDate.label}</span>
+                      {selectedTravelDateId === savedDate.id && (
+                        <Check className="h-3 w-3 text-blue-500" />
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {/* 새 날짜 추가 버튼 */}
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs h-7"
+                onClick={() => setShowTravelDateSelector(true)}
+              >
+                새 날짜 추가
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
+    );
+  }
+
+  // Modal mode: full date selection modal
   if (!showTravelDateSelector) {
     return null;
   }
