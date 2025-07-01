@@ -231,7 +231,7 @@ export function ProductCard({
 
   return (
     <animated.div
-      className="absolute top-0 left-0 right-0 mx-auto"
+      className="product-card absolute top-0 left-0 right-0 mx-auto"
       style={{
         ...styles,
         x,
