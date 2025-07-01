@@ -5,7 +5,7 @@ import {
   UseMutationResult,
   QueryClient
 } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "../lib/queryClient.ts";
 import { useToast } from "./use-toast";
 import { 
   RegisterUserInput, 
