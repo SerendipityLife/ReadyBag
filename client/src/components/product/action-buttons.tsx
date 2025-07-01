@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { SwipeDirection } from "@/lib/constants";
+import { Button } from "../components/ui/button";
+import { SwipeDirection } from "../lib/constants";
 import { Heart, X, HelpCircle } from "lucide-react";
 
 interface ActionButtonsProps {

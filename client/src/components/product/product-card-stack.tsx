@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProductCard } from "@/components/product/product-card";
-import { ActionButtons } from "@/components/product/action-buttons";
+import { ProductCard } from "../components/product/product-card";
+import { ActionButtons } from "../components/product/action-buttons";
 import { useAppContext } from "@/contexts/AppContext";
-import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "@/lib/constants";
+import { useAuth } from "../hooks/use-auth";
+import { useToast } from "../hooks/use-toast";
+import { apiRequest } from "../lib/queryClient";
+import { API_ROUTES, ProductStatus, SwipeDirection, SWIPE_TO_STATUS } from "../lib/constants";
 import { X } from "lucide-react";
 import type { Product, UserProduct } from "@shared/schema";
 

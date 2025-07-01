@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog";
+import { Button } from "../components/ui/button";
 import { Star, MessageSquare } from "lucide-react";
 import { ProductReviews } from "./product-reviews";
 
