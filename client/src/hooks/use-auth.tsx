@@ -5,7 +5,7 @@ import {
   UseMutationResult,
   QueryClient
 } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "./use-toast";
 import { 
   RegisterUserInput, 
@@ -319,5 +319,4 @@ export function useAuth() {
   return context;
 }
 
-// Import queryClient here to avoid circular imports
-import { queryClient } from "@/lib/queryClient";
+// queryClient is now imported at the top of the file
