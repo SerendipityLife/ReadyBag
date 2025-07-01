@@ -768,23 +768,26 @@ export function ProductCardStack() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto flex flex-col min-h-0 lg:max-w-[420px] md:max-w-[400px]">
-      <div className="card-stack relative h-[460px] w-full mb-1 lg:h-[520px] md:h-[500px]">
-        {visibleProducts.map((product, index) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            index={index}
-            total={visibleProducts.length}
-            onSwipe={(direction) => handleSwipe(direction, product.id)}
-            isProcessing={processingProductIds.has(product.id)}
-          />
-        ))}
+    <div className="w-full flex flex-col min-h-0">
+      {/* 카드 스택 컨테이너 */}
+      <div className="card-stack-container">
+        <div className="card-stack relative h-[460px] w-full lg:h-[520px] md:h-[500px]">
+          {visibleProducts.map((product, index) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              index={index}
+              total={visibleProducts.length}
+              onSwipe={(direction) => handleSwipe(direction, product.id)}
+              isProcessing={processingProductIds.has(product.id)}
+            />
+          ))}
+        </div>
       </div>
 
       {/* 진행상황 표시 - 카드와 버튼 사이에 배치 */}
       {filteredProducts.length > 0 && (
-        <div className="flex justify-center mb-1">
+        <div className="flex justify-center mb-4 mt-4">
           <div className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-2 shadow-md border border-blue-200/50">
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium text-blue-700 tabular-nums">
@@ -799,14 +802,14 @@ export function ProductCardStack() {
         </div>
       )}
 
-      {/* 액션 버튼 - 항상 표시 */}
-      <div className="w-full relative z-50">
+      {/* 액션 버튼 - 상품 박스 바로 아래 배치 */}
+      <div className="action-buttons-wrapper">
         <ActionButtons onActionClick={handleActionClick} />
       </div>
 
       {/* 비회원 사용자일 경우 안내 메시지 */}
       {!user && (
-        <div className="w-full max-w-md mx-auto text-center text-gray-500 text-xs leading-tight px-4 mt-2">
+        <div className="w-full text-center text-gray-500 text-xs leading-tight px-4 mt-4">
           <p>비회원으로 이용 중입니다. 목록이 브라우저에 임시 저장됩니다.</p>
           <p>로그인 후 이용하시면 데이터가 안전하게 보관됩니다.</p>
         </div>

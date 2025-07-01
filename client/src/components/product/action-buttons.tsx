@@ -121,32 +121,21 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   console.log('[ActionButtons] 렌더링됨 - activeButton:', activeButton, 'showActive:', showActive);
   
   return (
-    <div 
-      className="action-buttons-container fixed bottom-16 left-0 right-0 z-[100] pointer-events-none lg:left-1/2 lg:right-auto lg:transform lg:-translate-x-1/2 lg:w-[420px] md:w-[400px] md:left-1/2 md:right-auto md:transform md:-translate-x-1/2"
-      style={{ 
-        position: 'fixed', 
-        bottom: '64px', 
-        left: '0', 
-        right: '0', 
-        zIndex: 100,
-        pointerEvents: 'none'
-      }}
-    >
+    <div className="w-full">
       <div 
-        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl pointer-events-auto lg:max-w-full md:max-w-full"
+        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl"
         style={{
           backgroundColor: 'rgba(255, 255, 255, 0.95)',
           backdropFilter: 'blur(8px)',
           border: '2px solid rgb(147, 197, 253)',
           borderRadius: '12px',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          pointerEvents: 'auto',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           padding: '12px 16px',
           width: '100%',
-          maxWidth: '384px',
+          maxWidth: '100%',
           margin: '0 auto'
         }}
       >
@@ -254,7 +243,6 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             <span className="text-xs sm:text-sm font-semibold text-red-600 mt-1">관심</span>
           </div>
         </div>
-      </div>
     </div>
   );
 }
