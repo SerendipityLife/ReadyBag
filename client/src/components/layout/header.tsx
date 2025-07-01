@@ -114,7 +114,7 @@ export function Header() {
           <div className="flex items-center justify-between gap-2 sm:gap-4">
 
             {/* Left section */}
-            <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               {/* Back button */}
               {(currentView !== View.EXPLORE || isSharedList) && (
                 <button 
@@ -125,26 +125,11 @@ export function Header() {
                   <ArrowLeft size={18} className="text-gray-600 sm:w-5 sm:h-5" />
                 </button>
               )}
-
-              {/* Logo */}
-              <button 
-                className="flex items-center gap-2 sm:gap-3 min-w-0"
-                onClick={() => !isSharedList && setCurrentView(View.EXPLORE)}
-              >
-                <img 
-                  src="/readybag-logo.png" 
-                  alt="ReadyBag" 
-                  className="h-6 sm:h-8 w-auto flex-shrink-0"
-                />
-                <h1 className="text-lg sm:text-xl font-bold text-primary truncate">
-                  ReadyBag
-                </h1>
-              </button>
             </div>
 
             {/* Center section - Date/Location/Country (only on explore view) */}
             {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 flex-1">
                 {/* Travel Date Selector */}
                 <button 
                   className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
@@ -172,6 +157,11 @@ export function Header() {
                 {/* Country Selector */}
                 <CountrySelector />
               </div>
+            )}
+
+            {/* Spacer for non-explore views */}
+            {(isSharedList || isAuthPage || currentView !== View.EXPLORE) && (
+              <div className="flex-1"></div>
             )}
 
             {/* Right section - Action buttons */}
