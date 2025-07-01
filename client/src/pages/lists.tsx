@@ -1,23 +1,23 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProductListItem } from "@/components/product/product-list-item";
-import { useAppContext } from "@/contexts/AppContext";
-import { API_ROUTES, ProductStatus, CATEGORY_MAPPING } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProductListItem } from "../components/product/product-list-item.tsx";
+import { useAppContext } from "../contexts/AppContext.tsx";
+import { API_ROUTES, ProductStatus, CATEGORY_MAPPING } from "../lib/constants.ts";
+import { Button } from "../components/ui/button.tsx";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs.tsx";
 import { Share2, Bookmark, Heart, X, Trash2, RefreshCw, Triangle, User, AlertTriangle, MapPin, HelpCircle, ShoppingBag } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "../hooks/use-auth.tsx";
+import { Checkbox } from "../components/ui/checkbox.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { apiRequest } from "@/lib/queryClient";
-import { AdBanner } from "@/components/ads/ad-banner";
-import { NearbyFacilities } from "@/components/location/nearby-facilities";
-import { TravelDateSelector } from "@/components/travel-date-selector";
+} from "../components/ui/dropdown-menu.tsx";
+import { apiRequest } from "../lib/queryClient.ts";
+import { AdBanner } from "../components/ads/ad-banner.tsx";
+import { NearbyFacilities } from "../components/location/nearby-facilities.tsx";
+import { TravelDateSelector } from "../components/travel-date-selector.tsx";
 
 
 import type { UserProduct } from "@shared/schema";
