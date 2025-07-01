@@ -26,10 +26,12 @@ import {
 } from "../ui/dropdown-menu.tsx";
 import { Avatar, AvatarFallback } from "../ui/avatar.tsx";
 import { cn } from "../../lib/utils.ts";
+import { TravelDateSelector } from "../travel-date-selector.tsx";
+import { AccommodationSearch } from "../accommodation-search.tsx";
 
 export function Header() {
   const [location, navigate] = useLocation();
-  const { currentView, setCurrentView, generateShareUrl } = useAppContext();
+  const { currentView, setCurrentView, generateShareUrl, travelStartDate, setTravelStartDate, travelEndDate, setTravelEndDate } = useAppContext();
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
@@ -40,18 +42,6 @@ export function Header() {
       navigate("/");
     } else {
       setCurrentView(View.EXPLORE);
-    }
-  };
-
-  const handleShareClick = () => {
-    // 로그인한 경우에만 공유 가능
-    if (user) {
-      generateShareUrl();
-    } else {
-      // 비회원인 경우 로그인 안내
-      if (window.confirm('회원가입 후 목록을 저장하고 공유할 수 있습니다. 로그인 페이지로 이동하시겠습니까?')) {
-        navigate('/auth');
-      }
     }
   };
 
@@ -91,126 +81,141 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md border-b border-blue-200 w-full">
-      <div className="flex items-center justify-between min-h-[40px] sm:min-h-[44px] md:min-h-[48px] px-2 sm:px-3 md:px-4 py-1 w-full max-w-full overflow-hidden">
-        {/* Logo & Country Selector */}
-        <div className="flex items-center flex-shrink-0">
-          {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
-          {isSharedList && (
+    <header className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50">
+      <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
+        {/* Top row */}
+        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-2">
+
+          {/* Left section */}
+          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+            {/* Back button */}
+            {(currentView !== View.EXPLORE || isSharedList) && (
+              <button 
+                className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                onClick={handleBackClick}
+                title="뒤로가기"
+              >
+                <ArrowLeft size={18} className="text-gray-600 sm:w-5 sm:h-5" />
+              </button>
+            )}
+
+            {/* Logo */}
             <button 
-              className="p-1.5 sm:p-2 mr-1 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors md:hidden"
-              onClick={handleBackClick}
+              className="flex items-center gap-2 sm:gap-3 min-w-0"
+              onClick={() => !isSharedList && setCurrentView(View.EXPLORE)}
             >
-              <ArrowLeft size={16} className="sm:w-4 sm:h-4" />
+              <img 
+                src="/readybag-logo.png" 
+                alt="ReadyBag" 
+                className="h-6 sm:h-8 w-auto flex-shrink-0"
+              />
+              <h1 className="text-lg sm:text-xl font-bold text-primary truncate">
+                ReadyBag
+              </h1>
             </button>
-          )}
+          </div>
 
-
-          {/* Country selector */}
-          {!isSharedList && !isAuthPage && (
-            <div className="flex-shrink-0">
-              <CountrySelector />
-            </div>
-          )}
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 max-w-fit overflow-hidden">
-          {!isAuthPage && (
-            <>
-              <button 
-                className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                onClick={() => setIsFilterModalOpen(true)}
-                title="필터"
-              >
-                <SlidersHorizontal 
-                  size={16} 
-                  className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
-                />
-              </button>
-
-              <button 
-                className={cn(
-                  "p-1 sm:p-1.5 rounded-lg transition-colors touch-manipulation",
-                  currentView === View.INFO 
-                    ? "bg-primary/10 text-primary" 
-                    : "hover:bg-gray-100 text-gray-600"
-                )}
-                onClick={handleInfoClick}
-                title="정보"
-              >
-                <Info 
-                  size={16} 
-                  className="sm:w-[18px] sm:h-[18px]" 
-                />
-              </button>
-
-              <button 
-                className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                onClick={handleShareClick}
-                title="공유하기"
-              >
-                <Share2 
-                  size={16} 
-                  className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
-                />
-              </button>
-
-              {user ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <button className="p-1 sm:p-1.5 rounded-full hover:bg-gray-100 touch-manipulation">
-                      <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
-                        <AvatarFallback className="text-xs bg-gray-100 text-gray-700">
-                          {getUserInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                    </button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
-                    <div className="flex items-center p-2">
-                      <div className="flex flex-col">
-                        {user.nickname && (
-                          <p className="font-medium">{user.nickname}</p>
-                        )}
-                        <p className="text-xs text-gray-500 truncate">
-                          {user.email}
-                        </p>
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      className="text-sm cursor-pointer"
-                      onClick={handleLogoutClick}
-                    >
-                      <LogOut className="mr-2 h-3.5 w-3.5 text-gray-500" />
-                      <span>로그아웃</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
+          {/* Right section - Action buttons */}
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+            {!isAuthPage && (
+              <>
                 <button 
                   className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                  onClick={handleLoginClick}
-                  title="로그인"
+                  onClick={() => setIsFilterModalOpen(true)}
+                  title="필터"
                 >
-                  <LogIn 
+                  <SlidersHorizontal 
                     size={16} 
                     className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
                   />
                 </button>
-              )}
-            </>
-          )}
+
+                <button 
+                  className={cn(
+                    "p-1 sm:p-1.5 rounded-lg transition-colors touch-manipulation",
+                    currentView === View.INFO 
+                      ? "bg-primary/10 text-primary" 
+                      : "hover:bg-gray-100 text-gray-600"
+                  )}
+                  onClick={handleInfoClick}
+                  title="정보"
+                >
+                  <Info 
+                    size={16} 
+                    className="sm:w-[18px] sm:h-[18px]" 
+                  />
+                </button>
+              </>
+            )}
+
+            {/* User menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-1 sm:p-1.5 h-auto">
+                  {user ? (
+                    <div className="flex items-center gap-1">
+                      <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
+                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                          {getUserInitials(user)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <ChevronDown size={12} className="text-gray-500" />
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      <UserCircle size={20} className="text-gray-600 sm:w-6 sm:h-6" />
+                      <ChevronDown size={12} className="text-gray-500" />
+                    </div>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                {user ? (
+                  <>
+                    <DropdownMenuItem disabled className="flex items-center cursor-default">
+                      <User className="mr-2 h-4 w-4" />
+                      <span className="text-sm text-gray-600">{user.email}</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogoutClick} className="flex items-center text-red-600">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>로그아웃</span>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={handleLoginClick} className="flex items-center">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    <span>로그인</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
+
+        {/* Bottom row - Date/Location/Country */}
+        {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <TravelDateSelector
+                startDate={travelStartDate}
+                endDate={travelEndDate}
+                onDatesChange={(start, end) => {
+                  setTravelStartDate(start);
+                  setTravelEndDate(end);
+                  // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
+                  window.dispatchEvent(new Event('localStorageChange'));
+                }}
+                mode="browse"
+              />
+              <AccommodationSearch />
+            </div>
+            <CountrySelector />
+          </div>
+        )}
       </div>
 
-      {/* 필터 모달 */}
-      <FilterModal 
-        isOpen={isFilterModalOpen}
-        onClose={() => setIsFilterModalOpen(false)}
-        scope={currentView}
-      />
+      <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
     </header>
   );
 }
