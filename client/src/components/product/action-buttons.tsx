@@ -243,6 +243,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
             <span className="text-xs sm:text-sm font-semibold text-red-600 mt-1">관심</span>
           </div>
         </div>
+      </div>
     </div>
   );
 }
