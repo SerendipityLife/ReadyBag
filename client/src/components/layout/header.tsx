@@ -91,8 +91,8 @@ export function Header() {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md border-b border-blue-200">
-      <div className="flex items-center justify-between min-h-[48px] sm:min-h-[52px] md:min-h-[56px] px-2 sm:px-3 md:px-4 py-1">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm shadow-md border-b border-blue-200 w-full">
+      <div className="flex items-center justify-between min-h-[48px] sm:min-h-[52px] md:min-h-[56px] px-2 sm:px-3 md:px-4 py-1 w-full max-w-full overflow-hidden">
         {/* Logo & Country Selector */}
         <div className="flex items-center flex-shrink-0">
           {/* 공유된 목록에만 뒤로가기 버튼 표시 (내 목록 탭에서는 제거) */}
@@ -115,7 +115,7 @@ export function Header() {
         </div>
         
         {/* Action buttons */}
-        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+        <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 max-w-fit overflow-hidden">
           {!isAuthPage && (
             <>
               <button 

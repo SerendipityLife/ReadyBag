@@ -104,15 +104,86 @@
     touch-action: manipulation;
   }
   
-  /* Improved button sizing for touch devices */
+  /* Mobile viewport fixes */
   @media (max-width: 640px) {
+    html {
+      overflow-x: hidden;
+      width: 100%;
+    }
+    
+    body {
+      overflow-x: hidden;
+      width: 100%;
+      min-width: 320px;
+    }
+    
+    /* Improved button sizing for touch devices */
     button, .button {
-      min-height: 44px;
-      min-width: 44px;
+      min-height: 40px;
+      min-width: 40px;
+      font-size: 14px;
     }
     
     button:not(.no-touch-sizing) {
-      padding: 8px;
+      padding: 6px;
+    }
+    
+    /* Header mobile optimization */
+    header {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      min-height: 48px !important;
+    }
+    
+    /* Prevent horizontal overflow */
+    .container, .max-w-md, .mx-auto {
+      padding-left: 12px !important;
+      padding-right: 12px !important;
+      max-width: calc(100vw - 24px) !important;
+    }
+    
+    /* Bottom navigation mobile fixes */
+    .bottom-nav {
+      left: 0;
+      right: 0;
+      width: 100%;
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+    
+    /* Product card mobile sizing */
+    .product-card {
+      max-width: calc(100vw - 32px);
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    /* Prevent text from overflowing */
+    .text-truncate {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+  
+  /* Extra small mobile devices */
+  @media (max-width: 375px) {
+    header {
+      padding-left: 4px !important;
+      padding-right: 4px !important;
+    }
+    
+    button, .button {
+      min-height: 36px;
+      min-width: 36px;
+      font-size: 13px;
+      padding: 4px;
+    }
+    
+    .container, .max-w-md, .mx-auto {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+      max-width: calc(100vw - 16px) !important;
     }
   }
   
