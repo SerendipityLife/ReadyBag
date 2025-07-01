@@ -22,20 +22,18 @@ export function CountrySelector() {
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="default"
-          className="bg-sky-400 hover:bg-sky-500 text-white border-sky-400 h-8 px-3 gap-2 font-medium shadow-md"
+        <button 
+          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+          title={`현재 국가: ${selectedCountry.name}`}
         >
           <img
             src={selectedCountry.flagUrl}
             alt={`${selectedCountry.name} 국기`}
             className="w-4 h-4 rounded-sm object-cover"
           />
-          <span className="text-sm font-semibold">{selectedCountry.name}</span>
-          <ChevronDown className="h-3 w-3 opacity-70" />
-        </Button>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-52">
+      <DropdownMenuContent align="center" className="w-52">
         {COUNTRIES.map((country) => (
           <DropdownMenuItem
             key={country.id}
