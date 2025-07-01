@@ -50,7 +50,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-blue-100">
       <Header />
       
-      <main className="container mx-auto px-4 pb-24 pt-4 flex-1">
+      <main className="container mx-auto px-4 pt-4 flex-1 main-content">
         {currentView === View.EXPLORE && (
           <div className="flex flex-col items-center">
             

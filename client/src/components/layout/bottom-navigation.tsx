@@ -156,8 +156,14 @@ export function BottomNavigation() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-40 safe-area-pb">
-      <div className="flex justify-around items-center h-14 sm:h-16 px-2 sm:px-4">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 w-full bottom-nav">
+      <div 
+        className="flex justify-around items-center px-2 sm:px-4 w-full"
+        style={{
+          height: '60px',
+          paddingBottom: 'max(8px, env(safe-area-inset-bottom))'
+        }}
+      >
         {tabs.map((tab) => {
           const isActive = currentViewLocal === tab.value;
           return (
@@ -165,15 +171,19 @@ export function BottomNavigation() {
               key={tab.value}
               onClick={() => handleTabClick(tab.value)}
               className={cn(
-                "flex flex-col items-center justify-center p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
-                "min-w-0 flex-1 max-w-[80px] sm:max-w-none", // Limit max width on mobile
+                "flex flex-col items-center justify-center rounded-lg transition-colors touch-manipulation",
+                "flex-1 min-w-0 max-w-none", // Remove width restrictions for better mobile layout
+                "py-2 px-1", // Consistent padding
                 isActive 
                   ? "text-primary bg-primary/5" 
                   : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
               )}
+              style={{ minHeight: '48px' }} // Ensure touch target size
             >
-              <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5 sm:mb-1" />
-              <span className="text-[10px] sm:text-xs font-medium truncate leading-tight">{tab.label}</span>
+              <tab.icon className="w-5 h-5 mb-1 flex-shrink-0" />
+              <span className="text-[11px] font-medium leading-tight text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+                {tab.label}
+              </span>
             </button>
           );
         })}
