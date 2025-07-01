@@ -1,15 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useAppContext } from "@/contexts/AppContext";
-import { Card } from "@/components/ui/card";
-import { SwipeDirection } from "@/lib/constants";
+import { useAppContext } from "../../contexts/AppContext";
+import { Card } from "../ui/card";
+import { SwipeDirection } from "../../lib/constants";
 import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
 import { ReviewButton } from "./review-button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import type { Product } from "@shared/schema";
-import { CurrencyDisplay } from "@/components/ui/currency-display";
-import { PriceRangeDisplay } from "@/components/ui/price-range-display";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CurrencyDisplay } from "../ui/currency-display";
+import { PriceRangeDisplay } from "../ui/price-range-display";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 
 interface ProductCardProps {
   product: Product;

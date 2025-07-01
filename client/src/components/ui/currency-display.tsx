@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppContext } from "../../contexts/AppContext";
 import { format } from "date-fns";
 
 interface CurrencyDisplayProps {

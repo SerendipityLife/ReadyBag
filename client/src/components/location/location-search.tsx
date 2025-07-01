@@ -1,13 +1,13 @@
 // 전체 import 및 const 정의는 동일하므로 생략 없이 포함
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Badge } from "../ui/badge";
 import { MapPin, Clock, Navigation, Loader2, Home } from "lucide-react";
-import { googleMapsService, type PlaceResult, type HotelLocation } from "@/lib/google-maps";
-import { useAppContext } from "@/contexts/AppContext";
+import { googleMapsService, type PlaceResult, type HotelLocation } from "../../lib/google-maps";
+import { useAppContext } from "../../contexts/AppContext";
 
 const FACILITY_TYPES = [
   {

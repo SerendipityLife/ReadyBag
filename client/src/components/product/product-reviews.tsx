@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "../ui/card";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Checkbox } from "../ui/checkbox";
 import { Star, MessageSquare, Edit, Trash2 } from "lucide-react";
-import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { API_ROUTES } from "@/lib/constants";
+import { useAuth } from "../../hooks/use-auth";
+import { useToast } from "../../hooks/use-toast";
+import { apiRequest } from "../../lib/queryClient";
+import { API_ROUTES } from "../../lib/constants";
 import type { ProductReview } from "@shared/schema";
 
 interface ProductReviewsProps {

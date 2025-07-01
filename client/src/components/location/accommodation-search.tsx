@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Loader2, Home, Plus, Check, Info } from "lucide-react";
-import { googleMapsService, type HotelLocation } from "@/lib/google-maps";
-import { useAppContext } from "@/contexts/AppContext";
+import { googleMapsService, type HotelLocation } from "../../lib/google-maps";
+import { useAppContext } from "../../contexts/AppContext";
 
 export function AccommodationSearch() {
   const { 

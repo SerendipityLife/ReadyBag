@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Badge } from "../ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { MapPin, Clock, Navigation, Loader2, AlertTriangle, Home } from "lucide-react";
-import { googleMapsService, type PlaceResult } from "@/lib/google-maps";
-import { useAppContext } from "@/contexts/AppContext";
-import { useAuth } from "@/hooks/use-auth";
-import { API_ROUTES } from "@/lib/constants";
+import { googleMapsService, type PlaceResult } from "../../lib/google-maps";
+import { useAppContext } from "../../contexts/AppContext";
+import { useAuth } from "../../hooks/use-auth";
+import { API_ROUTES } from "../../lib/constants";
 import type { UserProduct } from "@shared/schema";
 
 const FACILITY_TYPES = [
