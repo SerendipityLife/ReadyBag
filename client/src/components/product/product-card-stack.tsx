@@ -785,10 +785,8 @@ export function ProductCardStack() {
         </div>
       </div>
 
-
-
       {/* 액션 버튼 - 상품 박스 바로 아래 배치 */}
-      <div className="action-buttons-wrapper">
+      <div className="action-buttons-wrapper -mt-8">
         <ActionButtons onActionClick={handleActionClick} />
       </div>
 
