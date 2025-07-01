@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FilterIcon } from "lucide-react";
-import { Button } from @/components/ui/button";
-import { Badge } from @/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { FilterModal } from "@/components/filter/filter-modal";
 import { useAppContext } from "@/contexts/AppContext";
 
