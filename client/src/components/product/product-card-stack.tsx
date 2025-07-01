@@ -799,9 +799,12 @@ export function ProductCardStack() {
         </div>
       )}
 
-      <div className="w-full">
-        <ActionButtons onActionClick={handleActionClick} />
-      </div>
+      {/* 액션 버튼 - 상품이 있을 때만 표시 */}
+      {visibleProducts.length > 0 && (
+        <div className="w-full">
+          <ActionButtons onActionClick={handleActionClick} />
+        </div>
+      )}
 
       {/* 비회원 사용자일 경우 안내 메시지 */}
       {!user && (

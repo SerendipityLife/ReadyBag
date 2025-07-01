@@ -117,6 +117,8 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
       : "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transition-all duration-200";
   };
 
+  console.log('[ActionButtons] 렌더링됨 - activeButton:', activeButton, 'showActive:', showActive);
+  
   return (
     <div className="action-buttons flex flex-col items-center mt-1 px-2 py-1.5 w-full max-w-xs mx-auto bg-white backdrop-blur-sm rounded-xl border-2 border-blue-200 shadow-lg">
       <div className="flex justify-between items-center w-full max-w-xs">
