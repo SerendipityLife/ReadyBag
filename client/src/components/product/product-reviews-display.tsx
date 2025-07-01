@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Star, MessageSquare } from "lucide-react";
-import { API_ROUTES } from "../lib/constants";
+import { API_ROUTES } from "@/lib/constants";
 import type { ProductReview } from "@shared/schema";
 
 interface ProductReviewsDisplayProps {

@@ -5,7 +5,7 @@ import {
   UseMutationResult,
   QueryClient
 } from "@tanstack/react-query";
-import { apiRequest } from "../lib/queryClient";
+import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "./use-toast";
 import { 
   RegisterUserInput, 
@@ -320,4 +320,4 @@ export function useAuth() {
 }
 
 // Import queryClient here to avoid circular imports
-import { queryClient } from "../lib/queryClient";
+import { queryClient } from "@/lib/queryClient";

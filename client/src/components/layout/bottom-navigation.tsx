@@ -1,9 +1,9 @@
 import { useAppContext } from "@/contexts/AppContext";
-import { View, ProductStatus } from "../lib/constants";
+import { View, ProductStatus } from "@/lib/constants";
 import { Search, List, Info, Clock } from "lucide-react";
-import { cn } from "../lib/utils";
+import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useAuth } from "../hooks/use-auth";
+import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";
 
 export function BottomNavigation() {

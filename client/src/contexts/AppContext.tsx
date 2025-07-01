@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ProductStatus, DEFAULT_COUNTRY, API_ROUTES, View } from "../lib/constants";
-import { apiRequest } from "../lib/queryClient";
-import { useAuth } from "../hooks/use-auth";
+import { ProductStatus, DEFAULT_COUNTRY, API_ROUTES, View } from "@/lib/constants";
+import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import type { Country, Product, UserProduct } from "@shared/schema";
 
 // 가격 범위 타입 정의
