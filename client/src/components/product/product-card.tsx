@@ -256,7 +256,7 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-64 overflow-hidden rounded-t-lg bg-blue-50">
+        <div className="relative h-48 sm:h-64 overflow-hidden rounded-t-lg bg-blue-50">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -284,19 +284,19 @@ export function ProductCard({
         </div>
 
         {/* 상품 정보 - 유연한 높이 */}
-        <div className="p-4 min-h-48 flex flex-col">
+        <div className="p-3 sm:p-4 min-h-36 sm:min-h-48 flex flex-col">
           <div className="space-y-3 flex-1">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
                 {product.name}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {product.nameJapanese}
               </p>
             </div>
 
             <div 
-              className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 cursor-pointer select-none"
+              className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed line-clamp-2 cursor-pointer select-none"
               onTouchStart={handleDescriptionTouchStart}
               onTouchEnd={handleDescriptionTouchEnd}
               onMouseDown={handleDescriptionTouchStart}
@@ -308,9 +308,9 @@ export function ProductCard({
           </div>
 
           {/* 가격 정보와 리뷰 버튼 */}
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+          <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-start justify-between">
-              <div className="flex-1 mr-3">
+              <div className="flex-1 mr-2">
                 <PriceRangeDisplay 
                   productId={product.id}
                   className=""

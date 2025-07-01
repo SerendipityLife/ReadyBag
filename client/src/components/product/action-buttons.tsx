@@ -64,7 +64,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   // 버튼 상태에 따른 스타일 클래스 결정
   const getButtonStyles = (direction: SwipeDirection) => {
     const base = "transition-all duration-200 relative";
-    const size = "w-16 h-16 md:w-18 md:h-18"; // 더 큰 버튼 사이즈
+    const size = "w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16"; // 모바일에서 더 작은 버튼
     const isActive = activeButton === direction;
 
     // 각 방향별 기본 스타일
@@ -113,12 +113,12 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   const getIconStyles = (direction: SwipeDirection) => {
     const isActive = activeButton === direction;
     return isActive 
-      ? "w-7 h-7 md:w-8 md:h-8 transition-all duration-200 scale-110" 
-      : "w-6 h-6 md:w-7 md:h-7 transition-all duration-200";
+      ? "w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 transition-all duration-200 scale-110" 
+      : "w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 transition-all duration-200";
   };
 
   return (
-    <div className="action-buttons flex flex-col items-center mt-4 px-3 py-3 w-full max-w-xs mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-blue-200 shadow-lg">
+    <div className="action-buttons flex flex-col items-center mt-2 px-2 py-2 w-full max-w-xs mx-auto bg-white backdrop-blur-sm rounded-xl border-2 border-blue-200 shadow-lg">
       <div className="flex justify-between items-center w-full max-w-xs">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
@@ -138,7 +138,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={3} 
             />
           </Button>
-          <span className="text-sm font-medium text-gray-600 mt-1">건너뛰기</span>
+          <span className="text-xs sm:text-sm font-medium text-gray-600 mt-0.5">건너뛰기</span>
         </div>
 
         {/* 고민중 버튼 */}
@@ -159,7 +159,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={2.5} 
             />
           </Button>
-          <span className="text-sm font-medium text-[#7B5E57] mt-1">고민중</span>
+          <span className="text-xs sm:text-sm font-medium text-[#7B5E57] mt-0.5">고민중</span>
         </div>
 
         {/* 관심 버튼 */}
@@ -181,7 +181,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               strokeWidth={2} 
             />
           </Button>
-          <span className="text-sm font-medium text-red-600 mt-1">관심</span>
+          <span className="text-xs sm:text-sm font-medium text-red-600 mt-0.5">관심</span>
         </div>
       </div>
     </div>

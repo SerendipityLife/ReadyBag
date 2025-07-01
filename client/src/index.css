@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,12 +14,12 @@
   html, body, * {
     font-family: 'Nunito Sans', 'Noto Sans KR', sans-serif !important;
   }
-  
+
   body {
     font-weight: 400;
     font-variation-settings: 'wght' 400;
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Nunito Sans', 'Noto Sans KR', sans-serif !important;
     font-weight: 600;
@@ -33,42 +32,42 @@
   html.no-scroll-mobile body {
     @apply md:overflow-auto overflow-hidden h-full;
   }
-  
+
   :root {
     --background: 206 100% 97%; /* #F0F9FF - Light Sky Blue */
     --foreground: 214 32% 25%; /* #1E293B - Slate Gray */
-    
+
     --card: 0 0% 100%;
     --card-foreground: 214 32% 25%;
-    
+
     --popover: 0 0% 100%;
     --popover-foreground: 214 32% 25%;
-    
+
     --primary: 199 89% 48%; /* #0EA5E9 - Sky Blue */
     --primary-foreground: 0 0% 100%;
-    
+
     --secondary: 214 32% 91%; /* #F1F5F9 - Light Slate */
     --secondary-foreground: 214 32% 25%;
-    
+
     --muted: 210 40% 94%;
     --muted-foreground: 214 13% 47%;
-    
+
     --accent: 188 85% 64%; /* #22D3EE - Cyan */
     --accent-foreground: 0 0% 100%;
-    
+
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    
+
     --border: 214 32% 91%;
     --input: 214 32% 91%;
     --ring: 199 89% 48%;
-    
+
     --chart-1: 199 89% 48%;
     --chart-2: 188 85% 64%;
     --chart-3: 45 93% 58%;
     --chart-4: 262 83% 58%;
     --chart-5: 346 87% 43%;
-    
+
     --sidebar-background: 206 100% 97%;
     --sidebar-foreground: 214 32% 25%;
     --sidebar-primary: 199 89% 48%;
@@ -77,44 +76,44 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 214 32% 91%;
     --sidebar-ring: 199 89% 48%;
-    
+
     --radius: 0.75rem;
   }
- 
+
   * {
     @apply border-border;
   }
-  
+
   body {
     @apply font-body antialiased bg-background text-foreground overflow-x-hidden;
     background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
   }
-  
+
   /* Safe area support for mobile devices */
   .safe-area-pb {
     padding-bottom: max(8px, env(safe-area-inset-bottom));
   }
-  
+
   .safe-area-pt {
     padding-top: env(safe-area-inset-top);
   }
-  
+
   /* Viewport units support */
   .vh-100 {
     height: 100vh;
     height: 100dvh; /* Dynamic viewport height */
   }
-  
+
   .min-vh-100 {
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height */
   }
-  
+
   /* Touch optimization */
   .touch-manipulation {
     touch-action: manipulation;
   }
-  
+
   /* Mobile viewport fixes */
   @media (max-width: 640px) {
     html {
@@ -123,7 +122,7 @@
       height: 100vh;
       height: 100dvh; /* Dynamic viewport height for mobile */
     }
-    
+
     body {
       overflow-x: hidden;
       width: 100%;
@@ -131,32 +130,32 @@
       min-height: 100vh;
       min-height: 100dvh;
     }
-    
+
     /* Improved button sizing for touch devices */
     button, .button {
       min-height: 44px; /* iOS recommended touch size */
       min-width: 44px;
       font-size: 14px;
     }
-    
+
     button:not(.no-touch-sizing) {
       padding: 8px;
     }
-    
+
     /* Header mobile optimization */
     header {
       padding-left: 8px !important;
       padding-right: 8px !important;
       min-height: 48px !important;
     }
-    
+
     /* Prevent horizontal overflow */
     .container, .max-w-md, .mx-auto {
       padding-left: 12px !important;
       padding-right: 12px !important;
       max-width: calc(100vw - 24px) !important;
     }
-    
+
     /* Bottom navigation mobile fixes */
     .bottom-nav {
       position: fixed;
@@ -171,50 +170,50 @@
       border-top: 1px solid #e5e7eb;
       z-index: 50;
     }
-    
+
     /* Ensure proper spacing for content above bottom nav */
     .main-content {
       padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
   }
-  
+
   /* Main content spacing for all screen sizes */
   .main-content {
     padding-bottom: 80px; /* Default spacing for desktop */
   }
-  
+
   @media (max-width: 640px) {
     .main-content {
       padding-bottom: calc(70px + env(safe-area-inset-bottom));
     }
-    
+
     /* Product card mobile sizing */
     .product-card {
       max-width: calc(100vw - 32px);
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     /* Prevent text from overflowing */
     .text-truncate {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    
+
     /* Mobile-specific navigation button sizing */
     nav button {
       min-height: 48px;
       min-width: 48px;
       padding: 8px 6px;
     }
-    
+
     nav button span {
       font-size: 11px;
       line-height: 1.2;
     }
   }
-  
+
   /* Extra small mobile devices (iPhone SE, iPhone 5/5s) */
   @media (max-width: 375px) {
     /* Header adjustments for small screens */
@@ -223,38 +222,38 @@
       padding-right: 8px !important;
       min-height: 50px !important;
     }
-    
-    /* Button sizing for small screens */
+
+    /* Action buttons for small screens */
     .action-buttons {
-      padding: 8px 4px 12px 4px;
-      gap: 6px;
-      margin-top: 4px;
+      padding: 4px 2px 8px 2px;
+      gap: 4px;
+      margin-top: 2px;
       max-width: calc(100vw - 16px);
       margin-left: auto;
       margin-right: auto;
     }
-    
+
     .action-buttons button {
-      min-width: 56px;
-      min-height: 56px;
-      padding: 10px;
-      font-size: 13px;
+      min-width: 48px;
+      min-height: 48px;
+      padding: 6px;
+      font-size: 12px;
     }
-    
+
     .action-buttons .flex {
       width: 100%;
       justify-content: space-between;
-      max-width: 280px;
+      max-width: 260px;
       margin: 0 auto;
     }
-    
+
     /* Product card adjustments */
     .product-card {
       max-width: calc(100vw - 24px);
       margin: 0 12px;
       min-height: 420px;
     }
-    
+
     /* Bottom navigation for very small screens */
     .bottom-nav {
       height: 60px;
@@ -263,24 +262,24 @@
       padding-bottom: max(6px, env(safe-area-inset-bottom));
       padding-top: 4px;
     }
-    
+
     .bottom-nav > div {
       height: 52px;
     }
-    
+
     .bottom-nav button {
       min-height: 40px;
       min-width: 40px;
       padding: 4px 2px;
       font-size: 9px;
     }
-    
+
     .bottom-nav button span {
       font-size: 9px;
       line-height: 1.1;
       margin-top: 2px;
     }
-    
+
     /* Main content spacing for small screens with extra padding */
     .main-content {
       padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -288,47 +287,47 @@
       padding-right: 8px;
       padding-top: 4px;
     }
-    
+
     /* Card stack container adjustments */
     .card-stack {
       margin-bottom: 20px;
       padding-bottom: 20px;
     }
-    
+
     /* Text sizing adjustments */
     h1 {
       font-size: 18px;
     }
-    
+
     h2 {
       font-size: 16px;
     }
-    
+
     /* Filter buttons */
     .filter-buttons {
       flex-wrap: wrap;
       gap: 3px;
       padding: 0 4px;
     }
-    
+
     .filter-buttons button {
       font-size: 11px;
       padding: 4px 6px;
       min-height: 32px;
     }
-    
+
     /* Travel date selector adjustments */
     .travel-date-selector {
       padding: 8px 4px;
       margin: 4px 0;
     }
-    
+
     /* Ensure proper spacing around main content */
     .relative.h-full.overflow-hidden {
       padding-bottom: 100px;
     }
   }
-  
+
   /* iPhone SE specific (320px width) */
   @media (max-width: 320px) {
     .action-buttons {
@@ -336,32 +335,32 @@
       gap: 4px;
       margin-top: 2px;
     }
-    
+
     .action-buttons .flex {
       width: 100%;
       justify-content: space-around;
       max-width: 260px;
       margin: 0 auto;
     }
-    
+
     .action-buttons button {
       min-width: 50px;
       min-height: 50px;
       font-size: 12px;
       padding: 8px 4px;
     }
-    
+
     .action-buttons span {
       font-size: 10px;
       margin-top: 1px;
     }
-    
+
     .product-card {
       max-width: calc(100vw - 16px);
       margin: 0 8px;
       min-height: 400px;
     }
-    
+
     .bottom-nav {
       height: 56px;
       padding-left: 1px;
@@ -369,145 +368,145 @@
       padding-bottom: max(4px, env(safe-area-inset-bottom));
       padding-top: 2px;
     }
-    
+
     .bottom-nav > div {
       height: 48px;
     }
-    
+
     .bottom-nav button {
       min-width: 36px;
       min-height: 36px;
       padding: 2px 1px;
       font-size: 8px;
     }
-    
+
     .bottom-nav button span {
       font-size: 8px;
       line-height: 1.0;
       margin-top: 1px;
     }
-    
+
     header {
       padding-left: 4px !important;
       padding-right: 4px !important;
       min-height: 46px !important;
     }
-    
+
     button, .button {
       min-height: 32px;
       min-width: 32px;
       font-size: 12px;
       padding: 3px;
     }
-    
+
     .container, .max-w-md, .mx-auto {
       padding-left: 8px !important;
       padding-right: 8px !important;
       max-width: calc(100vw - 16px) !important;
     }
-    
+
     /* Main content with extra bottom padding */
     .main-content {
       padding-bottom: calc(76px + env(safe-area-inset-bottom));
       padding-left: 4px;
       padding-right: 4px;
     }
-    
+
     /* Card stack adjustments */
     .card-stack {
       margin-bottom: 24px;
       padding-bottom: 24px;
     }
-    
+
     /* Ensure cards don't overlap with navigation */
     .relative.h-full.overflow-hidden {
       padding-bottom: 96px;
     }
   }
-  
+
   /* Travel theme component overrides */
   .travel-header {
     @apply bg-gradient-to-r from-sky-500 to-cyan-400 text-white;
   }
-  
+
   .travel-card {
     @apply bg-white border border-sky-200 shadow-lg rounded-xl;
   }
-  
+
   .travel-button-primary {
     @apply bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white shadow-lg;
   }
-  
+
   .travel-button-secondary {
     @apply bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-500 hover:to-cyan-600 text-white shadow-lg;
   }
-  
+
   .travel-accent {
     @apply text-sky-600;
   }
-  
+
   /* Complete color override for any brown/beige/amber elements */
   .bg-brown-50, .bg-amber-50, .bg-yellow-50, .bg-orange-50 {
     @apply bg-sky-50 !important;
   }
-  
+
   .bg-brown-100, .bg-amber-100, .bg-yellow-100, .bg-orange-100 {
     @apply bg-sky-100 !important;
   }
-  
+
   .bg-brown-200, .bg-amber-200, .bg-yellow-200, .bg-orange-200 {
     @apply bg-sky-200 !important;
   }
-  
+
   .text-brown-600, .text-amber-600, .text-yellow-600, .text-orange-600 {
     @apply text-sky-600 !important;
   }
-  
+
   .text-brown-700, .text-amber-700, .text-yellow-700, .text-orange-700 {
     @apply text-sky-700 !important;
   }
-  
+
   .text-brown-800, .text-amber-800, .text-yellow-800, .text-orange-800 {
     @apply text-slate-700 !important;
   }
-  
+
   .border-brown-200, .border-amber-200, .border-yellow-200, .border-orange-200 {
     @apply border-sky-200 !important;
   }
-  
+
   /* Header and logo styling */
   header {
     @apply bg-gradient-to-r from-sky-500 to-cyan-400 text-white shadow-lg;
   }
-  
+
   /* Logo specific overrides */
   .text-brown-500 {
     @apply text-sky-600 !important;
   }
-  
+
   /* Button styling overrides */
   .bg-brown-500, .bg-amber-500, .bg-yellow-500, .bg-orange-500 {
     @apply bg-sky-500 !important;
   }
-  
+
   .hover\:bg-brown-600:hover, .hover\:bg-amber-600:hover, .hover\:bg-yellow-600:hover, .hover\:bg-orange-600:hover {
     @apply hover:bg-sky-600 !important;
   }
-  
+
   /* Card and container styling */
   .shadow-brown, .shadow-amber, .shadow-yellow, .shadow-orange {
     @apply shadow-sky-200 !important;
   }
-  
+
   /* Focus and ring colors */
   .ring-brown-500, .ring-amber-500, .ring-yellow-500, .ring-orange-500 {
     @apply ring-sky-500 !important;
   }
-  
+
   .focus\:ring-brown-500:focus, .focus\:ring-amber-500:focus, .focus\:ring-yellow-500:focus, .focus\:ring-orange-500:focus {
     @apply focus:ring-sky-500 !important;
   }
-  
+
   /* Card swiping animations */
   .card {
     will-change: transform;
@@ -516,34 +515,34 @@
     border: 1px solid #BAE6FD;
     box-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.1), 0 10px 10px -5px rgba(14, 165, 233, 0.04);
   }
-  
+
   .card.swiped-right {
     transform: translateX(150%) rotate(20deg);
     opacity: 0;
   }
-  
+
   .card.swiped-left {
     transform: translateX(-150%) rotate(-20deg);
     opacity: 0;
   }
-  
+
   .card.swiped-up {
     transform: translateY(-150%);
     opacity: 0;
   }
-  
+
   .card-stack {
     perspective: 1000px;
   }
-  
+
   .action-buttons button {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
   }
-  
+
   .action-buttons button:active {
     transform: scale(0.9);
   }
-  
+
   /* 버튼 진동 효과 */
   @keyframes wiggle {
     0% { transform: rotate(0deg); }
@@ -552,35 +551,35 @@
     75% { transform: rotate(5deg) scale(1.1); }
     100% { transform: rotate(0deg); }
   }
-  
+
   .animate-wiggle {
     animation: wiggle 0.3s ease-in-out;
   }
-  
+
   /* Tab animations */
   .tab-content {
     display: none;
   }
-  
+
   .tab-content.active {
     display: block;
     animation: fadeIn 0.3s ease-in;
   }
-  
+
   @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
   }
-  
+
   /* Global component overrides for remaining elements */
   [style*="color: #8E735D"], [style*="color: #DC7C4A"], [style*="color: #6D4C41"] {
     color: #0EA5E9 !important;
   }
-  
+
   [style*="background-color: #F9F5F0"], [style*="background-color: #8E735D"] {
     background-color: #F0F9FF !important;
   }
-  
+
   [style*="border-color: #8E735D"], [style*="border-color: #DC7C4A"] {
     border-color: #BAE6FD !important;
   }
