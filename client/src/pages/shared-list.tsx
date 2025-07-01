@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
-import { Header } from "@/components/layout/header";
-import { BottomNavigation } from "@/components/layout/bottom-navigation";
-import { ProductListItem } from "@/components/product/product-list-item";
-import { Button } from "@/components/ui/button";
-import { API_ROUTES } from "@/lib/constants";
+import { Header } from "../components/layout/header.tsx";
+import { BottomNavigation } from "../components/layout/bottom-navigation.tsx";
+import { ProductListItem } from "../components/product/product-list-item.tsx";
+import { Button } from "../components/ui/button.tsx";
+import { API_ROUTES } from "../lib/constants.ts";
 import { ChevronLeft, Share2 } from "lucide-react";
 
 export default function SharedList() {

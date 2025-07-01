@@ -10,8 +10,8 @@ import { ShoppingHistoryPage } from "./shopping-history";
 import { TravelDateSelector } from "../components/travel-date-selector.tsx";
 import { AccommodationSearch } from "../components/location/accommodation-search.tsx";
 import { WelcomeModal } from "../components/onboarding/welcome-modal.tsx";
-import { CountrySelector } from "@/components/country-selector";
-import { View } from "@/lib/constants";
+import { CountrySelector } from "../components/country-selector.tsx";
+import { View } from "../lib/constants.ts";
 
 export default function Home() {
   const { 
