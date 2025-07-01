@@ -217,11 +217,9 @@
 
     /* Action buttons desktop positioning */
     .action-buttons-wrapper {
-      position: fixed;
-      bottom: 90px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 50;
+      position: relative;
+      padding: 0;
+      z-index: 1;
     }
 
     .action-buttons {
@@ -264,11 +262,9 @@
 
     /* Action buttons tablet positioning */
     .action-buttons-wrapper {
-      position: fixed;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 50;
+      position: relative;
+      padding: 0;
+      z-index: 1;
     }
 
     .action-buttons {
@@ -305,12 +301,9 @@
     }
 
     .action-buttons-wrapper {
-      position: fixed;
-      bottom: 80px;
-      left: 0;
-      right: 0;
-      padding: 0 16px;
-      z-index: 50;
+      position: relative;
+      padding: 0;
+      z-index: 1;
     }
 
     /* Prevent text from overflowing */
@@ -528,13 +521,9 @@
   }
 
   .action-buttons-wrapper {
-    position: fixed;
-    bottom: 90px;
-    left: 0;
-    right: 0;
-    padding: 0 8px;
-    margin: 0;
-    z-index: 50;
+    position: relative;
+    padding: 0;
+    z-index: 1;
   }
 
   .action-buttons-wrapper .action-buttons {

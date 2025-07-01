@@ -122,23 +122,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   
   return (
     <div className="w-full">
-      <div 
-        className="action-buttons flex flex-col items-center px-4 py-3 w-full max-w-sm mx-auto bg-white/95 backdrop-blur-sm rounded-xl border-2 border-blue-300 shadow-xl"
-        style={{
-          backgroundColor: 'rgba(255, 255, 255, 0.95)',
-          backdropFilter: 'blur(8px)',
-          border: '2px solid rgb(147, 197, 253)',
-          borderRadius: '12px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          padding: '12px 16px',
-          width: '100%',
-          maxWidth: '100%',
-          margin: '0 auto'
-        }}
-      >
+      <div className="action-buttons flex flex-col items-center w-full max-w-sm mx-auto">
         <div className="flex justify-between items-center w-full gap-4">
           {/* 건너뛰기 버튼 */}
           <div className="flex flex-col items-center">
