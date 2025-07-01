@@ -8,14 +8,16 @@ import { View } from "../../lib/constants.ts";
 import { Button } from "../ui/button.tsx";
 import { 
   ArrowLeft, 
-  Share2, 
   UserCircle, 
   LogOut, 
   LogIn,
   ChevronDown,
   User,
   SlidersHorizontal,
-  Info
+  Info,
+  Calendar,
+  MapPin,
+  Globe
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -82,57 +84,90 @@ export function Header() {
 
   return (
     <header className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50">
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
-        {/* Top row */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-2">
+      <div className="w-full px-2 sm:px-3 py-2">
+        <div className="flex items-center justify-between gap-2">
 
-          {/* Left section */}
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
-            {/* Back button */}
+          {/* Left section - Navigation */}
+          <div className="flex items-center gap-1">
             {(currentView !== View.EXPLORE || isSharedList) && (
               <button 
-                className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                className="flex-shrink-0 p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                 onClick={handleBackClick}
                 title="뒤로가기"
               >
-                <ArrowLeft size={18} className="text-gray-600 sm:w-5 sm:h-5" />
+                <ArrowLeft size={18} className="text-gray-600" />
               </button>
             )}
-
-            {/* Logo */}
-            <button 
-              className="flex items-center gap-2 sm:gap-3 min-w-0"
-              onClick={() => !isSharedList && setCurrentView(View.EXPLORE)}
-            >
-              <img 
-                src="/readybag-logo.png" 
-                alt="ReadyBag" 
-                className="h-6 sm:h-8 w-auto flex-shrink-0"
-              />
-              <h1 className="text-lg sm:text-xl font-bold text-primary truncate">
-                ReadyBag
-              </h1>
-            </button>
           </div>
 
+          {/* Center section - Main controls */}
+          {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
+            <div className="flex items-center gap-1 flex-1 justify-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-2">
+                    <Calendar className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-80">
+                  <div className="p-2">
+                    <TravelDateSelector
+                      startDate={travelStartDate}
+                      endDate={travelEndDate}
+                      onDatesChange={(start, end) => {
+                        setTravelStartDate(start);
+                        setTravelEndDate(end);
+                        window.dispatchEvent(new Event('localStorageChange'));
+                      }}
+                      mode="browse"
+                    />
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-2">
+                    <MapPin className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="w-80">
+                  <div className="p-2">
+                    <AccommodationSearch />
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-2">
+                    <Globe className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center">
+                  <div className="p-2">
+                    <CountrySelector />
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
+
           {/* Right section - Action buttons */}
-          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0">
             {!isAuthPage && (
               <>
                 <button 
-                  className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                   onClick={() => setIsFilterModalOpen(true)}
                   title="필터"
                 >
-                  <SlidersHorizontal 
-                    size={16} 
-                    className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
-                  />
+                  <SlidersHorizontal size={16} className="text-gray-600" />
                 </button>
 
                 <button 
                   className={cn(
-                    "p-1 sm:p-1.5 rounded-lg transition-colors touch-manipulation",
+                    "p-1.5 rounded-lg transition-colors touch-manipulation",
                     currentView === View.INFO 
                       ? "bg-primary/10 text-primary" 
                       : "hover:bg-gray-100 text-gray-600"
@@ -140,10 +175,7 @@ export function Header() {
                   onClick={handleInfoClick}
                   title="정보"
                 >
-                  <Info 
-                    size={16} 
-                    className="sm:w-[18px] sm:h-[18px]" 
-                  />
+                  <Info size={16} />
                 </button>
               </>
             )}
@@ -151,10 +183,10 @@ export function Header() {
             {/* User menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-1 sm:p-1.5 h-auto">
+                <Button variant="ghost" className="p-1.5 h-auto">
                   {user ? (
                     <div className="flex items-center gap-1">
-                      <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
+                      <Avatar className="h-6 w-6">
                         <AvatarFallback className="text-xs bg-primary/10 text-primary">
                           {getUserInitials(user)}
                         </AvatarFallback>
@@ -163,7 +195,7 @@ export function Header() {
                     </div>
                   ) : (
                     <div className="flex items-center gap-1">
-                      <UserCircle size={20} className="text-gray-600 sm:w-6 sm:h-6" />
+                      <UserCircle size={20} className="text-gray-600" />
                       <ChevronDown size={12} className="text-gray-500" />
                     </div>
                   )}
@@ -192,27 +224,6 @@ export function Header() {
             </DropdownMenu>
           </div>
         </div>
-
-        {/* Bottom row - Date/Location/Country */}
-        {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <TravelDateSelector
-                startDate={travelStartDate}
-                endDate={travelEndDate}
-                onDatesChange={(start, end) => {
-                  setTravelStartDate(start);
-                  setTravelEndDate(end);
-                  // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
-                  window.dispatchEvent(new Event('localStorageChange'));
-                }}
-                mode="browse"
-              />
-              <AccommodationSearch />
-            </div>
-            <CountrySelector />
-          </div>
-        )}
       </div>
 
       <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
