@@ -1,7 +1,7 @@
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppContext } from "../../contexts/AppContext.tsx";
 import { View, ProductStatus } from "@/lib/constants";
 import { Search, List, Info, Clock } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "../../lib/utils.ts";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { useEffect } from "react";

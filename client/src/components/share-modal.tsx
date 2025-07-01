@@ -1,11 +1,11 @@
 import { useState, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useAppContext } from "@/contexts/AppContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "./ui/dialog.tsx";
+import { Button } from "./ui/button.tsx";
+import { Input } from "./ui/input.tsx";
+import { useAppContext } from "../contexts/AppContext.tsx";
 import { Copy, X, Facebook, Twitter } from "lucide-react";
 import { FaComment } from "react-icons/fa";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast.ts";
 
 export function ShareModal() {
   const { isShareModalOpen, closeShareModal, shareUrl } = useAppContext();

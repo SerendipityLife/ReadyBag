@@ -1,4 +1,4 @@
-import { ShoppingHistory } from "@/components/shopping-history";
+import { ShoppingHistory } from "../components/shopping-history.tsx";
 
 export function ShoppingHistoryPage() {
   return (

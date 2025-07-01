@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useAppContext } from "@/contexts/AppContext";
-import { useAuth } from "@/hooks/use-auth";
-import { CountrySelector } from "@/components/country-selector";
-import { FilterModal } from "@/components/filter/filter-modal-simplified";
-import { View } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
+import { useAppContext } from "../../contexts/AppContext.tsx";
+import { useAuth } from "../../hooks/use-auth.tsx";
+import { CountrySelector } from "../country-selector.tsx";
+import { FilterModal } from "../filter/filter-modal-simplified.tsx";
+import { View } from "../../lib/constants.ts";
+import { Button } from "../ui/button.tsx";
 import { 
   ArrowLeft, 
   Share2, 
@@ -23,9 +23,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+} from "../ui/dropdown-menu.tsx";
+import { Avatar, AvatarFallback } from "../ui/avatar.tsx";
+import { cn } from "../../lib/utils.ts";
 
 export function Header() {
   const [location, navigate] = useLocation();
