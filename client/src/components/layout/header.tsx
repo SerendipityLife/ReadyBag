@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useAppContext } from "../../contexts/AppContext.tsx";
@@ -8,14 +9,15 @@ import { View } from "../../lib/constants.ts";
 import { Button } from "../ui/button.tsx";
 import { 
   ArrowLeft, 
-  Share2, 
   UserCircle, 
   LogOut, 
   LogIn,
   ChevronDown,
   User,
   SlidersHorizontal,
-  Info
+  Info,
+  CalendarIcon,
+  MapPin
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -31,11 +33,21 @@ import { AccommodationSearch } from "../location/accommodation-search.tsx";
 
 export function Header() {
   const [location, navigate] = useLocation();
-  const { currentView, setCurrentView, generateShareUrl, travelStartDate, setTravelStartDate, travelEndDate, setTravelEndDate } = useAppContext();
+  const { 
+    currentView, 
+    setCurrentView, 
+    travelStartDate, 
+    travelEndDate,
+    selectedTravelDateId,
+    savedTravelDates,
+    setShowTravelDateSelector,
+    getCurrentAccommodation
+  } = useAppContext();
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [showAccommodationSearch, setShowAccommodationSearch] = useState(false);
 
   const handleBackClick = () => {
     if (isSharedList) {
@@ -80,142 +92,222 @@ export function Header() {
     return user.email.charAt(0).toUpperCase();
   };
 
+  // Get current travel date display
+  const getCurrentTravelDateDisplay = () => {
+    if (selectedTravelDateId) {
+      const savedDate = savedTravelDates.find(d => d.id === selectedTravelDateId);
+      return savedDate ? savedDate.label.split(' ')[0] : "날짜";
+    }
+    return "날짜";
+  };
+
+  // Get current accommodation display
+  const getCurrentAccommodationDisplay = () => {
+    const currentAccommodation = getCurrentAccommodation();
+    return currentAccommodation ? "설정됨" : "숙박지";
+  };
+
   return (
-    <header className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50">
-      <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
-        {/* Top row */}
-        <div className="flex items-center justify-between gap-2 sm:gap-4 mb-2">
+    <>
+      <header className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50">
+        <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
+          <div className="flex items-center justify-between gap-2 sm:gap-4">
 
-          {/* Left section */}
-          <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
-            {/* Back button */}
-            {(currentView !== View.EXPLORE || isSharedList) && (
+            {/* Left section */}
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 flex-1">
+              {/* Back button */}
+              {(currentView !== View.EXPLORE || isSharedList) && (
+                <button 
+                  className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  onClick={handleBackClick}
+                  title="뒤로가기"
+                >
+                  <ArrowLeft size={18} className="text-gray-600 sm:w-5 sm:h-5" />
+                </button>
+              )}
+
+              {/* Logo */}
               <button 
-                className="flex-shrink-0 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                onClick={handleBackClick}
-                title="뒤로가기"
+                className="flex items-center gap-2 sm:gap-3 min-w-0"
+                onClick={() => !isSharedList && setCurrentView(View.EXPLORE)}
               >
-                <ArrowLeft size={18} className="text-gray-600 sm:w-5 sm:h-5" />
+                <img 
+                  src="/readybag-logo.png" 
+                  alt="ReadyBag" 
+                  className="h-6 sm:h-8 w-auto flex-shrink-0"
+                />
+                <h1 className="text-lg sm:text-xl font-bold text-primary truncate">
+                  ReadyBag
+                </h1>
               </button>
-            )}
+            </div>
 
-            {/* Logo */}
-            <button 
-              className="flex items-center gap-2 sm:gap-3 min-w-0"
-              onClick={() => !isSharedList && setCurrentView(View.EXPLORE)}
-            >
-              <img 
-                src="/readybag-logo.png" 
-                alt="ReadyBag" 
-                className="h-6 sm:h-8 w-auto flex-shrink-0"
-              />
-              <h1 className="text-lg sm:text-xl font-bold text-primary truncate">
-                ReadyBag
-              </h1>
-            </button>
-          </div>
-
-          {/* Right section - Action buttons */}
-          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
-            {!isAuthPage && (
-              <>
+            {/* Center section - Date/Location/Country (only on explore view) */}
+            {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
+              <div className="flex items-center gap-1 sm:gap-2">
+                {/* Travel Date Selector */}
                 <button 
-                  className="p-1 sm:p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                  onClick={() => setIsFilterModalOpen(true)}
-                  title="필터"
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  onClick={() => setShowTravelDateSelector(true)}
+                  title={`여행 날짜: ${getCurrentTravelDateDisplay()}`}
                 >
-                  <SlidersHorizontal 
-                    size={16} 
-                    className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
-                  />
+                  <CalendarIcon size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs text-gray-600 hidden sm:inline">
+                    {getCurrentTravelDateDisplay()}
+                  </span>
                 </button>
 
+                {/* Accommodation Search */}
                 <button 
-                  className={cn(
-                    "p-1 sm:p-1.5 rounded-lg transition-colors touch-manipulation",
-                    currentView === View.INFO 
-                      ? "bg-primary/10 text-primary" 
-                      : "hover:bg-gray-100 text-gray-600"
-                  )}
-                  onClick={handleInfoClick}
-                  title="정보"
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  onClick={() => setShowAccommodationSearch(true)}
+                  title={`숙박지: ${getCurrentAccommodationDisplay()}`}
                 >
-                  <Info 
-                    size={16} 
-                    className="sm:w-[18px] sm:h-[18px]" 
-                  />
+                  <MapPin size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs text-gray-600 hidden sm:inline">
+                    {getCurrentAccommodationDisplay()}
+                  </span>
                 </button>
-              </>
+
+                {/* Country Selector */}
+                <CountrySelector />
+              </div>
             )}
 
-            {/* User menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="p-1 sm:p-1.5 h-auto">
+            {/* Right section - Action buttons */}
+            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+              {!isAuthPage && (
+                <>
+                  <button 
+                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                    onClick={() => setIsFilterModalOpen(true)}
+                    title="필터"
+                  >
+                    <SlidersHorizontal 
+                      size={16} 
+                      className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
+                    />
+                  </button>
+
+                  <button 
+                    className={cn(
+                      "p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
+                      currentView === View.INFO 
+                        ? "bg-primary/10 text-primary" 
+                        : "hover:bg-gray-100 text-gray-600"
+                    )}
+                    onClick={handleInfoClick}
+                    title="정보"
+                  >
+                    <Info 
+                      size={16} 
+                      className="sm:w-[18px] sm:h-[18px]" 
+                    />
+                  </button>
+                </>
+              )}
+
+              {/* User menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation">
+                    {user ? (
+                      <>
+                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
+                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                            {getUserInitials()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <ChevronDown size={12} className="text-gray-500" />
+                      </>
+                    ) : (
+                      <>
+                        <UserCircle size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
+                        <ChevronDown size={12} className="text-gray-500" />
+                      </>
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
                   {user ? (
-                    <div className="flex items-center gap-1">
-                      <Avatar className="h-6 w-6 sm:h-7 sm:w-7">
-                        <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                          {getUserInitials()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <ChevronDown size={12} className="text-gray-500" />
-                    </div>
+                    <>
+                      <DropdownMenuItem disabled className="flex items-center cursor-default">
+                        <User className="mr-2 h-4 w-4" />
+                        <span className="text-sm text-gray-600">{user.email}</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogoutClick} className="flex items-center text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>로그아웃</span>
+                      </DropdownMenuItem>
+                    </>
                   ) : (
-                    <div className="flex items-center gap-1">
-                      <UserCircle size={20} className="text-gray-600 sm:w-6 sm:h-6" />
-                      <ChevronDown size={12} className="text-gray-500" />
-                    </div>
+                    <DropdownMenuItem onClick={handleLoginClick} className="flex items-center">
+                      <LogIn className="mr-2 h-4 w-4" />
+                      <span>로그인</span>
+                    </DropdownMenuItem>
                   )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {user ? (
-                  <>
-                    <DropdownMenuItem disabled className="flex items-center cursor-default">
-                      <User className="mr-2 h-4 w-4" />
-                      <span className="text-sm text-gray-600">{user.email}</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogoutClick} className="flex items-center text-red-600">
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>로그아웃</span>
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem onClick={handleLoginClick} className="flex items-center">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    <span>로그인</span>
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 
-        {/* Bottom row - Date/Location/Country */}
-        {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <TravelDateSelector
-                startDate={travelStartDate}
-                endDate={travelEndDate}
-                onDatesChange={(start, end) => {
-                  setTravelStartDate(start);
-                  setTravelEndDate(end);
-                  // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
-                  window.dispatchEvent(new Event('localStorageChange'));
-                }}
-                mode="browse"
-              />
-              <AccommodationSearch />
-            </div>
-            <CountrySelector />
-          </div>
-        )}
-      </div>
+        <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
+      </header>
 
-      <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
-    </header>
+      {/* Travel Date Selector Modal */}
+      <TravelDateSelector />
+
+      {/* Accommodation Search Modal */}
+      {showAccommodationSearch && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">숙박지 검색</h3>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAccommodationSearch(false)}
+                className="h-8 w-8 p-0"
+              >
+                ×
+              </Button>
+            </div>
+            
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Google Maps를 이용한 숙박지 검색 기능입니다.
+              </p>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">숙박지 주소</label>
+                <input 
+                  type="text" 
+                  placeholder="숙박지 주소를 입력하세요"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => setShowAccommodationSearch(false)}
+                className="flex-1"
+              >
+                취소
+              </Button>
+              <Button
+                onClick={() => setShowAccommodationSearch(false)}
+                className="flex-1"
+              >
+                저장
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

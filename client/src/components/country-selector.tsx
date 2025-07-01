@@ -1,14 +1,13 @@
+
 import { useState } from "react";
 import { useAppContext } from "../contexts/AppContext.tsx";
 import { COUNTRIES } from "../lib/constants.ts";
-import { Button } from "./ui/button.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu.tsx";
-import { ChevronDown } from "lucide-react";
 
 export function CountrySelector() {
   const { selectedCountry, setSelectedCountry } = useAppContext();
@@ -23,14 +22,17 @@ export function CountrySelector() {
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <button 
-          className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+          className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
           title={`현재 국가: ${selectedCountry.name}`}
         >
           <img
             src={selectedCountry.flagUrl}
             alt={`${selectedCountry.name} 국기`}
-            className="w-4 h-4 rounded-sm object-cover"
+            className="w-4 h-4 sm:w-[18px] sm:h-[18px] rounded-sm object-cover"
           />
+          <span className="text-xs text-gray-600 hidden sm:inline">
+            {selectedCountry.name}
+          </span>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="center" className="w-52">
