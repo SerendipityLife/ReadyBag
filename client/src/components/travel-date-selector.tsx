@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
 import { CalendarDays, Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { Button } from "./ui/button.tsx";
+import { Calendar } from "./ui/calendar.tsx";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "./ui/popover.tsx";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppContext } from "../contexts/AppContext.tsx";
 import { DateRange } from "react-day-picker";
 
 interface TravelDateSelectorProps {

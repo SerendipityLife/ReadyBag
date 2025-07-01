@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProductListItem } from "@/components/product/product-list-item";
-import { ReviewButton } from "@/components/product/review-button";
-import { useAppContext } from "@/contexts/AppContext";
-import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { useAuth } from "@/hooks/use-auth";
+import { ProductListItem } from "./product/product-list-item.tsx";
+import { ReviewButton } from "./product/review-button.tsx";
+import { useAppContext } from "../contexts/AppContext.tsx";
+import { API_ROUTES, ProductStatus } from "../lib/constants.ts";
+import { useAuth } from "../hooks/use-auth.tsx";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy, ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { Button } from "./ui/button.tsx";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog.tsx";
+import { Input } from "./ui/input.tsx";
+import { useToast } from "../hooks/use-toast.ts";
+import { apiRequest } from "../lib/queryClient.ts";
 import type { UserProduct, Product } from "@shared/schema";
 
 interface ExtendedUserProduct extends UserProduct {

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { useAppContext } from "@/contexts/AppContext";
-import { COUNTRIES } from "@/lib/constants";
-import { Button } from "@/components/ui/button";
+import { useAppContext } from "../contexts/AppContext.tsx";
+import { COUNTRIES } from "../lib/constants.ts";
+import { Button } from "./ui/button.tsx";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "./ui/dropdown-menu.tsx";
 import { ChevronDown } from "lucide-react";
 
 export function CountrySelector() {
