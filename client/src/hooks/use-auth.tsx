@@ -6,7 +6,7 @@ import {
   QueryClient
 } from "@tanstack/react-query";
 import { apiRequest } from "../lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "./use-toast";
 import { 
   RegisterUserInput, 
   LoginUserInput,
