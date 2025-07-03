@@ -13,7 +13,7 @@ import {
   ChevronDown,
   User,
   SlidersHorizontal,
-  CalendarIcon,
+  Calendar,
   MapPin,
   Star,
   Filter,
