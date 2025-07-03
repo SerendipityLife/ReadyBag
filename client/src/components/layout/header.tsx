@@ -44,7 +44,6 @@ export function Header() {
     setShowTravelDateSelector,
     getCurrentAccommodation,
     selectedCountry,
-    travelDates,
     setSelectedTravelDateId,
     setAccommodationForTravelDate,
     accommodationsByTravelDate,
@@ -133,7 +132,7 @@ export function Header() {
   const getTravelDateDisplay = () => {
     if (!selectedTravelDateId) return '날짜';
 
-    const travelDate = travelDates.find(td => td.id === selectedTravelDateId);
+    const travelDate = savedTravelDates.find((td: any) => td.id === selectedTravelDateId);
     if (!travelDate) return '날짜';
 
     const startDate = new Date(travelDate.startDate);
@@ -150,7 +149,7 @@ export function Header() {
   const getTravelDateMobile2 = () => {
     if (!selectedTravelDateId) return '날짜 선택';
 
-    const travelDate = travelDates.find(td => td.id === selectedTravelDateId);
+    const travelDate = savedTravelDates.find((td: any) => td.id === selectedTravelDateId);
     if (!travelDate) return '날짜 선택';
 
     const startDate = new Date(travelDate.startDate);
@@ -219,23 +218,7 @@ export function Header() {
             {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
               <div className="flex items-center justify-center gap-1 sm:gap-2 flex-1">
                 {/* Country Selector */}
-                {/* <CountrySelector /> */}
-                 <button 
-                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation"
-                  onClick={() => {
-                    const event = new CustomEvent('openCountrySelector');
-                    window.dispatchEvent(event);
-                  }}
-                  title={`국가: ${selectedCountry?.name || '일본'}`}
-                >
-                  <Globe size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
-                  <span className="text-xs sm:text-sm font-medium hidden sm:inline">
-                    {selectedCountry?.name || '일본'}
-                  </span>
-                  <span className="text-xs text-gray-100 sm:hidden">
-                    일본
-                  </span>
-                </button>
+                <CountrySelector />
                 
                 {/* Travel Date Selector */}
                 {/* <button 
@@ -254,10 +237,7 @@ export function Header() {
 
                 <button 
                   className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation"
-                  onClick={() => {
-                    const event = new CustomEvent('openTravelDateSelector');
-                    window.dispatchEvent(event);
-                  }}
+                  onClick={() => setShowTravelDateSelector(true)}
                   title={`여행 날짜: ${getTravelDateDisplay()}`}
                 >
                   <Calendar size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
