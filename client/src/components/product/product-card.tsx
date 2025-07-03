@@ -11,6 +11,7 @@ import { CurrencyDisplay } from "../ui/currency-display";
 import { PriceRangeDisplay } from "../ui/price-range-display";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { FilterModal } from "../filter/filter-modal-simplified";
+import { Button } from "../ui/button";
 
 interface ProductCardProps {
   product: Product;
@@ -323,16 +324,15 @@ export function ProductCard({
               {/* Filter and Review buttons - vertical layout */}
               <div className="flex flex-col gap-1">
                 {/* Filter button */}
-                <button 
-                  className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="px-2"
                   onClick={() => setIsFilterModalOpen(true)}
                   title="필터"
                 >
-                  <SlidersHorizontal 
-                    size={14} 
-                    className="text-gray-600" 
-                  />
-                </button>
+                  <SlidersHorizontal className="h-3 w-3" />
+                </Button>
                 
                 {/* Review button - read-only mode */}
                 <ReviewButton 
