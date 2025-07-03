@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useAppContext } from "../../contexts/AppContext";
-import { API_ROUTES } from "../../lib/constants";
+import { useAppContext } from "@/contexts/AppContext";
+import { API_ROUTES } from "@/lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product } from "@shared/schema";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // 카테고리 타입 정의
 export type ProductCategory = {

@@ -1,17 +1,17 @@
 import { useState } from "react";
-import { useAppContext } from "../../contexts/AppContext";
+import { useAppContext } from "@/contexts/AppContext";
 import { X } from "lucide-react";
-import { View } from "../../lib/constants";
+import { View } from "@/lib/constants";
 import { 
   Dialog, 
   DialogContent, 
   DialogHeader, 
   DialogTitle,
   DialogFooter
-} from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Slider } from "../ui/slider";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { CategoryFilter } from "./category-filter-new";
 
 export interface FilterModalProps {

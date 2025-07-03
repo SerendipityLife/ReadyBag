@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "../hooks/use-auth.tsx";
+import { useAuth } from "@/hooks/use-auth";
 import { LoginUserInput, RegisterUserInput, ResetPasswordRequestInput } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "../components/ui/button.tsx";
-import { Input } from "../components/ui/input.tsx";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs.tsx";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Form,
   FormControl,
@@ -15,7 +15,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../components/ui/form.tsx";
+} from "@/components/ui/form";
 import { Loader2, Mail, Lock, UserCircle, ArrowLeft } from "lucide-react";
 
 // 회원가입 스키마
@@ -62,7 +62,7 @@ export default function AuthPage() {
             console.log(`인증 페이지 방문 - 로컬 스토리지 항목 자동 삭제: ${key}`);
           }
         });
-
+        
         // 로컬 스토리지 변경 이벤트 트리거
         window.dispatchEvent(new Event('localStorageChange'));
       } catch (error) {
@@ -70,14 +70,14 @@ export default function AuthPage() {
       }
     }
   }, [user]); // user 의존성 추가 - 로그인 상태가 변경될 때만 실행
-
+  
   // 저장된 이메일 불러오기
   useEffect(() => {
     try {
       // 저장된 이메일 가져오기
       const savedEmail = localStorage.getItem('savedEmail');
       const rememberEmail = localStorage.getItem('rememberEmail') === 'true';
-
+      
       if (savedEmail && rememberEmail) {
         loginForm.setValue('email', savedEmail);
         setSaveEmail(true);
@@ -86,7 +86,7 @@ export default function AuthPage() {
       console.error("저장된 이메일 불러오기 오류:", error);
     }
   }, []); // 컴포넌트 마운트 시 한 번만 실행
-
+  
   // 로그인 폼
   const loginForm = useForm<LoginUserInput>({
     resolver: zodResolver(loginSchema),
@@ -106,7 +106,7 @@ export default function AuthPage() {
       nickname: "",
     },
   });
-
+  
   // 로컬 스토리지 초기화 함수 - 비회원 데이터 정리
   const clearLocalStorage = () => {
     try {
@@ -117,20 +117,20 @@ export default function AuthPage() {
           console.log(`로컬 스토리지 항목 삭제: ${key}`);
         }
       });
-
+      
       // 로컬 스토리지 변경 이벤트 트리거
       window.dispatchEvent(new Event('localStorageChange'));
     } catch (error) {
       console.error("로컬 스토리지 초기화 오류:", error);
     }
   };
-
+  
   // 비회원으로 시작하기 처리
   const handleStartAsGuest = () => {
     clearLocalStorage();
     navigate("/");
   };
-
+  
   // 이미 로그인한 사용자는 홈으로 리디렉션
   // 모든 훅이 선언된 후에 실행
   if (user) {
@@ -148,7 +148,7 @@ export default function AuthPage() {
       localStorage.removeItem('savedEmail');
       localStorage.setItem('rememberEmail', 'false');
     }
-
+    
     loginMutation.mutate(data, {
       onSuccess: () => {
         navigate("/");
@@ -164,7 +164,7 @@ export default function AuthPage() {
       },
     });
   };
-
+  
   // 비밀번호 찾기 폼
   const forgotPasswordForm = useForm<ResetPasswordRequestInput>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -172,7 +172,7 @@ export default function AuthPage() {
       email: "",
     },
   });
-
+  
   // 비밀번호 찾기 제출 처리
   const onForgotPasswordSubmit = (data: ResetPasswordRequestInput) => {
     resetPasswordRequestMutation.mutate(data, {
@@ -185,38 +185,25 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
       {/* 로그인/회원가입 양식 섹션 */}
-      <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-4">
+      <div className="w-full flex flex-col justify-center px-4 md:px-8 lg:px-12 py-12">
         <div className="mx-auto w-full max-w-md">
-          <div className="flex flex-col items-center mb-4">
-            <div className="bg-white p-8 rounded-2xl mb-4 shadow-lg border border-gray-100 flex justify-center items-center min-h-[160px]">
-              <div className="relative w-full flex justify-center items-center">
-                <img 
-                  src="/readybag-logo.png" 
-                  alt="ReadyBag Logo" 
-                  className="h-32 w-auto max-w-full object-contain"
-                  onLoad={() => {
-                    console.log('Logo image loaded successfully');
-                  }}
-                  onError={(e) => {
-                    console.error('Logo image failed to load, showing fallback');
-                    e.currentTarget.style.display = 'none';
-                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                    if (fallback) fallback.style.display = 'block';
-                  }}
-                />
-                <div 
-                  className="text-3xl font-bold text-blue-600 hidden"
-                  style={{ display: 'none' }}
-                >
-                  ReadyBag
-                </div>
-              </div>
+          <div className="flex flex-col items-center mb-8">
+            <div className="bg-white p-6 rounded-2xl mb-6 shadow-lg border border-gray-100">
+              <img 
+                src="/logo-readybag.png" 
+                alt="ReadyBag" 
+                className="h-32 w-auto"
+                onError={(e) => {
+                  console.error('Logo image failed to load');
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
             </div>
-            
-            <p className="text-center text-[#0068ff] bg-[#ffffff00] font-extrabold text-[17px] mb-2">귀찮은 해외 여행 쇼핑 계획과 관리를 한번에!</p>
+            <h1 className="text-2xl font-bold text-gray-800 mb-2">ReadyBag</h1>
+            <p className="text-base text-gray-600">여행 쇼핑 계획을 더 쉽게</p>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-5">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
             <Tabs 
               defaultValue="login" 
               value={activeTab} 
@@ -243,20 +230,20 @@ export default function AuthPage() {
               <Form {...loginForm}>
                 <form 
                   onSubmit={loginForm.handleSubmit(onLoginSubmit)} 
-                  className="space-y-3"
+                  className="space-y-5"
                 >
                   <FormField
                     control={loginForm.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-medium text-sm">이메일</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium text-base">이메일</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                             <Input 
                               placeholder="your@email.com" 
-                              className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg"
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg"
                               autoComplete="email" 
                               {...field} 
                             />
@@ -272,14 +259,14 @@ export default function AuthPage() {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-gray-700 font-medium text-sm">비밀번호</FormLabel>
+                        <FormLabel className="text-gray-700 font-medium text-base">비밀번호</FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                            <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                             <Input 
                               type="password" 
                               placeholder="********" 
-                              className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg" 
+                              className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-base rounded-lg" 
                               autoComplete="current-password"
                               {...field} 
                             />
@@ -290,7 +277,7 @@ export default function AuthPage() {
                     )}
                   />
 
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center justify-between mt-4">
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -304,27 +291,27 @@ export default function AuthPage() {
                       </label>
                     </div>
                   </div>
-
+                  
                   <Button 
                     type="submit" 
-                    className="w-full mt-4 h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg transition-all" 
+                    className="w-full mt-6 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all" 
                     disabled={loginMutation.isPending || isLoading}
                   >
                     {loginMutation.isPending ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : null}
                     로그인
                   </Button>
                 </form>
               </Form>
-
-              <div className="mt-4 text-center space-y-3">
+              
+              <div className="mt-6 text-center space-y-4">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-gray-200" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-background px-3 text-xs text-muted-foreground">
+                    <span className="bg-background px-4 text-xs text-muted-foreground">
                       또는
                     </span>
                   </div>
@@ -333,30 +320,30 @@ export default function AuthPage() {
                   <Button 
                     variant="secondary" 
                     onClick={handleStartAsGuest}
-                    className="w-full h-10 font-medium shadow-sm border border-gray-200 text-sm"
+                    className="w-full py-6 font-medium shadow-sm border border-gray-200"
                   >
                     비회원으로 시작하기
                   </Button>
                 </div>
-                <div className="flex justify-center space-x-1">
+                <div className="flex justify-center space-x-2">
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("register")}
-                    className="text-xs text-sand-brown-600 hover:text-sand-brown-800 p-1"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
                     계정이 없으신가요?
                   </Button>
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("forgot")}
-                    className="text-xs text-sand-brown-600 hover:text-sand-brown-800 p-1"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
                     비밀번호를 잊으셨나요?
                   </Button>
                 </div>
               </div>
             </TabsContent>
-
+            
             {/* 비밀번호 찾기 탭 */}
             <TabsContent value="forgot">
               {isPasswordResetSent ? (
@@ -383,7 +370,7 @@ export default function AuthPage() {
                       가입 시 사용한 이메일을 입력하시면 비밀번호 재설정 링크를 보내드립니다.
                     </p>
                   </div>
-
+                  
                   <Form {...forgotPasswordForm}>
                     <form 
                       onSubmit={forgotPasswordForm.handleSubmit(onForgotPasswordSubmit)} 
@@ -409,7 +396,7 @@ export default function AuthPage() {
                           </FormItem>
                         )}
                       />
-
+                      
                       <div className="flex justify-between pt-2">
                         <Button
                           type="button"
@@ -420,7 +407,7 @@ export default function AuthPage() {
                           <ArrowLeft className="h-4 w-4 mr-2" />
                           돌아가기
                         </Button>
-
+                        
                         <Button 
                           type="submit" 
                           disabled={resetPasswordRequestMutation.isPending}
@@ -443,102 +430,100 @@ export default function AuthPage() {
               <Form {...registerForm}>
                 <form 
                   onSubmit={registerForm.handleSubmit(onRegisterSubmit)} 
-                  className="space-y-3"
+                  className="space-y-4"
                 >
-                  <div className="grid grid-cols-2 gap-3">
-                    <FormField
-                      control={registerForm.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormLabel className="text-gray-700 font-medium text-sm">이메일</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                              <Input 
-                                placeholder="your@email.com" 
-                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg"
-                                autoComplete="email" 
-                                {...field} 
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={registerForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>이메일</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Input 
+                              placeholder="your@email.com" 
+                              className="pl-10"
+                              autoComplete="email" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="nickname"
-                      render={({ field }) => (
-                        <FormItem className="col-span-2">
-                          <FormLabel className="text-gray-700 font-medium text-sm">닉네임 (선택)</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <UserCircle className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                              <Input 
-                                placeholder="닉네임" 
-                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg" 
-                                {...field} 
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={registerForm.control}
+                    name="nickname"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>닉네임 (선택)</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <UserCircle className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Input 
+                              placeholder="닉네임" 
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-700 font-medium text-sm">비밀번호</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                              <Input 
-                                type="password" 
-                                placeholder="최소 8자" 
-                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg"
-                                autoComplete="new-password"
-                                {...field} 
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={registerForm.control}
+                    name="password"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>비밀번호</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Input 
+                              type="password" 
+                              placeholder="최소 8자 이상" 
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
+                              autoComplete="new-password"
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                    <FormField
-                      control={registerForm.control}
-                      name="confirmPassword"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-gray-700 font-medium text-sm">비밀번호 확인</FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Lock className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-                              <Input 
-                                type="password" 
-                                placeholder="확인" 
-                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white text-sm rounded-lg"
-                                autoComplete="new-password" 
-                                {...field} 
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                  <FormField
+                    control={registerForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>비밀번호 확인</FormLabel>
+                        <FormControl>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+                            <Input 
+                              type="password" 
+                              placeholder="비밀번호 확인" 
+                              className="pl-10 bg-white/80 border-sand-brown-200 focus:border-sand-brown-400"
+                              autoComplete="new-password" 
+                              {...field} 
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <Button 
                     type="submit" 
-                    className="w-full mt-4 h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg transition-all" 
+                    className="w-full mt-6 bg-sand-brown-600 hover:bg-sand-brown-700 text-white" 
                     disabled={registerMutation.isPending || isLoading}
                   >
                     {registerMutation.isPending ? (
@@ -548,32 +533,34 @@ export default function AuthPage() {
                   </Button>
                 </form>
               </Form>
-
-              <div className="mt-4 text-center space-y-3">
+              
+              <div className="mt-6 text-center space-y-4">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
                     <span className="w-full border-t border-gray-200" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-background px-3 text-xs text-muted-foreground">
+                    <span className="bg-background px-4 text-xs text-muted-foreground">
                       또는
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div>
                   <Button 
                     variant="secondary" 
                     onClick={handleStartAsGuest}
-                    className="h-10 font-medium shadow-sm border border-gray-200 text-sm"
+                    className="w-full py-6 font-medium shadow-sm border border-gray-200"
                   >
-                    비회원으로 시작
+                    비회원으로 시작하기
                   </Button>
+                </div>
+                <div>
                   <Button 
-                    variant="outline" 
+                    variant="link" 
                     onClick={() => setActiveTab("login")}
-                    className="h-10 text-sm text-blue-600 hover:text-blue-800 border-blue-200"
+                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
                   >
-                    로그인하기
+                    이미 계정이 있으신가요? 로그인하기
                   </Button>
                 </div>
               </div>
@@ -582,6 +569,8 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
+
+
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { Badge } from "../ui/badge";
-import { ScrollArea } from "../ui/scroll-area";
-import { Separator } from "../ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { Store, Package, ShoppingCart } from "lucide-react";
 import { useEffect } from "react";
 
@@ -160,7 +160,7 @@ export function CategoryFilter({
       {/* 용도 필터 */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">
-          <Package className="w-5 h-5 text-blue-600" />
+          <Package className="w-5 h-5 text-green-600" />
           <h3 className="font-semibold text-lg">용도</h3>
         </div>
         
@@ -171,8 +171,8 @@ export function CategoryFilter({
               variant={isAllPurposeCategoriesSelected ? "default" : "outline"}
               className={`cursor-pointer transition-colors ${
                 isAllPurposeCategoriesSelected
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "hover:bg-blue-50 border-blue-200"
+                  ? "bg-green-600 hover:bg-green-700 text-white"
+                  : "hover:bg-green-50 border-green-200"
               }`}
               onClick={() => handlePurposeCategoryToggle("ALL")}
             >
@@ -186,8 +186,8 @@ export function CategoryFilter({
                 variant={selectedPurposeCategories.includes(category.id) ? "default" : "outline"}
                 className={`cursor-pointer transition-colors ${
                   selectedPurposeCategories.includes(category.id)
-                    ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "hover:bg-blue-50 border-blue-200"
+                    ? "bg-green-600 hover:bg-green-700 text-white"
+                    : "hover:bg-green-50 border-green-200"
                 }`}
                 onClick={() => handlePurposeCategoryToggle(category.id)}
               >

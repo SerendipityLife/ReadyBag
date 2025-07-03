@@ -22,7 +22,6 @@ class GoogleMapsService {
   private map: google.maps.Map | null = null;
   private service: google.maps.places.PlacesService | null = null;
   private distanceService: google.maps.DistanceMatrixService | null = null;
-  private directionsService: google.maps.DirectionsService | null = null;
 
   constructor() {
     this.loader = null as any;
@@ -68,7 +67,6 @@ class GoogleMapsService {
 
     this.service = new google.maps.places.PlacesService(this.map);
     this.distanceService = new google.maps.DistanceMatrixService();
-    this.directionsService = new google.maps.DirectionsService();
   }
 
   async findNearbyPlacesWithRadius(
@@ -84,23 +82,10 @@ class GoogleMapsService {
         location: new google.maps.LatLng(location.lat, location.lng),
         radius,
         keyword,
-        type: type === 'store' ? 'store' as any : type as any
+        type: type as any
       };
 
-      console.log('Google Places API 요청:', {
-        location: `${location.lat}, ${location.lng}`,
-        radius,
-        keyword,
-        type: type === 'store' ? 'store' : type
-      });
-
       this.service!.nearbySearch(request, (results, status) => {
-        console.log('Google Places API 응답:', {
-          status,
-          resultsCount: results?.length || 0,
-          results: results?.slice(0, 3).map(r => ({ name: r.name, vicinity: r.vicinity })) || []
-        });
-        
         if (status === google.maps.places.PlacesServiceStatus.OK && results) {
           const sortedResults = results
             .filter(place => place.geometry?.location)
@@ -135,7 +120,7 @@ class GoogleMapsService {
   async calculateDistances(
     origin: { lat: number; lng: number },
     destinations: PlaceResult[],
-    travelMode: "walking" | "transit" | "driving" = "walking"
+    travelMode: 'walking' | 'driving' | 'transit'
   ): Promise<PlaceResult[]> {
     if (!this.distanceService || destinations.length === 0) {
       return destinations;
@@ -154,89 +139,26 @@ class GoogleMapsService {
         new google.maps.LatLng(dest.lat, dest.lng)
       );
 
-      // 대중교통일 때 추가 옵션 설정
-      const requestOptions: google.maps.DistanceMatrixRequest = {
+      this.distanceService!.getDistanceMatrix({
         origins: [new google.maps.LatLng(origin.lat, origin.lng)],
         destinations: destinationLatLngs,
         travelMode: googleTravelMode,
         unitSystem: google.maps.UnitSystem.METRIC,
         avoidHighways: false,
         avoidTolls: false
-      };
-
-      // 대중교통 모드일 때 추가 설정
-      if (travelMode === 'transit') {
-        const now = new Date();
-        // 현재 시간이 너무 이른 시간(새벽)이면 오전 9시로 설정
-        const departureTime = now.getHours() < 6 ? 
-          new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0) : 
-          now;
-          
-        requestOptions.transitOptions = {
-          modes: [google.maps.TransitMode.SUBWAY, google.maps.TransitMode.BUS, google.maps.TransitMode.TRAIN],
-          routingPreference: google.maps.TransitRoutePreference.FEWER_TRANSFERS,
-          departureTime: departureTime
-        };
-        
-        console.log('대중교통 옵션 설정:', {
-          modes: requestOptions.transitOptions.modes,
-          departureTime: departureTime.toLocaleString('ko-KR')
-        });
-      }
-
-      console.log('Distance Matrix 요청 옵션:', requestOptions);
-
-      this.distanceService!.getDistanceMatrix(requestOptions, async (response, status) => {
-        console.log('Distance Matrix 응답:', { status, response });
-        
+      }, (response, status) => {
         if (status === 'OK' && response?.rows[0]) {
           const elements = response.rows[0].elements;
-          let updated = destinations.map((dest, i) => {
+          const updated = destinations.map((dest, i) => {
             const el = elements[i];
-            console.log(`${dest.name} 결과:`, {
-              status: el?.status,
-              distance: el?.distance?.text,
-              duration: el?.duration?.text,
-              travelMode: travelMode
-            });
-            
             return {
               ...dest,
               distance: el?.distance?.text || '정보 없음',
               duration: el?.duration?.text || '정보 없음'
             };
           });
-
-          // 결과 검증 및 개선된 로깅
-          if (travelMode === 'transit') {
-            updated.forEach((dest, index) => {
-              const element = elements[index];
-              console.log(`${dest.name} 대중교통 상세 결과:`, {
-                status: element?.status,
-                distance: element?.distance,
-                duration: element?.duration,
-                transitDetails: (element as any)?.transit_details
-              });
-              
-              const durationText = dest.duration;
-              const minutes = parseInt(durationText.replace(/[^0-9]/g, ''));
-              console.log(`${dest.name} 대중교통 시간 분석:`, {
-                originalText: durationText,
-                extractedMinutes: minutes,
-                isValid: !isNaN(minutes) && minutes <= 60
-              });
-            });
-          }
-
           resolve(updated);
         } else {
-          console.log('Distance Matrix API 실패:', status);
-          
-          // 대중교통 모드에서 실패시 추가 로깅
-          if (travelMode === 'transit') {
-            console.log('대중교통 Distance Matrix API 실패, 기본값 반환');
-          }
-          
           const fallback = destinations.map(dest => ({
             ...dest,
             distance: '정보 없음',
@@ -247,8 +169,6 @@ class GoogleMapsService {
       });
     });
   }
-
-
 
   calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
     const R = 6371;
@@ -278,14 +198,14 @@ class GoogleMapsService {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${apiKey}`
       );
-
+      
       if (!response.ok) {
         console.error('Geocoding API 요청 실패:', response.status);
         return null;
       }
 
       const data = await response.json();
-
+      
       if (data.status !== 'OK' || !data.results?.length) {
         console.error('Geocoding 결과 없음:', data.status, data.error_message);
         return null;
@@ -293,7 +213,7 @@ class GoogleMapsService {
 
       const result = data.results[0];
       const location = result.geometry.location;
-
+      
       return {
         name: result.formatted_address,
         address: address,
@@ -313,23 +233,11 @@ class GoogleMapsService {
   ): void {
     const origin = encodeURIComponent(address.trim());
     const dest = `${destination.lat},${destination.lng}`;
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${travelMode}`;
     
-    // Google Maps URL의 travelmode 파라미터 매핑
-    let urlTravelMode = travelMode;
-    if (travelMode === 'transit') {
-      urlTravelMode = 'transit';  // 대중교통
-    } else if (travelMode === 'walking') {
-      urlTravelMode = 'walking';  // 도보
-    } else if (travelMode === 'driving') {
-      urlTravelMode = 'driving';  // 자동차
-    }
-    
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${dest}&travelmode=${urlTravelMode}`;
-
     console.log('길찾기: 출발지 -', address);
     console.log('길찾기: 목적지 -', destination.name);
-    console.log('길찾기: 이동수단 -', travelMode, '→', urlTravelMode);
-
+    
     window.open(url, '_blank');
   }
 }

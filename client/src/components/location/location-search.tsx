@@ -1,13 +1,12 @@
-// 전체 import 및 const 정의는 동일하므로 생략 없이 포함
 import { useState, useEffect } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
-import { Badge } from "../ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { MapPin, Clock, Navigation, Loader2, Home } from "lucide-react";
-import { googleMapsService, type PlaceResult, type HotelLocation } from "../../lib/google-maps";
-import { useAppContext } from "../../contexts/AppContext";
+import { googleMapsService, type PlaceResult, type HotelLocation } from "@/lib/google-maps";
+import { useAppContext } from "@/contexts/AppContext";
 
 const FACILITY_TYPES = [
   {
@@ -15,7 +14,7 @@ const FACILITY_TYPES = [
     label: "편의점",
     keywords: ["convenience store", "コンビニ", "편의점"],
     subTypes: [
-      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐", "seven eleven", "7eleven"] },
+      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐"] },
       { value: "lawson", label: "로손", keywords: ["Lawson", "ローソン", "로손"] },
       { value: "family_mart", label: "패밀리마트", keywords: ["FamilyMart", "ファミリーマート", "패밀리마트"] }
     ]
@@ -102,57 +101,41 @@ export function LocationSearch() {
       if (!facilityType) return;
 
       let keywords: string[] = [];
-      let radius = 300;
-
       if (selectedSubType !== "all_brands") {
         const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
-        if (sub) {
-          keywords = sub.keywords;
-          radius = 5000; // 👈 브랜드 지정 시 더 넓은 반경으로
-        }
+        if (sub) keywords = sub.keywords;
       } else {
-        keywords = facilityType.subTypes.length
-          ? facilityType.subTypes.flatMap(st => st.keywords)
-          : facilityType.keywords;
-
-        radius = selectedFacilityType === "store" ? 20000 : 300;
+        keywords = facilityType.subTypes.length ? facilityType.subTypes.flatMap(st => st.keywords) : facilityType.keywords;
       }
+
+      const radius = selectedFacilityType === "store" ? 20000 : 300;
 
       let allResults: PlaceResult[] = [];
       for (const keyword of keywords) {
-        const results = await googleMapsService.findNearbyPlaces({ ...origin }, selectedFacilityType, keyword, radius);
+        const results = await googleMapsService.findNearbyPlaces({ ...origin }, selectedFacilityType, keyword);
         allResults = [...allResults, ...results];
       }
 
       const seen = new Set();
-      let unique = allResults.filter(p => {
+      const unique = allResults.filter(p => {
         if (seen.has(p.placeId)) return false;
         seen.add(p.placeId);
         return true;
       });
 
-      // 추가 필터: 브랜드 지정 시 이름 기반 필터링까지 적용
-      if (selectedSubType !== "all_brands") {
+      let filtered = unique;
+      if (selectedFacilityType === "convenience_store" && selectedSubType !== "all_brands") {
         const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
         const subKeywords = sub ? sub.keywords.map(k => k.toLowerCase()) : [];
-        unique = unique.filter(p => {
-          const name = p.name.toLowerCase();
-          return subKeywords.some(k =>
-            name.includes(k) ||
-            name.replace(/[-\s]/g, '').includes(k.replace(/[-\s]/g, '')) ||
-            name.includes(k.replace('7-eleven', '7eleven'))
-          );
-        });
+        filtered = filtered.filter(p => subKeywords.some(k => p.name.toLowerCase().includes(k)));
       }
 
       if (selectedFacilityType === "store") {
         const donkiKeywords = ["don quijote", "ドン・キホーテ", "donki", "돈키호테"];
-        unique = unique.filter(p =>
-          donkiKeywords.some(k => p.name.toLowerCase().includes(k))
-        );
+        filtered = filtered.filter(p => donkiKeywords.some(k => p.name.toLowerCase().includes(k)));
       }
 
-      const resultsWithDistance = await googleMapsService.calculateDistances(origin, unique.map(p => ({
+      const resultsWithDistance = await googleMapsService.calculateDistances(origin, filtered.map(p => ({
         ...p,
         name: normalizeBrandName(p.name)
       })));
@@ -183,7 +166,6 @@ export function LocationSearch() {
 
   return (
     <div className="space-y-6">
-      {/* 숙소 주소 입력 카드 */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -206,7 +188,6 @@ export function LocationSearch() {
         </CardContent>
       </Card>
 
-      {/* 주변 시설 검색 카드 */}
       {currentLocation && (
         <Card>
           <CardHeader>
@@ -235,7 +216,6 @@ export function LocationSearch() {
               </Button>
             </div>
 
-            {/* 서브 브랜드 선택 */}
             {(() => {
               const type = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
               if (!type || !type.subTypes.length) return null;
@@ -254,7 +234,6 @@ export function LocationSearch() {
               );
             })()}
 
-            {/* 결과 출력 */}
             {nearbyPlaces.length > 0 ? (
               <div className="space-y-3">
                 <h4 className="font-medium">TOP {nearbyPlaces.length} 결과</h4>

@@ -1,6 +1,6 @@
-import { useAppContext } from "../contexts/AppContext.tsx";
-import { View } from "../lib/constants.ts";
-import { Button } from "./ui/button.tsx";
+import { useAppContext } from "@/contexts/AppContext";
+import { View } from "@/lib/constants";
+import { Button } from "@/components/ui/button";
 import { 
   X, 
   Mail, 
@@ -9,7 +9,7 @@ import {
   FileText, 
   ChevronRight 
 } from "lucide-react";
-import { cn } from "../lib/utils.ts";
+import { cn } from "@/lib/utils";
 
 export function InfoPanel() {
   const { currentView, setCurrentView } = useAppContext();

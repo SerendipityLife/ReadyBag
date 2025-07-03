@@ -1,5 +1,5 @@
-import { useAppContext } from "../../contexts/AppContext";
-import { FilterButton } from "../filter/filter-button";
+import { useAppContext } from "@/contexts/AppContext";
+import { FilterButton } from "@/components/filter/filter-button";
 import { format } from "date-fns";
 
 export function FilterCurrencyBar() {

@@ -5,8 +5,8 @@ import {
   UseMutationResult,
   QueryClient
 } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "../lib/queryClient.ts";
-import { useToast } from "./use-toast";
+import { apiRequest } from "../lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import { 
   RegisterUserInput, 
   LoginUserInput,
@@ -20,7 +20,7 @@ const clearNonMemberData = () => {
     // 세션별 접속 여부 확인
     const sessionKey = 'hasVisitedBefore';
     const hasVisited = sessionStorage.getItem(sessionKey);
-
+    
     if (!hasVisited) {
       // 첫 방문이면 모든 사용자 데이터 관련 localStorage 항목 삭제
       const keysToRemove = [
@@ -30,16 +30,16 @@ const clearNonMemberData = () => {
         'userProducts_korea',
         'userProducts_china'
       ];
-
+      
       keysToRemove.forEach(key => {
         localStorage.removeItem(key);
       });
-
+      
       console.log('비회원 데이터가 초기화되었습니다');
-
+      
       // 세션에 방문 기록 저장 (새로고침이나 탭 변경은 허용하되, 브라우저 종료 후 재접속 시에는 다시 초기화)
       sessionStorage.setItem(sessionKey, 'true');
-
+      
       // 로컬 스토리지 변경 이벤트 발생
       window.dispatchEvent(new Event('localStorageChange'));
     }
@@ -76,19 +76,17 @@ export function invalidateAuthQueries(queryClient: QueryClient) {
 // 인증 Provider 컴포넌트
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
-
+  
   // 현재 사용자 조회
-  const { data: user, isLoading, error } = useQuery<AuthUser | null, Error>({
+  const {
+    data: user,
+    error,
+    isLoading,
+  } = useQuery<AuthUser | null, Error>({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
-        const res = await fetch("/api/auth/user", {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await apiRequest("GET", "/api/auth/user");
         if (!res.ok) {
           if (res.status === 401) {
             return null;
@@ -130,16 +128,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onError: (error: Error) => {
       // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
       let cleanMessage = error.message;
-
+      
       // "401: {"message":"..."}" 형태에서 메시지만 추출
       const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
       if (jsonMatch) {
         cleanMessage = jsonMatch[1];
       }
-
+      
       // 기본적인 상태 코드 제거 (예: "401: 메시지")
       cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
-
+      
       toast({
         title: "로그인 실패",
         description: cleanMessage,
@@ -168,16 +166,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onError: (error: Error) => {
       // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
       let cleanMessage = error.message;
-
+      
       // "401: {"message":"..."}" 형태에서 메시지만 추출
       const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
       if (jsonMatch) {
         cleanMessage = jsonMatch[1];
       }
-
+      
       // 기본적인 상태 코드 제거 (예: "401: 메시지")
       cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
-
+      
       toast({
         title: "회원가입 실패",
         description: cleanMessage,
@@ -254,16 +252,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onError: (error: Error) => {
       // 에러 메시지에서 상태 코드와 JSON 형태를 제거하고 사용자 친화적 메시지만 추출
       let cleanMessage = error.message;
-
+      
       // "401: {"message":"..."}" 형태에서 메시지만 추출
       const jsonMatch = cleanMessage.match(/\d+:\s*\{"message":"([^"]+)"\}/);
       if (jsonMatch) {
         cleanMessage = jsonMatch[1];
       }
-
+      
       // 기본적인 상태 코드 제거 (예: "401: 메시지")
       cleanMessage = cleanMessage.replace(/^\d+:\s*/, '');
-
+      
       toast({
         title: "비밀번호 재설정 실패",
         description: cleanMessage,
@@ -284,7 +282,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
       keysToRemove.forEach(key => localStorage.removeItem(key));
-
+      
       // Dispatch event to notify components of data reset
       if (keysToRemove.length > 0) {
         window.dispatchEvent(new Event('localStorageChange'));
@@ -319,4 +317,5 @@ export function useAuth() {
   return context;
 }
 
-// queryClient is now imported at the top of the file
+// Import queryClient here to avoid circular imports
+import { queryClient } from "../lib/queryClient";

@@ -1,202 +1,273 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Calendar } from './ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { CalendarIcon, Check, X, Plus } from 'lucide-react';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
-import { cn } from '../lib/utils';
-import { useAppContext } from '../contexts/AppContext';
+import { useState, useEffect } from "react";
+import { CalendarDays, Plus, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { ko } from "date-fns/locale";
+import { useAppContext } from "@/contexts/AppContext";
+import { DateRange } from "react-day-picker";
 
-export const TravelDateSelector: React.FC = () => {
-  const {
-    travelStartDate,
-    setTravelStartDate,
-    travelEndDate,
-    setTravelEndDate,
+interface TravelDateSelectorProps {
+  startDate?: Date | null;
+  endDate?: Date | null;
+  onDatesChange: (startDate: Date | null, endDate: Date | null) => void;
+  mode?: 'browse' | 'select'; // browse mode allows creating new dates, select mode only allows selecting existing ones
+}
+
+export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = 'browse' }: TravelDateSelectorProps) {
+  const { 
+    shouldActivateCalendar, 
+    setShouldActivateCalendar,
+    showTravelDateSelector,
+    setShowTravelDateSelector,
     savedTravelDates,
     selectedTravelDateId,
-    addTravelDate,
     setSelectedTravelDateId,
-    showTravelDateSelector,
-    setShowTravelDateSelector
+    addTravelDate,
+    removeTravelDate
   } = useAppContext();
+  
+  const [isOpen, setIsOpen] = useState(false);
+  const [isNewDateModalOpen, setIsNewDateModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startDate || undefined,
+    to: endDate || undefined,
+  });
 
-  const [tempStartDate, setTempStartDate] = useState<Date | null>(null);
-  const [tempEndDate, setTempEndDate] = useState<Date | null>(null);
-  const [isSelectingEndDate, setIsSelectingEndDate] = useState(false);
-  const [showNewDateForm, setShowNewDateForm] = useState(false);
-
-  const handleDateSelect = (date: Date | undefined) => {
-    if (!date) return;
-
-    if (!isSelectingEndDate && (!tempStartDate || date < tempStartDate)) {
-      setTempStartDate(date);
-      setTempEndDate(null);
-      setIsSelectingEndDate(true);
-    } else if (isSelectingEndDate || (tempStartDate && date >= tempStartDate)) {
-      setTempEndDate(date);
-      setIsSelectingEndDate(false);
-    } else {
-      setTempStartDate(date);
-      setTempEndDate(null);
-      setIsSelectingEndDate(true);
+  // 캘린더 활성화 상태 감지
+  useEffect(() => {
+    if (shouldActivateCalendar) {
+      setIsOpen(true);
+      setIsNewDateModalOpen(true);
+      setShouldActivateCalendar(false);
     }
+  }, [shouldActivateCalendar, setShouldActivateCalendar]);
+
+  // 여행 날짜 선택 UI 표시 상태 감지
+  useEffect(() => {
+    if (showTravelDateSelector) {
+      setIsOpen(true);
+      setIsNewDateModalOpen(true);
+      setShowTravelDateSelector(false);
+    }
+  }, [showTravelDateSelector, setShowTravelDateSelector]);
+
+  // 날짜 범위가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setDateRange({
+      from: startDate || undefined,
+      to: endDate || undefined,
+    });
+  }, [startDate, endDate]);
+
+  const handleDateRangeSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
   };
 
-  const handleSaveDates = () => {
-    if (tempStartDate && tempEndDate) {
-      const newTravelDateId = addTravelDate(tempStartDate, tempEndDate);
-      setTravelStartDate(tempStartDate);
-      setTravelEndDate(tempEndDate);
-      setSelectedTravelDateId(newTravelDateId);
-      handleClose();
-      console.log('[TravelDateSelector] 새 여행 날짜 추가됨:', newTravelDateId);
+  const handleSave = () => {
+    if (dateRange?.from && dateRange?.to) {
+      // 새 여행 날짜 저장
+      const travelDateId = addTravelDate(dateRange.from, dateRange.to);
+      onDatesChange(dateRange.from, dateRange.to);
     }
+    
+    setIsNewDateModalOpen(false);
+    setIsOpen(false);
+  };
+
+  const handleClear = () => {
+    setDateRange(undefined);
+    onDatesChange(null, null);
+    setIsNewDateModalOpen(false);
+    setIsOpen(false);
   };
 
   const handleSelectSavedDate = (travelDateId: string) => {
-    setSelectedTravelDateId(travelDateId);
-    const savedDate = savedTravelDates.find(d => d.id === travelDateId);
-    if (savedDate) {
-      setTravelStartDate(savedDate.startDate);
-      setTravelEndDate(savedDate.endDate);
+    const selectedDate = savedTravelDates.find(date => date.id === travelDateId);
+    if (selectedDate) {
+      setSelectedTravelDateId(travelDateId);
+      onDatesChange(selectedDate.startDate, selectedDate.endDate);
+      setDateRange({
+        from: selectedDate.startDate,
+        to: selectedDate.endDate,
+      });
+      
+      console.log(`[TravelDateSelector] 여행 날짜 선택됨: ${travelDateId} (${selectedDate.label})`);
+      console.log(`[TravelDateSelector] Context 업데이트 전 selectedTravelDateId:`, selectedTravelDateId);
+      
+      // localStorage에 선택된 날짜 ID 저장
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedTravelDateId', travelDateId);
+        console.log(`[TravelDateSelector] localStorage에 저장됨:`, travelDateId);
+      }
     }
-    handleClose();
   };
 
-  const handleClose = () => {
-    setShowTravelDateSelector(false);
-    setShowNewDateForm(false);
-    setTempStartDate(null);
-    setTempEndDate(null);
-    setIsSelectingEndDate(false);
+  const handleDeleteSavedDate = (travelDateId: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Deleting travel date:', travelDateId);
+    removeTravelDate(travelDateId);
+    
+    // If the deleted date was selected, clear the selection
+    if (selectedTravelDateId === travelDateId) {
+      setSelectedTravelDateId(null);
+      onDatesChange(null, null);
+      setDateRange(undefined);
+    }
   };
 
-  const resetNewDateForm = () => {
-    setTempStartDate(null);
-    setTempEndDate(null);
-    setIsSelectingEndDate(false);
+  const formatDateRange = () => {
+    if (!startDate && !endDate) return "여행 날짜 선택";
+    if (!startDate) return "시작일 미설정";
+    if (!endDate) return format(startDate, "yyyy.MM.dd", { locale: ko });
+    return `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
   };
 
-  if (!showTravelDateSelector) {
-    return null;
-  }
+  const formatCalendarDateRange = () => {
+    if (!dateRange?.from && !dateRange?.to) return "날짜를 선택하세요";
+    if (!dateRange?.from) return "시작일 미설정";
+    if (!dateRange?.to) return format(dateRange.from, "yyyy.MM.dd", { locale: ko });
+    return `${format(dateRange.from, "yyyy.MM.dd", { locale: ko })} - ${format(dateRange.to, "yyyy.MM.dd", { locale: ko })}`;
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">여행 날짜 선택</h3>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={handleClose}
-            className="h-8 w-8 p-0"
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-
-        {!showNewDateForm ? (
-          <div className="space-y-4">
-            {/* 저장된 여행 날짜 목록 */}
-            {savedTravelDates.length > 0 && (
-              <div>
-                <p className="text-sm text-gray-600 mb-3">저장된 여행 날짜</p>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {savedTravelDates.map((savedDate) => (
-                    <div
-                      key={savedDate.id}
-                      className={cn(
-                        "flex items-center justify-between p-3 rounded-lg border cursor-pointer hover:bg-gray-50 transition-colors",
-                        selectedTravelDateId === savedDate.id ? "border-blue-500 bg-blue-50" : "border-gray-200"
-                      )}
-                      onClick={() => handleSelectSavedDate(savedDate.id)}
+    <div className="flex items-center gap-1">
+      {savedTravelDates.length > 0 ? (
+        // 저장된 날짜가 있는 경우: 선택된 날짜 표시만 (새 날짜 추가는 드롭다운 안에)
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="default"
+              className="bg-sky-500 hover:bg-sky-600 text-white border-sky-500 h-8 text-[10px] px-2 min-w-[180px] max-w-[200px] shadow-md"
+            >
+              <CalendarDays className="h-3 w-3 mr-1 flex-shrink-0" />
+              <span className="truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                {selectedTravelDateId 
+                  ? savedTravelDates.find(d => d.id === selectedTravelDateId)?.label || "날짜선택"
+                  : "날짜선택"
+                }
+              </span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-72 p-2" align="start">
+            <div className="space-y-1">
+              {/* 저장된 날짜 목록 */}
+              {savedTravelDates.map((travelDate) => (
+                <div key={travelDate.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50">
+                  <button
+                    className="flex-1 text-left text-xs"
+                    onClick={() => handleSelectSavedDate(travelDate.id)}
+                  >
+                    {travelDate.label}
+                  </button>
+                  {mode === 'browse' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
+                      onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
                     >
-                      <span className="text-sm font-medium">{savedDate.label}</span>
-                      {selectedTravelDateId === savedDate.id && (
-                        <Check className="h-4 w-4 text-blue-500" />
-                      )}
-                    </div>
-                  ))}
+                      <Trash2 className="h-3 w-3 text-red-500" />
+                    </Button>
+                  )}
                 </div>
-              </div>
-            )}
-
-            {/* 새 날짜 추가 버튼 */}
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowNewDateForm(true);
-                resetNewDateForm();
-              }}
-              className="w-full flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              새 여행 날짜 추가
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="w-full"
-            >
-              취소
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* 새 날짜 선택 폼 */}
-            <div className="text-center">
-              <p className="text-sm text-gray-600 mb-3">
-                {!tempStartDate ? "출발 날짜를 선택하세요" : 
-                 !tempEndDate ? "도착 날짜를 선택하세요" : 
-                 "날짜 선택이 완료되었습니다"}
-              </p>
-
-              {tempStartDate && tempEndDate && (
-                <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                  <p className="text-sm font-medium text-blue-800">
-                    {format(tempStartDate, 'yyyy년 MM월 dd일', { locale: ko })} - {format(tempEndDate, 'yyyy년 MM월 dd일', { locale: ko })}
-                  </p>
-                </div>
+              ))}
+              
+              {/* 새 날짜 추가 버튼 - 목록 하단에 위치 */}
+              {mode === 'browse' && (
+                <>
+                  <div className="border-t border-gray-200 my-1"></div>
+                  <Popover open={isNewDateModalOpen} onOpenChange={setIsNewDateModalOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="w-full flex items-center justify-center p-2 rounded hover:bg-blue-50 text-blue-600">
+                        <Plus className="h-3 w-3 mr-1" />
+                        <span className="text-xs">새 날짜 추가</span>
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <div className="p-4 space-y-4">
+                        <div className="text-center">
+                          <h4 className="text-sm font-medium">여행 날짜 선택</h4>
+                          <p className="text-xs text-gray-500 mt-1">{formatCalendarDateRange()}</p>
+                        </div>
+                        <Calendar
+                          mode="range"
+                          selected={dateRange}
+                          onSelect={handleDateRangeSelect}
+                          numberOfMonths={1}
+                          className="rounded-md border"
+                          locale={ko}
+                        />
+                        <div className="flex gap-2">
+                          <Button 
+                            onClick={handleSave} 
+                            className="flex-1"
+                            disabled={!dateRange?.from || !dateRange?.to}
+                          >
+                            저장
+                          </Button>
+                          <Button variant="outline" onClick={handleClear} className="flex-1">
+                            초기화
+                          </Button>
+                        </div>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                </>
               )}
             </div>
-
-            <div className="border rounded-lg overflow-hidden">
-              <Calendar
-                mode="single"
-                selected={isSelectingEndDate ? tempEndDate || undefined : tempStartDate || undefined}
-                onSelect={handleDateSelect}
-                disabled={(date) => date < new Date()}
-                initialFocus
-                className="w-full"
-              />
-            </div>
-
-            <div className="flex gap-2">
+          </PopoverContent>
+        </Popover>
+      ) : (
+        // 저장된 날짜가 없는 경우: 여행 날짜 선택 버튼만 표시
+        mode === 'browse' && (
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                onClick={() => setShowNewDateForm(false)}
-                className="flex-1"
+                className="h-8 text-xs px-3"
               >
-                뒤로
+                <CalendarDays className="h-3 w-3 mr-1" />
+                {formatDateRange()}
               </Button>
-              {tempStartDate && tempEndDate && (
-                <Button
-                  onClick={handleSaveDates}
-                  className="flex-1"
-                >
-                  저장
-                </Button>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <div className="p-4 space-y-4">
+                <div className="text-center">
+                  <h4 className="text-sm font-medium">여행 날짜 선택</h4>
+                  <p className="text-xs text-gray-500 mt-1">{formatCalendarDateRange()}</p>
+                </div>
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={handleDateRangeSelect}
+                  numberOfMonths={1}
+                  className="rounded-md border"
+                  locale={ko}
+                />
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleSave} 
+                    className="flex-1"
+                    disabled={!dateRange?.from || !dateRange?.to}
+                  >
+                    저장
+                  </Button>
+                  <Button variant="outline" onClick={handleClear} className="flex-1">
+                    초기화
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        )
+      )}
     </div>
   );
-};
-
-export default TravelDateSelector;
+}
