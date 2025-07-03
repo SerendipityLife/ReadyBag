@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '../ui/button';
 import { MapPin } from 'lucide-react';
@@ -13,13 +14,25 @@ export function AccommodationSearch() {
   } = useAppContext();
   
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [accommodationInput, setAccommodationInput] = useState('');
 
-  const handleAccommodationSelect = (location: any) => {
+  const handleAccommodationSelect = () => {
+    if (!accommodationInput.trim()) return;
+    
+    const location = {
+      name: accommodationInput,
+      address: accommodationInput,
+      lat: 0, // 실제 구현시 Google Places API로 좌표 획득
+      lng: 0
+    };
+    
     if (selectedTravelDateId) {
       setAccommodationForTravelDate(selectedTravelDateId, location);
     } else {
       setAccommodationLocation(location);
     }
+    
+    setAccommodationInput('');
     setIsSearchOpen(false);
   };
 
@@ -38,17 +51,39 @@ export function AccommodationSearch() {
       </Button>
 
       {isSearchOpen && (
-        <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg p-4 z-50 min-w-[200px]">
-          <p className="text-sm text-gray-600 mb-2">
-            Google Maps를 이용한 숙박지 검색 기능
-          </p>
-          <Button 
-            size="sm" 
-            onClick={() => setIsSearchOpen(false)}
-            className="w-full"
-          >
-            닫기
-          </Button>
+        <div className="absolute top-full left-0 mt-1 bg-white border rounded-lg shadow-lg p-4 z-50 min-w-[300px]">
+          <div className="space-y-3">
+            <p className="text-sm text-gray-600">
+              숙박지 이름이나 주소를 입력해주세요.
+            </p>
+            
+            <input
+              type="text"
+              placeholder="숙박지 이름 또는 주소"
+              value={accommodationInput}
+              onChange={(e) => setAccommodationInput(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"
+            />
+            
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                size="sm" 
+                onClick={() => setIsSearchOpen(false)}
+                className="flex-1"
+              >
+                닫기
+              </Button>
+              <Button 
+                size="sm" 
+                onClick={handleAccommodationSelect}
+                disabled={!accommodationInput.trim()}
+                className="flex-1 bg-sky-500 hover:bg-sky-600"
+              >
+                저장
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

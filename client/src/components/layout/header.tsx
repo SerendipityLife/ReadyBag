@@ -1,10 +1,8 @@
-
-import { useState } from "react";
+import React, { useState } from 'react';
 import { useLocation } from "wouter";
 import { useAppContext } from "../../contexts/AppContext.tsx";
 import { useAuth } from "../../hooks/use-auth.tsx";
 import { CountrySelector } from "../country-selector.tsx";
-import { FilterModal } from "../filter/filter-modal-simplified.tsx";
 import { View } from "../../lib/constants.ts";
 import { Button } from "../ui/button.tsx";
 import { 
@@ -17,7 +15,10 @@ import {
   SlidersHorizontal,
   CalendarIcon,
   MapPin,
-  Star
+  Star,
+  Filter,
+  Info,
+  Globe
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,7 +30,6 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar.tsx";
 import { cn } from "../../lib/utils.ts";
 import { TravelDateSelector } from "../travel-date-selector.tsx";
-import { AccommodationSearch } from "../location/accommodation-search.tsx";
 
 export function Header() {
   const [location, navigate] = useLocation();
@@ -41,13 +41,20 @@ export function Header() {
     selectedTravelDateId,
     savedTravelDates,
     setShowTravelDateSelector,
-    getCurrentAccommodation
+    getCurrentAccommodation,
+    selectedCountry,
+    travelDates,
+    setSelectedTravelDateId,
+    setAccommodationForTravelDate,
+    accommodationsByTravelDate,
+    setAccommodationLocation
   } = useAppContext();
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [showAccommodationSearch, setShowAccommodationSearch] = useState(false);
+  const [accommodationAddress, setAccommodationAddress] = useState('');
 
   const handleBackClick = () => {
     if (isSharedList) {
@@ -76,8 +83,6 @@ export function Header() {
       }
     });
   };
-
-
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -124,15 +129,74 @@ export function Header() {
     return "일정";
   };
 
+  const getTravelDateDisplay = () => {
+    if (!selectedTravelDateId) return '날짜';
+
+    const travelDate = travelDates.find(td => td.id === selectedTravelDateId);
+    if (!travelDate) return '날짜';
+
+    const startDate = new Date(travelDate.startDate);
+    const endDate = new Date(travelDate.endDate);
+
+    // 같은 달인지 확인
+    if (startDate.getMonth() === endDate.getMonth()) {
+      return `${startDate.getMonth() + 1}/${startDate.getDate()}-${endDate.getDate()}`;
+    } else {
+      return `${startDate.getMonth() + 1}/${startDate.getDate()}-${endDate.getMonth() + 1}/${endDate.getDate()}`;
+    }
+  };
+
+  const getTravelDateMobile2 = () => {
+    if (!selectedTravelDateId) return '날짜 선택';
+
+    const travelDate = travelDates.find(td => td.id === selectedTravelDateId);
+    if (!travelDate) return '날짜 선택';
+
+    const startDate = new Date(travelDate.startDate);
+    const endDate = new Date(travelDate.endDate);
+
+    if (startDate.getMonth() === endDate.getMonth()) {
+      return `${startDate.getMonth() + 1}/${startDate.getDate()}-${endDate.getDate()}`;
+    } else {
+      return `${startDate.getMonth() + 1}/${startDate.getDate()}-${endDate.getMonth() + 1}/${endDate.getDate()}`;
+    }
+  };
+
   // Get current accommodation display
   const getCurrentAccommodationDisplay = () => {
     const currentAccommodation = getCurrentAccommodation();
-    return currentAccommodation ? "설정됨" : "숙박지";
+    if (currentAccommodation?.name) {
+      return currentAccommodation.name.length > 6 
+        ? `${currentAccommodation.name.substring(0, 6)}...` 
+        : currentAccommodation.name;
+    }
+    return '숙박지';
+  };
+
+  const handleAccommodationSave = () => {
+    if (!accommodationAddress.trim()) return;
+
+    const accommodationData = {
+      name: accommodationAddress,
+      address: accommodationAddress,
+      lat: 0, // 실제 구현시 Google Places API로 좌표 획득
+      lng: 0
+    };
+
+    if (selectedTravelDateId) {
+      setAccommodationForTravelDate(selectedTravelDateId, accommodationData);
+    } else {
+      setAccommodationLocation(accommodationData);
+    }
+
+    setAccommodationAddress('');
+    setShowAccommodationSearch(false);
   };
 
   return (
     <>
-      <header className="w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50">
+      <header className={cn("w-full bg-white/90 backdrop-blur-sm border-b border-gray-200/80 sticky top-0 z-50",
+      "bg-sky-400 text-white p-3 sm:p-4")}>
         <div className="w-full px-2 sm:px-4 py-2 sm:py-3">
           <div className="flex items-center justify-between gap-2 sm:gap-4">
 
@@ -154,10 +218,26 @@ export function Header() {
             {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
               <div className="flex items-center justify-center gap-1 sm:gap-2 flex-1">
                 {/* Country Selector */}
-                <CountrySelector />
+                {/* <CountrySelector /> */}
+                 <button 
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation"
+                  onClick={() => {
+                    const event = new CustomEvent('openCountrySelector');
+                    window.dispatchEvent(event);
+                  }}
+                  title={`국가: ${selectedCountry?.name || '일본'}`}
+                >
+                  <Globe size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+                    {selectedCountry?.name || '일본'}
+                  </span>
+                  <span className="text-xs text-gray-100 sm:hidden">
+                    일본
+                  </span>
+                </button>
                 
                 {/* Travel Date Selector */}
-                <button 
+                {/* <button 
                   className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg bg-white hover:bg-gray-100 transition-colors touch-manipulation border border-gray-200"
                   onClick={() => setShowTravelDateSelector(true)}
                   title={`여행 날짜: ${getTravelDateDesktop()}`}
@@ -169,10 +249,27 @@ export function Header() {
                   <span className="text-xs text-gray-600 sm:hidden">
                     {getTravelDateMobile()}
                   </span>
+                </button> */}
+
+                <button 
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation"
+                  onClick={() => {
+                    const event = new CustomEvent('openTravelDateSelector');
+                    window.dispatchEvent(event);
+                  }}
+                  title={`여행 날짜: ${getTravelDateDisplay()}`}
+                >
+                  <Calendar size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+                    {getTravelDateDisplay()}
+                  </span>
+                  <span className="text-xs text-gray-100 sm:hidden">
+                    날짜
+                  </span>
                 </button>
 
                 {/* Accommodation Search */}
-                <button 
+                {/* <button 
                   className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                   onClick={() => setShowAccommodationSearch(true)}
                   title={`숙박지: ${getCurrentAccommodationDisplay()}`}
@@ -180,6 +277,20 @@ export function Header() {
                   <MapPin size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
                   <span className="text-xs text-gray-600 hidden sm:inline">
                     {getCurrentAccommodationDisplay()}
+                  </span>
+                </button> */}
+
+                <button 
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation"
+                  onClick={() => setShowAccommodationSearch(true)}
+                  title={`숙박지: ${getCurrentAccommodationDisplay()}`}
+                >
+                  <MapPin size={16} className="text-white sm:w-[18px] sm:h-[18px]" />
+                  <span className="text-xs sm:text-sm font-medium hidden sm:inline">
+                    {getCurrentAccommodationDisplay()}
+                  </span>
+                  <span className="text-xs text-gray-100 sm:hidden">
+                    숙박지
                   </span>
                 </button>
 
@@ -235,6 +346,37 @@ export function Header() {
 
             {/* Right section - Empty for now */}
             <div className="flex-shrink-0">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button 
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation" 
+                  onClick={() => setIsFilterModalOpen(true)}
+                  title="필터"
+                >
+                  <Filter size={16} className="sm:w-[18px] sm:h-[18px]" />
+                </button>
+
+                <button 
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation" 
+                  onClick={() => {
+                    const event = new CustomEvent('openInfoPanel');
+                    window.dispatchEvent(event);
+                  }}
+                  title="정보"
+                >
+                  <Info size={16} className="sm:w-[18px] sm:h-[18px]" />
+                </button>
+
+                <button 
+                  className="p-1.5 sm:p-2 rounded-lg hover:bg-sky-500 transition-colors touch-manipulation" 
+                  onClick={() => {
+                    const event = new CustomEvent('openAuthModal');
+                    window.dispatchEvent(event);
+                  }}
+                  title="로그인"
+                >
+                  <User size={16} className="sm:w-[18px] sm:h-[18px]" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -260,18 +402,20 @@ export function Header() {
                 ×
               </Button>
             </div>
-            
+
             <div className="space-y-4">
               <p className="text-sm text-gray-600">
-                Google Maps를 이용한 숙박지 검색 기능입니다.
+                숙박지 이름이나 주소를 입력해주세요.
               </p>
-              
+
               <div className="space-y-2">
-                <label className="text-sm font-medium">숙박지 주소</label>
+                <label className="text-sm font-medium">숙박지 정보</label>
                 <input 
                   type="text" 
-                  placeholder="숙박지 주소를 입력하세요"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="숙박지 이름 또는 주소를 입력하세요"
+                  value={accommodationAddress}
+                  onChange={(e) => setAccommodationAddress(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
             </div>
@@ -285,8 +429,9 @@ export function Header() {
                 취소
               </Button>
               <Button
-                onClick={() => setShowAccommodationSearch(false)}
-                className="flex-1"
+                onClick={handleAccommodationSave}
+                disabled={!accommodationAddress.trim()}
+                className="flex-1 bg-sky-500 hover:bg-sky-600"
               >
                 저장
               </Button>
@@ -297,3 +442,5 @@ export function Header() {
     </>
   );
 }
+
+export default Header;
