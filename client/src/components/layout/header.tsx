@@ -15,9 +15,9 @@ import {
   ChevronDown,
   User,
   SlidersHorizontal,
-  Info,
   CalendarIcon,
-  MapPin
+  MapPin,
+  Star
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -77,9 +77,7 @@ export function Header() {
     });
   };
 
-  const handleInfoClick = () => {
-    setCurrentView(View.INFO);
-  };
+
 
   // Get user initials for avatar
   const getUserInitials = () => {
@@ -92,13 +90,38 @@ export function Header() {
     return user.email.charAt(0).toUpperCase();
   };
 
-  // Get current travel date display
-  const getCurrentTravelDateDisplay = () => {
+  // Get current travel date display for desktop
+  const getTravelDateDesktop = () => {
     if (selectedTravelDateId) {
       const savedDate = savedTravelDates.find(d => d.id === selectedTravelDateId);
-      return savedDate ? savedDate.label.split(' ')[0] : "날짜";
+      if (savedDate) {
+        // Extract dates from savedDate.id format: "travel_YYYY-MM-DD_YYYY-MM-DD"
+        const dateMatch = savedDate.id.match(/travel_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})/);
+        if (dateMatch) {
+          const startDate = new Date(dateMatch[1]);
+          const endDate = new Date(dateMatch[2]);
+          return `${startDate.getFullYear()}.${(startDate.getMonth() + 1).toString().padStart(2, '0')}.${startDate.getDate().toString().padStart(2, '0')} - ${endDate.getFullYear()}.${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getDate().toString().padStart(2, '0')}`;
+        }
+      }
     }
-    return "날짜";
+    return "여행 일정";
+  };
+
+  // Get current travel date display for mobile
+  const getTravelDateMobile = () => {
+    if (selectedTravelDateId) {
+      const savedDate = savedTravelDates.find(d => d.id === selectedTravelDateId);
+      if (savedDate) {
+        // Extract dates from savedDate.id format: "travel_YYYY-MM-DD_YYYY-MM-DD"
+        const dateMatch = savedDate.id.match(/travel_(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})/);
+        if (dateMatch) {
+          const startDate = new Date(dateMatch[1]);
+          const endDate = new Date(dateMatch[2]);
+          return `${(startDate.getMonth() + 1).toString().padStart(2, '0')}.${startDate.getDate().toString().padStart(2, '0')} - ${(endDate.getMonth() + 1).toString().padStart(2, '0')}.${endDate.getDate().toString().padStart(2, '0')}`;
+        }
+      }
+    }
+    return "일정";
   };
 
   // Get current accommodation display
@@ -127,18 +150,24 @@ export function Header() {
               )}
             </div>
 
-            {/* Center section - Date/Location/Country (only on explore view) */}
+            {/* Center section - Country/Date/Location/Login (only on explore view) */}
             {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
               <div className="flex items-center justify-center gap-1 sm:gap-2 flex-1">
+                {/* Country Selector */}
+                <CountrySelector />
+                
                 {/* Travel Date Selector */}
                 <button 
                   className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
                   onClick={() => setShowTravelDateSelector(true)}
-                  title={`여행 날짜: ${getCurrentTravelDateDisplay()}`}
+                  title={`여행 날짜: ${getTravelDateDesktop()}`}
                 >
                   <CalendarIcon size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
                   <span className="text-xs text-gray-600 hidden sm:inline">
-                    {getCurrentTravelDateDisplay()}
+                    {getTravelDateDesktop()}
+                  </span>
+                  <span className="text-xs text-gray-600 sm:hidden">
+                    {getTravelDateMobile()}
                   </span>
                 </button>
 
@@ -154,8 +183,48 @@ export function Header() {
                   </span>
                 </button>
 
-                {/* Country Selector */}
-                <CountrySelector />
+                {/* User menu - moved to center */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation">
+                      {user ? (
+                        <>
+                          <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
+                            <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                              {getUserInitials()}
+                            </AvatarFallback>
+                          </Avatar>
+                          <ChevronDown size={12} className="text-gray-500" />
+                        </>
+                      ) : (
+                        <>
+                          <UserCircle size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
+                          <ChevronDown size={12} className="text-gray-500" />
+                        </>
+                      )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48">
+                    {user ? (
+                      <>
+                        <DropdownMenuItem disabled className="flex items-center cursor-default">
+                          <User className="mr-2 h-4 w-4" />
+                          <span className="text-sm text-gray-600">{user.email}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={handleLogoutClick} className="flex items-center text-red-600">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>로그아웃</span>
+                        </DropdownMenuItem>
+                      </>
+                    ) : (
+                      <DropdownMenuItem onClick={handleLoginClick} className="flex items-center">
+                        <LogIn className="mr-2 h-4 w-4" />
+                        <span>로그인</span>
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             )}
 
@@ -164,8 +233,8 @@ export function Header() {
               <div className="flex-1"></div>
             )}
 
-            {/* Right section - Action buttons */}
-            <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+            {/* Right section - Filter and Review buttons (vertical layout) */}
+            <div className="flex flex-col gap-0.5 flex-shrink-0">
               {!isAuthPage && (
                 <>
                   <button 
@@ -174,71 +243,22 @@ export function Header() {
                     title="필터"
                   >
                     <SlidersHorizontal 
-                      size={16} 
-                      className="text-gray-600 sm:w-[18px] sm:h-[18px]" 
+                      size={14} 
+                      className="text-gray-600 sm:w-4 sm:h-4" 
                     />
                   </button>
 
                   <button 
-                    className={cn(
-                      "p-1.5 sm:p-2 rounded-lg transition-colors touch-manipulation",
-                      currentView === View.INFO 
-                        ? "bg-primary/10 text-primary" 
-                        : "hover:bg-gray-100 text-gray-600"
-                    )}
-                    onClick={handleInfoClick}
-                    title="정보"
+                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                    title="리뷰"
                   >
-                    <Info 
-                      size={16} 
-                      className="sm:w-[18px] sm:h-[18px]" 
+                    <Star 
+                      size={14} 
+                      className="text-gray-600 sm:w-4 sm:h-4" 
                     />
                   </button>
                 </>
               )}
-
-              {/* User menu */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation">
-                    {user ? (
-                      <>
-                        <Avatar className="h-4 w-4 sm:h-5 sm:w-5">
-                          <AvatarFallback className="text-xs bg-primary/10 text-primary">
-                            {getUserInitials()}
-                          </AvatarFallback>
-                        </Avatar>
-                        <ChevronDown size={12} className="text-gray-500" />
-                      </>
-                    ) : (
-                      <>
-                        <UserCircle size={16} className="text-gray-600 sm:w-[18px] sm:h-[18px]" />
-                        <ChevronDown size={12} className="text-gray-500" />
-                      </>
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  {user ? (
-                    <>
-                      <DropdownMenuItem disabled className="flex items-center cursor-default">
-                        <User className="mr-2 h-4 w-4" />
-                        <span className="text-sm text-gray-600">{user.email}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogoutClick} className="flex items-center text-red-600">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>로그아웃</span>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuItem onClick={handleLoginClick} className="flex items-center">
-                      <LogIn className="mr-2 h-4 w-4" />
-                      <span>로그인</span>
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </div>
