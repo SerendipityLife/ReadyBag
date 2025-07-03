@@ -99,14 +99,12 @@ export function ProductCard({
 
   const isTopCard = index === 0;
 
-  // Animation for the card movement including border and background color
-  const [{ x, y, rotate, filter, borderColor, borderWidth, boxShadow }, api] = useSpring(() => ({
+  // Animation for the card movement
+  const [{ x, y, rotate, filter, boxShadow }, api] = useSpring(() => ({
     x: 0,
     y: 0,
     rotate: 0,
     filter: 'blur(0px)',
-    borderColor: 'rgba(255,255,255,0)',
-    borderWidth: '0px',
     boxShadow: '0 0 0 0 rgba(0,0,0,0)',
     config: { tension: 300, friction: 20 }
   }));
@@ -156,8 +154,6 @@ export function ProductCard({
           x: -window.innerWidth - 200,
           rotate: -30,
           filter: 'blur(0px)',
-          borderColor: 'rgba(156, 163, 175, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(156, 163, 175, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -174,8 +170,6 @@ export function ProductCard({
           x: window.innerWidth + 200,
           rotate: 30,
           filter: 'blur(0px)',
-          borderColor: 'rgba(239, 68, 68, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(239, 68, 68, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -191,8 +185,6 @@ export function ProductCard({
         api.start({
           y: -window.innerHeight - 200,
           filter: 'blur(0px)',
-          borderColor: 'rgba(245, 158, 11, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(245, 158, 11, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -243,9 +235,6 @@ export function ProductCard({
         y,
         rotate,
         filter,
-        borderColor,
-        borderWidth,
-        borderStyle: 'solid',
         boxShadow,
         borderRadius: '1rem',
       }}
