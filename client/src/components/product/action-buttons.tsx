@@ -173,7 +173,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               style={{
                 backgroundColor: activeButton === SwipeDirection.UP ? 'rgb(245, 158, 11)' : 'white',
                 borderColor: activeButton === SwipeDirection.UP ? 'rgb(245, 158, 11)' : 'rgb(251, 191, 36)',
-                color: activeButton === SwipeDirection.UP ? 'white' : 'rgb(217, 119, 6)',
+                color: activeButton === SwipeDirection.UP ? 'white' : 'rgb(245, 158, 11)',
                 borderWidth: '2px',
                 borderRadius: '50%',
                 width: '56px',
