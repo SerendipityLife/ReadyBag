@@ -30,6 +30,7 @@ import {
 import { Avatar, AvatarFallback } from "../ui/avatar.tsx";
 import { cn } from "../../lib/utils.ts";
 import { TravelDateSelector } from "../travel-date-selector.tsx";
+import { FilterModal } from "../filter/filter-modal-simplified.tsx";
 
 export function Header() {
   const [location, navigate] = useLocation();
