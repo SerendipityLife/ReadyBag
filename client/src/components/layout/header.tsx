@@ -158,7 +158,7 @@ export function Header() {
                 
                 {/* Travel Date Selector */}
                 <button 
-                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  className="flex items-center gap-1 p-1.5 sm:p-2 rounded-lg bg-white hover:bg-gray-100 transition-colors touch-manipulation border border-gray-200"
                   onClick={() => setShowTravelDateSelector(true)}
                   title={`여행 날짜: ${getTravelDateDesktop()}`}
                 >
