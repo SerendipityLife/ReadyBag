@@ -292,51 +292,42 @@ export default function AuthPage() {
                     </div>
                   </div>
                   
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-6 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all" 
-                    disabled={loginMutation.isPending || isLoading}
-                  >
-                    {loginMutation.isPending ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : null}
-                    로그인
-                  </Button>
+                  <div className="flex gap-2 mt-6">
+                    <Button 
+                      type="submit" 
+                      className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-lg shadow-md hover:shadow-lg transition-all" 
+                      disabled={loginMutation.isPending || isLoading}
+                    >
+                      {loginMutation.isPending ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                      ) : null}
+                      로그인
+                    </Button>
+                    <Button 
+                      type="button"
+                      variant="secondary" 
+                      onClick={handleStartAsGuest}
+                      className="flex-1 h-12 font-medium shadow-sm border border-gray-200"
+                    >
+                      비회원으로 시작하기
+                    </Button>
+                  </div>
                 </form>
               </Form>
               
-              <div className="mt-6 text-center space-y-4">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="bg-background px-4 text-xs text-muted-foreground">
-                      또는
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Button 
-                    variant="secondary" 
-                    onClick={handleStartAsGuest}
-                    className="w-full py-6 font-medium shadow-sm border border-gray-200"
-                  >
-                    비회원으로 시작하기
-                  </Button>
-                </div>
+              <div className="mt-6 text-center">
                 <div className="flex justify-center space-x-2">
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("register")}
-                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
+                    className="text-sm text-blue-600 hover:text-blue-800"
                   >
                     계정이 없으신가요?
                   </Button>
                   <Button 
                     variant="link" 
                     onClick={() => setActiveTab("forgot")}
-                    className="text-sm text-sand-brown-600 hover:text-sand-brown-800"
+                    className="text-sm text-blue-600 hover:text-blue-800"
                   >
                     비밀번호를 잊으셨나요?
                   </Button>
@@ -569,8 +560,6 @@ export default function AuthPage() {
           </div>
         </div>
       </div>
-
-
     </div>
   );
 }
