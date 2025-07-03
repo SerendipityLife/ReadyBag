@@ -233,32 +233,8 @@ export function Header() {
               <div className="flex-1"></div>
             )}
 
-            {/* Right section - Filter and Review buttons (vertical layout) */}
-            <div className="flex flex-col gap-0.5 flex-shrink-0">
-              {!isAuthPage && (
-                <>
-                  <button 
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                    onClick={() => setIsFilterModalOpen(true)}
-                    title="필터"
-                  >
-                    <SlidersHorizontal 
-                      size={14} 
-                      className="text-gray-600 sm:w-4 sm:h-4" 
-                    />
-                  </button>
-
-                  <button 
-                    className="p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
-                    title="리뷰"
-                  >
-                    <Star 
-                      size={14} 
-                      className="text-gray-600 sm:w-4 sm:h-4" 
-                    />
-                  </button>
-                </>
-              )}
+            {/* Right section - Empty for now */}
+            <div className="flex-shrink-0">
             </div>
           </div>
         </div>

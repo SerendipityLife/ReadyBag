@@ -3,13 +3,14 @@ import { useSpring, animated } from "@react-spring/web";
 import { useAppContext } from "../../contexts/AppContext";
 import { Card } from "../ui/card";
 import { SwipeDirection } from "../../lib/constants";
-import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
+import { Loader2, Heart, X, HelpCircle, MessageSquare, SlidersHorizontal } from "lucide-react";
 import { ReviewButton } from "./review-button";
 import { useToast } from "../../hooks/use-toast";
 import type { Product } from "@shared/schema";
 import { CurrencyDisplay } from "../ui/currency-display";
 import { PriceRangeDisplay } from "../ui/price-range-display";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { FilterModal } from "../filter/filter-modal-simplified";
 
 interface ProductCardProps {
   product: Product;
@@ -43,6 +44,9 @@ export function ProductCard({
   // 상품 설명 모달 상태
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  // 필터 모달 상태
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // 버튼 트리거 여부를 추적하는 ref
   const isButtonTriggered = useRef(false);
@@ -307,7 +311,7 @@ export function ProductCard({
             </div>
           </div>
 
-          {/* 가격 정보와 리뷰 버튼 */}
+          {/* 가격 정보와 필터/리뷰 버튼 */}
           <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="flex items-start justify-between">
               <div className="flex-1 mr-2">
@@ -316,14 +320,29 @@ export function ProductCard({
                   className=""
                 />
               </div>
-              {/* Review button - read-only mode */}
-              <ReviewButton 
-                productId={product.id} 
-                productName={product.name}
-                variant="icon"
-                size="sm"
-                readOnly={true}
-              />
+              {/* Filter and Review buttons - vertical layout */}
+              <div className="flex flex-col gap-1">
+                {/* Filter button */}
+                <button 
+                  className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors touch-manipulation"
+                  onClick={() => setIsFilterModalOpen(true)}
+                  title="필터"
+                >
+                  <SlidersHorizontal 
+                    size={14} 
+                    className="text-gray-600" 
+                  />
+                </button>
+                
+                {/* Review button - read-only mode */}
+                <ReviewButton 
+                  productId={product.id} 
+                  productName={product.name}
+                  variant="icon"
+                  size="sm"
+                  readOnly={true}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -374,6 +393,9 @@ export function ProductCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Filter Modal */}
+      <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
     </animated.div>
   );
 }
