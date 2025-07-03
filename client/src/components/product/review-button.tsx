@@ -19,8 +19,8 @@ export function ReviewButton({ productId, productName, variant = "button", size 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         {variant === "icon" ? (
-          <Button variant="outline" size={size} className="px-2">
-            <MessageSquare className="h-3 w-3" />
+          <Button variant="ghost" size={size} className="h-8 w-8 p-0 hover:bg-gray-100">
+            <MessageSquare className="h-4 w-4" />
           </Button>
         ) : (
           <Button variant="outline" size={size} className="flex items-center gap-1">

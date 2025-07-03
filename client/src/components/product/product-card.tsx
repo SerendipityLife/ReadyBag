@@ -250,7 +250,7 @@ export function ProductCard({
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-xs mx-auto bg-white border-2 border-blue-200 shadow-md relative overflow-hidden">
+      <Card className="w-full h-full max-w-xs mx-auto bg-white border border-gray-200 shadow-sm relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -289,7 +289,7 @@ export function ProductCard({
         </div>
 
         {/* 상품 정보 - 유연한 높이 */}
-        <div className="p-3 sm:p-4 min-h-36 sm:min-h-48 flex flex-col">
+        <div className="p-4 min-h-36 sm:min-h-48 flex flex-col">
           <div className="space-y-3 flex-1">
             <div>
               <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
@@ -313,25 +313,25 @@ export function ProductCard({
           </div>
 
           {/* 가격 정보와 필터/리뷰 버튼 */}
-          <div className="mt-2 sm:mt-4 pt-2 sm:pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 mr-2">
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1">
                 <PriceRangeDisplay 
                   productId={product.id}
                   className=""
                 />
               </div>
               {/* Filter and Review buttons - vertical layout */}
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-2">
                 {/* Filter button */}
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm" 
-                  className="px-2"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
                   onClick={() => setIsFilterModalOpen(true)}
                   title="필터"
                 >
-                  <SlidersHorizontal className="h-3 w-3" />
+                  <SlidersHorizontal className="h-4 w-4" />
                 </Button>
                 
                 {/* Review button - read-only mode */}
