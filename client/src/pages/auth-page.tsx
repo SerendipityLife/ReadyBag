@@ -512,48 +512,37 @@ export default function AuthPage() {
                     )}
                   />
 
-                  <Button 
-                    type="submit" 
-                    className="w-full mt-4 h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg transition-all" 
-                    disabled={registerMutation.isPending || isLoading}
-                  >
-                    {registerMutation.isPending ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : null}
-                    회원가입
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button 
+                      type="submit" 
+                      className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg shadow-md hover:shadow-lg transition-all" 
+                      disabled={registerMutation.isPending || isLoading}
+                    >
+                      {registerMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      회원가입
+                    </Button>
+                    <Button 
+                      type="button"
+                      variant="secondary" 
+                      onClick={handleStartAsGuest}
+                      className="flex-1 h-10 font-medium shadow-sm border border-gray-200 text-sm"
+                    >
+                      비회원으로 시작하기
+                    </Button>
+                  </div>
                 </form>
               </Form>
               
-              <div className="mt-4 text-center space-y-3">
-                <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-gray-200" />
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="bg-background px-4 text-xs text-muted-foreground">
-                      또는
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Button 
-                    variant="secondary" 
-                    onClick={handleStartAsGuest}
-                    className="w-full py-3 font-medium shadow-sm border border-gray-200 text-sm"
-                  >
-                    비회원으로 시작하기
-                  </Button>
-                </div>
-                <div>
-                  <Button 
-                    variant="link" 
-                    onClick={() => setActiveTab("login")}
-                    className="text-sm text-blue-600 hover:text-blue-800"
-                  >
-                    이미 계정이 있으신가요? 로그인하기
-                  </Button>
-                </div>
+              <div className="mt-4 text-center">
+                <Button 
+                  variant="link" 
+                  onClick={() => setActiveTab("login")}
+                  className="text-sm text-blue-600 hover:text-blue-800"
+                >
+                  이미 계정이 있으신가요? 로그인하기
+                </Button>
               </div>
             </TabsContent>
             </Tabs>
