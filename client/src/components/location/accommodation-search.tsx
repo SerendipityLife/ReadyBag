@@ -71,23 +71,23 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
           </Button>
         </div>
 
-        <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
+        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
           <div className="space-y-1.5">
             <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
-              <p className="text-sm text-sand-brown-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-800">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
             </div>
             <div className="flex items-start gap-2">
-              <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
-              <p className="text-sm text-sand-brown-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
+              <div className="w-1.5 h-1.5 bg-blue-600 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-gray-800">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
             </div>
           </div>
         </div>
 
         {accommodationLocation && (
-          <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
-            <p className="text-sm text-sand-brown-700 font-medium">현재 설정된 숙박지:</p>
-            <p className="text-sm text-sand-brown-600 mt-1 break-all">{accommodationLocation.address}</p>
+          <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+            <p className="text-sm text-gray-800 font-medium">현재 설정된 숙박지:</p>
+            <p className="text-sm text-gray-700 mt-1 break-all">{accommodationLocation.address}</p>
           </div>
         )}
 
@@ -105,7 +105,7 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
               onClick={handleLocationSearch}
               disabled={isSearching}
               size="sm"
-              className="h-10 px-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white"
+              className="h-10 px-4 bg-blue-600 hover:bg-blue-700 text-white"
             >
               {isSearching ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
