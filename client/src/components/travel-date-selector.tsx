@@ -155,62 +155,61 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[600px] p-0" align="start">
-            <div className="flex">
-              {/* 왼쪽: 캘린더 */}
-              <div className="flex-1 p-4">
-                <div className="text-center mb-4">
-                  <h3 className="font-semibold text-base text-gray-900 mb-2">여행 날짜 선택</h3>
-                  <p className="text-sm text-gray-700">출발일과 도착일을 선택해주세요</p>
-                </div>
-                <Calendar
-                  mode="range"
-                  selected={dateRange}
-                  onSelect={handleDateRangeSelect}
-                  numberOfMonths={1}
-                  className="rounded-md border w-full"
-                  locale={ko}
-                />
-                <div className="flex gap-2 pt-4">
-                  <Button 
-                    onClick={handleSave} 
-                    className="flex-1"
-                    disabled={!dateRange?.from || !dateRange?.to}
-                  >
-                    저장
-                  </Button>
-                  <Button variant="outline" onClick={handleClear} className="flex-1">
-                    초기화
-                  </Button>
-                </div>
+          <PopoverContent className="w-auto p-0" align="start">
+            <div className="p-4">
+              <div className="text-center mb-4">
+                <h3 className="font-semibold text-base text-gray-900 mb-2">여행 날짜 선택</h3>
+                <p className="text-sm text-gray-700">출발일과 도착일을 선택해주세요</p>
+              </div>
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={handleDateRangeSelect}
+                numberOfMonths={1}
+                className="rounded-md border w-full"
+                locale={ko}
+              />
+              <div className="flex gap-2 pt-4">
+                <Button 
+                  onClick={handleSave} 
+                  className="flex-1"
+                  disabled={!dateRange?.from || !dateRange?.to}
+                >
+                  저장
+                </Button>
+                <Button variant="outline" onClick={handleClear} className="flex-1">
+                  초기화
+                </Button>
               </div>
               
-              {/* 오른쪽: 저장된 날짜 리스트 */}
-              <div className="w-64 border-l border-gray-200 p-4">
-                <h4 className="font-medium text-sm text-gray-900 mb-3">저장된 여행 날짜</h4>
-                <div className="space-y-2 max-h-80 overflow-y-auto">
-                  {savedTravelDates.map((travelDate) => (
-                    <div key={travelDate.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50 border border-gray-100">
-                      <button
-                        className="flex-1 text-left text-xs text-gray-800 hover:bg-transparent"
-                        onClick={() => handleSelectSavedDate(travelDate.id)}
-                      >
-                        {travelDate.label}
-                      </button>
-                      {mode === 'browse' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
-                          onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
+              {/* 저장된 날짜 리스트 - 캘린더 아래 */}
+              {savedTravelDates.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="font-medium text-sm text-gray-900 mb-3">저장된 여행 날짜</h4>
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {savedTravelDates.map((travelDate) => (
+                      <div key={travelDate.id} className="flex items-center justify-between p-2 rounded hover:bg-gray-50 border border-gray-100">
+                        <button
+                          className="flex-1 text-left text-xs text-gray-800 hover:bg-transparent"
+                          onClick={() => handleSelectSavedDate(travelDate.id)}
                         >
-                          <Trash2 className="h-3 w-3 text-red-500" />
-                        </Button>
-                      )}
-                    </div>
-                  ))}
+                          {travelDate.label}
+                        </button>
+                        {mode === 'browse' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 ml-2 hover:bg-red-100 flex-shrink-0"
+                            onClick={(e) => handleDeleteSavedDate(travelDate.id, e)}
+                          >
+                            <Trash2 className="h-3 w-3 text-red-500" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </PopoverContent>
         </Popover>
