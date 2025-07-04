@@ -52,6 +52,92 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
     }
   };
 
+  // 헤더에서 호출된 경우 간단한 inline 버전 표시
+  if (onClose) {
+    return (
+      <div className="fixed top-16 left-2 right-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Home className="h-5 w-5 text-[#7B5E57]" />
+            <span className="text-base font-medium text-gray-700">숙박지 주소 설정</span>
+          </div>
+          <Button
+            onClick={onClose}
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
+          >
+            ×
+          </Button>
+        </div>
+
+        <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
+          <div className="space-y-1.5">
+            <div className="flex items-start gap-2">
+              <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-sand-brown-700">숙박하는 호텔이나 숙소 주소를 알려주세요</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <div className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mt-2 flex-shrink-0"></div>
+              <p className="text-sm text-sand-brown-700">숙소 근처 편의점, 쇼핑몰 등 가까운 곳을 찾아드려요</p>
+            </div>
+          </div>
+        </div>
+
+        {accommodationLocation && (
+          <div className="mb-4 p-3 bg-sand-brown-50 rounded-lg border border-sand-brown-200">
+            <p className="text-sm text-sand-brown-700 font-medium">현재 설정된 숙박지:</p>
+            <p className="text-sm text-sand-brown-600 mt-1 break-all">{accommodationLocation.address}</p>
+          </div>
+        )}
+
+        <div className="space-y-3">
+          <div className="flex gap-2">
+            <Input
+              placeholder="영문 숙소 주소 입력"
+              value={locationAddress}
+              onChange={(e) => setLocationAddress(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
+              className="flex-1 h-10"
+              autoFocus
+            />
+            <Button 
+              onClick={handleLocationSearch}
+              disabled={isSearching}
+              size="sm"
+              className="h-10 px-4 bg-sand-brown-600 hover:bg-sand-brown-700 text-white"
+            >
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "검색"
+              )}
+            </Button>
+          </div>
+          
+          {error && (
+            <p className="text-sm text-red-500">{error}</p>
+          )}
+
+          {accommodationLocation && (
+            <Button
+              onClick={() => {
+                setLocationAddress("");
+                setAccommodationLocation(null);
+                onClose();
+              }}
+              variant="outline"
+              size="sm"
+              className="w-full h-10 text-sm text-red-600 border-red-200 hover:bg-red-50"
+            >
+              숙박지 설정 해제
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative">
       {accommodationLocation ? (
