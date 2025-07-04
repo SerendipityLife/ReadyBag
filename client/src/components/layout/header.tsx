@@ -41,13 +41,16 @@ export function Header() {
     selectedTravelDateId,
     savedTravelDates,
     setShowTravelDateSelector,
-    getCurrentAccommodation
+    getCurrentAccommodation,
+    setAccommodationForTravelDate,
+    setAccommodationLocation
   } = useAppContext();
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
   const [showAccommodationSearch, setShowAccommodationSearch] = useState(false);
+  const [accommodationAddress, setAccommodationAddress] = useState('');
 
   const handleBackClick = () => {
     if (isSharedList) {
@@ -254,7 +257,10 @@ export function Header() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => setShowAccommodationSearch(false)}
+                onClick={() => {
+                  setShowAccommodationSearch(false);
+                  setAccommodationAddress('');
+                }}
                 className="h-8 w-8 p-0"
               >
                 ×
@@ -271,6 +277,8 @@ export function Header() {
                 <input 
                   type="text" 
                   placeholder="숙박지 주소를 입력하세요"
+                  value={accommodationAddress}
+                  onChange={(e) => setAccommodationAddress(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
@@ -279,14 +287,36 @@ export function Header() {
             <div className="flex gap-2 mt-6">
               <Button
                 variant="outline"
-                onClick={() => setShowAccommodationSearch(false)}
+                onClick={() => {
+                  setShowAccommodationSearch(false);
+                  setAccommodationAddress('');
+                }}
                 className="flex-1"
               >
                 취소
               </Button>
               <Button
-                onClick={() => setShowAccommodationSearch(false)}
+                onClick={() => {
+                  if (accommodationAddress.trim()) {
+                    const accommodationData = {
+                      address: accommodationAddress.trim(),
+                      name: accommodationAddress.trim(),
+                      lat: 0,
+                      lng: 0
+                    };
+                    
+                    if (selectedTravelDateId) {
+                      setAccommodationForTravelDate(selectedTravelDateId, accommodationData);
+                    } else {
+                      setAccommodationLocation(accommodationData);
+                    }
+                    
+                    setAccommodationAddress('');
+                    setShowAccommodationSearch(false);
+                  }
+                }}
                 className="flex-1"
+                disabled={!accommodationAddress.trim()}
               >
                 저장
               </Button>
