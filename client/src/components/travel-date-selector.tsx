@@ -185,7 +185,13 @@ export function TravelDateSelector({ startDate, endDate, onDatesChange, mode = '
                   <div className="border-t border-gray-200 my-1"></div>
                   <Popover open={isNewDateModalOpen} onOpenChange={setIsNewDateModalOpen}>
                     <PopoverTrigger asChild>
-                      <button className="w-full flex items-center justify-center p-2 rounded hover:bg-blue-50 text-blue-600">
+                      <button 
+                        className="w-full flex items-center justify-center p-2 rounded hover:bg-blue-50 text-blue-600"
+                        onClick={() => {
+                          setDateRange(undefined);
+                          setIsNewDateModalOpen(true);
+                        }}
+                      >
                         <Plus className="h-3 w-3 mr-1" />
                         <span className="text-xs">새 날짜 추가</span>
                       </button>
