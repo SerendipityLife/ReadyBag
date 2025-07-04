@@ -240,7 +240,16 @@ export function setupAuth(app: Express) {
                     console.log("Login successful - User authenticated:", req.isAuthenticated());
                     console.log("Login successful - Session user:", req.session);
                     
-                    return res.json(user);
+                    // 세션 저장 강제 실행
+                    req.session.save((err) => {
+                        if (err) {
+                            console.error("Session save error:", err);
+                            return next(err);
+                        }
+                        
+                        console.log("Session saved successfully");
+                        return res.json(user);
+                    });
                 });
             })(req, res, next);
         } catch (error: any) {
