@@ -131,7 +131,7 @@ export function Header() {
                   <Calendar size={18} className="text-gray-600" />
                 </button>
                 {showTravelDateSelector && (
-                  <div className="absolute top-full left-0 mt-1 z-50">
+                  <div className="fixed top-14 left-2 right-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
                     <TravelDateSelector
                       startDate={travelStartDate}
                       endDate={travelEndDate}
@@ -157,7 +157,7 @@ export function Header() {
                   <MapPin size={18} className="text-gray-600" />
                 </button>
                 {showAccommodationSearch && (
-                  <div className="absolute top-full left-0 mt-1 z-50">
+                  <div className="fixed top-14 left-2 right-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
                     <AccommodationSearch onClose={() => setShowAccommodationSearch(false)} />
                   </div>
                 )}
