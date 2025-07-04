@@ -75,15 +75,17 @@ export function setupAuth(app: Express) {
                 tableName: "session", // 세션 테이블 이름
                 createTableIfMissing: true, // 테이블이 없으면 생성
             }),
-            secret: process.env.SESSION_SECRET || "readybag-session-secret",
-            resave: false,
+            name: 'connect.sid', // 세션 쿠키 이름을 명시적으로 설정
+            secret: process.env.SESSION_SECRET || "readybag-session-secret-very-long-key-for-security",
+            resave: true, // 세션이 수정되지 않아도 다시 저장
             saveUninitialized: false,
             rolling: true, // 매 요청마다 세션 만료 시간 갱신
             cookie: {
-                maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
+                maxAge: 24 * 60 * 60 * 1000, // 24시간
                 secure: false, // 개발 환경에서는 false로 설정
                 httpOnly: true,
                 sameSite: "lax", // 개발 환경에서는 lax로 설정
+                domain: undefined, // 도메인을 명시하지 않음 (현재 도메인 사용)
             },
         })
     );
@@ -230,8 +232,13 @@ export function setupAuth(app: Express) {
                 
                 req.login(user, (err) => {
                     if (err) {
+                        console.error("Session login error:", err);
                         return next(err);
                     }
+                    
+                    console.log("Login successful - Session ID:", req.sessionID);
+                    console.log("Login successful - User authenticated:", req.isAuthenticated());
+                    console.log("Login successful - Session user:", req.session);
                     
                     return res.json(user);
                 });
@@ -260,10 +267,17 @@ export function setupAuth(app: Express) {
     
     // 현재 사용자 조회 엔드포인트
     app.get("/api/auth/user", (req, res) => {
+        console.log("User info request - Session ID:", req.sessionID);
+        console.log("User info request - Is authenticated:", req.isAuthenticated());
+        console.log("User info request - Session:", req.session);
+        console.log("User info request - User:", req.user);
+        
         if (!req.isAuthenticated() || !req.user) {
+            console.log("User info request - Authentication failed");
             return res.status(401).json({ message: "인증되지 않은 사용자입니다." });
         }
         
+        console.log("User info request - Authentication successful");
         res.json(req.user);
     });
     
