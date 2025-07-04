@@ -4,6 +4,8 @@ import { useAppContext } from "@/contexts/AppContext";
 import { useAuth } from "@/hooks/use-auth";
 import { CountrySelector } from "@/components/country-selector";
 import { FilterModal } from "@/components/filter/filter-modal-simplified";
+import { TravelDateSelector } from "@/components/travel-date-selector";
+import { AccommodationSearch } from "@/components/location/accommodation-search";
 import { View } from "@/lib/constants";
 import { Button } from "@/components/ui/button";
 import { 
@@ -15,7 +17,9 @@ import {
   ChevronDown,
   User,
   SlidersHorizontal,
-  Info
+  Info,
+  Calendar,
+  MapPin
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -29,11 +33,21 @@ import { cn } from "@/lib/utils";
 
 export function Header() {
   const [location, navigate] = useLocation();
-  const { currentView, setCurrentView, generateShareUrl } = useAppContext();
+  const { 
+    currentView, 
+    setCurrentView, 
+    generateShareUrl, 
+    travelStartDate, 
+    travelEndDate, 
+    setTravelStartDate, 
+    setTravelEndDate 
+  } = useAppContext();
   const { user, logoutMutation } = useAuth();
   const isSharedList = location.startsWith("/shared");
   const isAuthPage = location === "/auth" || location.startsWith("/reset-password");
   const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [showTravelDateSelector, setShowTravelDateSelector] = useState(false);
+  const [showAccommodationSearch, setShowAccommodationSearch] = useState(false);
   
   const handleBackClick = () => {
     if (isSharedList) {
@@ -105,6 +119,51 @@ export function Header() {
             </button>
           )}
 
+          {/* 구경하기 탭에서만 여행 날짜 선택과 숙박지 추가 아이콘 표시 */}
+          {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
+            <div className="flex items-center gap-1">
+              <div className="relative">
+                <button 
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => setShowTravelDateSelector(!showTravelDateSelector)}
+                  title="여행 날짜 선택"
+                >
+                  <Calendar size={18} className="text-gray-600" />
+                </button>
+                {showTravelDateSelector && (
+                  <div className="absolute top-full left-0 mt-1 z-50">
+                    <TravelDateSelector
+                      startDate={travelStartDate}
+                      endDate={travelEndDate}
+                      onDatesChange={(start, end) => {
+                        setTravelStartDate(start);
+                        setTravelEndDate(end);
+                        setShowTravelDateSelector(false);
+                        // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
+                        window.dispatchEvent(new Event('localStorageChange'));
+                      }}
+                      mode="browse"
+                    />
+                  </div>
+                )}
+              </div>
+              
+              <div className="relative">
+                <button 
+                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => setShowAccommodationSearch(!showAccommodationSearch)}
+                  title="숙박지 추가"
+                >
+                  <MapPin size={18} className="text-gray-600" />
+                </button>
+                {showAccommodationSearch && (
+                  <div className="absolute top-full left-0 mt-1 z-50">
+                    <AccommodationSearch onClose={() => setShowAccommodationSearch(false)} />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
           
           {/* Country selector */}
           {!isSharedList && !isAuthPage && (

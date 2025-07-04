@@ -6,7 +6,11 @@ import { Loader2, Home, Plus, Check } from "lucide-react";
 import { googleMapsService, type HotelLocation } from "@/lib/google-maps";
 import { useAppContext } from "@/contexts/AppContext";
 
-export function AccommodationSearch() {
+interface AccommodationSearchProps {
+  onClose?: () => void;
+}
+
+export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) {
   const { accommodationLocation, setAccommodationLocation } = useAppContext();
   const [locationAddress, setLocationAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -35,6 +39,8 @@ export function AccommodationSearch() {
           lat: location.lat,
           lng: location.lng
         });
+        setIsExpanded(false);
+        onClose?.();
       } else {
         setError("주소를 찾을 수 없습니다.");
       }
