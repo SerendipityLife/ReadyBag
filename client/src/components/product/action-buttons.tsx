@@ -64,7 +64,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   // 버튼 상태에 따른 스타일 클래스 결정
   const getButtonStyles = (direction: SwipeDirection) => {
     const base = "transition-all duration-200 relative";
-    const size = "w-16 h-16 md:w-18 md:h-18"; // 더 큰 버튼 사이즈
+    const size = "w-12 h-12 md:w-14 md:h-14"; // 버튼 사이즈 축소
     const isActive = activeButton === direction;
     
     // 각 방향별 기본 스타일
@@ -113,12 +113,12 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
   const getIconStyles = (direction: SwipeDirection) => {
     const isActive = activeButton === direction;
     return isActive 
-      ? "w-7 h-7 md:w-8 md:h-8 transition-all duration-200 scale-110" 
-      : "w-6 h-6 md:w-7 md:h-7 transition-all duration-200";
+      ? "w-5 h-5 md:w-6 md:h-6 transition-all duration-200 scale-110" 
+      : "w-4 h-4 md:w-5 md:h-5 transition-all duration-200";
   };
   
   return (
-    <div className="action-buttons flex flex-col items-center mt-8 px-4 py-4 w-full max-w-sm mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
+    <div className="action-buttons flex flex-col items-center mt-2 px-4 py-2 w-full max-w-sm mx-auto bg-white backdrop-blur-sm rounded-2xl border-2 border-[#E6E0D4] shadow-lg">
       <div className="flex justify-between items-center w-full">
         {/* 건너뛰기 버튼 */}
         <div className="flex flex-col items-center">
