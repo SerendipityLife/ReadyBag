@@ -187,6 +187,7 @@ export function ActionButtons({ onActionClick }: ActionButtonsProps) {
               <HelpCircle 
                 className={getIconStyles(SwipeDirection.UP)} 
                 strokeWidth={2.5} 
+                color={activeButton === SwipeDirection.UP ? 'white' : 'rgb(245, 158, 11)'}
               />
             </Button>
             <span className="text-xs sm:text-sm font-semibold text-amber-700 mt-1">고민중</span>
