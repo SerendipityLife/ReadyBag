@@ -98,7 +98,7 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
               value={locationAddress}
               onChange={(e) => setLocationAddress(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleLocationSearch()}
-              className="flex-1 h-10"
+              className="flex-1 h-10 text-gray-900 placeholder:text-gray-500"
               autoFocus
             />
             <Button 
