@@ -78,11 +78,12 @@ export function setupAuth(app: Express) {
             secret: process.env.SESSION_SECRET || "readybag-session-secret",
             resave: false,
             saveUninitialized: false,
+            rolling: true, // 매 요청마다 세션 만료 시간 갱신
             cookie: {
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30일
-                secure: process.env.NODE_ENV === "production",
+                secure: false, // 개발 환경에서는 false로 설정
                 httpOnly: true,
-                sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+                sameSite: "lax", // 개발 환경에서는 lax로 설정
             },
         })
     );

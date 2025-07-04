@@ -101,6 +101,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     },
     retry: false,
+    staleTime: 1000 * 60 * 5, // 5분
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 
   // 비회원일 경우 자동으로 데이터 초기화
@@ -114,14 +117,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginUserInput) => {
       const res = await apiRequest("POST", "/api/auth/login", credentials);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "로그인에 실패했습니다");
-      }
       return await res.json();
     },
     onSuccess: () => {
-      invalidateAuthQueries(queryClient);
+      // 사용자 정보 쿼리를 무효화하여 최신 정보로 업데이트
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+      // 추가로 refetch를 명시적으로 실행
+      queryClient.refetchQueries({ queryKey: ["/api/auth/user"] });
       toast({
         title: "로그인 성공",
         description: "ReadyBag에 오신 것을 환영합니다!",
