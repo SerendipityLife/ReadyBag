@@ -123,29 +123,17 @@ export function Header() {
           {!isSharedList && !isAuthPage && currentView === View.EXPLORE && (
             <div className="flex items-center gap-1">
               <div className="relative">
-                <button 
-                  className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                  onClick={() => setShowTravelDateSelector(!showTravelDateSelector)}
-                  title="여행 날짜 선택"
-                >
-                  <Calendar size={18} className="text-gray-600" />
-                </button>
-                {showTravelDateSelector && (
-                  <div className="fixed top-16 left-2 right-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                    <TravelDateSelector
-                      startDate={travelStartDate}
-                      endDate={travelEndDate}
-                      onDatesChange={(start, end) => {
-                        setTravelStartDate(start);
-                        setTravelEndDate(end);
-                        setShowTravelDateSelector(false);
-                        // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
-                        window.dispatchEvent(new Event('localStorageChange'));
-                      }}
-                      mode="browse"
-                    />
-                  </div>
-                )}
+                <TravelDateSelector
+                  startDate={travelStartDate}
+                  endDate={travelEndDate}
+                  onDatesChange={(start, end) => {
+                    setTravelStartDate(start);
+                    setTravelEndDate(end);
+                    // 여행 날짜 변경 시 localStorage 변경 이벤트 발생시켜 ProductCardStack 리셋
+                    window.dispatchEvent(new Event('localStorageChange'));
+                  }}
+                  mode="browse"
+                />
               </div>
               
               <div className="relative">
