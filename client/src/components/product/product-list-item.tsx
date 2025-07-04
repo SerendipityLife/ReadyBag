@@ -1,18 +1,18 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { apiRequest } from "@/lib/queryClient";
-import { useAppContext } from "@/contexts/AppContext";
-import { API_ROUTES, ProductStatus } from "@/lib/constants";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { apiRequest } from "../../lib/queryClient";
+import { useAppContext } from "../../contexts/AppContext";
+import { API_ROUTES, ProductStatus } from "../../lib/constants";
 import { Instagram, X, ShoppingCart, XCircle, Heart, Edit } from "lucide-react";
 import { ReviewButton } from "./review-button";
-import { useAuth } from "@/hooks/use-auth";
-import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "../../hooks/use-auth";
+import { useToast } from "../../hooks/use-toast";
 import type { Product, UserProduct } from "@shared/schema";
-import { CurrencyDisplay } from "@/components/ui/currency-display";
-import { PriceRangeDisplay } from "@/components/ui/price-range-display";
+import { CurrencyDisplay } from "../ui/currency-display";
+import { PriceRangeDisplay } from "../ui/price-range-display";
 
 interface ProductListItemProps {
   product?: Product;
@@ -417,10 +417,12 @@ export function ProductListItem(props: ProductListItemProps) {
                 </div>
               )}
             </div>
-            <PriceRangeDisplay 
-              productId={product.id}
-              className="text-xs"
-            />
+            {product && (
+              <PriceRangeDisplay 
+                productId={product.id}
+                className="text-xs"
+              />
+            )}
           </div>
         </div>
 
@@ -439,7 +441,7 @@ export function ProductListItem(props: ProductListItemProps) {
             <Button
               variant="outline"
               size="sm"
-              className="flex-1 text-xs py-0.5 px-2 h-8 border-orange-300 text-orange-600 hover:bg-orange-500 hover:text-white"
+              className="flex-1 text-xs py-0.5 px-2 h-8 border-blue-300 text-blue-600 hover:bg-blue-500 hover:text-white"
               onClick={() => updateProductStatus.mutate(ProductStatus.NOT_PURCHASED)}
               disabled={updateProductStatus.isPending}
             >

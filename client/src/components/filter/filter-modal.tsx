@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { useAppContext } from "@/contexts/AppContext";
+import { useAppContext } from "../../contexts/AppContext";
 import { ArrowLeft, X } from "lucide-react";
-import { API_ROUTES, View, ProductStatus } from "@/lib/constants";
+import { API_ROUTES, View, ProductStatus } from "../../lib/constants";
 import { useQuery } from "@tanstack/react-query";
 import type { Product, UserProduct } from "@shared/schema";
 import { 
@@ -11,12 +11,12 @@ import {
   DialogTitle,
   DialogFooter,
   DialogDescription
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+} from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Label } from "../ui/label";
+import { Slider } from "../ui/slider";
+import { Input } from "../ui/input";
+import { Badge } from "../ui/badge";
 import { CategoryFilter } from "./category-filter-new";
 
 export interface FilterModalProps {

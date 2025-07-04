@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { FilterIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { FilterModal } from "@/components/filter/filter-modal";
-import { useAppContext } from "@/contexts/AppContext";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import { FilterModal } from "../filter/filter-modal";
+import { useAppContext } from "../../contexts/AppContext";
 
-import { View } from "@/lib/constants";
+import { View } from "../../lib/constants";
 
 interface FilterButtonProps {
   compact?: boolean;

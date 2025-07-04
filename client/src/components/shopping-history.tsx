@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ProductListItem } from "@/components/product/product-list-item";
-import { ReviewButton } from "@/components/product/review-button";
-import { useAppContext } from "@/contexts/AppContext";
-import { API_ROUTES, ProductStatus } from "@/lib/constants";
-import { useAuth } from "@/hooks/use-auth";
+import { ProductListItem } from "./product/product-list-item.tsx";
+import { ReviewButton } from "./product/review-button.tsx";
+import { useAppContext } from "../contexts/AppContext.tsx";
+import { API_ROUTES, ProductStatus } from "../lib/constants.ts";
+import { useAuth } from "../hooks/use-auth.tsx";
 import { format } from "date-fns";
 import { ko } from "date-fns/locale";
-import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { CalendarDays, Heart, FolderOpen, X, Trash2, Edit2, Check, X as XIcon, MapPin, Copy, ShoppingBag } from "lucide-react";
+import { Button } from "./ui/button.tsx";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog.tsx";
+import { Input } from "./ui/input.tsx";
+import { useToast } from "../hooks/use-toast.ts";
+import { apiRequest } from "../lib/queryClient.ts";
 import type { UserProduct, Product } from "@shared/schema";
 
 interface ExtendedUserProduct extends UserProduct {
@@ -57,26 +57,26 @@ function AccommodationAddressDisplay({ address }: { address: string }) {
           variant="ghost"
           size="sm"
           onClick={() => setIsVisible(!isVisible)}
-          className="text-sand-brown-700 hover:text-sand-brown-800 hover:bg-sand-brown-50 p-1 h-auto"
+          className="text-blue-700 hover:text-blue-800 hover:bg-blue-50 p-1 h-auto"
         >
           <MapPin className="h-3 w-3 mr-1" />
           <span className="text-xs">숙박지</span>
         </Button>
-        
+
         {isVisible && (
           <Button
             variant="ghost"
             size="sm"
             onClick={() => copyToClipboard(address)}
-            className="text-sand-brown-600 hover:text-sand-brown-700 hover:bg-sand-brown-50 p-1 h-auto"
+            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 p-1 h-auto"
           >
             <Copy className="h-3 w-3" />
           </Button>
         )}
       </div>
-      
+
       {isVisible && (
-        <div className="mt-1 px-2 py-1.5 bg-sand-brown-50 border border-sand-brown-100 rounded text-xs text-sand-brown-700 break-words">
+        <div className="mt-1 px-2 py-1.5 bg-blue-50 border border-blue-100 rounded text-xs text-blue-700 break-words">
           {address}
         </div>
       )}
@@ -104,7 +104,7 @@ export function ShoppingHistory() {
   const calculateGroupTotal = (items: ExtendedUserProduct[]) => {
     let totalJpy = 0;
     let totalKrw = 0;
-    
+
     items.forEach(item => {
       // 사용자가 입력한 실제 가격이 있으면 우선 사용
       if (item.actualPurchasePrice) {
@@ -121,7 +121,7 @@ export function ShoppingHistory() {
         totalKrw += Math.round(item.product.price * 9.57);
       }
     });
-    
+
     return { totalJpy, totalKrw };
   };
 
@@ -183,14 +183,14 @@ export function ShoppingHistory() {
     mutationFn: async (group: TravelGroup) => {
       // Extract travel date ID from the first item in the group
       const travelDateId = group.items[0]?.travelDateId;
-      
+
       if (!travelDateId) {
         throw new Error('Travel date ID not found');
       }
-      
+
       // Use the context function to delete travel date with all its products
       await removeTravelDateWithProducts(travelDateId);
-      
+
       return { success: true };
     },
     onSuccess: () => {
@@ -237,13 +237,13 @@ export function ShoppingHistory() {
   };
 
   // API query for logged-in users
-  const { data: apiData, refetch } = useQuery({
+  const { data: apiData, refetch } = useQuery<ExtendedUserProduct[]>({
     queryKey: [`${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}`, selectedCountry.id],
     enabled: !isNonMember && !!selectedCountry?.id,
   });
 
   // Get all products for reference
-  const { data: allProducts } = useQuery({
+  const { data: allProducts } = useQuery<Product[]>({
     queryKey: [API_ROUTES.PRODUCTS, selectedCountry.id],
     enabled: !!selectedCountry?.id,
   });
@@ -252,22 +252,22 @@ export function ShoppingHistory() {
   const getLocalPurchasedProducts = async () => {
     try {
       if (!selectedCountry?.id) return [];
-      
+
       const storageKey = `userProducts_${selectedCountry.id}`;
       const storedData = localStorage.getItem(storageKey);
-      
+
       if (!storedData) return [];
-        
+
       const localData = JSON.parse(storedData);
-      
+
       if (!Array.isArray(localData) || localData.length === 0) return [];
-      
+
       // Filter only purchased and not purchased items
       const purchasedItems = localData.filter((item: any) => 
         item.status === ProductStatus.PURCHASED || item.status === ProductStatus.NOT_PURCHASED
       );
-      
-      if (allProducts && allProducts.length > 0) {
+
+      if (allProducts && Array.isArray(allProducts) && allProducts.length > 0) {
         return purchasedItems.map((item: any) => {
           const productData = allProducts.find((p: Product) => p.id === item.productId);
           return {
@@ -286,7 +286,7 @@ export function ShoppingHistory() {
           };
         });
       }
-      
+
       return purchasedItems;
     } catch (error) {
       console.error("로컬 스토리지에서 구매 기록 로드 중 오류:", error);
@@ -300,7 +300,7 @@ export function ShoppingHistory() {
       if (isNonMember) {
         const localProducts = await getLocalPurchasedProducts();
         setPurchasedProducts(localProducts);
-      } else if (apiData) {
+      } else if (apiData && Array.isArray(apiData)) {
         const purchased = apiData.filter((item: ExtendedUserProduct) => 
           item.status === ProductStatus.PURCHASED || item.status === ProductStatus.NOT_PURCHASED
         );
@@ -329,16 +329,16 @@ export function ShoppingHistory() {
     const startDate = product.travelStartDate ? new Date(product.travelStartDate) : null;
     const endDate = product.travelEndDate ? new Date(product.travelEndDate) : null;
     const travelDateId = product.travelDateId || 'no-date';
-    
+
     let dateRange = "날짜 미설정";
     if (startDate && endDate) {
       dateRange = `${format(startDate, "yyyy.MM.dd", { locale: ko })} - ${format(endDate, "yyyy.MM.dd", { locale: ko })}`;
     } else if (startDate) {
       dateRange = format(startDate, "yyyy.MM.dd", { locale: ko });
     }
-    
+
     const existingGroup = groups.find(g => g.travelDateId === travelDateId);
-    
+
     if (existingGroup) {
       existingGroup.items.push(product);
     } else {
@@ -353,7 +353,7 @@ export function ShoppingHistory() {
         customTitle
       });
     }
-    
+
     return groups;
   }, []);
 
@@ -374,12 +374,13 @@ export function ShoppingHistory() {
   if (purchasedProducts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-4">
-        <div className="bg-gray-100 rounded-full p-6 mb-4">
-          <Heart className="h-12 w-12 text-gray-400" />
+        <div className="bg-blue-50 rounded-full p-6 mb-4">
+          <ShoppingBag className="h-12 w-12 text-blue-400" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-2">쇼핑 기록이 없습니다</h3>
         <p className="text-gray-500 text-center max-w-sm">
-          관심 상품에서 '구입완료'를 선택하면 여기에 여행별로 기록됩니다.
+          장바구니에서 '구입완료'를 선택하면<br />
+          여행 날짜별로 쇼핑 폴더가 생성됩니다.
         </p>
       </div>
     );
@@ -394,6 +395,97 @@ export function ShoppingHistory() {
     setIsModalOpen(false);
     setSelectedGroup(null);
     setShowAccommodationAddress(false);
+  };
+
+  const handleFindNearbyStores = async () => {
+    if (!accommodationLocation) {
+      setError("숙박지 위치가 설정되지 않았습니다.");
+      return;
+    }
+
+    setIsLoadingStores(true);
+    setError(null);
+
+    try {
+      const origin = { lat: accommodationLocation.lat, lng: accommodationLocation.lng };
+      const keywords = ["돈키호테", "don quijote", "ドン・キホーテ", "donki"];
+      let allResults: PlaceResult[] = [];
+
+      for (const keyword of keywords) {
+        const results = await googleMapsService.findNearbyPlacesWithRadius(
+          origin, 
+          "store", 
+          keyword, 
+          10000
+        );
+        allResults.push(...results);
+      }
+
+      // 중복 제거
+      const seen = new Set();
+      const unique = allResults.filter(p => {
+        const key = `${p.name}_${p.address}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+
+      // 돈키호테 필터링
+      const strictDonkiKeywords = ["don quijote", "ドン・キホーテ", "donki"];
+      const filtered = unique.filter(p => {
+        const name = p.name.toLowerCase();
+        return strictDonkiKeywords.some(k => name.includes(k)) && 
+               !name.includes("picasso") && 
+               !name.includes("uny") &&
+               !name.includes("eki donki") &&
+               !name.includes("eki marche") &&
+               !name.includes("ekidonki") &&
+               !name.includes("ekimarche") &&
+               name.includes("don");
+      });
+
+      // 거리 계산 (대중교통)
+      console.log('돈키호테 검색 - 대중교통 거리 계산 시작');
+      const resultsWithDistance = await googleMapsService.calculateDistances(
+        origin,
+        filtered,
+        "transit"
+      );
+      
+      console.log('돈키호테 검색 - 거리 계산 결과:', resultsWithDistance);
+
+      const sortedResults = resultsWithDistance
+        .sort((a, b) => {
+          const da = parseFloat(a.distance.replace(/[^0-9.]/g, ""));
+          const db = parseFloat(b.distance.replace(/[^0-9.]/g, ""));
+          return da - db;
+        })
+        .slice(0, 3);
+
+      setNearbyStores(sortedResults);
+    } catch (error) {
+      console.error("주변 돈키호테 검색 실패:", error);
+      setError("주변 돈키호테를 찾을 수 없습니다.");
+    } finally {
+      setIsLoadingStores(false);
+    }
+  };
+
+  const handleNavigateToStore = (store: PlaceResult) => {
+    if (!accommodationLocation) {
+      setError("숙박지 위치가 설정되지 않았습니다.");
+      return;
+    }
+
+    googleMapsService.navigateFromAccommodation(
+      accommodationLocation.address,
+      {
+        lat: store.lat,
+        lng: store.lng,
+        name: store.name
+      },
+      "transit"
+    );
   };
 
   return (
@@ -473,38 +565,38 @@ export function ShoppingHistory() {
                 {selectedGroup?.items.some(item => item.accommodationAddress) && (
                   <button
                     onClick={() => setShowAccommodationAddress(!showAccommodationAddress)}
-                    className="p-2 bg-white text-sand-brown-600 rounded-lg shadow-sm border border-sand-brown-100 hover:bg-sand-brown-50 transition-colors"
+                    className="p-2 bg-white text-blue-600 rounded-lg shadow-sm border border-blue-100 hover:bg-blue-50 transition-colors"
                     title="숙박지 주소 보기"
                   >
                     <MapPin className="h-4 w-4" />
                   </button>
                 )}
-                
-                <div className="inline-flex items-center px-3 py-1.5 bg-white text-sand-brown-700 text-sm font-medium rounded-lg shadow-sm border border-sand-brown-100">
-                  <span className="w-1.5 h-1.5 bg-sand-brown-500 rounded-full mr-2"></span>
+
+                <div className="inline-flex items-center px-3 py-1.5 bg-white text-blue-700 text-sm font-medium rounded-lg shadow-sm border border-blue-100">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2"></span>
                   {selectedGroup?.items.length}개 상품
                 </div>
-                <div className="inline-flex items-center px-3 py-1.5 bg-sand-brown-50 border border-sand-brown-200 rounded-lg">
-                  <div className="text-sm font-semibold text-sand-brown-800">
+                <div className="inline-flex items-center px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="text-sm font-semibold text-blue-800">
                     ¥{selectedGroup?.totalAmount.toLocaleString()}
                   </div>
-                  <div className="text-xs text-sand-brown-600 ml-2">
+                  <div className="text-xs text-blue-600 ml-2">
                     약 {selectedGroup?.totalAmountKrw.toLocaleString()}원
                   </div>
                 </div>
               </div>
             </div>
-            
+
             {/* 숙박지 주소 표시 - 토글 가능 */}
             {showAccommodationAddress && selectedGroup?.items.some(item => item.accommodationAddress) && (
-              <div className="mt-3 px-4 py-3 bg-sand-brown-50 border border-sand-brown-200 rounded-lg">
+              <div className="mt-3 px-4 py-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <MapPin className="h-4 w-4 text-sand-brown-600" />
-                      <span className="text-sm font-medium text-sand-brown-800">숙박지 주소</span>
+                      <MapPin className="h-4 w-4 text-blue-600" />
+                      <span className="text-sm font-medium text-blue-800">숙박지 주소</span>
                     </div>
-                    <p className="text-sm text-sand-brown-700 leading-relaxed">
+                    <p className="text-sm text-blue-700 leading-relaxed">
                       {selectedGroup?.items.find(item => item.accommodationAddress)?.accommodationAddress}
                     </p>
                   </div>
@@ -519,7 +611,7 @@ export function ShoppingHistory() {
                         });
                       }
                     }}
-                    className="p-2 text-sand-brown-600 hover:bg-sand-brown-100 rounded-md transition-colors"
+                    className="p-2 text-blue-600 hover:bg-blue-100 rounded-md transition-colors"
                     title="주소 복사"
                   >
                     <Copy className="h-4 w-4" />
@@ -528,7 +620,7 @@ export function ShoppingHistory() {
               </div>
             )}
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-y-auto space-y-3 pr-2">
             {selectedGroup?.items.map((userProduct) => (
               <div key={userProduct.id} className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
@@ -544,7 +636,7 @@ export function ShoppingHistory() {
                       <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full ${
                         userProduct.status === ProductStatus.PURCHASED 
                           ? 'bg-green-100 text-green-700 border border-green-200' 
-                          : 'bg-orange-100 text-orange-700 border border-orange-200'
+                          : 'bg-blue-100 text-blue-700 border border-blue-200'
                       }`}>
                         {userProduct.status === ProductStatus.PURCHASED ? '✓ 구입완료' : '⏳ 미구입'}
                       </span>

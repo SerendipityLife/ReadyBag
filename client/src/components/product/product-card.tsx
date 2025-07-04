@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect } from "react";
 import { useSpring, animated } from "@react-spring/web";
-import { useAppContext } from "@/contexts/AppContext";
-import { Card } from "@/components/ui/card";
-import { SwipeDirection } from "@/lib/constants";
-import { Loader2, Heart, X, HelpCircle, MessageSquare } from "lucide-react";
+import { useAppContext } from "../../contexts/AppContext";
+import { Card } from "../ui/card";
+import { SwipeDirection } from "../../lib/constants";
+import { Loader2, Heart, X, HelpCircle, MessageSquare, SlidersHorizontal } from "lucide-react";
 import { ReviewButton } from "./review-button";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../../hooks/use-toast";
 import type { Product } from "@shared/schema";
-import { CurrencyDisplay } from "@/components/ui/currency-display";
-import { PriceRangeDisplay } from "@/components/ui/price-range-display";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { CurrencyDisplay } from "../ui/currency-display";
+import { PriceRangeDisplay } from "../ui/price-range-display";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { FilterModal } from "../filter/filter-modal-simplified";
+import { Button } from "../ui/button";
 
 interface ProductCardProps {
   product: Product;
@@ -39,10 +41,13 @@ export function ProductCard({
 
   const [showFeedbackIcon, setShowFeedbackIcon] = useState(false);
   const [buttonShake, setButtonShake] = useState(false);
-  
+
   // 상품 설명 모달 상태
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
+  
+  // 필터 모달 상태
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
 
   // 버튼 트리거 여부를 추적하는 ref
   const isButtonTriggered = useRef(false);
@@ -94,14 +99,12 @@ export function ProductCard({
 
   const isTopCard = index === 0;
 
-  // Animation for the card movement including border and background color
-  const [{ x, y, rotate, filter, borderColor, borderWidth, boxShadow }, api] = useSpring(() => ({
+  // Animation for the card movement
+  const [{ x, y, rotate, filter, boxShadow }, api] = useSpring(() => ({
     x: 0,
     y: 0,
     rotate: 0,
     filter: 'blur(0px)',
-    borderColor: 'rgba(255,255,255,0)',
-    borderWidth: '0px',
     boxShadow: '0 0 0 0 rgba(0,0,0,0)',
     config: { tension: 300, friction: 20 }
   }));
@@ -151,8 +154,6 @@ export function ProductCard({
           x: -window.innerWidth - 200,
           rotate: -30,
           filter: 'blur(0px)',
-          borderColor: 'rgba(156, 163, 175, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(156, 163, 175, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -169,8 +170,6 @@ export function ProductCard({
           x: window.innerWidth + 200,
           rotate: 30,
           filter: 'blur(0px)',
-          borderColor: 'rgba(239, 68, 68, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(239, 68, 68, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -186,8 +185,6 @@ export function ProductCard({
         api.start({
           y: -window.innerHeight - 200,
           filter: 'blur(0px)',
-          borderColor: 'rgba(245, 158, 11, 0.8)',
-          borderWidth: '10px',
           boxShadow: '0 0 35px 15px rgba(245, 158, 11, 0.4)',
           config: { tension: 180, friction: 20 },
           onRest: () => {
@@ -231,21 +228,18 @@ export function ProductCard({
 
   return (
     <animated.div
-      className="absolute top-0 left-0 right-0 mx-auto"
+      className="product-card absolute top-0 left-0 right-0 mx-auto"
       style={{
         ...styles,
         x,
         y,
         rotate,
         filter,
-        borderColor,
-        borderWidth,
-        borderStyle: 'solid',
         boxShadow,
         borderRadius: '1rem',
       }}
     >
-      <Card className="w-full h-full max-w-sm mx-auto bg-white border-2 border-[#E6E0D4] shadow-xl relative overflow-hidden">
+      <Card className="w-full h-full max-w-xs mx-auto bg-white border-0 shadow-sm relative overflow-hidden">
         {/* 로딩 오버레이 */}
         {isProcessing && (
           <div className="absolute inset-0 bg-black/20 dark:bg-white/10 flex items-center justify-center z-50 rounded-lg">
@@ -256,7 +250,7 @@ export function ProductCard({
         )}
 
         {/* 상품 이미지 */}
-        <div className="relative h-64 overflow-hidden rounded-t-lg bg-[#F8F6F2]">
+        <div className="relative h-48 sm:h-64 overflow-hidden rounded-t-lg bg-blue-50">
           <img
             src={product.imageUrl}
             alt={product.name}
@@ -284,19 +278,19 @@ export function ProductCard({
         </div>
 
         {/* 상품 정보 - 유연한 높이 */}
-        <div className="p-5 min-h-56 flex flex-col">
+        <div className="p-4 min-h-36 sm:min-h-48 flex flex-col">
           <div className="space-y-3 flex-1">
             <div>
-              <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
+              <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-white line-clamp-2 leading-tight">
                 {product.name}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {product.nameJapanese}
               </p>
             </div>
 
             <div 
-              className="text-gray-600 dark:text-gray-300 text-sm leading-relaxed line-clamp-2 cursor-pointer select-none"
+              className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm leading-relaxed line-clamp-2 cursor-pointer select-none"
               onTouchStart={handleDescriptionTouchStart}
               onTouchEnd={handleDescriptionTouchEnd}
               onMouseDown={handleDescriptionTouchStart}
@@ -307,23 +301,37 @@ export function ProductCard({
             </div>
           </div>
 
-          {/* 가격 정보와 리뷰 버튼 */}
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="flex items-start justify-between">
-              <div className="flex-1 mr-3">
+          {/* 가격 정보와 필터/리뷰 버튼 */}
+          <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex-1">
                 <PriceRangeDisplay 
                   productId={product.id}
                   className=""
                 />
               </div>
-              {/* Review button - read-only mode */}
-              <ReviewButton 
-                productId={product.id} 
-                productName={product.name}
-                variant="icon"
-                size="sm"
-                readOnly={true}
-              />
+              {/* Filter and Review buttons - vertical layout */}
+              <div className="flex flex-col gap-2">
+                {/* Filter button */}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                  onClick={() => setIsFilterModalOpen(true)}
+                  title="필터"
+                >
+                  <SlidersHorizontal className="h-4 w-4" />
+                </Button>
+                
+                {/* Review button - read-only mode */}
+                <ReviewButton 
+                  productId={product.id} 
+                  productName={product.name}
+                  variant="icon"
+                  size="sm"
+                  readOnly={true}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -374,6 +382,9 @@ export function ProductCard({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Filter Modal */}
+      <FilterModal isOpen={isFilterModalOpen} onClose={() => setIsFilterModalOpen(false)} />
     </animated.div>
   );
 }

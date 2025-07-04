@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
 import { Calendar, MapPin, Heart, ShoppingBag, ArrowRight, X } from "lucide-react";
 
 interface WelcomeModalProps {
@@ -16,26 +16,26 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
     {
       icon: <ShoppingBag className="w-16 h-16 text-blue-600" />,
       title: "ReadyBag에 오신 것을 환영합니다!",
-      description: "일본 여행에서 꼭 사야 할 인기 상품들을 미리 발견하고 계획해보세요.",
+      description: "해외여행에서 꼭 사야 할 인기 상품들을 미리 발견하고 계획해보세요.",
       subtitle: "스마트한 여행 쇼핑의 시작"
     },
     {
       icon: <Calendar className="w-16 h-16 text-green-600" />,
-      title: "여행 날짜를 설정하세요",
-      description: "여행 날짜별로 상품을 분류하여 체계적으로 쇼핑 계획을 세울 수 있습니다.",
+      title: "여행 날짜별 쇼핑 히스토리 관리",
+      description: "여행 날짜별로 상품을 분류하고 구매 기록을 체계적으로 관리할 수 있습니다.",
       subtitle: "날짜별 맞춤 관리"
     },
     {
       icon: <MapPin className="w-16 h-16 text-red-600" />,
       title: "숙박지를 추가하세요",
-      description: "숙박지 주변의 편의점, 돈키호테 등 쇼핑 가능한 곳을 쉽게 찾을 수 있습니다.",
+      description: "숙박지 주변의 마트, 쇼핑몰 등 쇼핑 가능한 곳을 쉽게 찾을 수 있습니다.",
       subtitle: "위치 기반 쇼핑 가이드"
     },
     {
       icon: <Heart className="w-16 h-16 text-pink-600" />,
       title: "상품을 탐색하고 저장하세요",
-      description: "관심 있는 상품은 ❤️, 고민 중인 상품은 ?, 필요 없는 상품은 ✕ 버튼으로 분류해보세요.",
-      subtitle: "간편한 스와이프 방식"
+      description: "여행 날짜별로 상품을 분류하고 구매 기록을 체계적으로 관리할 수 있습니다.",
+      subtitle: "날짜별 쇼핑 히스토리 관리"
     }
   ];
 
@@ -52,18 +52,19 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
 
   const handleSkip = () => {
     onClose();
+    localStorage.setItem('hasSeenWelcome', 'true');
+  };
+
+  const handleTodayOnly = () => {
+    onClose();
+    const today = new Date().toDateString();
+    localStorage.setItem('welcomeSkippedDate', today);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-md mx-auto bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
-        <DialogHeader className="relative">
-          <button
-            onClick={handleSkip}
-            className="absolute -top-2 -right-2 p-1 rounded-full hover:bg-gray-200 transition-colors"
-          >
-            <X className="w-4 h-4 text-gray-500" />
-          </button>
+        <DialogHeader>
           <DialogTitle className="sr-only">ReadyBag 온보딩</DialogTitle>
         </DialogHeader>
 
@@ -107,20 +108,10 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
               </div>
 
               {/* 버튼 영역 */}
-              <div className="flex gap-3 pt-4">
-                {!isLastStep && (
-                  <Button
-                    variant="ghost"
-                    onClick={handleSkip}
-                    className="flex-1 text-gray-600 hover:text-gray-800"
-                  >
-                    건너뛰기
-                  </Button>
-                )}
-                
+              <div className="space-y-3 pt-4">
                 <Button
                   onClick={handleNext}
-                  className={`${isLastStep ? 'flex-1' : 'flex-1'} bg-blue-600 hover:bg-blue-700 text-white`}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   {isLastStep ? (
                     <>
@@ -134,6 +125,25 @@ export function WelcomeModal({ isOpen, onClose }: WelcomeModalProps) {
                     </>
                   )}
                 </Button>
+
+                {!isLastStep && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      onClick={handleTodayOnly}
+                      className="flex-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      오늘은 그만보기
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleSkip}
+                      className="flex-1 text-sm text-gray-600 hover:text-gray-800"
+                    >
+                      앞으로 열지 않기
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </Card>

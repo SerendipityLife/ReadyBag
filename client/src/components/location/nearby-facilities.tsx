@@ -1,11 +1,16 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { MapPin, Clock, Navigation, Loader2, AlertTriangle } from "lucide-react";
-import { googleMapsService, type PlaceResult } from "@/lib/google-maps";
-import { useAppContext } from "@/contexts/AppContext";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Badge } from "../ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { MapPin, Clock, Navigation, Loader2, AlertTriangle, Home } from "lucide-react";
+import { googleMapsService, type PlaceResult } from "../../lib/google-maps";
+import { useAppContext } from "../../contexts/AppContext";
+import { useAuth } from "../../hooks/use-auth";
+import { API_ROUTES } from "../../lib/constants";
+import type { UserProduct } from "@shared/schema";
 
 const FACILITY_TYPES = [
   {
@@ -13,7 +18,7 @@ const FACILITY_TYPES = [
     label: "편의점",
     keywords: ["convenience store", "コンビニ", "편의점"],
     subTypes: [
-      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐"] },
+      { value: "seven_eleven", label: "세븐일레븐", keywords: ["7-Eleven", "セブンイレブン", "세븐일레븐", "seven eleven", "7eleven"] },
       { value: "lawson", label: "로손", keywords: ["Lawson", "ローソン", "로손"] },
       { value: "family_mart", label: "패밀리마트", keywords: ["FamilyMart", "ファミリーマート", "패밀리마트"] }
     ]
@@ -21,7 +26,7 @@ const FACILITY_TYPES = [
   {
     value: "store",
     label: "돈키호테",
-    keywords: ["돈키호테", "don quijote", "ドン・キホーテ", "donki"],
+    keywords: ["ドン・キホーテ", "Don Quijote", "メガドン・キホーテ"],
     subTypes: []
   }
 ];
@@ -35,47 +40,92 @@ const normalizeBrandName = (name: string): string => {
 };
 
 export function NearbyFacilities() {
-  const { accommodationLocation } = useAppContext();
+  const { accommodationLocation, selectedCountry, selectedTravelDateId, getCurrentAccommodation } = useAppContext();
+  const { user } = useAuth();
   const [selectedFacilityType, setSelectedFacilityType] = useState("convenience_store");
   const [selectedSubType, setSelectedSubType] = useState("all_brands");
-  const [selectedTravelMode, setSelectedTravelMode] = useState<'walking' | 'driving' | 'transit'>('transit');
+  const [selectedTravelMode, setSelectedTravelMode] = useState("transit");
   const [nearbyPlaces, setNearbyPlaces] = useState<PlaceResult[]>([]);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [savedAccommodationAddress, setSavedAccommodationAddress] = useState<string | null>(null);
 
-  const handleFacilitySearch = () => {
-    handleFacilitySearchWithOverrideTravelMode();
-  };
+  const { data: userProducts } = useQuery({
+    queryKey: ['user-products', selectedCountry?.id, selectedTravelDateId || 'no-date'],
+    queryFn: async () => {
+      if (!user || !selectedCountry?.id) {
+        const storageKey = `userProducts_${selectedCountry.id}`;
+        const storedData = localStorage.getItem(storageKey);
+        if (!storedData) return [];
+        const localData = JSON.parse(storedData);
+        return selectedTravelDateId 
+          ? localData.filter((item: any) => item.travelDateId === selectedTravelDateId)
+          : localData;
+      }
+      const url = `${API_ROUTES.USER_PRODUCTS}?countryId=${selectedCountry.id}${selectedTravelDateId ? `&travelDateId=${selectedTravelDateId}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) return [];
+      return await response.json();
+    },
+    enabled: !!selectedCountry?.id,
+  });
 
-  const handleFacilitySearchWithOverrideTravelMode = async (overrideMode?: 'walking' | 'driving' | 'transit') => {
-    if (!accommodationLocation) {
-      setError("먼저 숙박지 주소를 설정해주세요.");
+  useEffect(() => {
+    const currentAccommodation = getCurrentAccommodation();
+    if (currentAccommodation && currentAccommodation.address) {
+      setSavedAccommodationAddress(currentAccommodation.address);
+    } else if (userProducts?.length) {
+      const found = userProducts.find((p: any) => p.accommodationAddress?.trim());
+      setSavedAccommodationAddress(found?.accommodationAddress || null);
+    } else {
+      setSavedAccommodationAddress(null);
+    }
+  }, [accommodationLocation, userProducts, selectedTravelDateId, getCurrentAccommodation]);
+
+  const handleFacilitySearch = async () => {
+    let searchLocation = getCurrentAccommodation();
+    if (!accommodationLocation && savedAccommodationAddress) {
+      try {
+        const geo = await googleMapsService.geocodeAddress(savedAccommodationAddress);
+        if (geo) searchLocation = geo;
+        else throw new Error();
+      } catch {
+        setError("주소 확인 실패");
+        return;
+      }
+    }
+    if (!searchLocation) {
+      setError("숙박지 주소가 필요합니다");
       return;
     }
 
     setIsLoadingPlaces(true);
     setError(null);
     try {
-      const origin = { lat: accommodationLocation.lat, lng: accommodationLocation.lng };
+      const origin = { lat: searchLocation.lat, lng: searchLocation.lng };
       const facilityType = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
       if (!facilityType) return;
 
       let keywords: string[] = [];
-      if (selectedFacilityType === "store") {
-        keywords = facilityType.keywords;
-      } else if (selectedSubType !== "all_brands") {
-        const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
-        if (sub) keywords = sub.keywords;
-      } else {
-        keywords = facilityType.subTypes.flatMap(st => st.keywords);
-      }
+      let radius = 300;
 
-      const radius = selectedFacilityType === "store" ? 10000 : 300;
+      if (selectedSubType !== "all_brands") {
+        const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
+        if (sub) {
+          keywords = sub.keywords;
+          radius = 5000;
+        }
+      } else {
+        keywords = facilityType.subTypes.length
+          ? facilityType.subTypes.flatMap(st => st.keywords)
+          : facilityType.keywords;
+        radius = selectedFacilityType === "store" ? 20000 : 300;
+      }
 
       let allResults: PlaceResult[] = [];
       for (const keyword of keywords) {
         const results = await googleMapsService.findNearbyPlacesWithRadius(origin, selectedFacilityType, keyword, radius);
-        allResults = [...allResults, ...results];
+        allResults.push(...results);
       }
 
       const seen = new Set();
@@ -86,186 +136,280 @@ export function NearbyFacilities() {
         return true;
       });
 
-      if (selectedFacilityType === "store") {
-        const donkiKeywords = ["don quijote", "ドン・キホーテ", "donki", "돈키호테"];
-        unique = unique.filter(p =>
-          donkiKeywords.some(k => p.name.toLowerCase().includes(k))
-        );
+      if (selectedSubType !== "all_brands") {
+        const sub = facilityType.subTypes.find(s => s.value === selectedSubType);
+        const subKeywords = sub?.keywords.map(k => k.toLowerCase()) || [];
+        unique = unique.filter(p => {
+          const name = p.name.toLowerCase();
+          return subKeywords.some(k => 
+            name.includes(k) || 
+            name.replace(/[-\s]/g, '').includes(k.replace(/[-\s]/g, '')) ||
+            name.includes(k.replace('7-eleven', '7eleven'))
+          );
+        });
       }
 
-      const travelModeToUse = selectedFacilityType === "store"
-        ? overrideMode ?? selectedTravelMode
-        : "walking";
+      // 돈키호테의 경우 필터링 적용
+      if (selectedFacilityType === "store") {
+        console.log('돈키호테 필터링 전 결과:', unique.map(p => p.name));
+        
+        unique = unique.filter(p => {
+          const name = p.name.toLowerCase();
+          const originalName = p.name;
+          
+          // 한국어, 일본어, 영어 돈키호테 키워드 확인
+          const isDonki = name.includes("돈키호테") || 
+                         name.includes("ドン・キホーテ") || 
+                         name.includes("don quijote") ||
+                         name.includes("메가돈키호테") ||
+                         name.includes("メガドン・キホーテ") ||
+                         name.includes("mega don quijote");
+          
+          // 제외할 매장들
+          const isExcluded = name.includes("picasso") || 
+                            name.includes("uny") || 
+                            name.includes("eki donki") || 
+                            name.includes("eki marche") || 
+                            name.includes("ekidonki") || 
+                            name.includes("ekimarche");
+          
+          console.log(`${originalName}: isDonki=${isDonki}, isExcluded=${isExcluded}`);
+          return isDonki && !isExcluded;
+        });
+        
+        console.log('돈키호테 필터링 후 결과:', unique.map(p => p.name));
+      }
 
-      console.log('이동수단으로 거리 계산:', travelModeToUse, '장소 수:', unique.length);
+      // 편의점은 항상 도보, 돈키호테는 사용자가 선택한 이동수단 사용
+      const travelModeToUse = selectedFacilityType === "store" ? selectedTravelMode : "walking";
       
+      console.log('거리 계산 이동수단:', {
+        facility: selectedFacilityType,
+        selectedMode: selectedTravelMode,
+        actualMode: travelModeToUse
+      });
+
       const resultsWithDistance = await googleMapsService.calculateDistances(
         origin,
         unique.map(p => ({ ...p, name: normalizeBrandName(p.name) })),
-        travelModeToUse
+        travelModeToUse as "walking" | "transit" | "driving"
       );
 
-      console.log('거리 계산 완료, 결과 수:', resultsWithDistance.length);
-      
+      console.log('거리 계산 완료:', resultsWithDistance.map(r => ({
+        name: r.name,
+        distance: r.distance,
+        duration: r.duration,
+        travelMode: travelModeToUse
+      })));
+
       const sortedResults = resultsWithDistance.sort((a, b) => {
-        const da = parseFloat(a.distance.replace(/[^\d.]/g, ""));
-        const db = parseFloat(b.distance.replace(/[^\d.]/g, ""));
+        const da = parseFloat(a.distance.replace(/[^0-9.]/g, ""));
+        const db = parseFloat(b.distance.replace(/[^0-9.]/g, ""));
         return da - db;
       }).slice(0, 3);
-      
-      console.log('최종 결과:', sortedResults.map(r => `${r.name}: ${r.distance} (${r.duration})`));
+
       setNearbyPlaces(sortedResults);
     } catch {
-      setError("시설 검색 중 오류가 발생했습니다.");
+      setError("시설 검색 실패");
     } finally {
       setIsLoadingPlaces(false);
     }
   };
 
   const handleNavigate = (place: PlaceResult) => {
-    if (!accommodationLocation) {
+    const currentAccommodation = getCurrentAccommodation();
+    if (!currentAccommodation && !savedAccommodationAddress) {
       setError("먼저 숙박지 주소를 설정해주세요.");
       return;
     }
-    const travelMode = selectedFacilityType === 'store' ? selectedTravelMode : 'walking';
-    googleMapsService.navigateFromAccommodation(accommodationLocation.address, {
+    const address = currentAccommodation?.address || savedAccommodationAddress || "";
+    
+    // 편의점은 항상 도보, 돈키호테는 사용자 선택 이동수단 사용
+    const travelModeToUse = selectedFacilityType === "store" ? selectedTravelMode : "walking";
+    
+    console.log('길찾기 호출:', {
+      facility: selectedFacilityType,
+      selectedMode: selectedTravelMode,
+      actualMode: travelModeToUse,
+      place: place.name
+    });
+    
+    googleMapsService.navigateFromAccommodation(address, {
       lat: place.lat,
       lng: place.lng,
       name: place.name
-    }, travelMode);
+    }, travelModeToUse as "walking" | "transit" | "driving");
   };
 
-  if (!accommodationLocation) {
-    return (
-      <Card className="w-full">
-        <CardContent className="flex items-center justify-center py-8">
-          <div className="text-center text-gray-500">
-            <AlertTriangle className="h-8 w-8 mx-auto mb-2" />
-            <p className="text-sm">숙박지 주소를 먼저 설정해주세요</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-sm">
-          <MapPin className="h-4 w-4" /> 주변 시설 검색
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-2 gap-2">
-          <Select value={selectedFacilityType} onValueChange={(v) => {
-            setSelectedFacilityType(v);
-            setSelectedSubType("all_brands"); // 시설 타입 변경 시 서브타입 초기화
-            setNearbyPlaces([]); // 기존 검색 결과 초기화
-          }}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {FACILITY_TYPES.map(type => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedSubType} onValueChange={(v) => {
-            setSelectedSubType(v);
-            setNearbyPlaces([]); // 기존 검색 결과 초기화
-          }}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all_brands">전체</SelectItem>
-              {FACILITY_TYPES.find(f => f.value === selectedFacilityType)?.subTypes.map(sub => (
-                <SelectItem key={sub.value} value={sub.value}>
-                  {sub.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        {selectedFacilityType === "store" && (
-          <Select value={selectedTravelMode} onValueChange={(v) => {
-            const newMode = v as 'walking' | 'driving' | 'transit';
-            setSelectedTravelMode(newMode);
-            // 이동수단 변경 시 강제로 재검색 (기존 결과 초기화 후 새로 검색)
-            setNearbyPlaces([]);
-            setIsLoadingPlaces(true);
-            setTimeout(() => {
-              handleFacilitySearchWithOverrideTravelMode(newMode);
-            }, 50);
-          }}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="walking">도보</SelectItem>
-              <SelectItem value="driving">자동차</SelectItem>
-              <SelectItem value="transit">대중교통</SelectItem>
-            </SelectContent>
-          </Select>
-        )}
-
-        <Button 
-          onClick={handleFacilitySearch}
-          disabled={isLoadingPlaces}
-          className="w-full"
-          size="sm"
-        >
-          {isLoadingPlaces ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              검색 중...
-            </>
-          ) : (
-            "주변 시설 검색"
-          )}
-        </Button>
-
-        {error && (
-          <p className="text-sm text-red-600">{error}</p>
-        )}
-
-        {nearbyPlaces.length > 0 && (
-          <div className="space-y-3">
-            <h4 className="text-sm font-medium">검색 결과 (TOP 3)</h4>
-            {nearbyPlaces.map((place, index) => (
-              <div key={index} className="border rounded-lg p-3 space-y-2">
-                <div className="flex justify-between items-start">
-                  <h5 className="font-medium text-sm">{place.name}</h5>
-                  <Badge variant="secondary" className="text-xs">
-                    {place.distance}
-                  </Badge>
-                </div>
-                <p className="text-xs text-gray-600 leading-relaxed">{place.address}</p>
-                <div className="flex items-center gap-4 text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{place.duration || "정보 없음"}</span>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleNavigate(place)}
-                    className="h-6 px-2 text-xs"
-                  >
-                    <Navigation className="h-3 w-3 mr-1" />
-                    길찾기
-                  </Button>
-                </div>
+    <div className="h-full flex flex-col max-h-[calc(100vh-200px)]">
+      {/* 상단 고정 영역 - 숙소 주소 상태 */}
+      <div className="flex-shrink-0 p-3 border-b bg-gray-50">
+        <div className="bg-white rounded-lg p-3 shadow-sm">
+          {getCurrentAccommodation()?.address || savedAccommodationAddress ? (
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-green-600" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-green-700">숙박지 설정됨</p>
+                <p className="text-xs text-gray-600 truncate">
+                  {getCurrentAccommodation()?.address || savedAccommodationAddress}
+                </p>
               </div>
-            ))}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-orange-500" />
+              <div>
+                <p className="text-sm font-medium text-orange-700">숙박지 주소 미설정</p>
+                <p className="text-xs text-gray-600">홈에서 주소를 설정해주세요</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 검색 컨트롤 영역 */}
+      <div className="flex-shrink-0 p-3 bg-white border-b">
+        <div className="space-y-3">
+          {/* 시설 선택 및 검색 버튼 */}
+          <div className="flex gap-2">
+            <Select value={selectedFacilityType} onValueChange={(v) => {
+              setSelectedFacilityType(v);
+              setSelectedSubType("all_brands");
+              setNearbyPlaces([]);
+            }}>
+              <SelectTrigger className="flex-1">
+                <SelectValue placeholder="시설 선택" />
+              </SelectTrigger>
+              <SelectContent>
+                {FACILITY_TYPES.map((f) => (
+                  <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleFacilitySearch} disabled={isLoadingPlaces} size="sm">
+              {isLoadingPlaces ? <Loader2 className="animate-spin h-4 w-4" /> : "찾기"}
+            </Button>
+          </div>
+
+          {/* 서브 브랜드 선택 */}
+          {(() => {
+            const type = FACILITY_TYPES.find(f => f.value === selectedFacilityType);
+            if (!type || !type.subTypes.length) return null;
+            return (
+              <Select value={selectedSubType} onValueChange={setSelectedSubType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="모든 브랜드" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all_brands">모든 브랜드</SelectItem>
+                  {type.subTypes.map(st => (
+                    <SelectItem key={st.value} value={st.value}>{st.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            );
+          })()}
+
+          {/* 이동 수단 선택 (돈키호테일 때만) */}
+          {selectedFacilityType === "store" && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-gray-700">이동 수단 (거리/시간 계산 및 길찾기에 적용)</p>
+              <div className="flex gap-1">
+                {[
+                  { value: "walking", label: "도보", icon: "🚶" },
+                  { value: "transit", label: "대중교통", icon: "🚇" },
+                  { value: "driving", label: "자동차", icon: "🚗" }
+                ].map(mode => (
+                  <Button
+                    key={mode.value}
+                    variant={selectedTravelMode === mode.value ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setSelectedTravelMode(mode.value);
+                      // 이동수단 변경시 기존 결과 초기화
+                      setNearbyPlaces([]);
+                    }}
+                    className="text-xs h-7 px-2"
+                  >
+                    {mode.icon} {mode.label}
+                  </Button>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500">
+                현재 선택: {selectedTravelMode === 'walking' ? '🚶 도보' : selectedTravelMode === 'transit' ? '🚇 대중교통' : '🚗 자동차'}
+              </p>
+            </div>
+          )}
+
+          {/* 에러 메시지 */}
+          {error && (
+            <div className="flex items-center gap-2 p-2 bg-red-50 rounded-lg">
+              <AlertTriangle className="h-3 w-3 text-red-500" />
+              <p className="text-xs text-red-700">{error}</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* 검색 결과 영역 - 스크롤 가능 */}
+      <div className="flex-1 overflow-y-auto">
+        {nearbyPlaces.length > 0 ? (
+          <div className="p-3">
+            <h4 className="font-medium text-sm mb-3 text-gray-800">
+              가까운 {FACILITY_TYPES.find(f => f.value === selectedFacilityType)?.label} TOP {nearbyPlaces.length}
+            </h4>
+            <div className="space-y-2">
+              {nearbyPlaces.map((place, i) => (
+                <div key={i} className="border rounded-lg p-3 bg-white shadow-sm">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 text-sm truncate">{place.name}</p>
+                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{place.address}</p>
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{place.distance}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-gray-400" />
+                          <span className="text-xs text-gray-500">{place.duration}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm" 
+                      onClick={() => handleNavigate(place)} 
+                      className="ml-2 h-8 px-3 text-xs"
+                    >
+                      <Navigation className="w-3 h-3 mr-1" /> 길찾기
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="flex-1 flex items-center justify-center p-8">
+            {isLoadingPlaces ? (
+              <div className="text-center">
+                <Loader2 className="h-8 w-8 animate-spin mx-auto mb-2 text-blue-500" />
+                <p className="text-sm text-gray-500">검색 중...</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <Navigation className="h-12 w-12 mx-auto mb-3 text-gray-300" />
+                <p className="text-sm text-gray-500">
+                  {getCurrentAccommodation()?.address || savedAccommodationAddress 
+                    ? "검색 버튼을 눌러 주변 시설을 찾아보세요"
+                    : "숙박지 주소를 먼저 설정해주세요"
+                  }
+                </p>
+              </div>
+            )}
           </div>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
