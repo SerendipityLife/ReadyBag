@@ -91,7 +91,7 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
           />
           
           {/* 모달 컨텐츠 */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-80 max-w-[85vw] max-h-[80vh] overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-xl p-4">
+          <div className="fixed top-[55%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 w-80 max-w-[85vw] max-h-[70vh] overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-xl p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <Home className="h-5 w-5 text-[#7B5E57]" />
