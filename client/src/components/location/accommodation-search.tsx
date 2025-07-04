@@ -15,7 +15,7 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
   const [locationAddress, setLocationAddress] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(onClose ? true : false);
 
   useEffect(() => {
     if (accommodationLocation) {
@@ -84,7 +84,10 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
           {/* 배경 오버레이 */}
           <div 
             className="fixed inset-0 bg-black bg-opacity-25 z-40" 
-            onClick={() => setIsExpanded(false)}
+            onClick={() => {
+              setIsExpanded(false);
+              onClose?.();
+            }}
           />
           
           {/* 모달 컨텐츠 */}
@@ -95,7 +98,10 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
                 <span className="text-base font-medium text-gray-700">숙박지 주소 설정</span>
               </div>
               <Button
-                onClick={() => setIsExpanded(false)}
+                onClick={() => {
+                  setIsExpanded(false);
+                  onClose?.();
+                }}
                 variant="ghost"
                 size="sm"
                 className="h-8 w-8 p-0 text-gray-400 hover:text-gray-600"
@@ -159,6 +165,7 @@ export function AccommodationSearch({ onClose }: AccommodationSearchProps = {}) 
                     setLocationAddress("");
                     setAccommodationLocation(null);
                     setIsExpanded(false);
+                    onClose?.();
                   }}
                   variant="outline"
                   size="sm"

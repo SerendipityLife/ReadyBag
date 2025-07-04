@@ -157,9 +157,7 @@ export function Header() {
                   <MapPin size={18} className="text-gray-600" />
                 </button>
                 {showAccommodationSearch && (
-                  <div className="fixed top-16 left-2 right-2 z-50 bg-white border border-gray-200 rounded-lg shadow-lg p-4">
-                    <AccommodationSearch onClose={() => setShowAccommodationSearch(false)} />
-                  </div>
+                  <AccommodationSearch onClose={() => setShowAccommodationSearch(false)} />
                 )}
               </div>
             </div>
